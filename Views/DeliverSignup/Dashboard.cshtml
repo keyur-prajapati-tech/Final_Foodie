@@ -1,0 +1,259 @@
+﻿@{
+    ViewData["Title"] = "Delivery Partner Dashboard";
+    Layout = ViewBag.Layout ?? "_DeliveryPartnerLayout";
+}
+
+<style>
+    body {
+        background-color: #f8f9fa;
+        font-family: 'Arial', sans-serif;
+    }
+
+    .dashboard-container {
+        padding: 20px;
+    }
+
+    .card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s ease-in-out;
+        text-align: center;
+    }
+
+        .card:hover {
+            transform: scale(1.05);
+        }
+
+    .order-table th, .order-table td {
+        text-align: center;
+    }
+
+    .status-badge {
+        padding: 6px 12px;
+        border-radius: 5px;
+        font-weight: bold;
+        font-size: 14px;
+    }
+
+    .status-pending {
+        background-color: #ffc107;
+        color: black;
+    }
+
+    .status-delivered {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .status-out-for-delivery {
+        background-color: #17a2b8;
+        color: white;
+    }
+
+    .fade-in {
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .chart-container {
+        width: 100%;
+        max-width: 900px;
+        margin-top: 20px;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 768px) {
+        .dashboard-container
+
+    {
+        padding: 10px;
+    }
+
+    .card {
+        padding: 15px;
+    }
+
+    h2, h3 {
+        font-size: 1.5rem;
+    }
+
+    .fs-3 {
+        font-size: 1.4rem;
+    }
+
+    }
+
+    @@media (max-width: 576px) {
+        .card
+
+    {
+        padding: 10px;
+    }
+
+    h2, h3 {
+        font-size: 1.3rem;
+    }
+
+    .fs-3 {
+        font-size: 1.2rem;
+    }
+
+    .status-badge {
+        font-size: 12px;
+        padding: 4px 8px;
+    }
+
+    }
+</style>
+
+<div class="dashboard-container">
+    <h2 class="fade-in text-center">🚀 Welcome, Delivery Partner!</h2>
+
+    <!-- Overview Cards -->
+    <div class="row g-3">
+        <div class="col-lg-4 col-md-6">
+            <div class="card fade-in">
+                <h4>📦 Total Deliveries</h4>
+                <p class="fs-3" id="totalDeliveries">45</p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="card fade-in">
+                <h4>💰 Total Earnings</h4>
+                <p class="fs-3" id="totalEarnings">₹12,500</p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="card fade-in">
+                <h4>🕒 Active Orders</h4>
+                <p class="fs-3" id="activeOrders">2</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Orders Table -->
+    <div class="mt-4 fade-in">
+        <h3>📦 Active Orders</h3>
+        <div class="table-responsive">
+            <table class="table table-striped order-table">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Order ID</th>
+                        <th>Pickup</th>
+                        <th>Drop-off</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="ordersTable">
+                    <tr>
+                        <td>#1234</td>
+                        <td>Pizza Hut</td>
+                        <td>John's Apartment</td>
+                        <td><span class="status-badge status-pending">Pending</span></td>
+                        <td><button class="btn btn-primary btn-sm">Update Status</button></td>
+                    </tr>
+                    <tr>
+                        <td>#1235</td>
+                        <td>Subway</td>
+                        <td>Mike's Home</td>
+                        <td><span class="status-badge status-out-for-delivery">Out for Delivery</span></td>
+                        <td><button class="btn btn-success btn-sm">Complete</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Earnings Summary -->
+    <div class="mt-4 fade-in">
+        <h3>💰 Earnings Summary</h3>
+        <div class="table-responsive">
+            <table class="table">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Date</th>
+                        <th>Orders Completed</th>
+                        <th>Earnings (₹)</th>
+                    </tr>
+                </thead>
+                <tbody id="earningsTable">
+                    <tr>
+                        <td>March 10, 2025</td>
+                        <td>5</td>
+                        <td>₹1500</td>
+                    </tr>
+                    <tr>
+                        <td>March 11, 2025</td>
+                        <td>7</td>
+                        <td>₹2100</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Earnings Graph -->
+    <div class="chart-container">
+        <canvas id="earningsChart"></canvas>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const earningsData = [
+            { date: "March 10", earnings: 1500 },
+            { date: "March 11", earnings: 2100 },
+            { date: "March 12", earnings: 1800 },
+            { date: "March 13", earnings: 2300 },
+            { date: "March 14", earnings: 1700 },
+        ];
+
+        const ctx = document.getElementById("earningsChart").getContext("2d");
+        new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: earningsData.map(d => d.date),
+                datasets: [{
+                    label: "Earnings (₹)",
+                    data: earningsData.map(d => d.earnings),
+                    backgroundColor: "rgba(40, 167, 69, 0.7)",
+                    borderColor: "#28a745",
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        setTimeout(() => {
+            document.getElementById("totalDeliveries").textContent = "50";
+            document.getElementById("totalEarnings").textContent = "₹14,000";
+            document.getElementById("activeOrders").textContent = "3";
+        }, 3000);
+    });
+</script>

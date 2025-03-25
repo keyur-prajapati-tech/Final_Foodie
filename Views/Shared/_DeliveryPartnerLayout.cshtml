@@ -1,0 +1,93 @@
+﻿@{
+    var currentPage = ViewContext.RouteData.Values["action"]?.ToString().ToLower();
+    var isAuthPage = currentPage == "deliveryregister" || currentPage == "deliverylogin";
+    var isUserLoggedIn = User.Identity.IsAuthenticated; 
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"]</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="icon" href="https://cdn.iconscout.com/icon/free/png-256/zomato-1937646-1637644.png" />
+    <link href="~/css/mycss.css" rel="stylesheet" />
+
+</head>
+<body>
+
+    
+    <nav class="navbar navbar-expand-lg mx-3" style="background-color:#e3e7ff; border:2px solid; border-radius:10px">
+        <div class="container-fluid">
+            
+            <input type="checkbox" id="menu-toggle">
+            <label for="menu-toggle" class="overlay"></label>
+
+            <div class="navbar">
+                <label for="menu-toggle" class="open-btn">☰</label>
+            </div>
+
+          
+            <div class="sidebar">
+                <label for="menu-toggle" class="close-btn">&times;</label>
+                <div class="sidebar-header">
+                    <a href="#">Foodie</a>
+                </div>
+                <div class="menu">
+                    <ul>
+                        <li class="nav-item"><a class="nav-link" asp-controller="DeliverSignup" asp-action="Dashboard">Dash Board</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="DeliveryMoney" asp-action="Assigned_Orders">Assigned Orders</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="DeliveryMoney" asp-action="Earnings">Earnings</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="DeliveryMoney" asp-action="Wallet">Wallet</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="DeliverSignup" asp-action="Support">Support</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="DeliverSignup" asp-action="Profile">Profile</a></li>
+                        <li class="nav-item"><a class="nav-link" asp-controller="DeliverSignup" asp-action="DeliveryRegister">Logout</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="#"><i class="fa-solid fa-bell"></i></a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="DeliverSignup" asp-action="DeliveryRegister">
+                            <i class="fas fa-user-plus"></i> Register
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="DeliverSignup" asp-action="DeliveryLogin">
+                            <i class="fas fa-sign-in-alt"></i> Log In
+                        </a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle btn-success" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="statusText">
+                            Offline
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="updateStatus(true)">Online</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateStatus(false)">Offline</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="content collapsed" id="mainContent">
+        @RenderBody()
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

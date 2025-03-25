@@ -1,0 +1,122 @@
+﻿@{
+    Layout = "~/Views/Shared/_foodieheader.cshtml";
+}
+
+<style>
+    .modal {
+        background: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-backdrop {
+        display: none;
+    }
+</style>
+<hr />
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card bg-white p-3 border-3 shadow-sm">
+                <div class="card bg-primary text-white m-2 p-2 text-center">
+                    <span style="font-size: 20px; font-weight: 800;">😋 You Saved 5 Rupees On This Order</span>
+                </div>
+
+                <!-- Item 1 -->
+                <div class="card m-2 p-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 d-flex justify-content-around">
+                            <img src="https://luniamarketing.com/wp-content/uploads/2021/01/Moong-Dal-Ki-Kachori.jpg" alt="food_img" style="width:100px;height:100px;object-fit:contain;" />
+                            <p class="fw-bold mt-4">Dal Kachori [2 Pieces]</p>
+                            <span class="text-success fw-bold mt-4">120 RS/-</span>
+                        </div>
+                        <div class="col-md-3 d-flex gap-3 justify-content-center mb-4" style="margin-left:50px;">
+                            <button class="btn btn-outline-danger btn-sm">-</button>
+                            <span class="fs-5">1</span>
+                            <button class="btn btn-outline-primary btn-sm">+</button>
+                        </div>
+                        <div class="col-md-3 text-end mb-4">
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#foodModal1">EDIT ➡</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 2 -->
+                <div class="card m-2 p-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 d-flex justify-content-around">
+                            <img src="https://modernasopalav.com/assets/images/recipe-image/nylon-khaman.png" alt="food_img" style="width:100px;height:100px;object-fit:contain;"/>
+                            <p class="fw-bold mt-4">Naylon Khaman [1 KG]</p>
+                            <span class="text-success fw-bold mt-4">120 RS/-</span>
+                        </div>
+                        <div class="col-md-3 d-flex gap-3 justify-content-center mb-4" style="margin-left:50px;">
+                            <button class="btn btn-outline-danger btn-sm">-</button>
+                            <span class="fs-5">1</span>
+                            <button class="btn btn-outline-primary btn-sm">+</button>
+                        </div>
+                        <div class="col-md-3 text-end mb-4">
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#foodModal2">EDIT ➡</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3">
+                    <a asp-controller="TBrands" asp-action="Brands" class="btn btn-outline-dark">+ Add More Items</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Dal Kachori -->
+<div class="modal fade" id="foodModal1" tabindex="-1" aria-labelledby="foodModal1Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Dal Kachori [2 Pieces]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="https://luniamarketing.com/wp-content/uploads/2021/01/Moong-Dal-Ki-Kachori.jpg" class="img-fluid rounded" alt="Dal Kachori">
+                <p class="mt-2 text-muted">Delicious crispy Dal Kachori with perfect spices.</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-outline-danger">-</button>
+                    <span class="fs-5">1</span>
+                    <button class="btn btn-outline-primary">+</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Naylon Khaman -->
+<div class="modal fade" id="foodModal2" tabindex="-1" aria-labelledby="foodModal2Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Naylon Khaman [1 KG]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="https://modernasopalav.com/assets/images/recipe-image/nylon-khaman.png" class="img-fluid rounded" alt="Naylon Khaman">
+                <p class="mt-2 text-muted">Soft and fluffy Naylon Khaman made from gram flour.</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-outline-danger">-</button>
+                    <span class="fs-5">1</span>
+                    <button class="btn btn-outline-primary">+</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Update</button>
+            </div>
+        </div>
+    </div>
+</div>

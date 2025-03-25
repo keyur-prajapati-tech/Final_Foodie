@@ -1,0 +1,132 @@
+﻿@{
+    ViewData["Title"] = "Vehicle Details";
+    Layout = ViewBag.Layout ?? "_DeliveryPartnerLayout";
+}
+
+<style>
+    body {
+        background-color: white;
+        margin: 0;
+        padding: 0;
+    }
+
+    .form-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .card {
+        background-color: #e3e7ff;
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 25px;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 450px;
+        animation: fadeInEffect 0.8s ease-in-out;
+    }
+
+    .card-header h3 {
+        font-weight: bold;
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+        text-align: center;
+    }
+
+    @@keyframes fadeInEffect {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-control {
+        background: rgba(255, 255, 255, 0.6);
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        transition: all 0.3s ease-in-out;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+    .form-label {
+        color: black;
+        font-weight: 600;
+    }
+
+    .error {
+        border: 2px solid red !important;
+    }
+</style>
+
+<div class="form-container">
+    <div class="card">
+        <div class="card-header">
+            <h3>🚗 Vehicle Information</h3>
+        </div>
+        <div class="card-body">
+            <form id="vehicleForm" asp-action="Document" asp-controller="DeliverSignup" method="post">
+                <label for="RCNumber" class="form-label">Vehicle RC Number</label>
+                <input type="text" class="form-control required" id="RCNumber" name="RCNumber" required>
+
+                <label for="VehicleType" class="form-label">Vehicle Type</label>
+                <select class="form-control required" id="VehicleType" name="VehicleType" required>
+                    <option value="">Select Vehicle Type</option>
+                    <option value="Bike">Bike</option>
+                    <option value="Scooter">Scooter</option>
+                </select>
+                <label for="LicensePlate" class="form-label">License Plate Number</label>
+                <input type="text" class="form-control required" id="LicensePlate" name="LicensePlate" required>
+
+                <label for="MakeModel" class="form-label">Make & Model</label>
+                <input type="text" class="form-control required" id="MakeModel" name="MakeModel" required>
+
+                <label for="DrivingLicense" class="form-label">Driving License Number</label>
+                <input type="text" class="form-control required" id="DrivingLicense" name="DrivingLicense" required>
+
+                <label for="InsuranceDetails" class="form-label">Insurance Details</label>
+                <textarea class="form-control required" id="InsuranceDetails" name="InsuranceDetails" rows="2" required></textarea>
+
+                <button type="submit" class="btn btn-primary" id="submitBtn">Submit Vehicle Details</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("vehicleForm").addEventListener("submit", function(event) {
+        let isValid = true;
+        let requiredFields = document.querySelectorAll(".required");
+
+        requiredFields.forEach(field => {
+            field.classList.remove("error");
+        });
+
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                field.classList.add("error");
+                isValid = false;
+            }
+        });
+
+        if (!isValid) {
+            event.preventDefault();
+            alert("⚠ Please fill out all required fields before submitting.");
+        }
+    });
+</script>

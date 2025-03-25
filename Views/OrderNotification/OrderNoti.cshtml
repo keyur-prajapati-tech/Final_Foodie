@@ -1,0 +1,59 @@
+﻿@{
+    Layout = "~/Views/Shared/_RestaurantLayout.cshtml";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Order Details Card</title>
+
+</head>
+<body class="bg-white">
+
+    <div class="container mt-5 d-flex justify-content-center">
+        <div class="card shadow" style="width:700px">
+            <div class="d-flex justify-content-between card-header ">
+                <h6 class="mb-0">1 New Order</h6>
+
+                <button type="button" class="btn-close" aria-label="Close"></button>
+            </div>
+
+            <div class="card-body">
+                <p class="text-muted">ZOMATO DELIVERY</p>
+                <p><strong>ID:</strong> 3127 | <strong>7:09 PM</strong></p>
+                <p class="text-muted">10th order by Khatri Ravi <span class="badge bg-warning text-dark">PREMIUM</span></p>
+
+                <hr>
+
+                <h6>4 x Crispy Tawa Fried Litti</h6>
+                <p>₹716.00</p>
+
+                <p><strong>Total Bill:</strong> <span class="badge bg-success">PAID</span> ₹644.40</p>
+
+                <div class="d-flex justify-content-lg-center">
+                    <button type="button" class="btn btn-outline-success me-5" style="width:150px">-</button>
+
+                    <button type="button" class="btn btn-outline-success me-5" style="width:250px">15:00</button>
+
+                    <button type="button" class="btn btn-outline-success me-3 " style="width:150px">+</button>
+                </div>
+
+                <br /> <br />
+
+                <div class="d-flex justify-content-center">
+                    <button class="btn btn-danger me-3 px-5">Reject</button>
+                    <button class="btn btn-success ms-3 px-5">Accept Order (4:43)</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+</html>
+
+
+
+
+

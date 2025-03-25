@@ -1,0 +1,164 @@
+﻿@{
+    ViewData["Title"] = "Personal Details";
+    Layout = ViewBag.Layout ?? "_DeliveryPartnerLayout";
+}
+
+<style>
+    body {
+        background-color: white;
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: cover;
+        background-attachment: fixed;
+        margin: 0;
+        padding: 0;
+    }
+
+    .form-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 50px;
+    }
+
+    .card {
+        background-color: #e3e7ff;
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 25px;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+        max-width: 450px;
+        width: 100%;
+        animation: fadeInEffect 0.8s ease-in-out;
+    }
+
+    .card-header h3 {
+        font-weight: bold;
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+        color: white;
+    }
+
+    @@keyframes fadeInEffect {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-control {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        transition: all 0.3s ease-in-out;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+    .btn-success:hover {
+        transform: scale(1.05);
+    }
+
+    .card-footer {
+        background: rgba(255, 255, 255, 0.1);
+        text-align: center;
+    }
+
+        .card-footer a {
+            color: black;
+            font-weight: bold;
+        }
+
+    .mb-3 label {
+        color: black;
+        font-weight: bold;
+    }
+
+    
+    .error {
+        border: 2px solid red !important;
+    }
+</style>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg p-4">
+                <div class="card-header text-center">
+                    <h3>🚴‍♂️ Personnel Details</h3>
+                </div>
+
+                <form id="personnelForm" method="post" asp-action="SaveDetails" asp-controller="DeliverSignup" enctype="multipart/form-data">
+                    <div class="mb-3">
+                        <label class="form-label">Aadhaar Card Number</label>
+                        <input type="text" class="form-control required" name="aadhaarNumber" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">PAN Card Number</label>
+                        <input type="text" class="form-control required" name="panNumber" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Bank Account Number</label>
+                        <input type="text" class="form-control required" name="bankAccount" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Bank Name</label>
+                        <input type="text" class="form-control required" name="bankName" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">IFSC Code</label>
+                        <input type="text" class="form-control required" name="ifscCode" required>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="submit" class="btn btn-success">Save</button>
+                        <a href="#" id="continueBtn" class="btn btn-primary">Continue</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById("continueBtn").addEventListener("click", function(event) {
+        event.preventDefault();
+
+        let isValid = true;
+        let requiredFields = document.querySelectorAll(".required");
+
+       
+        requiredFields.forEach(field => {
+            field.classList.remove("error");
+        });
+
+        requiredFields.forEach(field => {
+            if (!field.value) {
+                field.classList.add("error");
+                isValid = false;
+            }
+        });
+
+        if (isValid) {
+            
+            window.location.href = "@Url.Action("VehicleDetails", "DeliverSignup")";
+        } else {
+            alert("⚠ Please fill out all required fields before continuing.");
+        }
+    });
+</script>

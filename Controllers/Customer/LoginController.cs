@@ -8,5 +8,14 @@ namespace Foodie.Controllers.Customer
         {
             return View();
         }
+
+        [HttpPost]
+        public IActionResult Index(string phone)
+        {
+            TempData["DisplayHome"] = phone;
+
+            return RedirectToAction("Delivery","FCollection");
+            //return View();
+        }
     }
 }

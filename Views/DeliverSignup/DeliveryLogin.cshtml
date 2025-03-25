@@ -1,0 +1,122 @@
+﻿@{
+    Layout = null;
+}
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Arial', sans-serif;
+    }
+
+    body {
+        background-color: #e3e7ff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        overflow: hidden;
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .card {
+        background: white;
+        backdrop-filter: blur(10px);
+        width: 400px;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        color: black;
+        animation: fadeInUp 0.8s ease-in-out;
+    }
+
+    .card-header h3 {
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 15px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+        border: 1px solid #aaa;
+        border-radius: 6px;
+        font-size: 16px;
+        background: rgba(255, 255, 255, 0.6);
+        color: black;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 12px;
+        width: 100%;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            box-shadow: 0px 0px 10px rgba(0, 123, 255, 0.4);
+            transform: scale(1.05);
+        }
+
+    .card-footer {
+        margin-top: 10px;
+    }
+
+        .card-footer a {
+            color: #007bff;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+            .card-footer a:hover {
+                text-decoration: underline;
+            }
+
+    .form-label {
+        color: #333;
+        font-size: 14px;
+        font-weight: bold;
+    }
+</style>
+
+<div class="card">
+    <div class="card-header">
+        <h3>🚴‍♂️ Delivery Partner Login</h3>
+    </div>
+    <div class="card-body">
+        <form asp-action="DeliveryLogin" asp-controller="DeliverSignup" method="post">
+            <label for="Email" class="form-label">Email</label>
+            <input type="email" class="form-control" id="Email" name="Email" required>
+
+            <label for="Password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="Password" name="Password" required>
+
+            <button type="submit" class="btn-primary">Login</button>
+        </form>
+    </div>
+    <div class="card-footer">
+        <p>Don't have an account? <a asp-controller="DeliverSignup" asp-action="DeliveryRegister">Register here</a></p>
+    </div>
+</div>

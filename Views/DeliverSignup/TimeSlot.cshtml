@@ -1,0 +1,109 @@
+﻿@{
+    ViewData["Title"] = "Time Slot Booking";
+    Layout = ViewBag.Layout ?? "_DeliveryPartnerLayout";
+}
+
+<div class="container mt-4">
+    <div class="card shadow p-3">
+        <div class="card-header bg-primary text-white text-center">
+            <h3>🕒 Select Your Time Slots</h3>
+        </div>
+        <div class="card-body">
+            <div class="alert alert-info text-center">
+                <strong>Estimated Earnings:</strong> ₹ <span id="estimatedEarnings">0</span>
+            </div>
+            <form id="timeSlotForm" method="post" action="/delivery/timeslots">
+
+                <!-- Morning Gigs -->
+                <div class="card mb-3">
+                    <div class="card-header bg-warning text-dark">🌅 Morning Gigs (6:00 AM - 12:00 PM)</div>
+                    <div class="list-group">
+                        <label class="list-group-item">
+                            <input type="checkbox" class="time-slot" data-earnings="50"> 6:00 AM - 7:00 AM (₹40 - ₹50 per hour)
+                        </label>
+                        <label class="list-group-item">
+                            <input type="checkbox" class="time-slot" data-earnings="55"> 7:00 AM - 8:00 AM (₹45 - ₹55 per hour)
+                        </label>
+                        <label class="list-group-item">
+                            <input type="checkbox" class="time-slot" data-earnings="60"> 8:00 AM - 9:00 AM (₹50 - ₹60 per hour)
+                        </label>
+                        <label class="list-group-item">
+                            <input type="checkbox" class="time-slot" data-earnings="65"> 9:00 AM - 10:00 AM (₹55 - ₹65 per hour)
+                        </label>
+                        <label class="list-group-item">
+                            <input type="checkbox" class="time-slot" data-earnings="70"> 10:00 AM - 12:00 PM (₹60 - ₹70 per hour)
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Afternoon Gigs -->
+                <div class="card mb-3">
+                    <div class="card-header bg-secondary text-white">🌞 Afternoon Gigs (12:00 PM - 3:00 PM)</div>
+                    <div class="list-group">
+                        <label class="list-group-item">
+                            <input type="checkbox" class="time-slot" data-earnings="60"> 12:00 PM - 1:00 PM (₹40 - ₹60 per hour)
+                        </label>
+                        <label class="list-group-item">
+                            <input type="checkbox" class="time-slot" data-earnings="65"> 1:00 PM - 2:00 PM (₹45 - ₹65 per hour)
+                        </label>
+                        <label class="list-group-item">
+                            <input type="checkbox" class="time-slot" data-earnings="70"> 2:00 PM - 3:00 PM (₹50 - ₹70 per hour)
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Evening Gigs -->
+                <div class="card mb-3">
+                    <div class="card-header bg-dark text-white">🌆 Evening Gigs (3:00 PM - 7:00 PM)</div>
+                    <div class="list-group">
+                        <label class="list-group-item">
+                            <input type="checkbox" class="time-slot" data-earnings="75"> 3:00 PM - 4:00 PM (₹50 - ₹75 per hour)
+                        </label>
+                        <label class="list-group-item">
+                            <input type="checkbox" class="time-slot" data-earnings="70"> 4:00 PM - 6:00 PM (₹45 - ₹70 per hour)
+                        </label>
+                        <label class="list-group-item">
+                            <input type="checkbox" class="time-slot" data-earnings="85"> 6:00 PM - 7:00 PM (₹55 - ₹85 per hour)
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Night Gigs -->
+                <div class="card mb-3">
+                    <div class="card-header bg-primary text-white">🌙 Night Gigs (7:00 PM - 12:00 AM)</div>
+                    <div class="list-group">
+                        <label class="list-group-item">
+                            <input type="checkbox" class="time-slot" data-earnings="95"> 7:00 PM - 9:00 PM (₹85 - ₹110 per hour)
+                        </label>
+                        <label class="list-group-item">
+                            <input type="checkbox" class="time-slot" data-earnings="105"> 9:00 PM - 10:00 PM (₹90 - ₹120 per hour)
+                        </label>
+                        <label class="list-group-item">
+                            <input type="checkbox" class="time-slot" data-earnings="100"> 10:00 PM - 11:00 PM (₹80 - ₹100 per hour)
+                        </label>
+                        <label class="list-group-item">
+                            <input type="checkbox" class="time-slot" data-earnings="110"> 11:00 PM - 12:00 AM (₹90 - ₹110 per hour)
+                        </label>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3">
+                    <button type="submit" class="btn btn-success">Book Selected Slots</button>
+                    
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('.time-slot').forEach(slot => {
+        slot.addEventListener('change', function () {
+            let totalEarnings = 0;
+            document.querySelectorAll('.time-slot:checked').forEach(checkedSlot => {
+                totalEarnings += parseInt(checkedSlot.dataset.earnings);
+            });
+            document.getElementById('estimatedEarnings').textContent = totalEarnings;
+        });
+    });
+</script>

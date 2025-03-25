@@ -1,0 +1,36 @@
+﻿@{
+    ViewData["Title"] = "Wallet";
+    Layout = ViewBag.Layout ?? "_DeliveryPartnerLayout";
+}
+
+<div class="container mt-4">
+    <h2>💰 Wallet Balance</h2>
+
+    <div class="card shadow p-3">
+        <div class="card-body text-center">
+            <h3>Available Balance: ₹ @ViewBag.AvailableBalance</h3>
+            <form method="post" action="/d/wallet/withdraw">
+                <input type="number" name="amount" class="form-control mt-2" placeholder="Enter amount to withdraw" required min="1">
+                <button type="submit" class="btn btn-success mt-2">Withdraw Funds</button>
+            </form>
+            @if (TempData["Success"] != null)
+            {
+                <div class="alert alert-success mt-2">@TempData["Success"]</div>
+            }
+            @if (TempData["Error"] != null)
+            {
+                <div class="alert alert-danger mt-2">@TempData["Error"]</div>
+            }
+        </div>
+    </div>
+    <h3 class="mt-4">📜 Pending Payouts</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Amount</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+    </table>
+</div>

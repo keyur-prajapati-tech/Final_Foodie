@@ -1,0 +1,541 @@
+﻿@{
+    Layout = "~/Views/Shared/_foodieheader.cshtml";
+    ViewData["Food_name"] = "Gujrati Dishes";
+}
+
+<hr />
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Carousel</title>
+
+    <link rel="icon" href="https://cdn.iconscout.com/icon/free/png-256/zomato-1937646-1637644.png" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- Owl Carousel -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        .carousel-container {
+            position: relative;
+            max-width: 90%;
+            margin: auto;
+            overflow: hidden;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .carousel-wrapper {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            white-space: nowrap;
+            padding: 10px;
+        }
+
+            .carousel-wrapper::-webkit-scrollbar {
+                display: none; /* Hide scrollbar */
+            }
+
+        .carousel-item {
+            flex: 0 0 auto;
+            width: 120px;
+            text-align: center;
+        }
+
+            .carousel-item img {
+                width: 100px;
+                height: 100px;
+                border-radius: 50%;
+                object-fit: cover;
+                border: 3px solid #ddd;
+            }
+
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .left-btn {
+            left: 5px;
+        }
+
+        .right-btn {
+            right: 5px;
+        }
+
+
+        .category-container {
+            max-width: 95%;
+            margin: auto;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        .brand-container {
+            max-width: 95%;
+            margin: auto;
+            padding: 20px 0;
+            text-align: center;
+        }
+
+        .owl-carousel .item {
+            text-align: center;
+            margin: 5px 30px;
+        }
+
+        .category-img {
+            width: 90%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+            margin: auto;
+            border: 3px solid #fff;
+            border-radius: 30%;
+            margin: 5px 5px;
+        }
+
+        .category-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin-top: 10px;
+        }
+
+        .owl-nav {
+            position: absolute;
+            top: 35%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            transform: translateY(-50%);
+        }
+
+        .owl-prev, .owl-next {
+            background: #fff !important;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+            .owl-prev:hover, .owl-next:hover {
+                background: #f1f1f1 !important;
+            }
+
+            .owl-prev i, .owl-next i {
+                font-size: 20px;
+                color: black;
+            }
+
+
+        .brand-carousel .item {
+            text-align: center;
+            padding: 10px;
+        }
+
+            .brand-carousel .item img {
+                width: 150px;
+                height: 150px;
+                border-radius: 50%;
+                object-fit: contain;
+                border: 3px solid #ddd;
+                box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+                margin-left: 50px;
+            }
+
+            .brand-carousel .item p {
+                font-size: 16px;
+                font-weight: 600;
+                margin-top: 10px;
+                color: #333;
+            }
+
+            .brand-carousel .item span {
+                font-size: 14px;
+                color: #777;
+            }
+
+
+
+        /* Restaurant card design */
+        .restaurant-card {
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease-in-out;
+        }
+
+            .restaurant-card:hover {
+                transform: scale(1.03);
+            }
+
+        /* Image container with badges */
+        .image-container {
+            position: relative;
+            width: 100%;
+        }
+
+            .image-container img {
+                width: 100%;
+                height: 200px;
+                object-fit: cover;
+            }
+
+        .badge {
+            position: absolute;
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .promoted {
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+        }
+
+        .discount {
+            bottom: 10px;
+            left: 10px;
+            background: #007bff;
+            color: #fff;
+        }
+
+        /* Restaurant details */
+        .restaurant-details {
+            padding: 15px;
+        }
+
+            .restaurant-details h5 {
+                font-size: 18px;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+
+        .cuisine {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .price {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .rating {
+            background: #28a745;
+            color: #fff;
+            padding: 5px 8px;
+            font-size: 14px;
+            border-radius: 5px;
+        }
+
+            .rating.low {
+                background: #dc3545;
+            }
+
+        /* Delivery time */
+        .delivery-time {
+            font-size: 14px;
+            color: #777;
+            margin-top: 5px;
+        }
+
+    </style>
+</head>
+<body>
+    <hr/>
+    <div>
+        Your Info : @TempData["DisplayHome"]
+    </div>
+    <hr/>
+    <div class="category-container">
+        <h3 class="fw-bold m-3">Inspiration for your first order</h3>
+
+        <div class="owl-carousel owl-theme">
+            <div class="item">
+                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
+                    <img src="https://www.delmonte.com/sites/default/files/MushroomPepPizza_0076.jpg" class="category-img" alt="Pizza">
+                    <p class="category-title">Pizza</p>
+                </a>
+            </div>
+            <div class="item">
+                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
+                <img src="https://www.thecookierookie.com/wp-content/uploads/2023/04/featured-stovetop-burgers-recipe.jpg" class="category-img" alt="Burger">
+                <p class="category-title">Burger</p>
+                </a>
+            </div>
+            <div class="item">
+                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
+                <img src="https://b.zmtcdn.com/data/pictures/chains/0/3800020/0dc49b7e184f6f658510dbfa9bf256fc_featured_v2.jpg" class="category-img" alt="Chinese">
+                <p class="category-title">Chinese</p>
+                </a>
+            </div>
+            <div class="item">
+                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
+                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWWK-M-Ed6uRvFF8HRoqDfNIFMC-sKe7fvhA&s" class="category-img" alt="North Indian">
+                <p class="category-title">North Indian</p>
+                </a>
+            </div>
+            <div class="item">
+                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
+                <img src="https://static.toiimg.com/thumb/53098310.cms?imgsize=579584&width=800&height=800" class="category-img" alt="Biryani">
+                <p class="category-title">Biryani</p>
+                </a>
+            </div>
+            <div class="item">
+                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
+                <img src="https://s.lightorangebean.com/media/20240914144947/Thai-Veggie-Spring-Rolls_done.png" class="category-img" alt="Rolls">
+                <p class="category-title">Rolls</p>
+                </a>
+            </div>
+            <div class="item">
+                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
+                <img src="https://birthdaycake24com.wordpress.com/wp-content/uploads/2020/04/chocolate-heart-birthday-cake-with-name-edit-1.jpg?w=750" class="category-img" alt="Cake">
+                <p class="category-title">Cake</p>
+                </a>
+            </div>
+            <div class="item">
+                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
+                <img src="https://www.thespruceeats.com/thmb/UnVh_-znw7ikMUciZIx5sNqBtTU=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/steamed-momos-wontons-1957616-hero-01-1c59e22bad0347daa8f0dfe12894bc3c.jpg" class="category-img" alt="Momo">
+                <p class="category-title">Momo</p>
+                </a>
+            </div>
+            <div class="item">
+                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
+                <img src="https://images.jdmagicbox.com/quickquotes/listicle/crop_1713353493584_ky6vh_1375x648.jpg" class="category-img" alt="South IndianSouth Indian">
+                <p class="category-title">South Indian</p>
+                </a>
+            </div>
+            <div class="item">
+                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
+                <img src="https://www.cookingcarnival.com/wp-content/uploads/2017/07/Pav-bhaji-5.jpg" class="category-img" alt="Pav Bhaji">
+                <p class="category-title">Pav Bhaji</p>
+                </a>
+            </div>
+            <div class="item">
+                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
+                <img src="https://www.foodandwine.com/thmb/IuZPWAXBp4YaT9hn1YLHhuijT3k=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/FAW-recipes-big-italian-salad-hero-83e6ea846722478f8feb1eea33158b00.jpg" class="category-img" alt="Salad">
+                <p class="category-title">Salad</p>
+                </a>
+            </div>
+            <div class="item">
+                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
+                <img src="https://images.getrecipekit.com/20221130023757-untitled-design-12-3.png?aspect_ratio=16:9&quality=90&" class="category-img" alt="Noodles">
+                <p class="category-title">Noodles</p>
+                </a>
+            </div>
+            <div class="item">
+                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
+                <img src="https://www.whiskaffair.com/wp-content/uploads/2020/06/Lachha-Paratha-2-3.jpg" class="category-img" alt="Paratha">
+                <p class="category-title">Paratha</p>
+                </a>
+            </div>
+            <div class="item">
+                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
+                <img src="https://i.ytimg.com/vi/wAv-mFU7eus/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLD4QzhyIzsn3bEMvu2NXaXRKS7qgg" class="category-img" alt="Chole Bhature">
+                <p class="category-title">Chole Bhature</p>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="brand-container">
+        <h3 class="fw-bold m-3" style="text-align: center;">Top brands for you</h3>
+
+        <div class="owl-carousel brand-carousel owl-theme mt-3">
+        <div class="item">
+                <a asp-area="" asp-controller="TBrands" asp-action="Brands">
+            <img src="https://logos-world.net/wp-content/uploads/2020/04/McDonalds-Logo-700x394.png" alt="McDonald's">
+            </a>
+            <p>McDonald's</p>
+            <span>26 min</span>
+        </div>
+        <div class="item">
+            <img src="https://b.zmtcdn.com/data/brand_creatives/logos/33817818ed447c69423bfaf01f633a29_1617972828.png" alt="McDonald's">
+                <p>@ViewData["food_name"]</p>
+            <span>27 min</span>
+        </div>
+        <div class="item">
+                <img src="https://b.zmtcdn.com/data/brand_creatives/logos/05142cf68ce04384bb185659e1bfe450_1625160258.png" alt="La Pino'z Pizza">
+            <p>La Pino'z Pizza</p>
+            <span>24 min</span>
+        </div>
+        <div class="item">
+                <img src="https://b.zmtcdn.com/data/brand_creatives/logos/a6927d83d9185b7788814049b4a9fc8c_1726606697.png" alt="Burger King">
+                <p>Burger King</p>
+            <span>36 min</span>
+        </div>
+        <div class="item">
+                <img src="https://b.zmtcdn.com/data/brand_creatives/logos/391ef4a08c761310e9460008c2acaeee_1571919223.png" alt="Mahalaxmi Juice">
+            <p>Mahalaxmi Juice & Fastfood</p>
+            <span>38 min</span>
+        </div>
+        <div class="item">
+                <img src="https://b.zmtcdn.com/data/brand_creatives/logos/5caf38856d23347b351bb7abf97134d3_1521806960.png" alt="Domino's Pizza">
+            <p>Domino's Pizza</p>
+            <span>26 min</span>
+        </div>
+            <div class="item">
+                <img src="https://b.zmtcdn.com/data/brand_creatives/logos/a318b612b2031bf631503a27c6e3d3d21736679102.png" alt="Domino's Pizza">
+                <p>Punjabi Di Hatti</p>
+                <span>26 min</span>
+            </div>
+            <div class="item">
+                <img src="https://b.zmtcdn.com/data/brand_creatives/logos/c57f22bdf13844d8a566f26c5753ef5d_1611306689.png" alt="Domino's Pizza">
+                <p>Mahesh Pav Bhaji</p>
+                <span>26 min</span>
+            </div>
+    </div>
+    </div>
+
+    <div class="container mt-4">
+        <h2 class="mb-4 fw-bold">Food Delivery Restaurants in Surat</h2>
+
+        <div class="row">
+            <!-- Restaurant Card 1 -->
+            <div class="col-md-4">
+                <div class="restaurant-card">
+                    <div class="image-container">
+                        <img src="https://b.zmtcdn.com/data/pictures/chains/6/18569536/0b1236f2e5c7fe1311996caaa594f272.jpg" alt="Radhe Dhokla">
+                        <span class="badge promoted">Promoted</span>
+                        <span class="badge discount">₹200 OFF</span>
+                    </div>
+                    <div class="restaurant-details">
+                        <h5>Radhe Dhokla</h5>
+                        <p class="cuisine">North Indian, Chinese, Gujarati</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="price">₹200 for one</span>
+                            <span class="rating">4.2★</span>
+                        </div>
+                        <p class="delivery-time">28 min</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurant Card 2 -->
+            <div class="col-md-4">
+                <div class="restaurant-card">
+                    <div class="image-container">
+                        <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/1c/83/d2/69/20201230172727-img-5991.jpg?w=800&h=500&s=1" alt="La Pino'z Pizza">
+                        <span class="badge discount">₹200 OFF</span>
+                    </div>
+                    <div class="restaurant-details">
+                        <h5>La Pino'z Pizza</h5>
+                        <p class="cuisine">Pizza, Italian, Pasta, Fast Food</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="price">₹200 for one</span>
+                            <span class="rating">4.2★</span>
+                        </div>
+                        <p class="delivery-time">21 min</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurant Card 3 -->
+            <div class="col-md-4">
+                <div class="restaurant-card">
+                    <div class="image-container">
+                        <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/20/9f/25/59/great-food.jpg?w=900&h=500&s=1" alt="Pizza Hut">
+                        <span class="badge promoted">Promoted</span>
+                        <span class="badge discount">20% OFF</span>
+                    </div>
+                    <div class="restaurant-details">
+                        <h5>Pizza Hut</h5>
+                        <p class="cuisine">Pizza, Fast Food, Italian</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="price">₹250 for one</span>
+                            <span class="rating low">3.6★</span>
+                        </div>
+                        <p class="delivery-time">37 min</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const carousel = document.getElementById("carousel");
+
+        function scrollLeft() {
+            carousel.scrollBy({ left: -200, behavior: 'smooth' });
+        }
+
+        function scrollRight() {
+            carousel.scrollBy({ left: 200, behavior: 'smooth' });
+        }
+    </script>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Owl Carousel JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $(".owl-carousel").owlCarousel({
+                loop: true,
+                margin: 15,
+                nav: true,
+                autoplay: true,
+                autoplayTimeout: 3000,
+                autoplayHoverPause: true,
+                responsive: {
+                    0: { items: 2 },
+                    600: { items: 3 },
+                    1000: { items: 5 }
+                },
+                navText: ["<i class='fas fa-chevron-left'></i>", "<i class='fas fa-chevron-right'></i>"]
+            });
+        });
+
+        $(document).ready(function () {
+            $(".food-carousel").owlCarousel({
+                loop: true,
+                margin: 15,
+                nav: true,
+                autoplay: true,
+                autoplayTimeout: 3000,
+                autoplayHoverPause: true,
+                responsive: {
+                    0: { items: 2 },
+                    600: { items: 3 },
+                    1000: { items: 4 }
+                },
+                navText: ["<i class='fas fa-chevron-left'></i>", "<i class='fas fa-chevron-right'></i>"]
+            });
+        });
+
+    </script>
+
+</body>
+</html>

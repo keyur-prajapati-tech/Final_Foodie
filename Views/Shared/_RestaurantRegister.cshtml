@@ -1,0 +1,144 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+    <link rel="icon" href="https://cdn.iconscout.com/icon/free/png-256/zomato-1937646-1637644.png" />
+    <link href="~/css/mycss.css" rel="stylesheet" />
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg mx-3 my-2" style="background-color:#e3e7ff ; border:2px solid;border-radius:10px">
+        <div class="container-fluid">
+
+            @* <div>
+                <input type="checkbox" id="menu-toggle">
+                <label for="menu-toggle" class="overlay"></label>
+
+                <div class="navbar">
+                    <label for="menu-toggle" class="open-btn">☰</label>
+
+                </div>
+
+
+                <div class="sidebar">
+                    <label for="menu-toggle" class="close-btn">&times;</label>
+                    <div class="sidebar-header">
+
+                        <a aria-current="page">@ViewData["res_name"]</a>
+                    </div>
+                    <div class="menu">
+
+                        <ul>
+
+                            <li class="nav-item"><a class="nav-link" asp-controller="OrderNotification" asp-action="OrderReady"><i class="fa-solid fa-bowl-food me-1"></i>Order</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="Registerres"><i class="fa-solid fa-square-list"></i> Register Restaurant</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="ResDocument">Order History</a></li>
+                            <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="MenuItems">Menus</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Reporting</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Offers</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Payout</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Hyperpure</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Ads</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Outlet Info</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Customer Complaints</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#">Reviews</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+
+            </div> *@
+
+            <div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse  " id="navbarSupportedContent">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#"><i class="fa-solid fa-bell"></i></a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#"><i class="fa-solid fa-gear"></i></a>
+                        </li>
+                        <li class="nav-item" style="width:150px;">
+                            <a class="nav-link" style="text-decoration:underline" aria-current="page" href="#">Share Feedback</i></a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle btn-success" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Online
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">Offline</a></li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle btn-success" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                User
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">Rishi</a></li>
+                                <li><a class="dropdown-item" href="#">Keyur</a></li>
+                                <li><a class="dropdown-item" href="#">Amisha</a></li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid row">
+
+        <div class="col-3">
+            <div class="p-3">
+                <div class="card shadow rounded-4 p-3">
+
+                    <h5 class="fw-bolder">Complete your Registration</h5>
+
+                    <ul>
+                        <li>
+                            <h5 class="m-2 p-0 ">Restaurant Information</h5>
+                            <span class="m-2 p-0 fs-6 text-primary">Edit...</span>
+                        </li>
+                        <li>
+                            <h5 class="m-2 p-0">Menu and operational details</h5>
+                            <span class="m-2 p-0 fs-6 text-primary">Edit...</span>
+                        </li>
+                        <li>
+                            <h5 class="m-2 p-0">Restaurant documents</h5>
+                            <p class="m-2 p-0 fs-6">PAN, GST number, FSSAI, and bank account details</p>
+                            <p class="m-2 p-0fs-6 text-primary">Continue...</p>
+                        </li>
+                        <li>
+                            <h5 class="m-2 p-0 ">Partner contract</h5>
+                        </li>
+                    </ul>
+
+                </div>
+                <div class="my-4 p-2 card shadow rounded-4">
+                    <p>Documents required for registration</p>
+                </div>
+
+                <div class=" p-2 card shadow rounded-4">
+                    <p>Did someone refer you to this platform?</p>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="my-3 col-9">
+            @RenderBody()
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

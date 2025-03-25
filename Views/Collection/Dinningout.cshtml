@@ -1,0 +1,405 @@
+﻿@{
+    Layout = "~/Views/Shared/_foodieheader.cshtml";
+}
+
+<hr />
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Carousel</title>
+
+    <link rel="icon" href="https://cdn.iconscout.com/icon/free/png-256/zomato-1937646-1637644.png" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <!-- Owl Carousel -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        .collection-container {
+            max-width: 90%;
+            margin: auto;
+            padding: 40px 0;
+        }
+
+        .collection-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .collection-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .collection-link {
+            color: #ff4f5a;
+            font-size: 14px;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+            .collection-link:hover {
+                text-decoration: underline;
+            }
+
+        .collection-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .collection-card {
+            position: relative;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+            .collection-card:hover {
+                transform: scale(1.03);
+            }
+
+            .collection-card img {
+                width: 100%;
+                height: 450px;
+                object-fit: cover;
+                border-radius: 10px;
+            }
+
+        .collection-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+            padding: 15px;
+            color: white;
+            border-radius: 10px;
+        }
+
+        .collection-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .collection-places {
+            font-size: 13px;
+            color: #ddd;
+        }
+
+        /* Filter Buttons */
+        .filters {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            border: 1px solid #ccc;
+            background: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+
+            .filter-btn:hover {
+                background: black;
+                color: white;
+            }
+
+        /* Promotional Banner */
+        .promo-banner {
+            display: flex;
+            align-items: center;
+            background: #111;
+            color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            padding: 30px;
+        }
+
+        .promo-content {
+            flex: 1;
+            padding: 20px;
+        }
+
+            .promo-content h2 {
+                font-size: 32px;
+                font-weight: bold;
+            }
+
+        .highlight {
+            font-size: 40px;
+            font-weight: bold;
+            color: #ff4d4d;
+        }
+
+        .promo-btn {
+            background: #ff4d4d;
+            border: none;
+            padding: 10px 15px;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+
+            .promo-btn:hover {
+                background: #cc0000;
+            }
+
+        .promo-image img {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 10px;
+        }
+
+
+        /* Restaurant card design */
+        .restaurant-card {
+            background: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease-in-out;
+        }
+
+            .restaurant-card:hover {
+                transform: scale(1.03);
+            }
+
+        /* Image container with badges */
+        .image-container {
+            position: relative;
+            width: 100%;
+        }
+
+            .image-container img {
+                width: 100%;
+                height: 200px;
+                object-fit: cover;
+            }
+
+        .badge {
+            position: absolute;
+            font-size: 12px;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .promoted {
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+        }
+
+        .discount {
+            bottom: 10px;
+            left: 10px;
+            background: #007bff;
+            color: #fff;
+        }
+
+        /* Restaurant details */
+        .restaurant-details {
+            padding: 15px;
+        }
+
+            .restaurant-details h5 {
+                font-size: 18px;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+
+        .cuisine {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .price {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .rating {
+            background: #28a745;
+            color: #fff;
+            padding: 5px 8px;
+            font-size: 14px;
+            border-radius: 5px;
+        }
+
+            .rating.low {
+                background: #dc3545;
+            }
+
+        /* Delivery time */
+        .delivery-time {
+            font-size: 14px;
+            color: #777;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="collection-container">
+        <div class="collection-header">
+            <h3 class="collection-title" style="font-size:25px;font-weight:800;">Collections</h3>
+            <a href="#" class="collection-link" style="font-size:12px;font-weight:800;">All collections in Surat ></a>
+        </div>
+        <p>Explore curated lists of top restaurants, cafes, pubs, and bars in Surat, based on trends</p>
+
+        <div class="collection-grid">
+            <div class="collection-card">
+                <a class="nav-link text-dark" asp-area="" asp-controller="Collection" asp-action="FoodCollection">
+                    <img src="https://clubmahindra.gumlet.io/blog/media/section_images/traditiona-795df276e0f7f60.jpg?w=376&dpr=2.6" alt="Gujarati Delicacies">
+                    <div class="collection-overlay">
+                        <p class="collection-title">Unmissable Gujarati Delicacies</p>
+                        <p class="collection-places">11 Places ></p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="collection-card">
+                <img src="https://content.jdmagicbox.com/comp/surat/r4/0261px261.x261.230912011840.y4r4/catalogue/fenster-cafe-katargam-surat-coffee-shops-3rJxUw4TQz.jpg" alt="Great Cafes">
+                <div class="collection-overlay">
+                    <p class="collection-title">Great Cafes</p>
+                    <p class="collection-places">13 Places ></p>
+                </div>
+            </div>
+
+            <div class="collection-card">
+                <img src="https://content.jdmagicbox.com/comp/surat/v8/0261px261.x261.170208174236.l3v8/catalogue/lajmi-restaurant-vesu-surat-restaurants-13pb2ee.jpg" alt="Local Favorite Places">
+                <div class="collection-overlay">
+                    <p class="collection-title">Local Favorite Places</p>
+                    <p class="collection-places">8 Places ></p>
+                </div>
+            </div>
+
+            <div class="collection-card">
+                <img src="https://b.zmtcdn.com/data/collections/293255cbfe49f4ebdb244c1bfc3a0f74_1687783029.jpg" alt="Serene Rooftop Places">
+                <div class="collection-overlay">
+                    <p class="collection-title">Serene Rooftop Places</p>
+                    <p class="collection-places">5 Places ></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="container mt-4">
+        <div class="filters">
+            <button class="filter-btn"><i class="fas fa-filter"></i> Filters</button>
+            <button class="filter-btn">Offers</button>
+            <button class="filter-btn">Rating: 4.5+</button>
+            <button class="filter-btn">Pet Friendly</button>
+            <button class="filter-btn">Outdoor Seating</button>
+            <button class="filter-btn">Open Now</button>
+        </div>
+    </div>
+
+    <!-- Promotional Banner -->
+    <div class="container mt-4">
+        <div class="promo-banner">
+            <div class="promo-content">
+                <h2>Get up to <span class="highlight">50% OFF</span></h2>
+                <p>on your dining bills with Zomato</p>
+                <button class="promo-btn">Check out all the restaurants</button>
+            </div>
+            <div class="promo-image">
+                <img src="https://www.gujarattourism.com/content/dam/gujrattourism/images/march/april/cuisine/thali-banner.jpg" alt="Food Image">
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <h2 class="mb-4 fw-bold">Restaurants in Surat</h2>
+
+        <div class="row">
+            <!-- Restaurant Card 1 -->
+            <div class="col-md-4">
+                <div class="restaurant-card">
+                    <div class="image-container">
+                        <img src="https://b.zmtcdn.com/data/pictures/4/20817784/7897669e5dfddac1f907ffd2c3ace386_featured_v2.jpg" alt="Radhe Dhokla">
+                        <span class="badge promoted">Promoted</span>
+                        <span class="badge discount">₹200 OFF</span>
+                    </div>
+                    <div class="restaurant-details">
+                        <h5>Gujarati royal Hotel</h5>
+                        <p class="cuisine">Gujarati royal Hotel</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="price">₹200 for one</span>
+                            <span class="rating">4.2★</span>
+                        </div>
+                        <p class="delivery-time">28 min</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurant Card 2 -->
+            <div class="col-md-4">
+                <div class="restaurant-card">
+                    <div class="image-container">
+                        <img src="https://b.zmtcdn.com/data/pictures/8/21383378/843831c362772cce84e20a695a6ec2be_featured_v2.jpg" alt="La Pino'z Pizza">
+                        <span class="badge discount">FLAT ₹200 OFF</span>
+                    </div>
+                    <div class="restaurant-details">
+                        <h5>Thyme & Whisk</h5>
+                        <p class="cuisine">Thyme & Whisk</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="price">₹200 for one</span>
+                            <span class="rating">4.2★</span>
+                        </div>
+                        <p class="delivery-time">21 min</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Restaurant Card 3 -->
+            <div class="col-md-4">
+                <div class="restaurant-card">
+                    <div class="image-container">
+                        <img src="https://b.zmtcdn.com/data/pictures/6/20166126/8a2e517ee301e3e6e804eeb80681472d_featured_v2.jpg" alt="Pizza Hut">
+                        <span class="badge promoted">Promoted</span>
+                        <span class="badge discount">20% OFF</span>
+                    </div>
+                    <div class="restaurant-details">
+                        <h5>The Bungalow Cafe</h5>
+                        <p class="cuisine">The Bungalow Cafe</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="price">₹250 for one</span>
+                            <span class="rating low">3.6★</span>
+                        </div>
+                        <p class="delivery-time">37 min</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Owl Carousel JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
+</body>
+</html>

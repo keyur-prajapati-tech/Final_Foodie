@@ -1,0 +1,27 @@
+﻿@{
+    Layout = "~/Views/Shared/_MenuLayout.cshtml";
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+</head>
+<body>
+    <div class="container-fluid">
+        <ul class="nav nav-underline mt-3">
+            <li class="nav-item mx-3">
+                <a class="nav-link" aria-current="page" asp-controller="Menu" asp-action="InvDishes">Dishes</a>
+            </li>
+            <li class="nav-item mx-3">
+                <a class="nav-link" asp-controller="Menu" asp-action="InvAddOns">Add Ons</a>
+            </li>
+        </ul>
+
+    </div>
+    <div class="mt-5">
+        @RenderBody()
+    </div>
+</body>
+</html>

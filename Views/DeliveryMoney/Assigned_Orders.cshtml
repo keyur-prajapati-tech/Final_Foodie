@@ -1,0 +1,191 @@
+﻿@{
+    ViewData["Title"] = "Assigned Orders";
+    Layout = ViewBag.Layout ?? "_DeliveryPartnerLayout";
+}
+
+<div class="container mt-4">
+    <h2>📦 Assigned Deliveries</h2>
+
+    <div class="search-filter">
+        <input type="text" class="form-control search-bar" placeholder="🔍 Search orders..." />
+        <button class="btn btn-warning filter-btn">⚙️ Filter</button>
+    </div>
+
+    <div class="assigned-orders">
+        <!-- Order Card 1 -->
+        <div class="order-card">
+            <div class="order-header">
+                <span class="order-id">#ORD-7829</span>
+                <span class="order-distance">Pizza Hut - 2.4 km</span>
+            </div>
+            <span class="order-status ready">✅ Ready for pickup</span>
+
+            <div class="order-body">
+                <div class="customer-info">
+                    <img src="/images/user-icon.png" class="customer-icon" />
+                    <div>
+                        <strong>Rahul Sharma</strong>
+                        <p>📞 +91 98765 43210</p>
+                    </div>
+                </div>
+                <p class="delivery-address">📍 803, Park Avenue, Malad West, Mumbai - 400064</p>
+
+                <div class="order-details">
+                    <p>🍽 <strong>3 items</strong> - ₹425 <span class="paid">Paid Online</span></p>
+                    <p>⏳ <strong>25-30 min</strong> - ASAP delivery</p>
+                </div>
+            </div>
+
+            <div class="order-actions">
+                <button class="btn btn-outline-primary">📞 Call</button>
+                <button class="btn btn-success accept-btn">✅ Accept</button>
+            </div>
+        </div>
+
+        <!-- Order Card 2 -->
+        <div class="order-card">
+            <div class="order-header">
+                <span class="order-id">#ORD-7830</span>
+                <span class="order-distance">Subway - 1.8 km</span>
+            </div>
+            <span class="order-status preparing">⏳ Preparing</span>
+
+            <div class="order-body">
+                <div class="customer-info">
+                    <img src="/images/user-icon.png" class="customer-icon" />
+                    <div>
+                        <strong>Priya Patel</strong>
+                        <p>📞 +91 87654 32109</p>
+                    </div>
+                </div>
+                <p class="delivery-address">📍 205, Sunshine Apartments, Andheri East, Mumbai - 400069</p>
+
+                <div class="order-details">
+                    <p>🍽 <strong>2 items</strong> - ₹310 <span class="cod">Cash on Delivery</span></p>
+                    <p>⏳ <strong>15-20 min</strong> - Standard delivery</p>
+                </div>
+            </div>
+
+            <div class="order-actions">
+                <button class="btn btn-outline-primary">📞 Call</button>
+                <button class="btn btn-secondary wait-btn">⏳ Wait</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background-color: #f9f9f9;
+    }
+
+    .container {
+        max-width: 800px;
+    }
+
+    .search-filter {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+    }
+
+    .search-bar {
+        width: 70%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid #ccc;
+    }
+
+    .filter-btn {
+        background-color: orange;
+        color: white;
+        border-radius: 8px;
+    }
+
+    .assigned-orders {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .order-card {
+        background: white;
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    .order-status {
+        display: inline-block;
+        padding: 5px 10px;
+        border-radius: 15px;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+
+    .ready {
+        background-color: #d4f5d4;
+        color: green;
+    }
+
+    .preparing {
+        background-color: #fff5cc;
+        color: #d4a100;
+    }
+
+    .customer-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .customer-icon {
+        width: 40px;
+        height: 40px;
+    }
+
+    .delivery-address {
+        font-size: 0.9rem;
+        color: #555;
+        margin: 10px 0;
+    }
+
+    .order-details p {
+        margin: 3px 0;
+        font-size: 0.9rem;
+    }
+
+    .paid {
+        color: green;
+        font-weight: bold;
+    }
+
+    .cod {
+        color: red;
+        font-weight: bold;
+    }
+
+    .order-actions {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+    }
+
+    .accept-btn {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .wait-btn {
+        background-color: #bbb;
+        color: white;
+    }
+</style>

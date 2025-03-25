@@ -1,0 +1,155 @@
+﻿@{
+    Layout = null;
+}
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Arial', sans-serif;
+    }
+
+    body {
+        background: #e3e7ff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        padding: 20px;
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .card {
+        background: white;
+        width: 100%;
+        max-width: 500px;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        color: #333;
+        animation: fadeInUp 0.8s ease-in-out;
+    }
+
+    .card-header h3 {
+        font-weight: bold;
+        color: #3a3a3a;
+        margin-bottom: 15px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+        border: 1px solid #b3b3b3;
+        border-radius: 6px;
+        font-size: 16px;
+        background: rgba(255, 255, 255, 0.5);
+        color: #333;
+    }
+
+    .btn-primary {
+        background-color: #4a5fe2;
+        color: white;
+        border: none;
+        padding: 12px;
+        width: 100%;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease-in-out;
+    }
+
+        .btn-primary:hover {
+            background-color: #3748c1;
+            box-shadow: 0px 0px 10px rgba(74, 95, 226, 0.4);
+            transform: scale(1.05);
+        }
+
+    .card-footer {
+        margin-top: 10px;
+    }
+
+        .card-footer a {
+            color: #4a5fe2;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+            .card-footer a:hover {
+                text-decoration: underline;
+            }
+
+    .form-label {
+        color: #444;
+        font-size: 14px;
+        font-weight: bold;
+        text-align: left;
+        display: block;
+    }
+
+    /* Responsive Design */
+    @@media (max-width: 500px) {
+        .card {
+            padding: 20px;
+        }
+
+        .btn-primary {
+            padding: 10px;
+            font-size: 14px;
+        }
+    }
+</style>
+
+<div class="card">
+    <div class="card-header">
+        <h3>🚴‍♂ Delivery Partner Registration</h3>
+    </div>
+    <div class="card-body">
+        <form asp-action="DeliveryRegister" asp-controller="DeliverSignup" method="post">
+            <!-- Full Name -->
+            <label for="FullName" class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="FullName" name="FullName" required>
+
+            <!-- Contact Number -->
+            <label for="ContactNumber" class="form-label">Contact Number</label>
+            <input type="text" class="form-control" id="ContactNumber" name="ContactNumber" required>
+
+            <!-- Email -->
+            <label for="Email" class="form-label">Email</label>
+            <input type="text" class="form-control" id="Email" name="Email" required>
+
+            <!-- Password -->
+            <label for="Password" class="form-label">Password</label>
+            <input type="text" class="form-control" id="Password" name="Password" required>
+
+            <!-- Status (hidden - default Pending) -->
+            <input type="hidden" name="Status" value="Pending" />
+
+            <!-- Created At (hidden - auto-generated) -->
+            <input type="hidden" name="CreatedAT" value="@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")" />
+
+            <!-- IsAvailable (hidden - default false) -->
+            <input type="hidden" name="Isavailable" value="0" />
+
+            <button type="submit" class="btn-primary">Register</button>
+        </form>
+    </div>
+    <div class="card-footer">
+        <p>Already have an account? <a asp-controller="DeliverSignup" asp-action="DeliveryLogin">Login here</a></p>
+    </div>
+</div>

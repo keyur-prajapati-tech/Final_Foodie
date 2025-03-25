@@ -1,0 +1,100 @@
+﻿@{
+    ViewData["Title"] = "Document Verification";
+    Layout = ViewBag.Layout ?? "_DeliveryPartnerLayout";
+}
+
+<style>
+    body {
+        background-color: white;
+        margin: 0;
+        padding: 0;
+    }
+
+    .form-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .card {
+        background-color: #e3e7ff;
+        backdrop-filter: blur(10px);
+        border-radius: 15px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        padding: 25px;
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 450px;
+        animation: fadeInEffect 0.8s ease-in-out;
+    }
+
+    .card-header h3 {
+        font-weight: bold;
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+        text-align: center;
+    }
+
+    @@keyframes fadeInEffect {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .form-control {
+        background: rgba(255, 255, 255, 0.6);
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        transition: all 0.3s ease-in-out;
+        width: 100%;
+        margin-top: 10px;
+    }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+    .form-label {
+        color: black;
+        font-weight: 600;
+    }
+</style>
+
+<div class="form-container">
+    <div class="card">
+        <div class="card-header">
+            <h3>📑 Upload Necessary Documents</h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="UploadDocuments" asp-controller="DeliverSignup" method="post" enctype="multipart/form-data">
+
+                <label for="ProfilePhoto" class="form-label">Upload Profile Photo</label>
+                <input type="file" class="form-control" id="ProfilePhoto" name="ProfilePhoto" accept="image/*" required>
+
+                <label for="AadhaarCard" class="form-label">Upload Aadhaar Card</label>
+                <input type="file" class="form-control" id="AadhaarCard" name="AadhaarCard" accept="image/*,application/pdf" required>
+
+                <label for="PANCard" class="form-label">Upload PAN Card</label>
+                <input type="file" class="form-control" id="PANCard" name="PANCard" accept="image/*,application/pdf" required>
+
+                <label for="DrivingLicense" class="form-label">Upload Driving License</label>
+                <input type="file" class="form-control" id="DrivingLicense" name="DrivingLicense" accept="image/*,application/pdf" required>
+
+                <label for="RCBook" class="form-label">Upload RC Book</label>
+                <input type="file" class="form-control" id="RCBook" name="RCBook" accept="image/*,application/pdf" required>
+
+                <button type="submit" class="btn btn-primary">Submit Documents</button>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,72 +1,141 @@
-﻿<!DOCTYPE html>
-<html lang="en">
+﻿<html>
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Admin Panel</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
-    <style>
-        body {
-            display: flex;
-        }
-        .sidebar {
-            width: 250px;
-            height: 100vh;
-            background-color: #343a40;
-            color: white;
-            position: fixed;
-            padding-top: 20px;
-        }
-        .sidebar a {
-            padding: 12px;
-            display: block;
-            color: white;
-            text-decoration: none;
-        }
-        .sidebar a:hover {
-            background-color: #495057;
-        }
-        .content {
-            margin-left: 260px;
-            padding: 20px;
-            width: 100%;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Foodie</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <link rel="icon" href="https://cdn.iconscout.com/icon/free/png-256/zomato-1937646-1637644.png" />
+
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <link href="~/css/sidebar.css" rel="stylesheet" />
 </head>
+
 <body>
 
-    @* Sidebar Navigation *@
-    <div class="sidebar">
-        <h4 class="text-center">Admin Panel</h4>
-        @*   <a asp-controller="Dashboard" asp-action="Index"><i class="fa-solid fa-chart-line"></i> Dashboard</a>
-        <a asp-controller="Product" asp-action="Create"><i class="fa-solid fa-box"></i> Add Product</a>
-        <a asp-controller="Category" asp-action="Index"><i class="fa-solid fa-list"></i> Add Category</a> *@
-        <a asp-controller="RawMaterial" asp-action="RawMaterial"><i class="fa-solid fa-industry"></i></a>
-        <a asp-controller="ProductAttribute" asp-action="ProductAttribute"><i class="fa-solid fa-tags"></i> Home</a>
-        <a asp-controller="Product" asp-action="Products"><i class="fa-solid fa-box"></i> Add Restaurant</a>
-        <a asp-controller="Production" asp-action="Index"><i class="fa-solid fa-gears"></i> Orders</a>
-        <a asp-controller="PurchaseOrder" asp-action="Index"><i class="fa-solid fa-file-invoice"></i> Analytics</a>
-        <a asp-controller="QualityControl" asp-action="Index"><i class="fa-solid fa-shield"></i> Quality Control</a>
-        <a asp-controller="ManufacturingCost" asp-action="Index"><i class="fa-solid fa-dollar-sign"></i>Manufacturing</a>
-        <a asp-controller="Supplier" asp-action="Index"><i class="fa-solid fa-truck"></i> Notification</a>
-     
-        <a asp-controller="Account" asp-action="Logout"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
-    </div>
-
-    @* Main Content Area *@
     <div class="content">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light">
-            <div class="container-fluid">
-                <span class="navbar-brand">Admin Dashboard</span>
-            </div>
-        </nav>
 
-        <div class="container mt-4">
-            @RenderBody()
+
+        <div class="backdrop" id="backdrop" onclick="toggleSidebar()"></div>
+        <div>
+            <header>
+                <div style=" background: #dfe3f3;">
+
+
+                    <nav class="navbar navbar-expand-lg navbar-light ">
+                        <button class="menu-btn" onclick="toggleSidebar()">&#9776;</button>
+                        <div class="sidebar pt-1" id="sidebar">
+                            @* <button class="close-btn" onclick="toggleSidebar()">&times;</button> *@
+                            <ul>
+                                <li class="selected"><a asp-controller="order" asp-action="dashboard">&#127860; Home</a></li>
+                                @* <li class="nav-item"><a class="nav-link" asp-controller="order" asp-action="dashboard"><i class="fa-solid fa-bowl-food me-1"></i>Home</a></li> *@
+                                <li class="nav-item"><a class="nav-link" asp-controller="order" asp-action="order"><i class="fa-solid fa-square-list"></i> Orders</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="Restaurant">Restaurant</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="customers">Customers</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="Res">Res</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="Feedaback">FeedBack</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="customerComplaints">Complaints</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="promotion">Promotion</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="Notification">Notifications</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="AddCusine">Add Cusine</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="Admin">Admin</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="AuditLogs">Audit Logs</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="Role">Role</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="Login">Log Out</a></li>
+                            </ul>
+                        </div>
+                        <div class="container-fluid d-lg-flex justify-content-end align-items-end">
+                            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                                <span class="navbar-toggler-icon"></span>
+                            </button>
+
+                        </div>
+                        <div class="collapse navbar-collapse d-lg-flex justify-content-end align-items-end" id="navbarSupportedContent">
+                            <ul class="navbar-nav">
+
+                                <li class="nav-item ">
+                                    @* <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#notificationModal"> *@
+                                    @*     Show Notification *@
+                                    @* </button> *@
+                                    <a class="nav-link active" data-bs-toggle="modal" data-bs-target="#notificationModal" aria-current="page"><i class="fa-solid fa-bell"></i></a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="fa-solid fa-gear"></i></a>
+                                </li>
+                            </ul>
+                        </div>
+                    </nav>
+                </div>
+
+            </header>
+            <div>
+                @RenderBody()
+            </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("open");
+            document.getElementById("backdrop").classList.toggle("show");
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const menuItems = document.querySelectorAll(".sidebar ul li");
+
+            menuItems.forEach(item => {
+                item.addEventListener("click", function () {
+                    // Remove 'selected' class from all menu items
+                    menuItems.forEach(i => i.classList.remove("selected"));
+
+                    // Add 'selected' class to the clicked item
+                    this.classList.add("selected");
+                });
+            });
+        });
+
+        function handleResize() {
+            const sidebar = document.getElementById("sidebar");
+            const backdrop = document.getElementById("backdrop");
+
+            if (window.innerWidth > 768) {
+                // Remove mobile-specific classes when switching to desktop
+                sidebar.classList.remove("open");
+                backdrop.classList.remove("show");
+            }
+        }
+
+        // Run on page load to set the correct state
+        handleResize();
+
+        // Listen for window resize event
+        window.addEventListener("resize", handleResize);
+    </script>
+    <div class="modal fade" id="notificationModal" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable position-fixed top-0 end-0 m-3">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="notificationModalLabel">Notification</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Notification Content -->
+                    <div class="alert alert-info" role="alert">
+                        This is a notification message! You can customize this message as needed.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://cdn.jsdelivr.net/npm/popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.min.js"></script>
 </body>
+
 </html>
