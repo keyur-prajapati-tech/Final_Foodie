@@ -111,40 +111,49 @@
             <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
                 <div>
                     <span class="fs-4 fw-bold">
-                        FSSAI details
+                        Select the device type you will use for online ordering
                     </span>
                     <br />
-                    <span class="fw-lighter">This is required to comply with regulations on food safety</span>
+
                 </div>
 
-                <div class="mt-2" style="border-radius:10px; background-color:beige;">
-                    <div>
-                        <small>FSSAI requirements</small>
+                <div class="mt-2 p-1">
+                    <div class="card shadow d-flex mt-2  flex-row">
+                        <span class=" p-3">
+                            Zomato restaurant partner mobile app [Android Only]
+
+                        </span>
+
                     </div>
-                    <div>
-                        <ul>
-                            <li><small>The name on the FSSAI certificate should match either the restaurant's name or the name on the PAN card.</small></li>
-                            <li><small>The address on the FSSAI certificate should match the restaurant's address.</small></li>
-                        </ul>
+
+                    <div class="card shadow d-flex mt-2 flex-row">
+                        <span class="p-3">
+                            Zomato restaurant partner web dashboard
+
+                        </span>
+
                     </div>
+
+                    <div class="card shadow d-flex mt-2 flex-row">
+                        <span class=" p-3 ">
+                            Point of sale system [POS]
+
+                        </span>
+
+                    </div>
+
                 </div>
 
-                <div class="d-flex justify-content-between m-3">
-                    <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" id="owner_name" placeholder="Fassai Number*">
 
-                    <input type="date" class="form-control fw-lighter " style="border-radius:10px" id="owner_email" placeholder="Expiry Date">
-                </div>
-                <div class="mb-3">
-                    <label for="formFile" class="form-label">Upload Your Fassai Image</label>
-                    <input class="form-control" type="file" id="formFile">
-                </div>
             </div>
         </div>
 
-        <div class="container-fluid mt-3 d-flex justify-content-end bg-light position-sticky p-3 card ">
+        <form action="@Url.Action("ResDocument","AddRestaurant")" method="post">
 
-            <a asp-controller="AddRestaurant" asp-action="ResDocument"><button type="button" class="btn btn-outline-success w-25 ">Next</button></a>
-        </div>
+            <div class="container-fluid mt-3 d-flex justify-content-end align-items-end bg-light position-sticky p-3 card ">
+                <button type="submit" class="btn btn-outline-success w-25">Next</button>
+            </div>
+        </form>
 
     </div>
 </body>

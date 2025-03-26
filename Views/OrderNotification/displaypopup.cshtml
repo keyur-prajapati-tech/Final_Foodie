@@ -1,0 +1,51 @@
+﻿@*<h2>Restaurant Orders</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Item Name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody id="restaurantOrders">
+        <!-- Orders will be loaded here -->
+    </tbody>
+</table>
+
+<script>
+    $(document).ready(function () {
+        $.get("/Restaurant/displaypopup", function (data) {
+            let orderHtml = "";
+            data.forEach(order => {
+                orderHtml += `<tr><td>${order.name}</td><td>${order.quantity}</td><td>${order.price} RS</td></tr>`;
+            });
+            $("#restaurantOrders").html(orderHtml);
+        });
+    });
+</script>*@
+
+@{
+    Layout = "~/Views/Shared/_RestaurantLayout.cshtml";
+}
+
+<h2>Restaurant Orders</h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Item Name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in ViewBag.Orders as List<Foodie.Models.OrderItem>)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>@item.Quantity</td>
+                <td>@item.Price RS</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
