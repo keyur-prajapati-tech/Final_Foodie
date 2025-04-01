@@ -129,43 +129,43 @@
     </div>
 
     <script>
-                function toggleSidebar() {
-                    document.getElementById("sidebar").classList.toggle("open");
-                    document.getElementById("backdrop").classList.toggle("show");
-                }
+        function toggleSidebar() {
+            document.getElementById("sidebar").classList.toggle("open");
+            document.getElementById("backdrop").classList.toggle("show");
+        }
 
-                document.addEventListener("DOMContentLoaded", function () {
-                    const menuItems = document.querySelectorAll(".sidebar ul li");
+        document.addEventListener("DOMContentLoaded", function () {
+            const menuItems = document.querySelectorAll(".sidebar ul li");
 
-                    menuItems.forEach(item => {
-                        item.addEventListener("click", function () {
-                            // Remove 'selected' class from all menu items
-                            menuItems.forEach(i => i.classList.remove("selected"));
+            menuItems.forEach(item => {
+                item.addEventListener("click", function () {
+                    // Remove 'selected' class from all menu items
+                    menuItems.forEach(i => i.classList.remove("selected"));
 
-                            // Add 'selected' class to the clicked item
-                            this.classList.add("selected");
-                        });
-                    });
+                    // Add 'selected' class to the clicked item
+                    this.classList.add("selected");
                 });
+            });
+        });
 
-                function handleResize() {
-                    const sidebar = document.getElementById("sidebar");
-                    const backdrop = document.getElementById("backdrop");
+        function handleResize() {
+            const sidebar = document.getElementById("sidebar");
+            const backdrop = document.getElementById("backdrop");
 
-                    if (window.innerWidth > 768) {
-                        // Remove mobile-specific classes when switching to desktop
-                        sidebar.classList.remove("open");
-                        backdrop.classList.remove("show");
-                    }
-                }
+            if (window.innerWidth > 768) {
+                // Remove mobile-specific classes when switching to desktop
+                sidebar.classList.remove("open");
+                backdrop.classList.remove("show");
+            }
+        }
 
-                // Run on page load to set the correct state
-                handleResize();
+        // Run on page load to set the correct state
+        handleResize();
 
-                // Listen for window resize event
-                window.addEventListener("resize", handleResize);
+        // Listen for window resize event
+        window.addEventListener("resize", handleResize);
 
-        
+    </script>
 </body>
 </html>
 
