@@ -11,12 +11,6 @@ namespace Foodie.Controllers.Restaurant
             return View();
         }
 
-        [Route("Inventory")]
-        public IActionResult Inventory()
-        {
-            return View();
-        }
-
         [Route("InvDishes")]
         public IActionResult Dishes()
         {
