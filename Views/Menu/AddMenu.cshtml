@@ -86,8 +86,7 @@
             <!-- Sidebar (Categories) -->
             <div class="col-md-3 sidebar1">
                 <h6 class="mt-3">Categories (8)</h6>
-                <button class="btn btn-link text-primary">+ Add Category</button>
-
+                
                 <!-- Button trigger modal -->
                 <button type="button" class="btn btn-primary">
                     <a class="nav-link active" data-bs-toggle="modal" data-bs-target="#exampleModal" aria-current="page">+ Add Category</a>
@@ -100,17 +99,22 @@
                     <div class="modal-dialog modal-dialog-centered" role="document">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                                <h5 class="modal-title" id="exampleModalLabel">Add Category</h5>
                                 <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
                                     <span aria-hidden="true">&times;</span>
                                 </button>
                             </div>
                             <div class="modal-body">
-                                ...
+                                <form>
+                                    <div class="form-group">
+                                        <label for="category-name">Category Name</label>
+                                        <input type="text" class="form-control" id="category-name" placeholder="Enter category name">
+                                    </div>
+                                </form>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-primary">Save changes</button>
+                                <button type="button" class="btn btn-primary">Save Category</button>
                             </div>
                         </div>
                     </div>
@@ -122,37 +126,41 @@
                         <button class="btn btn-sm btn-light">?</button>
                     </div>
 
-                    <div class="subcategory">
-                        <span>Litti Chokha (4)</span>
-                    </div>
-
-                    <button class="btn btn-link text-primary">+ Add Subcategory</button>
-
-                    <div class="category">
-                        <span>Vada Pav (2)</span>
-                        <button class="btn btn-sm btn-light">?</button>
-                    </div>
-
-                    <div class="category">
-                        <span>Bread (4)</span>
-                        <button class="btn btn-sm btn-light">?</button>
-                    </div>
-
-                    <div class="category">
-                        <span>Meals And Combos (11)</span>
-                        <button class="btn btn-sm btn-light">?</button>
-                    </div>
-
-                    <a href="#" class="text-primary d-block mt-3">Go to Add Ons ?</a>
+                   
                 </div>
             </div>
 
             <!-- Main Content (Menu Items) -->
             <div class="col-md-9 main-content">
-                <div class="d-flex justify-content-between align-items-center">
-                    <h6>Litti Chokha (4)</h6>
-                    <button class="btn btn-link text-primary">+ Add New Item</button>
+                
+                <button type="button" class="btn btn-primary">
+                    <a class="nav-link active" data-bs-toggle="modal" data-bs-target="#addItem" aria-current="page">+ Add New Item</a>
+                </button>
+
+                <div class="modal fade" id="addItem" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Add Item</h5>
+                            <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form>
+                                <div class="form-group">
+                                    <label for="category-name">Item Name</label>
+                                    <input type="text" class="form-control" id="category-name" placeholder="Enter category name">
+                                </div>
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" class="btn btn-primary">Save Category</button>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
                 <div class="menu-list">
                     <!-- Item 1 -->
