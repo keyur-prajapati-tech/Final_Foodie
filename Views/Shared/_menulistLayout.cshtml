@@ -1026,14 +1026,12 @@
                     <div>
                         <h5>Crispy Veggie Burger + McAloo Tikki</h5>
                         <p>₹255.23 - Feel the crunch with our newly launched crispy veggie burger.</p>
-                       <div class="d-flex gap-2 float-end">
-
-                            <!-- Button trigger modal -->
-                            <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                Item Info
-                            </button>
-                            <a class="btn btn-outline-danger" asp-controller="displayCart" asp-action="AddToCartIteminfo">ADD</a>
-                       </div>
+                        <a class="btn btn-outline-danger" asp-controller="displayCart" asp-action="AddToCartIteminfo">ADD</a>
+                        
+                        <!-- Button trigger modal -->
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                            Launch demo modal
+                        </button>
 
                         <!-- Modal -->
                         <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
