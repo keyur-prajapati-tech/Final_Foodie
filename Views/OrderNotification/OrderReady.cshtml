@@ -71,7 +71,7 @@
 
     <!-- Button trigger modal -->
     <button type="button" class="btn btn-primary" id="modalButton">
-       Order Notification
+        <a class="nav-link active" data-bs-toggle="modal" data-bs-target="#exampleModal" aria-current="page">Order Notification</a>
     </button>
 
     <!-- Modal -->
@@ -118,31 +118,6 @@
             </div>
         </div>
     </div>
-
-    <script>
-        // Bootstrap modal instance
-        const exampleModal = new bootstrap.Modal(document.getElementById('exampleModal'));
-
-        document.getElementById('modalButton').addEventListener('click', function () {
-            exampleModal.show();
-        });
-
-        document.getElementById('saveChanges').addEventListener('click', function () {
-            const userInput = document.getElementById('userInput').value.trim();
-            const errorMsg = document.getElementById('errorMsg');
-
-            if (userInput === "") {
-                errorMsg.style.display = "block";  // Show error message
-            } else {
-                errorMsg.style.display = "none";   // Hide error message
-                alert("Entered Name: " + userInput);
-                exampleModal.hide(); // Close modal
-            }
-        });
-    </script>
-
-
-
 
 
     <div class="container-fluid mt-5 w-100  ">
