@@ -28,7 +28,6 @@ namespace Foodie.Controllers.DeliveryPartner
         }
 
         // 🎯 Delivery Partner Index Page
-
         [Route("d/index")]
         public IActionResult DeliveryIndex()
         {
@@ -36,7 +35,6 @@ namespace Foodie.Controllers.DeliveryPartner
         }
 
         // 🎯 Delivery Partner Registration
-
         [Route("d/register")]
         public IActionResult DeliveryRegister()
         {
@@ -59,7 +57,6 @@ namespace Foodie.Controllers.DeliveryPartner
 
 
                         cmd.CommandType = CommandType.StoredProcedure;
-
                         cmd.Parameters.AddWithValue("@FullName", partner.FullName);
                         cmd.Parameters.AddWithValue("@ContactNumber", Convert.ToInt64(partner.ContactNumber));
                         cmd.Parameters.AddWithValue("@Email", partner.Email);
@@ -67,35 +64,24 @@ namespace Foodie.Controllers.DeliveryPartner
                         cmd.Parameters.AddWithValue("@CreatedAT", DateTime.Now);
                        
 
-                        int rowsAffected = cmd.ExecuteNonQuery();
-
                         if (rowsAffected > 0)
                         {
                             return RedirectToAction("DeliveryLogin");
                         }
-                        else
-                        {
-                            ViewBag.Error = "Registration failed. Please try again.";
-                            return View("DeliveryRegister");
                         }
-
                     }
                 }
                 catch (SqlException ex)
                 {
                     ViewBag.Error = $"Database error: {ex.Message}";
-                    return View("DeliveryRegister");
                 }
-
             }
 
             ViewBag.Error = "Registration failed. Please try again.";
             return View("DeliveryRegister");
         }
 
-
         // 🎯 Delivery Partner Login
-
         [Route("d/login")]
         public IActionResult DeliveryLogin()
         {
@@ -111,9 +97,6 @@ namespace Foodie.Controllers.DeliveryPartner
 
             if (user != null)
             {
-                // Sign-in the user
-                await SignInUser(user);
-
                 // ✅ Update LastLogin after successful login
                 UpdateLastLogin(user.Partner_Id);
 
@@ -127,7 +110,6 @@ namespace Foodie.Controllers.DeliveryPartner
                 return RedirectToAction("DeliveryLogin");
             }
         }
-
         // Method to get partner by email and password
         private tbl_deliveryPartners GetPartnerByEmailAndPassword(string email, string password)
         {
@@ -191,7 +173,6 @@ namespace Foodie.Controllers.DeliveryPartner
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
         }
 
-        // Redirect based on partner status
         private IActionResult HandleLoginRedirect(string status)
         {
             if (status == "Pending")
@@ -254,7 +235,6 @@ namespace Foodie.Controllers.DeliveryPartner
             return View();
         }
 
-
         [Route("d/support")]
         public IActionResult Support()
         {
@@ -266,8 +246,5 @@ namespace Foodie.Controllers.DeliveryPartner
         {
             return View();
         }
-
-
-
     }
 }
