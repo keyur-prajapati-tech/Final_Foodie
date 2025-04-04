@@ -1,6 +1,9 @@
 ﻿@{
-    Layout = null;
+    ViewData["Title"] = "Delivery Partner Registration";
+    Layout = "~/Views/Shared/_DeliverRegisterLayout.cshtml";
 }
+
+
 
 <style>
     * {
@@ -11,12 +14,20 @@
     }
 
     body {
-        background: #e3e7ff;
+        background: linear-gradient(135deg, #e3f2fd, #e1bee7);
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
-        padding: 20px;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+    }
+
+
+    .container {
+        width: 100%;
+        max-width: 1200px;
+        margin-top: 50px;
     }
 
     @@keyframes fadeInUp {
@@ -32,20 +43,21 @@
     }
 
     .card {
-        background: white;
-        width: 100%;
-        max-width: 500px;
+        background: #e3e7ff;
+        backdrop-filter: blur(10px);
+        width: 400px;
+        top: -80px;
         padding: 30px;
         border-radius: 12px;
         box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
         text-align: center;
-        color: #333;
+        color: black;
         animation: fadeInUp 0.8s ease-in-out;
     }
 
     .card-header h3 {
         font-weight: bold;
-        color: #3a3a3a;
+        color: #333;
         margin-bottom: 15px;
     }
 
@@ -54,15 +66,15 @@
         padding: 12px;
         margin-top: 5px;
         margin-bottom: 15px;
-        border: 1px solid #b3b3b3;
+        border: 1px solid #aaa;
         border-radius: 6px;
         font-size: 16px;
-        background: rgba(255, 255, 255, 0.5);
-        color: #333;
+        background: rgba(255, 255, 255, 0.6);
+        color: black;
     }
 
     .btn-primary {
-        background-color: #4a5fe2;
+        background-color: #007bff;
         color: white;
         border: none;
         padding: 12px;
@@ -75,8 +87,8 @@
     }
 
         .btn-primary:hover {
-            background-color: #3748c1;
-            box-shadow: 0px 0px 10px rgba(74, 95, 226, 0.4);
+            background-color: #0056b3;
+            box-shadow: 0px 0px 10px rgba(0, 123, 255, 0.4);
             transform: scale(1.05);
         }
 
@@ -85,7 +97,7 @@
     }
 
         .card-footer a {
-            color: #4a5fe2;
+            color: #007bff;
             font-weight: bold;
             text-decoration: none;
         }
@@ -95,61 +107,63 @@
             }
 
     .form-label {
-        color: #444;
+        color: #333;
         font-size: 14px;
         font-weight: bold;
-        text-align: left;
-        display: block;
     }
 
-    /* Responsive Design */
-    @@media (max-width: 500px) {
-        .card {
-            padding: 20px;
-        }
+    #error-message {
+        color: red;
+        margin-top: 10px;
+        font-size: 14px;
+    }
 
-        .btn-primary {
-            padding: 10px;
-            font-size: 14px;
-        }
+    /* Container for nav and form alignment */
+    .wrapper {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+
+    /* Hide unwanted nav items */
+    .nav-hidden {
+        display: none;
     }
 </style>
 
-<div class="card">
-    <div class="card-header">
-        <h3>🚴‍♂ Delivery Partner Registration</h3>
-    </div>
-    <div class="card-body">
-        <form asp-action="DeliveryRegister" asp-controller="DeliverSignup" method="post">
-            <!-- Full Name -->
-            <label for="FullName" class="form-label">Full Name</label>
-            <input type="text" class="form-control" id="FullName" name="FullName" required>
+<div class="container">
+    <div class="wrapper">
+        <div class="card">
+            <div class="card-header">
+                <h3>🚴‍♂️ Delivery Partner Registration</h3>
+            </div>
+            <div class="card-body">
+                <form id="registerForm" method="post" asp-action="DeliveryRegister" asp-controller="DeliverSignup">
+                    <label for="FullName" class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="FullName" name="FullName" required>
 
-            <!-- Contact Number -->
-            <label for="ContactNumber" class="form-label">Contact Number</label>
-            <input type="text" class="form-control" id="ContactNumber" name="ContactNumber" required>
+                    <label for="UserName" class="form-label">User Name</label>
+                    <input type="text" class="form-control" id="UserName" name="UserName" required>
 
-            <!-- Email -->
-            <label for="Email" class="form-label">Email</label>
-            <input type="text" class="form-control" id="Email" name="Email" required>
+                    <label for="ContactNumber" class="form-label">Contact Number</label>
+                    <input type="text" class="form-control" id="ContactNumber" name="ContactNumber" required>
 
-            <!-- Password -->
-            <label for="Password" class="form-label">Password</label>
-            <input type="text" class="form-control" id="Password" name="Password" required>
+                    <label for="Email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="Email" name="Email" required>
 
-            <!-- Status (hidden - default Pending) -->
-            <input type="hidden" name="Status" value="Pending" />
+                    <label for="Password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="Password" name="Password" required>
 
-            <!-- Created At (hidden - auto-generated) -->
-            <input type="hidden" name="CreatedAT" value="@DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")" />
-
-            <!-- IsAvailable (hidden - default false) -->
-            <input type="hidden" name="Isavailable" value="0" />
-
-            <button type="submit" class="btn-primary">Register</button>
-        </form>
-    </div>
-    <div class="card-footer">
-        <p>Already have an account? <a asp-controller="DeliverSignup" asp-action="DeliveryLogin">Login here</a></p>
+                    <button type="submit" class="btn-primary">Register</button>
+                    <p id="error-message"></p>
+                </form>
+            </div>
+            <div class="card-footer">
+                <p>Already have an account? <a asp-controller="DeliverSignup" asp-action="DeliveryLogin">Login here</a></p>
+            </div>
+        </div>
     </div>
 </div>
+
+
