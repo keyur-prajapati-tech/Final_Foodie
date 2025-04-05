@@ -18,5 +18,26 @@ namespace Foodie.Controllers.Restaurant
         {
             return View();
         }
+
+        public IActionResult payouts()
+        {
+            return View();
+        }
+
+
+        public IActionResult complaint()
+        {
+            return View();
+        }
+
+        public IActionResult Reviews()
+        {
+            return View();
+        }
+
+        public IActionResult OutletInfo()
+        {
+            return View();
+        }
     }
 }
