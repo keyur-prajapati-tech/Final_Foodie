@@ -1,0 +1,241 @@
+﻿@{
+    Layout = "~/Views/Shared/_RestaurantLayout.cshtml";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Payout Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .summary-card {
+            border-radius: 10px;
+            background-color: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+
+            .summary-card h5 {
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+
+            .summary-card p {
+                font-size: 20px;
+                color: #28a745;
+            }
+
+        .table-wrapper {
+            background: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .download-btn {
+            float: right;
+        }
+
+        .download-toast {
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1050;
+            background: #dfe3f3;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.9);
+            padding: 20px;
+            text-align: center;
+            width: 300px;
+            display: none; /* Initially hidden */
+        }
+
+        .download-icon {
+            font-size: 30px;
+            color: green;
+            margin-bottom: 10px;
+        }
+
+        .download-link {
+            color: #000;
+            font-weight: 600;
+            text-decoration: underline;
+            cursor: pointer;
+            width: 80px;
+        }
+    
+    </style>
+</head>
+<body>
+
+    <div class="container-fluid">
+
+        <h3 class="my-4">💰 Payout Dashboard</h3>
+
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <div class="summary-card">
+                    <h5>Total Earnings</h5>
+                    <p>₹1,20,500</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="summary-card">
+                    <h5>Settled Amount</h5>
+                    <p>₹95,000</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="summary-card">
+                    <h5>Pending Amount</h5>
+                    <p>₹25,500</p>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="table-wrapper">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="mb-0">Weekly Payouts</h5>
+                <div class="container-fluid d-flex justify-content-end ">
+                    <!-- Download Button -->
+                    <button class="btn btn-outline-info" id="downloadBtn">Download</button>
+
+                    <!-- Download Popup -->
+                    <div class="download-toast" id="popup">
+                        <div class="download-icon">
+                            <i class="bi bi-download"></i> <!-- Bootstrap Icon -->
+                        </div>
+                        <div class="mb-2">
+                            Download Payouts Report from <strong>1st Nov</strong> to <strong>3rd Nov</strong>
+                        </div>
+                        <div>
+                            <a href="#" class="download-link">Download now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Week</th>
+                        <th>Order Value</th>
+                        <th>Commission</th>
+                        <th>GST</th>
+                        <th>Net Payout</th>
+                        <th>Payment Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1–7 Apr</td>
+                        <td>₹50,000</td>
+                        <td>₹7,500</td>
+                        <td>₹1,350</td>
+                        <td>₹41,150</td>
+                        <td>10 Apr 2025</td>
+                    </tr>
+                    <tr>
+                        <td>8–14 Apr</td>
+                        <td>₹45,000</td>
+                        <td>₹6,750</td>
+                        <td>₹1,215</td>
+                        <td>₹37,035</td>
+                        <td>17 Apr 2025</td>
+                    </tr>
+                    <tr>
+                        <td>15–21 Apr</td>
+                        <td>₹25,500</td>
+                        <td>₹3,825</td>
+                        <td>₹688.5</td>
+                        <td>₹20,986.5</td>
+                        <td>24 Apr 2025</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="mt-5">
+            <h5>📊 Payout Trend (Last 4 Weeks)</h5>
+            <canvas id="payoutChart" height="100"></canvas>
+        </div>
+
+        <!-- Chart.js CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <div class="mt-4">
+            <h5>🏦 Bank Account Info</h5>
+            <ul class="list-group">
+                <li class="list-group-item">Account Holder: <strong>Ghar Ka Zayka</strong></li>
+                <li class="list-group-item">Account Number: <strong>XXXX-XXXX-7890</strong></li>
+                <li class="list-group-item">Bank Name: <strong>HDFC Bank</strong></li>
+                <li class="list-group-item">IFSC Code: <strong>HDFC0001234</strong></li>
+            </ul>
+        </div>
+
+
+
+
+    </div>
+
+    <script>
+        document.getElementById("downloadBtn").addEventListener("click", function () {
+            document.getElementById("popup").style.display = "block";
+
+            // Optional: Auto-hide after 3 seconds
+            setTimeout(() => {
+                document.getElementById("popup").style.display = "none";
+            }, 5000);
+        });
+        const ctx = document.getElementById('payoutChart').getContext('2d');
+               const payoutChart = new Chart(ctx, {
+                 type: 'line',
+                 data: {
+                   labels: ['1–7 Apr', '8–14 Apr', '15–21 Apr', '22–28 Apr'],
+                   datasets: [{
+                     label: 'Net Payout (₹)',
+                     data: [41150, 37035, 20986.5, 42000],
+                     fill: true,
+                     borderColor: '#007bff',
+                     backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                     tension: 0.4,
+                     pointBackgroundColor: '#007bff'
+                   }]
+                 },
+                 options: {
+                   responsive: true,
+                   plugins: {
+                     legend: {
+                       display: true
+                     },
+                     tooltip: {
+                       callbacks: {
+                         label: function(context) {
+                           return ` ₹${context.parsed.y.toLocaleString()}`;
+                         }
+                       }
+                     }
+                   },
+                   scales: {
+                     y: {
+                       beginAtZero: true,
+                       title: {
+                         display: true,
+                         text: 'Amount in ₹'
+                       }
+                     },
+                     x: {
+                       title: {
+                         display: true,
+                         text: 'Week'
+                       }
+                     }
+                   }
+                 }
+               });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
