@@ -1,3 +1,5 @@
+using Foodie.Repositories;
+
 namespace Foodie
 {
     public class Program
@@ -8,6 +10,8 @@ namespace Foodie
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            builder.Services.AddScoped<IcustomerRepository, customerRepository>();
 
             var app = builder.Build();
 
@@ -28,7 +32,7 @@ namespace Foodie
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=Locality}/{action=Locality}/{id?}");
 
             app.MapControllers();
 

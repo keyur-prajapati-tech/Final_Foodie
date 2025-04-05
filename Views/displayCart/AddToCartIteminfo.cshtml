@@ -28,6 +28,8 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
 
 @*<div class="container">
     <div class="row">
@@ -413,9 +415,8 @@
             <!-- Modal Body -->
             <div class="modal-body">
                 <!-- Google Map -->
-                <div class="mb-3">
-                    <div id="map" style="width: 100%; height: 170px; border-radius: 10px; border: 1px solid #ddd;"></div>
-                </div>
+                <div id="map" style="width:100%;height:180px;"></div>
+                
 
                 <!-- Address Fields -->
                 <div class="mb-3">
@@ -463,11 +464,21 @@
                 </div>
 
                 <!-- Address Type Selection -->
-                <div class="btn-group w-100">
-                    <button type="button" class="btn btn-outline-secondary">🏠 Home</button>
-                    <button type="button" class="btn btn-outline-secondary">💼 Work</button>
-                    <button type="button" class="btn btn-outline-secondary">📍 Other</button>
+                <div class="mb-3">
+                    <label class="form-label">Address Type</label><br>
+                    <div class="btn-group" role="group" aria-label="Address Type selection">
+                        <input type="radio" class="btn-check" name="address_type" id="home" value="home" autocomplete="off" checked>
+                        <label class="btn btn-outline-primary" for="home">🏠 Home</label>
+
+                        <input type="radio" class="btn-check" name="address_type" id="work" value="work" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="work">💼 Work</label>
+
+                        <input type="radio" class="btn-check" name="address_type" id="other" value="other" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="other">📍 Other</label>
+                    </div>
                 </div>
+
+
             </div>
 
             <!-- Modal Footer -->
@@ -480,30 +491,11 @@
 
 
 <script>
-    function initMap() {
-        var map = new google.maps.Map(document.getElementById('map'), {
-            center: { lat: 22.5726, lng: 88.3639 }, // Default location (Kolkata, India)
-            zoom: 14,
+        mapboxgl.accessToken = 'pk.eyJ1IjoicmlzaGk4MTAyIiwiYSI6ImNtOTFpbXpjeDAxZGwybHNjdjljdnlpZ2UifQ.lwfPOwA0QilljmyDYiUV6A'; // Replace with your token
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [72.8367104, 21.2140032], // Default location
+            zoom: 12
         });
-
-        var marker = new google.maps.Marker({
-            position: map.getCenter(),
-            map: map,
-            draggable: true,
-        });
-
-        // Get address when marker is moved
-        google.maps.event.addListener(marker, 'dragend', function () {
-            var latlng = marker.getPosition();
-            var geocoder = new google.maps.Geocoder();
-            geocoder.geocode({ 'location': latlng }, function (results, status) {
-                if (status === 'OK' && results[0]) {
-                    $('#address').val(results[0].formatted_address);
-                }
-            });
-        });
-    }
-
-    // Load Google Maps API
 </script>
-@* <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZUhf2Ol83gsHZ9YaA_aOIy01pry_Bh7I&callback=initMap" async defer></script> *@
