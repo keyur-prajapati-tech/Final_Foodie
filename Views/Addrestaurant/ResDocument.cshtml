@@ -144,11 +144,14 @@
 
             </div>
 
-            <div class="container-fluid mt-3 d-flex justify-content-end bg-light position-sticky p-3 card ">
+           
 
-                <a asp-controller="Restaurant" asp-action="OrderReady"><button type="button" class="btn btn-outline-success w-25 ">Next</button></a>
-            </div>
+            <form action="@Url.Action("OrderReady","Restaurant")" method="post">
 
+                <div class="container-fluid mt-3 d-flex justify-content-end align-items-end bg-light position-sticky p-3 card ">
+                    <button type="submit" class="btn btn-outline-success w-25">Next</button>
+                </div>
+            </form>
         </div>
     </div>
 </body>

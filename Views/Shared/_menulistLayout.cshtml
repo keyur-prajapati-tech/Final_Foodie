@@ -200,6 +200,223 @@
             background-color: #fff;
             z-index: 1000;
         }
+
+        /*Review Section Custome Css*/
+        .review-container {
+            max-width: 800px;
+            margin: 20px auto;
+        }
+
+        .review-card {
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ccc;
+        }
+
+        .review-actions {
+            display: flex;
+            gap: 15px;
+            font-size: 14px;
+            color: gray;
+        }
+
+        .btn-follow {
+            border: 1px solid #ff5757;
+            color: #ff5757;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            background: none;
+            cursor: pointer;
+        }
+
+            .btn-follow:hover {
+                background: #ff5757;
+                color: #fff;
+            }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 15px;
+        }
+
+            .pagination .page-item a {
+                color: #ff5757;
+            }
+
+        /*gallery section custome css*/
+        .filter-buttons {
+            margin-bottom: 20px;
+        }
+
+            .filter-buttons button {
+                border: none;
+                padding: 8px 15px;
+                margin-right: 5px;
+                border-radius: 20px;
+                font-size: 14px;
+                cursor: pointer;
+            }
+
+            .filter-buttons .active {
+                background-color: #ff5757;
+                color: white;
+            }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+        }
+
+            .gallery img {
+                width: 100%;
+                height: 150px;
+                object-fit: cover;
+                border-radius: 5px;
+                transition: transform 0.3s ease-in-out;
+            }
+
+                .gallery img:hover {
+                    transform: scale(1.05);
+                }
+
+        .related-section {
+            max-width: 1500px;
+            margin: auto;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 15px 0 5px;
+        }
+
+        .related-links {
+            font-size: 14px;
+            color: #777;
+            line-height: 1.6;
+        }
+
+            .related-links a {
+                color: #777;
+                text-decoration: none;
+                margin-right: 5px;
+            }
+
+                .related-links a:hover {
+                    text-decoration: underline;
+                }
+
+        /*Menu Section customer css*/
+        .menu-header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .menu-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .menu-image img {
+            width: 150px;
+            border-radius: 10px;
+        }
+
+        .menu-details {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .related-section {
+            margin-top: 20px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin: 15px 0 5px;
+        }
+
+        .related-links {
+            font-size: 14px;
+            color: #777;
+            line-height: 1.6;
+        }
+
+            .related-links a {
+                color: #777;
+                text-decoration: none;
+                margin-right: 5px;
+            }
+
+                .related-links a:hover {
+                    text-decoration: underline;
+                }
+
+        /* Left Sidebar */
+        .left-sidebar {
+            width: 250px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            position: sticky;
+            top: 80px;
+            height: fit-content;
+        }
+
+            .left-sidebar img {
+                width: 100%;
+                border-radius: 5px;
+            }
+
+        /* Main Content */
+        .content {
+            flex-grow: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        /* Right Sidebar */
+        .right-sidebar {
+            width: 300px;
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            position: sticky;
+            top: 80px;
+            height: fit-content;
+        }
+
+            .right-sidebar img {
+                width: 100%;
+                border-radius: 5px;
+            }
     </style>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -286,13 +503,484 @@
         @RenderBody()
     </div>
     <hr/>
+    <!-- Sticky Navbar -->
     <div class="sticky-navbar mt-5">
         <ul class="nav nav-tabs justify-content-center">
             <li class="nav-item">
-                <a class="nav-link active" href="#">Overview</a>
+                <a class="nav-link active" data-bs-toggle="tab" href="#overview">Overview</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Order Online</a>
+                <a class="nav-link" data-bs-toggle="tab" href="#order-online">Order Online</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#reviews">Reviews</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#photos">Photos</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-bs-toggle="tab" href="#menu">Menu</a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Tab Content Sections -->
+    <div class="tab-content container mt-3">
+        <div id="overview" class="tab-pane fade show active">
+            <h1>Overview</h1>
+            <p>This is the Overview Section.</p>
+
+            <div class="container">
+                <!-- Left Sidebar - Menu -->
+                <aside class="left-sidebar">
+                    <h2>Menu</h2>
+                    <div class="cuisines">
+                        <span class="tag">Gujarati</span>
+                    </div>
+                    <img src="menu-image.jpg" alt="Menu">
+                </aside>
+
+                <!-- Main Content -->
+                <main class="content">
+                    <section>
+                        <h2>People Say This Place Is Known For</h2>
+                        <p>Fusion Dishes, Variety of Veg Options, Family Place, Good Food, Ambience, Value for Money</p>
+                    </section>
+                    <section>
+                        <h2>Average Cost</h2>
+                        <p>₹300 for two people (approx.)</p>
+                        <p>Digital payments accepted</p>
+                    </section>
+                </main>
+
+                <!-- Right Sidebar - Direction -->
+                <aside class="right-sidebar">
+                    <h2>Direction</h2>
+                    <img src="map-image.jpg" alt="Map">
+                    <p>7/132/177, 1st Floor, Malvi Dharamshala Building, Varachha, Surat</p>
+                    <button>Copy</button>
+                    <button>Direction</button>
+                </aside>
+            </div>
+
+        </div>
+
+        <div id="order-online" class="tab-pane fade">
+            <h1>Order Online</h1>
+            <p>This is the Order Online Section.</p>
+
+            <div class="container">
+                <div class="row">
+                    <!-- Left Sticky Sidebar -->
+                    <nav class="col-md-3 col-lg-2 d-none d-md-block menu-sidebar">
+                        <h5 class="px-3">Order Online</h5>
+                        <a hr ef="#" class="active">Newly Launched (30)</a>
+                        <a href="#">Group Sharing Combos (27)</a>
+                        <a href="#">McSaver Combos (2 Pc Meals) (71)</a>
+                        <a href="#">Burger Combos (3 Pc Meals) (50)</a>
+                        <a href="#">Burgers & Wraps (36)</a>
+                        <a href="#">Fries & Sides (17)</a>
+                        <a href="#">Coffee & Beverages (44)</a>
+                        <a href="#">Cakes Brownies & Cookies (9)</a>
+                        <a href="#">Desserts (11)</a>
+                        <a href="#">Burgers With Millet Bun (6)</a>
+                    </nav>
+
+                    <!-- Right Content Section -->
+                    <main class="col-md-9 col-lg-10 menu-content">
+                        <h3>Newly Launched</h3>
+
+                        <!-- Menu Item 1 -->
+                        <div class="menu-item">
+                            <img src="https://www.mccainindia.com/wp-content/uploads/2023/01/tandori-veggi-burger.jpg" alt="Burger" style="cursor:pointer">
+                            <div>
+                                <h5>Crispy Veggie Burger + McAloo Tikki</h5>
+                                <p>₹255.23 - Feel the crunch with our newly launched crispy veggie burger.</p>
+                                <div class="d-flex gap-2 float-end">
+
+                                    <!-- Button trigger modal -->
+                                    <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                        Item Info
+                                    </button>
+                                    <a class="btn btn-outline-danger" asp-controller="displayCart" asp-action="AddToCartIteminfo">ADD</a>
+                                </div>
+
+                                <!-- Modal -->
+                                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Food Info</h1>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="card p-2">
+                                                    <img src="https://luniamarketing.com/wp-content/uploads/2021/01/Moong-Dal-Ki-Kachori.jpg" alt="food_image" class="w-100 h-50" />
+                                                    <div class="d-flex justify-content-between" style="margin-top:10px;padding:2px;">
+                                                        <h3 style="font-size:15px;font-weight:800;">Dal Kachori [2 pieces]</h3>
+                                                        <div class="border-2 d-flex gap-3">
+                                                            <i class="fa-solid fa-bookmark" style="font-size:15px;"></i>
+                                                            <i class="fa-solid fa-share-from-square" style="font-size:15px;"></i>
+                                                        </div>
+                                                    </div>
+                                                    <div class="d-flex gap-2">
+                                                        <i class="fa-solid fa-star"></i>
+                                                        <i class="fa-solid fa-star"></i>
+                                                        <i class="fa-solid fa-star"></i>
+                                                        <i class="fa-solid fa-star"></i>
+                                                        <i class="fa-solid fa-star-half-stroke"></i>
+                                                        <p style="font-size:15px;font-weight:800;">(11)</p>
+                                                    </div>
+                                                </div>
+
+                                                <div class="card p-2 mt-2">
+                                                    <div class="d-flex justify-content-between">
+                                                        <p style="font-size:12px;font-weight:800;">ADD A Cooking Request(Optional)</p>
+                                                        <i class="fa-solid fa-circle-exclamation"></i>
+                                                    </div>
+                                                    <textarea class="border-3 rounded-3 bg-light" cols="5" rows="5" placeholder="e.g Don't make it too spicy'"></textarea>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <div class="d-flex justify-content-around gap-3">
+                                                    <div class="d-flex justify-content-between gap-2">
+                                                        <button class="border-0 fs-4 w-25 h-75">-</button>
+                                                        <p style="font-size:15px;font-weight:800;margin-top:10px;">1</p>
+                                                        <button class="border-0 fs-4 w-25 h-75">+</button>
+                                                        <button type="button" class="btn btn-primary">ADD</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="float-start p-3">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Menu Item 2 -->
+                        <div class="menu-item">
+                            <img src="https://via.placeholder.com/100" alt="Burger">
+                            <div>
+                                <h5>Crispy Veggie Burger + McVeggie Burger + Fries (M)</h5>
+                                <p>₹424.76 - Enjoy a perfect combination of burgers and fries.</p>
+                                <button class="btn btn-outline-danger">ADD</button>
+                            </div>
+                        </div>
+
+                        <!-- Menu Item 3 -->
+                        <div class="menu-item">
+                            <img src="https://via.placeholder.com/100" alt="Burger">
+                            <div>
+                                <h5>2 Crispy Veggie Burger + Fries (L) + 2 Coke</h5>
+                                <p>₹635.23 - A perfect combo for two with large fries and Coke.</p>
+                                <button class="btn btn-outline-danger">ADD</button>
+                            </div>
+                        </div>
+
+                        <!-- Menu Item 1 -->
+                        <div class="menu-item">
+                            <img src="https://via.placeholder.com/100" alt="Burger">
+                            <div>
+                                <h5>Crispy Veggie Burger + McAloo Tikki</h5>
+                                <p>₹255.23 - Feel the crunch with our newly launched crispy veggie burger.</p>
+                                <button class="btn btn-outline-danger">ADD</button>
+                            </div>
+                        </div>
+
+                        <!-- Menu Item 2 -->
+                        <div class="menu-item">
+                            <img src="https://via.placeholder.com/100" alt="Burger">
+                            <div>
+                                <h5>Crispy Veggie Burger + McVeggie Burger + Fries (M)</h5>
+                                <p>₹424.76 - Enjoy a perfect combination of burgers and fries.</p>
+                                <button class="btn btn-outline-danger">ADD</button>
+                            </div>
+                        </div>
+
+                        <!-- Menu Item 3 -->
+                        <div class="menu-item">
+                            <img src="https://via.placeholder.com/100" alt="Burger">
+                            <div>
+                                <h5>2 Crispy Veggie Burger + Fries (L) + 2 Coke</h5>
+                                <p>₹635.23 - A perfect combo for two with large fries and Coke.</p>
+                                <button class="btn btn-outline-danger">ADD</button>
+                            </div>
+                        </div>
+
+                        <!-- Menu Item 1 -->
+                        <div class="menu-item">
+                            <img src="https://via.placeholder.com/100" alt="Burger">
+                            <div>
+                                <h5>Crispy Veggie Burger + McAloo Tikki</h5>
+                                <p>₹255.23 - Feel the crunch with our newly launched crispy veggie burger.</p>
+                                <button class="btn btn-outline-danger">ADD</button>
+                            </div>
+                        </div>
+
+                        <!-- Menu Item 2 -->
+                        <div class="menu-item">
+                            <img src="https://via.placeholder.com/100" alt="Burger">
+                            <div>
+                                <h5>Crispy Veggie Burger + McVeggie Burger + Fries (M)</h5>
+                                <p>₹424.76 - Enjoy a perfect combination of burgers and fries.</p>
+                                <button class="btn btn-outline-danger">ADD</button>
+                            </div>
+                        </div>
+
+                        <!-- Menu Item 3 -->
+                        <div class="menu-item">
+                            <img src="https://via.placeholder.com/100" alt="Burger">
+                            <div>
+                                <h5>2 Crispy Veggie Burger + Fries (L) + 2 Coke</h5>
+                                <p>₹635.23 - A perfect combo for two with large fries and Coke.</p>
+                                <button class="btn btn-outline-danger">ADD</button>
+                            </div>
+                        </div>
+
+                    </main>
+                </div>
+            </div>
+        </div>
+
+        <div id="reviews" class="tab-pane fade">
+            <h1>Reviews</h1>
+            <p>This is the Reviews Section.</p>
+
+            <div class="container review-container">
+                <h4>McDonald's Reviews</h4>
+
+                <!-- Review 1 -->
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="user-info">
+                            <div class="user-img"></div>
+                            <div>
+                                <strong>Krish</strong> <br>
+                                <span style="font-size: 12px; color: gray;">0 reviews • 0 Followers</span>
+                            </div>
+                        </div>
+                        <button class="btn-follow">Follow</button>
+                    </div>
+                    <p><span class="badge bg-warning text-dark">DELIVERY</span> 2 days ago</p>
+                    <p>Free item note added.</p>
+                    <div class="review-actions">
+                        <span>👍 Helpful</span>
+                        <span>💬 Comment</span>
+                        <span>🔗 Share</span>
+                    </div>
+                </div>
+
+                <!-- Review 2 -->
+                <div class="review-card">
+                    <div class="review-header">
+                        <div class="user-info">
+                            <div class="user-img"></div>
+                            <div>
+                                <strong>Nisarg Shroff</strong> <br>
+                                <span style="font-size: 12px; color: gray;">0 reviews • 7 Followers</span>
+                            </div>
+                        </div>
+                        <button class="btn-follow">Follow</button>
+                    </div>
+                    <p><span class="badge bg-warning text-dark">DELIVERY</span> 3 days ago</p>
+                    <p>Received order after one and half hour.</p>
+                    <div class="review-actions">
+                        <span>👍 Helpful</span>
+                        <span>💬 Comment</span>
+                        <span>🔗 Share</span>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <nav>
+                    <ul class="pagination">
+                        <li class="page-item"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">4</a></li>
+                        <li class="page-item"><a class="page-link" href="#">5</a></li>
+                    </ul>
+                </nav>
+            </div>
+
+        </div>
+
+        <div id="photos" class="tab-pane fade">
+            <h1>Photos</h1>
+            <p>This is the Photos Section.</p>
+
+            <div class="container">
+                <h4>McDonald's Photos</h4>
+
+                <!-- Filter Buttons -->
+                <div class="filter-buttons">
+                    <button class="active" onclick="filterImages('all')">All (33)</button>
+                    <button onclick="filterImages('safety')">Safety Practices (14)</button>
+                    <button onclick="filterImages('food')">Food (16)</button>
+                    <button onclick="filterImages('ambience')">Ambience (1)</button>
+                </div>
+
+                <!-- Image Gallery -->
+                <div class="gallery">
+                    <img src="https://source.unsplash.com/150x150/?burger" alt="Food" class="food">
+                    <img src="https://source.unsplash.com/150x150/?fastfood" alt="Food" class="food">
+                    <img src="https://source.unsplash.com/150x150/?restaurant" alt="Ambience" class="ambience">
+                    <img src="https://source.unsplash.com/150x150/?fries" alt="Food" class="food">
+                    <img src="https://source.unsplash.com/150x150/?drink" alt="Drink" class="food">
+                    <img src="https://source.unsplash.com/150x150/?cooking" alt="Safety" class="safety">
+                    <img src="https://source.unsplash.com/150x150/?chef" alt="Safety" class="safety">
+                    <img src="https://source.unsplash.com/150x150/?mcdonalds" alt="Restaurant" class="ambience">
+                    <img src="https://source.unsplash.com/150x150/?kitchen" alt="Safety" class="safety">
+                    <img src="https://source.unsplash.com/150x150/?meal" alt="Food" class="food">
+                </div>
+            </div>
+
+            <script>
+                function filterImages(category) {
+                    let images = document.querySelectorAll(".gallery img");
+                    images.forEach(img => {
+                        if (category === "all") {
+                            img.style.display = "block";
+                        } else if (img.classList.contains(category)) {
+                            img.style.display = "block";
+                        } else {
+                            img.style.display = "none";
+                        }
+                    });
+
+                    // Remove active class from all buttons
+                    document.querySelectorAll(".filter-buttons button").forEach(btn => btn.classList.remove("active"));
+
+                    // Add active class to clicked button
+                    event.target.classList.add("active");
+                }
+            </script>
+
+            <div class="related-section">
+
+                <div class="section">
+                    <div class="section-title">Related to McDonald's, Althan Bhatar</div>
+                    <div class="related-links">
+                        <a href="#">Restaurants in Surat</a>,
+                        <a href="#">Surat Restaurants</a>,
+                        <a href="#">Althan Bhatar restaurants</a>,
+                        <a href="#">Best Althan Bhatar restaurants</a>,
+                        <a href="#">McDonald's Menu</a>,
+                        <a href="#">Order food online in Surat</a>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Restaurants Around Althan Bhatar</div>
+                    <div class="related-links">
+                        <a href="#">Pandesar restaurants</a>,
+                        <a href="#">Athwa restaurants</a>,
+                        <a href="#">Sagrampura restaurants</a>,
+                        <a href="#">Nanpura restaurants</a>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Frequent Searches Leading to This Page</div>
+                    <div class="related-links">
+                        <a href="#">mcdonalds althan surat menu</a>,
+                        <a href="#">mcdonald menu surat</a>,
+                        <a href="#">mcd in surat bhatar</a>,
+                        <a href="#">mcdonald's menu</a>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Top Stores</div>
+                    <div class="related-links">
+                        <a href="#">Magdalla</a>,
+                        <a href="#">Dumas</a>,
+                        <a href="#">Nana Varachha</a>,
+                        <a href="#">Rustampura</a>,
+                        <a href="#">Sarthana</a>,
+                        <a href="#">Piplod</a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div id="menu" class="tab-pane fade">
+            <h1>Menu</h1>
+            <p>This is the Menu Section.</p>
+
+            <div class="menu-header">McDonald's Menu</div>
+
+            <div class="menu-container">
+                <div class="menu-image">
+                    <img src="menu-image.jpg" alt="McDonald's Menu">
+                </div>
+                <div class="menu-details">
+                    <strong>Menu</strong><br>
+                    9 pages
+                </div>
+            </div>
+
+            <div class="related-section">
+
+                <div class="section">
+                    <div class="section-title">Related to McDonald's, Rustampura</div>
+                    <div class="related-links">
+                        <a href="#">Restaurants in Surat</a>,
+                        <a href="#">Rustampura Restaurants</a>,
+                        <a href="#">Quick Bites in Surat</a>,
+                        <a href="#">McDonald's Menu</a>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Restaurants Around Rustampura</div>
+                    <div class="related-links">
+                        <a href="#">Salabatpura restaurants</a>,
+                        <a href="#">Sagrampura restaurants</a>,
+                        <a href="#">Gopipura restaurants</a>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Frequent Searches Leading to This Page</div>
+                    <div class="related-links">
+                        <a href="#">mcdonalds surat udhna price list</a>,
+                        <a href="#">mcdonald menu rilence mall udhna</a>
+                    </div>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Top Stores</div>
+                    <div class="related-links">
+                        <a href="#">Magdalla</a>,
+                        <a href="#">Dumas</a>,
+                        <a href="#">Althan Bhatar</a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <hr/>
+@*    <div class="sticky-navbar mt-5">
+        <ul class="nav nav-tabs justify-content-center">
+            <li class="nav-item">
+                <a class="nav-link" href="#">Overview</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="#">Order Online</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Reviews</a>
@@ -304,6 +992,11 @@
                 <a class="nav-link" href="#">Menu</a>
             </li>
         </ul>
+    </div>
+
+    <div class="container mt-3">
+        <h1>Overview</h1>
+        <p>This This Overview Section</p>
     </div>
 
     <div class="container mt-3">
@@ -337,7 +1030,7 @@
                         
                         <!-- Button trigger modal -->
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                            Details
+                            Launch demo modal
                         </button>
 
                         <!-- Modal -->
@@ -479,7 +1172,22 @@
             </main>
         </div>
     </div>
-    <hr />
+
+    <div class="container mt-3">
+        <h1>Reviews</h1>
+        <p>This This Reviews Section</p>
+    </div>
+
+    <div class="container mt-3">
+        <h1>Photos</h1>
+        <p>This This Photos Section</p>
+    </div>
+
+    <div class="container mt-3">
+        <h1>Menu</h1>
+        <p>This This Menu Section</p>
+    </div>*@
+
     <footer class="footer">
         <div class="container">
             <div class="row">

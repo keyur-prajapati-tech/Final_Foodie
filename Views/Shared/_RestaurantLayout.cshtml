@@ -15,6 +15,23 @@
     <link rel="icon" href="https://cdn.iconscout.com/icon/free/png-256/zomato-1937646-1637644.png" />
     <link href="~/css/StyleSheet1.css" rel="stylesheet" />
 
+    <style>
+        /* Custom switch color */
+        .form-check-input {
+            width: 3rem;
+            height: 1.5rem;
+        }
+
+            .form-check-input:checked {
+                background-color: green !important;
+                border-color: green !important;
+            }
+
+            .form-check-input:not(:checked) {
+                background-color: red !important;
+                border-color: red !important;
+            }
+    </style>
 
 </head>
 <body>
@@ -36,28 +53,29 @@
                         </div>
                         <div class="container-fluid collapse navbar-collapse d-lg-flex justify-content-end align-items-end" id="navbarSupportedContent">
                             <ul class="navbar-nav">
-
-                                <li class="nav-item ">
-
-                                    <a class="nav-link active" data-bs-toggle="modal" data-bs-target="#login" aria-current="page"><i class="fa-solid fa-bell"></i></a>
-                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="#"><i class="fa-solid fa-gear"></i></a>
                                 </li>
-
+                                <li class="nav-item">
+                                    <div class="form-check form-switch mt-2">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault" onchange="toggleSwitch()">
+                                            <label class="form-check-label text-danger" for="switchCheckDefault" id="switchLabel">Offline</label>
+                                        </div>
+                                    </div>
+                                </li>
 
                             </ul>
                         </div>
                         <button class="menu-btn" onclick="toggleSidebar()">&#9776;</button>
                         <div class="sidebar pt-1" id="sidebar">
 
-                            <ul>
-                                <li class="nav-item"><a class="nav-link" asp-controller="Restaurant" asp-action="OrderReady"><i class="fa-solid fa-bowl-food me-1"></i>Order</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="Restaurant" asp-action="DocumentRes">Order History</a></li>
-                                @* <li class="nav-item"><a class="nav-link" asp-controller="Restaurant" asp-action="RegisteRres"><i class="fa-solid fa-square-list"></i> Restaurant</a></li> *@
+                            <ul >
+                                <li class="nav-item"><a class="nav-link" asp-controller="Restaurant" asp-action="OrderReady">Order</a></li>
                                 <li class="nav-item"><a class="nav-link" asp-controller="Menu" asp-action="Add">Menus</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#">Reporting</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#">Offers</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="OrderHistory" asp-action="OrdHistory">Order History</a></>
+                                <li class="nav-item"><a class="nav-link" asp-controller="OrderHistory" asp-action="reports">Reporting</a></li>
+                                <li class="nav-item"><a class="nav-link" asp-controller="OrderHistory" asp-action="offers">Offers</a></li>
                                 <li class="nav-item"><a class="nav-link" href="#">Payout</a></li>
                                 <li class="nav-item"><a class="nav-link" href="#">Hyperpure</a></li>
                                 <li class="nav-item"><a class="nav-link" href="#">Ads</a></li>
@@ -70,58 +88,8 @@
                 </div>
 
             </header>
-
-            <!-- Button trigger modal -->
-            @* <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"> *@
-            @*     Launch demo modal *@
-            @* </button> *@
-
-            <!-- Modal -->
-            <div class="modal fade " id="login" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-dialog-centered">
-                    <div class=" modal-content">
-                        <div class="row">
-                            <div class="col-md-12">
-                                <div class="card m-2 shadow">
-                                    <div class="card-header modal-header" style="background-color:#dfe3f3;display:flex;justify-content:space-between">
-                                        <h6 class="fw-bold">LOGIN IN</h6>
-                                        <button type="button" class="btn-close btn" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="card-body">
-
-                                        <div class="d-flex flex-column">
-                                            <form action="/" method="post">
-                                                <div class="form-floating mb-3 w-100">
-                                                    <input type="number" class="form-control w-100" id="floatingInput" placeholder="name@example.com">
-                                                    <label for="floatingInput">enter 10 Didgit Mobile Number</label>
-                                                </div>
-                                            </form>
-                                            <button type="submit" class="btn fw-bolder" style="background-color:#493d9e;color:white;">Send One Time Password</button>
-                                        </div>
-
-                                        <p class="text-center mt-3" style="font-weight:800">OR</p>
-
-                                        <div class="card mx-3">
-                                            <button type="submit" class="btn fw-bolder w-100 ">Login with Email</button>
-                                        </div>
-                                        <div class="card-body ">
-                                            <div class="card d-flex flex-row justify-content-between align-items-center w-100 px-3">
-                                                <span class="fw-bolder"> Sign In As kevinprajapati123@gmail.com </span>
-
-                                                <img src="~/Uploads/foodie_logo.png" alt="Alternate Text" width="50px" class="p-2" />
-                                            </div>
-
-                                        </div>
-
-                                        <hr />
-                                        <p style="font-size:15px;font-weight:800;">New To Foodie ? <a asp-area="" asp-controller="Register" asp-action="CustomerRegister" style="color:blue">create Account</a></p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+ 
+            
             <div>
                 @RenderBody()
             </div>
@@ -165,7 +133,22 @@
         // Listen for window resize event
         window.addEventListener("resize", handleResize);
 
-       </script>
+        function toggleSwitch() {
+            let switchInput = document.getElementById("switchCheckDefault");
+            let switchLabel = document.getElementById("switchLabel");
+
+            if (switchInput.checked) {
+                switchLabel.textContent = "Online";
+                switchLabel.classList.remove("text-danger");
+                switchLabel.classList.add("text-success");
+            } else {
+                switchLabel.textContent = "Offline";
+                switchLabel.classList.remove("text-success");
+                switchLabel.classList.add("text-danger");
+            }
+        }
+
+    </script>
 </body>
 </html>
 
