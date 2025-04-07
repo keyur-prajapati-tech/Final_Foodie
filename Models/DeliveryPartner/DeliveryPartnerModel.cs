@@ -10,15 +10,15 @@ namespace Foodie.Models.DeliveryPartner
         [Key]
         public int partner_id { get; set; }
 
-        [Required]
+        public int vehicle_id { get; set; }
+
+        [Required(ErrorMessage = "Full Name is required")]
         [MaxLength(100)]
         public string FullName { get; set; }
-        [Required]
-        [MaxLength(100)]
-        public string UserName { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Contact Number is required")]
         [MaxLength(20)]
+        [RegularExpression(@"^[0-9]{10}$", ErrorMessage = "Invalid mobile number")]
         public string ContactNumber { get; set; }
 
         [Required]
@@ -30,13 +30,18 @@ namespace Foodie.Models.DeliveryPartner
 
         public bool Isavailable { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Email is required")]
         [MaxLength(100)]
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Invalid email address")]
         public string Email { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Password is required")]
+        [MinLength(6, ErrorMessage = "Password must be at least 6 characters")]
         public string Password { get; set; }
+
+        public bool isApprov { get; set; }
+
+        public bool isOnline { get; set; }
     }
 
     // 🎯 Delivery Partner Details
@@ -93,10 +98,12 @@ namespace Foodie.Models.DeliveryPartner
 
         public DateTime CreatedAT { get; set; } = DateTime.Now;
 
-        public string PickupLocation { get; set; }
+        public string ResLat { get; set; }
 
-        public string DropoffLocation { get; set; }
+        public string ResLag { get; set; }
 
+        public string CustLat { get; set; }
+        public string CustLag { get; set; }
         public string EstimatedDeliveryTime { get; set; }
     }
 
@@ -110,6 +117,7 @@ namespace Foodie.Models.DeliveryPartner
         public int partner_id { get; set; }
 
         public int request_id { get; set; }
+        public int mode_id { get; set; }
 
         [Required]
         public decimal Earnings { get; set; }
@@ -117,10 +125,7 @@ namespace Foodie.Models.DeliveryPartner
         public DateTime PaymentDate { get; set; }
 
         public string PaymentStatus { get; set; }
-
-        public string PaymentMethod { get; set; }
-
-        public string TransactionID { get; set; }
+ 
     }
 
     // 🎯 Delivery Notifications
@@ -187,27 +192,6 @@ namespace Foodie.Models.DeliveryPartner
         public DateTime CreatedAT { get; set; } = DateTime.Now;
     }
 
-    // 🎯 Delivery Slots
-    [Table("tbl_deliverySlots", Schema = "deliverypartner")]
-    public class tbl_deliverySlots
-    {
-        [Key]
-        public int slot_id { get; set; }
-
-        [Required]
-        public string slot_name { get; set; }
-
-        [Required]
-        public DateTime start_time { get; set; }
-
-        [Required]
-        public DateTime end_time { get; set; }
-
-        public decimal min_earning { get; set; }
-
-        public decimal max_earning { get; set; }
-    }
-
     // 🎯 Delivery Tracking
     [Table("tbl_deliveryTracking", Schema = "deliverypartner")]
     public class tbl_deliveryTracking
@@ -230,28 +214,6 @@ namespace Foodie.Models.DeliveryPartner
         public decimal DistanceCovered { get; set; }
 
         public string EstimatedTime { get; set; }
-
-        public string ActualTimeTaken { get; set; }
-    }
-
-    // 🎯 Partner Performance
-    [Table("tbl_partnerPerformance", Schema = "deliverypartner")]
-    public class tbl_partnerPerformance
-    {
-        [Key]
-        public int performance_id { get; set; }
-
-        public int partner_id { get; set; }
-
-        public int TotalOrdersDelivered { get; set; }
-
-        public int LateDeliveries { get; set; }
-
-        public int CancellationCount { get; set; }
-
-        public decimal CustomerRatingAvg { get; set; }
-
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
     }
 
     // 🎯 Partner Schedule
@@ -276,20 +238,10 @@ namespace Foodie.Models.DeliveryPartner
     {
         [Key]
         public int reason_id { get; set; }
-
-        public string Reason { get; set; }
-    }
-
-    // 🎯 Wallet
-    [Table("tbl_wallet", Schema = "deliverypartner")]
-    public class tbl_wallet
-    {
-        [Key]
-        public int WalletID { get; set; }
-
-        public int DeliveryPartnerID { get; set; }
-
-        public decimal Balance { get; set; }
+        public int partner_id { get; set; }
+        public int order_id { get; set; }
+        public string ReasonDescription { get; set; }
+        public DateTime RejectedAt { get; set; }
     }
 
     // 🎯 Delivery Partner Payment Details
@@ -313,6 +265,19 @@ namespace Foodie.Models.DeliveryPartner
 
         public bool IsDefault { get; set; }
 
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
+    }
+
+    [Table("tbl_deliveryDocuments", Schema = "deliverypartner")]
+    public class tbl_deliveryDocuments
+    {
+        [Key]
+        public int document_id { get; set; }
+        public int partner_id { get; set; }
+        public string AadhaarCard { get; set; }
+        public string PANCard { get; set; }
+        public string DrivingLicense { get; set; }
+        public string RCBook { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

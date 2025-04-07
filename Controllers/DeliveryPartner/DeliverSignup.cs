@@ -15,25 +15,30 @@ namespace Foodie.Controllers.DeliveryPartner
     public class DeliverSignup : Controller
     {
         private readonly IConfiguration _configuration;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IWebHostEnvironment _env;
+        private readonly string _connStr;
 
-        public DeliverSignup(IConfiguration configuration)
+        public DeliverSignup(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
         {
             _configuration = configuration;
+            _webHostEnvironment = webHostEnvironment;
+            _env = webHostEnvironment; // ✅ FIX: Assign the passed-in value to _env
+            _connStr = configuration.GetConnectionString("DefaultConnection");
         }
+
 
         private string GetConnectionString()
         {
             return _configuration.GetConnectionString("DefaultConnection");
         }
 
-        // 🎯 Delivery Partner Index Page
         [Route("d/index")]
         public IActionResult DeliveryIndex()
         {
             return View();
         }
 
-        // 🎯 Delivery Partner Registration
         [Route("d/register")]
         public IActionResult DeliveryRegister()
         {
@@ -45,43 +50,61 @@ namespace Foodie.Controllers.DeliveryPartner
         [Route("d/register")]
         public async Task<IActionResult> DeliveryRegister(tbl_deliveryPartners partner)
         {
-            if (ModelState.IsValid)
+            ViewData["Layout"] = "_DeliveryPartnerLayout";
+
+            if (!ModelState.IsValid)
             {
-                try
+                return View("DeliveryRegister", partner); // Return view with validation messages
+            }
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(GetConnectionString()))
                 {
-                    using (SqlConnection conn = new SqlConnection(GetConnectionString()))
+                    await conn.OpenAsync();
+
+                    // Check if email already exists
+                    using (SqlCommand checkCmd = new SqlCommand("SELECT COUNT(*) FROM deliverypartner.tbl_deliveryPartners WHERE Email = @Email", conn))
                     {
-                        await conn.OpenAsync();
-                        using (SqlCommand cmd = new SqlCommand("sp_RegisterDeliveryPartner", conn))
+                        checkCmd.Parameters.AddWithValue("@Email", partner.Email);
+                        int emailExists = (int)await checkCmd.ExecuteScalarAsync();
+
+                        if (emailExists > 0)
                         {
-                            cmd.CommandType = CommandType.StoredProcedure;
-                            cmd.Parameters.AddWithValue("@FullName", partner.FullName);
-                            cmd.Parameters.AddWithValue("@ContactNumber", Convert.ToInt64(partner.ContactNumber));
-                            cmd.Parameters.AddWithValue("@UserName", partner.UserName);
-                            cmd.Parameters.AddWithValue("@Email", partner.Email);
-                            cmd.Parameters.AddWithValue("@Password", partner.Password);
-                            cmd.Parameters.AddWithValue("@CreatedAT", DateTime.Now);
+                            ModelState.AddModelError("Email", "This email is already registered.");
+                            return View("DeliveryRegister", partner);
+                        }
+                    }
 
-                            int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                    // Call stored procedure to insert
+                    using (SqlCommand cmd = new SqlCommand("sp_RegisterDeliveryPartner", conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@FullName", partner.FullName);
+                        cmd.Parameters.AddWithValue("@ContactNumber", Convert.ToInt64(partner.ContactNumber));
+                        cmd.Parameters.AddWithValue("@Email", partner.Email);
+                        cmd.Parameters.AddWithValue("@Password", partner.Password);
+                        cmd.Parameters.AddWithValue("@CreatedAT", DateTime.Now);
 
-                            if (rowsAffected > 0)
-                            {
-                                return RedirectToAction("DeliveryLogin");
-                            }
+                        int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                        if (rowsAffected > 0)
+                        {
+                            TempData["Success"] = "Registration successful. Please wait for admin approval.";
+                            return RedirectToAction("DeliveryLogin");
                         }
                     }
                 }
-                catch (SqlException ex)
-                {
-                    ViewBag.Error = $"Database error: {ex.Message}";
-                }
+            }
+            catch (SqlException ex)
+            {
+                ModelState.AddModelError("", $"Database error: {ex.Message}");
             }
 
-            ViewBag.Error = "Registration failed. Please try again.";
-            return View("DeliveryRegister");
+            ModelState.AddModelError("", "Registration failed. Please try again.");
+            return View("DeliveryRegister", partner);
         }
 
-        // 🎯 Delivery Partner Login
+
         [Route("d/login")]
         public IActionResult DeliveryLogin()
         {
@@ -96,23 +119,15 @@ namespace Foodie.Controllers.DeliveryPartner
 
             if (partner != null)
             {
-                // ✅ Update LastLogin after successful login
                 await UpdateLastLoginAsync(partner.partner_id);
-
-                // ✅ Sign-in the user
                 await SignInUser(partner);
-
-                // ✅ Redirect based on the partner's status
                 return HandleLoginRedirect(partner.Status);
             }
 
-            // ❌ Invalid login, show error message
             TempData["Error"] = "Invalid email or password.";
             return RedirectToAction("DeliveryLogin");
         }
 
-        // 🎯 Get partner by email and password
-        [HttpGet]
         public async Task<tbl_deliveryPartners> GetPartnerByEmailAndPasswordAsync(string Email, string Password)
         {
             tbl_deliveryPartners partner = null;
@@ -134,7 +149,6 @@ namespace Foodie.Controllers.DeliveryPartner
                             partner = new tbl_deliveryPartners
                             {
                                 partner_id = Convert.ToInt32(reader["partner_id"]),
-                                UserName = reader["UserName"].ToString(),
                                 Email = reader["Email"].ToString(),
                                 Status = reader["Status"].ToString()
                             };
@@ -146,7 +160,6 @@ namespace Foodie.Controllers.DeliveryPartner
             return partner;
         }
 
-        // ✅ Update LastLogin after successful login
         private async Task UpdateLastLoginAsync(int partner_id)
         {
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
@@ -157,13 +170,11 @@ namespace Foodie.Controllers.DeliveryPartner
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@PartnerId", partner_id);
-
                     await cmd.ExecuteNonQueryAsync();
                 }
             }
         }
 
-        // 🎯 Sign-in user and create claims
         private async Task SignInUser(tbl_deliveryPartners partner)
         {
             var claims = new List<Claim>
@@ -178,28 +189,20 @@ namespace Foodie.Controllers.DeliveryPartner
 
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
             HttpContext.Session.SetInt32("PartnerId", partner.partner_id);
-            HttpContext.Session.SetString("UserName", partner.UserName);
         }
 
-        // 🎯 Handle login redirection based on status
         private IActionResult HandleLoginRedirect(string status)
         {
-            if (status == "Inactive")
+            switch (status)
             {
-                return RedirectToAction("Per_Details");
-            }
-            else if (status == "Active")
-            {
-                return RedirectToAction("Dashboard");
-            }
-            else if (status == "Pending")
-            {
-                return RedirectToAction("PendingApproval");
-            }
-            else
-            {
-                ViewBag.Error = "Your account is rejected. Please contact support.";
-                return View("~/Views/DeliverSignup/DeliveryLogin.cshtml");
+                case "Inactive":
+                    return RedirectToAction("Per_Details");
+                case "Active":
+                    return RedirectToAction("Dashboard");
+                case "Pending":
+                    return RedirectToAction("PendingApproval");
+                default:
+                    return ShowRejectedAccountError();
             }
         }
 
@@ -209,7 +212,6 @@ namespace Foodie.Controllers.DeliveryPartner
             return View("~/Views/DeliverSignup/DeliveryLogin.cshtml");
         }
 
-        // 🎯 Pending Approval Page
         [HttpGet("d/details")]
         public IActionResult Per_Details()
         {
@@ -218,7 +220,7 @@ namespace Foodie.Controllers.DeliveryPartner
             if (partnerId == null)
             {
                 TempData["Error"] = "Please log in to continue.";
-                return RedirectToAction("DeliveryLogin", "DeliverSignup");
+                return RedirectToAction("DeliveryLogin");
             }
 
             tbl_deliveryPartnerDetails partnerDetails = null;
@@ -229,8 +231,8 @@ namespace Foodie.Controllers.DeliveryPartner
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@partner_id", partnerId);
-
                     con.Open();
+
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())
@@ -257,7 +259,7 @@ namespace Foodie.Controllers.DeliveryPartner
         }
 
         [HttpPost("d/details")]
-        public IActionResult Per_Details(tbl_deliveryPartnerDetails per)
+        public async Task<IActionResult> Per_Details(tbl_deliveryPartnerDetails per, IFormFile profileImage)
         {
             var partnerId = HttpContext.Session.GetInt32("PartnerId");
 
@@ -267,11 +269,31 @@ namespace Foodie.Controllers.DeliveryPartner
                 return RedirectToAction("DeliveryLogin");
             }
 
+            string uniqueFileName = null;
+
+            // 📁 Save profile image if uploaded
+            if (profileImage != null && profileImage.Length > 0)
+            {
+                string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                Directory.CreateDirectory(uploadsFolder); // Ensure folder exists
+
+                string fileExtension = Path.GetExtension(profileImage.FileName);
+                uniqueFileName = Guid.NewGuid().ToString() + fileExtension;
+                string filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                using (var fileStream = new FileStream(filePath, FileMode.Create))
+                {
+                    await profileImage.CopyToAsync(fileStream);
+                }
+
+                per.ProfilePicture = uniqueFileName;
+            }
+
             using (SqlConnection con = new SqlConnection(GetConnectionString()))
             {
                 con.Open();
 
-                // Check if details already exist
+                // 🔍 Check if details already exist
                 using (SqlCommand checkCmd = new SqlCommand("sp_GetDeliveryPartnerDetailsById", con))
                 {
                     checkCmd.CommandType = CommandType.StoredProcedure;
@@ -287,12 +309,12 @@ namespace Foodie.Controllers.DeliveryPartner
                     }
                 }
 
-                // Insert new details
+                // ✅ Insert details
                 using (SqlCommand cmd = new SqlCommand("sp_InsertDeliveryPartnerDetails", con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@partner_id", partnerId);
-                    cmd.Parameters.AddWithValue("@ProfilePicture", per.ProfilePicture);
+                    cmd.Parameters.AddWithValue("@ProfilePicture", per.ProfilePicture ?? "");
                     cmd.Parameters.AddWithValue("@AadhaarNumber", per.AadhaarNumber);
                     cmd.Parameters.AddWithValue("@PANNumber", per.PANNumber);
 
@@ -303,6 +325,7 @@ namespace Foodie.Controllers.DeliveryPartner
             TempData["Success"] = "Details saved successfully. Proceed to enter your vehicle details.";
             return RedirectToAction("VehicleDetails");
         }
+
 
 
 
@@ -403,41 +426,63 @@ namespace Foodie.Controllers.DeliveryPartner
         [HttpPost("d/vehicle")]
         public IActionResult VehicleDetails(tbl_deliveryVehicle vehicle)
         {
-            if (vehicle == null || vehicle.partner_id == 0)
+            var partnerId = HttpContext.Session.GetInt32("PartnerId");
+
+            if (vehicle == null || partnerId == null)
             {
                 TempData["Error"] = "Invalid vehicle data.";
-                return RedirectToAction("VehicleDetails", new { partner_id = vehicle?.partner_id ?? 0 });
+                return RedirectToAction("VehicleDetails");
             }
 
             try
             {
+                int newVehicleId = 0;
+
                 using (SqlConnection con = new SqlConnection(GetConnectionString()))
                 {
                     using (SqlCommand cmd = new SqlCommand("sp_InsertVehicle", con))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.Parameters.AddWithValue("@partner_id", partnerId);
+                        cmd.Parameters.AddWithValue("@RCNumber", vehicle.RCNumber ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@VehicleType", vehicle.VehicleType ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@LicensePlate", vehicle.LicensePlate ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@MakeModel", vehicle.MakeModel ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@DrivingLicense", vehicle.DrivingLicense ?? (object)DBNull.Value);
+                        cmd.Parameters.AddWithValue("@InsuranceDetails", vehicle.InsuranceDetails ?? (object)DBNull.Value);
 
-                        // Use DBNull.Value if the value is null or empty
-                        cmd.Parameters.AddWithValue("@partner_id", vehicle.partner_id);
-                        cmd.Parameters.AddWithValue("@RCNumber", vehicle.RCNumber);
-                        cmd.Parameters.AddWithValue("@VehicleType", vehicle.VehicleType);
-                        cmd.Parameters.AddWithValue("@LicensePlate",vehicle.LicensePlate);
-                        cmd.Parameters.AddWithValue("@MakeModel", vehicle.MakeModel);
-                        cmd.Parameters.AddWithValue("@DrivingLicense", vehicle.DrivingLicense);
-                        cmd.Parameters.AddWithValue("@InsuranceDetails", vehicle.InsuranceDetails);
+                        SqlParameter outputParam = new SqlParameter("@NewVehicleID", SqlDbType.Int)
+                        {
+                            Direction = ParameterDirection.Output
+                        };
+                        cmd.Parameters.Add(outputParam);
 
                         con.Open();
                         cmd.ExecuteNonQuery();
-                        
+
+                        newVehicleId = Convert.ToInt32(outputParam.Value);
+                    }
+
+                    // Now update tbl_deliveryPartners with new vehicle_id
+                    using (SqlCommand updateCmd = new SqlCommand("UPDATE [deliverypartner].[tbl_deliveryPartners] SET vehicle_id = @vehicle_id WHERE partner_id = @partner_id", con))
+                    {
+                        updateCmd.Parameters.AddWithValue("@vehicle_id", newVehicleId);
+                        updateCmd.Parameters.AddWithValue("@partner_id", partnerId);
+                        updateCmd.ExecuteNonQuery();
                     }
                 }
+
+                TempData["Success"] = "Vehicle details saved successfully.";
+                return RedirectToAction("BankDetails", new { partner_id = partnerId });
             }
             catch (Exception ex)
             {
                 TempData["Error"] = "Error: " + ex.Message;
+                return RedirectToAction("VehicleDetails");
             }
-            return RedirectToAction("Document", new { partner_id = vehicle.partner_id });
         }
+
+
 
         [HttpPost("d/Update")]
         public IActionResult UpdateVehicle(tbl_deliveryVehicle vehicle)
@@ -540,7 +585,7 @@ namespace Foodie.Controllers.DeliveryPartner
             }
 
             TempData["SuccessMessage"] = "Bank details saved successfully!";
-            return RedirectToAction("BankDetails"); // Reload the page after saving
+            return RedirectToAction("Document"); // Reload the page after saving
         }
 
         // 🟢 Separate Method to Insert Bank Details
@@ -605,10 +650,74 @@ namespace Foodie.Controllers.DeliveryPartner
         }
 
 
-        [Route("d/doc")]
+        [HttpGet("d/doc")]
         public IActionResult Document()
         {
             return View();
+        }
+
+        [HttpPost("d/doc")]
+        public IActionResult Document(IFormFile AadhaarCard, IFormFile PANCard, IFormFile DrivingLicense, IFormFile RCBook, IFormFile ProfilePhoto)
+        {
+            int? partnerId = HttpContext.Session.GetInt32("PartnerId");
+            if (partnerId == null)
+            {
+                TempData["Error"] = "Session expired. Please log in again.";
+                return RedirectToAction("Login");
+            }
+
+            string UploadFile(IFormFile file)
+            {
+                if (file != null && file.Length > 0)
+                {
+                    var fileName = $"{Guid.NewGuid()}_{file.FileName}";
+                    var uploadPath = Path.Combine(_env.WebRootPath, "Uploads", "Documents");
+                    if (!Directory.Exists(uploadPath))
+                        Directory.CreateDirectory(uploadPath);
+                    var fullPath = Path.Combine(uploadPath, fileName);
+                    using (var fs = new FileStream(fullPath, FileMode.Create))
+                    {
+                        file.CopyTo(fs);
+                    }
+                    return "/Uploads/Documents/" + fileName;
+                }
+                return null;
+            }
+
+            string aadhaarPath = UploadFile(AadhaarCard);
+            string panPath = UploadFile(PANCard);
+            string licensePath = UploadFile(DrivingLicense);
+            string rcPath = UploadFile(RCBook);
+            string photoPath = UploadFile(ProfilePhoto);
+
+            bool isExisting = false;
+            using (SqlConnection conn = new SqlConnection(_connStr))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand("sp_CheckDeliveryDocumentExists", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@partner_id", partnerId.Value);
+                int count = (int)cmd.ExecuteScalar();
+                isExisting = count > 0;
+            }
+
+            using (SqlConnection conn = new SqlConnection(_connStr))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand(isExisting ? "sp_UpdateDeliveryDocuments" : "sp_InsertDeliveryDocuments", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                cmd.Parameters.AddWithValue("@partner_id", partnerId.Value);
+                cmd.Parameters.AddWithValue("@AadhaarCard", (object?)aadhaarPath ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@PANCard", (object?)panPath ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@DrivingLicense", (object?)licensePath ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@RCBook", (object?)rcPath ?? DBNull.Value);
+
+                cmd.ExecuteNonQuery();
+            }
+
+            TempData["Success"] = isExisting ? "Documents updated successfully!" : "Documents uploaded successfully!";
+            return RedirectToAction("PendingApproval");
         }
 
         [Route("d/dash")]
@@ -617,9 +726,8 @@ namespace Foodie.Controllers.DeliveryPartner
             return View();
         }
 
-        // 🎯 Admin Side: Time Slots Page
-        [Route("d/slots")]
-        public IActionResult TimeSlot()
+        [Route("d/pending")]
+        public IActionResult PendingApproval()
         {
             return View();
         }

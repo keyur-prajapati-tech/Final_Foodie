@@ -101,20 +101,22 @@
         <h3>🚴‍♂️ Delivery Partner Details</h3>
     </div>
     <div class="card-body">
-        <form method="post" asp-action="Per_Details" asp-controller="DeliverSignup">
+        <form asp-action="Per_Details" asp-controller="DeliverSignup" method="post" enctype="multipart/form-data">
             <div class="form-group">
-                <label for="ProfilePicture">Profile Picture</label>
-                <input type="file" class="form-control" id="ProfilePicture" name="ProfilePicture" />
+                <label>Upload Profile Picture</label>
+                <input type="file" name="profileImage" class="form-control" />
+            </div>
+
+            <input type="hidden" asp-for="ProfilePicture" />
+            <div class="form-group">
+                <label>Aadhaar Number</label>
+                <input asp-for="AadhaarNumber" class="form-control" />
             </div>
             <div class="form-group">
-                <label for="AadhaarNumber">Aadhaar Number</label>
-                <input type="text" class="form-control" id="AadhaarNumber" name="AadhaarNumber" value="@Model.AadhaarNumber" required />
+                <label>PAN Number</label>
+                <input asp-for="PANNumber" class="form-control" />
             </div>
-            <div class="form-group">
-                <label for="PANNumber">PAN Number</label>
-                <input type="text" class="form-control" id="PANNumber" name="PANNumber" value="@Model.PANNumber" required />
-            </div>
-            <button type="submit" class="btn btn-primary">Save Details</button>
+            <button type="submit" class="btn btn-primary">Submit</button>
         </form>
     </div>
 </div>

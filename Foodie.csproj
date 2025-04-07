@@ -20,6 +20,7 @@
   <ItemGroup>
     <Folder Include="Repositories\For_Customer\" />
     <Folder Include="Repositories\For_Restaurant\" />
+    <Folder Include="wwwroot\Uploads\Documents\" />
   </ItemGroup>
 
 </Project>
