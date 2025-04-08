@@ -26,8 +26,8 @@
 </head>
 <body>
 
-    <nav class="navbar navbar-expand">
-        <div class="container-fluid">
+    <nav class="navbar navbar-expand mt-3">
+        <div class="container-fluid"> 
            
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav">
@@ -71,14 +71,14 @@
 
     <!-- Button trigger modal -->
     <button type="button" class="btn btn-primary" id="modalButton">
-        Launch demo modal
+        <a class="nav-link active" data-bs-toggle="modal" data-bs-target="#exampleModal" aria-current="page">Order Notification</a>
     </button>
 
     <!-- Modal -->
     <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
-                <div class="container mt-5 d-flex justify-content-center">
+                <div class="d-flex justify-content-center">
                     <div class="card shadow" style="width:700px">
                         <div class="d-flex justify-content-between card-header ">
                             <h6 class="mb-0">1 New Order</h6>
@@ -118,31 +118,6 @@
             </div>
         </div>
     </div>
-
-    <script>
-        // Bootstrap modal instance
-        const exampleModal = new bootstrap.Modal(document.getElementById('exampleModal'));
-
-        document.getElementById('modalButton').addEventListener('click', function () {
-            exampleModal.show();
-        });
-
-        document.getElementById('saveChanges').addEventListener('click', function () {
-            const userInput = document.getElementById('userInput').value.trim();
-            const errorMsg = document.getElementById('errorMsg');
-
-            if (userInput === "") {
-                errorMsg.style.display = "block";  // Show error message
-            } else {
-                errorMsg.style.display = "none";   // Hide error message
-                alert("Entered Name: " + userInput);
-                exampleModal.hide(); // Close modal
-            }
-        });
-    </script>
-
-
-
 
 
     <div class="container-fluid mt-5 w-100  ">

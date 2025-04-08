@@ -1,6 +1,8 @@
 ﻿@{
     Layout = "~/Views/Shared/_RestaurantRegister.cshtml";
+    
 }
+@model Foodie.Models.Restaurant.RestaurantRegistrationViewModel
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,6 +23,7 @@
     <div class="container-fluid">
 
         <div>
+            <form action="@Url.Action("RegisterRestaurnt","AddRestaurant")" method="post">
             <h3 class="fs-2 fw-bolder">Restaurant Information</h3>
             <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
                 <div>
@@ -32,7 +35,8 @@
                 </div>
 
                 <div class="m-3">
-                    <input type="text" class="form-control fw-lighter" style="border-radius:10px" id="rest_name" placeholder="Restaurant Name*">
+                    <input type="text" class="form-control fw-lighter" style="border-radius:10px"  
+                    asp-for="@Model.tbl_Restaurant.restaurant_name" id="rest_name" placeholder="Restaurant Name*">
                 </div>
 
             </div>
@@ -47,13 +51,13 @@
                 </div>
 
                 <div class="d-flex justify-content-between m-3">
-                    <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" id="owner_name" placeholder="Full Name*">
+                    <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" asp-for="@Model.tbl_Owner.owner_name" id="owner_name"  placeholder="Full Name*">
 
-                    <input type="email" class="form-control fw-lighter " style="border-radius:10px" id="owner_email" placeholder="Email Address*">
+                        <input type="email" class="form-control fw-lighter " style="border-radius:10px" asp-for="@Model.tbl_Owner.owner_email" id="owner_email" placeholder="Email Address*">
                 </div>
 
                 <div class="mx-3">
-                    <input type="number" class="form-control fw-lighter" style="border-radius:10px" id="owner_phone" placeholder="Phone Number*">
+                    <input type="number" class="form-control fw-lighter" style="border-radius:10px" id="owner_phone" asp-for="@Model.tbl_Owner.owner_contact" placeholder="Phone Number*">
                 </div>
 
                 <div class="form-check mx-3">
@@ -101,15 +105,16 @@
 
                 </div>
                 <div class="d-flex justify-content-between m-3">
-                    <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" id="owner_name" placeholder="Shop no. / building no. (optional)">
+                    <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" 
+                    id="shop" placeholder="Shop no. / building no. (optional)">
 
-                    <input type="email" class="form-control fw-lighter " style="border-radius:10px" id="owner_email" placeholder="Floor / tower (optional)">
+                    <input type="text" class="form-control fw-lighter " style="border-radius:10px" id="floor" placeholder="Floor / tower (optional)">
                 </div>
 
                 <div class="d-flex justify-content-between m-3">
-                    <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" id="owner_name" placeholder="Area / Sector / Locality*">
+                    <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" id="area" asp-for="@Model.tbl_Restaurant.restaurant_street" placeholder="Area / Sector / Locality*">
 
-                    <input type="email" class="form-control fw-lighter " style="border-radius:10px" id="owner_email" placeholder="City">
+                        <input type="text" class="form-control fw-lighter " style="border-radius:10px" id="city" asp-for="@Model.tbl_Restaurant.restaurant_pincode"  placeholder="City">
                 </div>
 
                 <div class="d-flex justify-content-between m-3">
@@ -119,10 +124,12 @@
                 </div>
             </div>
 
-            <div class="container-fluid mt-3 d-flex justify-content-end bg-light position-sticky p-3 card ">
+                <div class="container-fluid mt-3 d-flex justify-content-end align-items-end bg-light position-sticky p-3 card ">
+                    <button type="submit" class="btn btn-outline-success w-25">Next</button>
+                </div>
+            </form>
 
-                <a asp-controller="AddRestaurant" asp-action="MenuItems"><button type="button" class="btn btn-outline-success w-25 ">Next</button></a>
-            </div>
+          
 
         </div>
     </div>

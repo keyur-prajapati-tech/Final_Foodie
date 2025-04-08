@@ -1,0 +1,93 @@
+﻿@model IEnumerable<Foodie.Models.customers.tbl_city>
+
+@{
+    Layout = "~/Views/shared/_CustomerLayout.cshtml";
+}
+
+<style>
+    .localities-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+    }
+
+    /* Locality Cards */
+    .locality-card {
+    background: white;
+    border: 2px solid #000;
+    padding: 15px;
+    border-radius: 5px;
+    box-shadow: 5px 3px 5px rgba(0,0,0,.9);
+    cursor: pointer;
+    transition: 0.3s ease-in-out;
+    text-align: left;
+    }
+
+    .locality-card:hover {
+    background: #f7f7f7;
+    }
+
+    /* Hidden Localities (Initially Hidden) */
+    .hidden {
+    display: none;
+    }
+
+    /* Toggle Button */
+    .toggle-btn {
+    margin-top: 15px;
+    }
+
+    .toggle-btn button {
+    background: none;
+    border: none;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #ff5a5f;
+    }
+</style>
+
+<div class="container-fluid mt-4">
+    <h2>Popular localities in and around <strong>@ViewBag.DisrictName</strong></h2>
+
+    <div class="container-fluid mt-4">
+        <div class="localities-grid">
+            @{int count = 0;}
+            @foreach (var item in Model)
+            {
+                <div class="locality-card @(count >= 8 ? "hidden" : "")"> 
+                    <p>@item.CityName</p> 
+                    <span>525 places</span> 
+                </div>
+                count++;
+            }
+        </div>
+
+        @if(Model.Count() > 8)
+        {
+            <!-- Button for expanding/collapsing -->
+            <div class="toggle-btn">
+                <button id="toggleButton">See more ⬇</button>
+            </div>
+        }
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const toggleButton = document.getElementById("toggleButton");
+        const hiddenLocalities = document.querySelectorAll(".hidden");
+
+        let isExpanded = false;
+
+        toggleButton.addEventListener("click", function () {
+            hiddenLocalities.forEach(locality => {
+                locality.style.display = isExpanded ? "none" : "block";
+            });
+
+            isExpanded = !isExpanded;
+            toggleButton.innerHTML = isExpanded ? "See less ⬆" : "See more ⬇";
+        });
+    });
+</script>
