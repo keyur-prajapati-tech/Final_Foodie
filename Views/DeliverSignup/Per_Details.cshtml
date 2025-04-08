@@ -1,164 +1,122 @@
-﻿@{
-    ViewData["Title"] = "Personal Details";
-    Layout = ViewBag.Layout ?? "_DeliveryPartnerLayout";
-}
+﻿@model Foodie.Models.DeliveryPartner.tbl_deliveryPartnerDetails
 
+@{
+    ViewData["Title"] = "Personal Details";
+    Layout = "~/Views/Shared/_DeliverRegisterLayout.cshtml";  // Safe casting
+}
 <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Arial', sans-serif;
+    }
+
     body {
-        background-color: white;
-        background-repeat: no-repeat;
-        background-position: center;
-        background-size: cover;
-        background-attachment: fixed;
+        background: linear-gradient(135deg, #e3f2fd, #e1bee7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
         margin: 0;
         padding: 0;
     }
 
-    .form-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 100vh;
-        padding: 50px;
+    @@keyframes fadeInUp {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    
     }
 
     .card {
-        background-color: #e3e7ff;
+        background: #e3e7ff;
         backdrop-filter: blur(10px);
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 25px;
-        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-        max-width: 450px;
-        width: 100%;
-        animation: fadeInEffect 0.8s ease-in-out;
+        width: 400px;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+        text-align: center;
+        color: black;
+        animation: fadeInUp 0.8s ease-in-out;
+        margin-left: 50px;
     }
 
     .card-header h3 {
         font-weight: bold;
-        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
-        color: white;
-    }
-
-    @@keyframes fadeInEffect {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+        color: #333;
+        margin-bottom: 15px;
     }
 
     .form-control {
-        background: rgba(255, 255, 255, 0.3);
+        width: 100%;
+        padding: 12px;
+        margin-top: 5px;
+        margin-bottom: 15px;
+        border: 1px solid #aaa;
+        border-radius: 6px;
+        font-size: 16px;
+        background: rgba(255, 255, 255, 0.6);
+        color: black;
     }
 
     .btn-primary {
         background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 12px;
+        width: 100%;
+        border-radius: 6px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
         transition: all 0.3s ease-in-out;
     }
 
         .btn-primary:hover {
             background-color: #0056b3;
+            box-shadow: 0px 0px 10px rgba(0, 123, 255, 0.4);
             transform: scale(1.05);
         }
 
-    .btn-success:hover {
-        transform: scale(1.05);
-    }
-
-    .card-footer {
-        background: rgba(255, 255, 255, 0.1);
-        text-align: center;
-    }
-
-        .card-footer a {
-            color: black;
-            font-weight: bold;
-        }
-
-    .mb-3 label {
-        color: black;
+    .form-label {
+        color: #333;
+        font-size: 14px;
         font-weight: bold;
-    }
-
-    
-    .error {
-        border: 2px solid red !important;
+        text-align: left;
+        display: block;
     }
 </style>
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-lg p-4">
-                <div class="card-header text-center">
-                    <h3>🚴‍♂️ Personnel Details</h3>
-                </div>
-
-                <form id="personnelForm" method="post" asp-action="SaveDetails" asp-controller="DeliverSignup" enctype="multipart/form-data">
-                    <div class="mb-3">
-                        <label class="form-label">Aadhaar Card Number</label>
-                        <input type="text" class="form-control required" name="aadhaarNumber" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">PAN Card Number</label>
-                        <input type="text" class="form-control required" name="panNumber" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Bank Account Number</label>
-                        <input type="text" class="form-control required" name="bankAccount" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Bank Name</label>
-                        <input type="text" class="form-control required" name="bankName" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">IFSC Code</label>
-                        <input type="text" class="form-control required" name="ifscCode" required>
-                    </div>
-
-                    <div class="d-flex justify-content-between">
-                        <button type="submit" class="btn btn-success">Save</button>
-                        <a href="#" id="continueBtn" class="btn btn-primary">Continue</a>
-                    </div>
-                </form>
+<div class="card">
+    <div class="card-header">
+        <h3>🚴‍♂️ Delivery Partner Details</h3>
+    </div>
+    <div class="card-body">
+        <form asp-action="Per_Details" asp-controller="DeliverSignup" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label>Upload Profile Picture</label>
+                <input type="file" name="profileImage" class="form-control" />
             </div>
-        </div>
+
+            <input type="hidden" asp-for="ProfilePicture" />
+            <div class="form-group">
+                <label>Aadhaar Number</label>
+                <input asp-for="AadhaarNumber" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label>PAN Number</label>
+                <input asp-for="PANNumber" class="form-control" />
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
     </div>
 </div>
-
-<script>
-    document.getElementById("continueBtn").addEventListener("click", function(event) {
-        event.preventDefault();
-
-        let isValid = true;
-        let requiredFields = document.querySelectorAll(".required");
-
-       
-        requiredFields.forEach(field => {
-            field.classList.remove("error");
-        });
-
-        requiredFields.forEach(field => {
-            if (!field.value) {
-                field.classList.add("error");
-                isValid = false;
-            }
-        });
-
-        if (isValid) {
-            
-            window.location.href = "@Url.Action("VehicleDetails", "DeliverSignup")";
-        } else {
-            alert("⚠ Please fill out all required fields before continuing.");
-        }
-    });
-</script>

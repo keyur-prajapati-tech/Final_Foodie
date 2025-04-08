@@ -1,75 +1,141 @@
-﻿@{
-    ViewData["Title"] = "Profile";
+﻿@using Foodie.Models.DeliveryPartner
+@model tbl_deliveryPartnerDetails
+
+@{
+    ViewData["Title"] = "Update Profile";
     Layout = ViewBag.Layout ?? "_DeliveryPartnerLayout";
 }
 
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-lg">
-                <div class="card-header bg-primary text-white">
-                    <h4 class="mb-0 text-center">👤 Delivery Partner Profile</h4>
-                </div>
-                <div class="card-body">
-                    <form>
-                        <!-- Profile Picture Upload -->
-                        <div class="text-center mb-3">
-                            <img src="https://via.placeholder.com/120" class="rounded-circle img-thumbnail" alt="Profile Picture">
-                            <input type="file" class="form-control mt-2" accept="image/*">
-                        </div>
+<div class="profile-container">
+    <h2 class="profile-heading">Update Profile</h2>
 
-                        <!-- Full Name -->
-                        <div class="mb-3">
-                            <label for="name" class="form-label">Full Name</label>
-                            <input type="text" class="form-control" id="name"  required>
-                        </div>
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
 
-                        <!-- Email -->
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email"  required>
-                        </div>
+    <form asp-action="UpdateDetails" method="post" class="profile-form">
+        <input type="hidden" asp-for="detail_id" />
 
-                        <!-- Phone -->
-                        <div class="mb-3">
-                            <label for="phone" class="form-label">Contact Number</label>
-                            <input type="text" class="form-control" id="phone" required>
-                        </div>
-
-                        <!-- Vehicle Details -->
-                        <div class="mb-3">
-                            <label for="vehicle" class="form-label">Vehicle Type</label>
-                            <select class="form-control" id="vehicle">
-                                <option value="bike">Bike</option>
-                                <option value="scooter">Scooter</option>
-                                <option value="car">Car</option>
-                            </select>
-                        </div>
-
-                        <!-- Update Profile Button -->
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-success w-100">Update Profile</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        <div class="profile-pic-container">
+            <img id="profilePreview" src="@Model.ProfilePicture" alt="Profile Picture" class="profile-pic" />
+            <input type="file" id="ProfilePicture" name="ProfilePicture" class="profile-upload" accept="image/*" onchange="previewImage(event)" />
         </div>
-    </div>
+        <div class="form-group">
+            <label for="AadhaarNumber">Aadhaar Number</label>
+            <input type="text" asp-for="AadhaarNumber" class="form-control" required />
+        </div>
+
+        <div class="form-group">
+            <label for="PANNumber">PAN Number</label>
+            <input type="text" asp-for="PANNumber" class="form-control" required />
+        </div>
+
+        <button type="submit" class="btn-update">Update</button>
+    </form>
 </div>
 
-<!-- Bootstrap Styling -->
 <style>
-    .card {
-        border-radius: 10px;
+    .profile-container {
+        width: 40%;
+        margin: auto;
+        padding: 20px;
+        background: #fff;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border-radius: 12px;
+        animation: fadeIn 0.5s ease-in-out;
     }
 
-    .card-header {
-        border-top-left-radius: 10px;
-        border-top-right-radius: 10px;
+    .profile-heading {
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 20px;
     }
 
-    .btn-success {
-        font-size: 1.1rem;
+    .profile-form {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-control {
         padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        transition: all 0.3s ease-in-out;
+    }
+
+        .form-control:focus {
+            border-color: #ff5722;
+            box-shadow: 0 0 8px rgba(255,87,34,0.3);
+        }
+
+    .profile-pic-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        margin-bottom: 20px;
+    }
+
+    .profile-pic {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #ff5722;
+    }
+
+    .profile-upload {
+        margin-top: 10px;
+        padding: 5px;
+        font-size: 14px;
+    }
+
+    .btn-update {
+        padding: 10px;
+        background: #412;
+        border: none;
+        color: white;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+        .btn-update:hover {
+            background: #e64a19;
+        }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
     }
 </style>
+
+<script>
+    function previewImage(event) {
+        var reader = new FileReader();
+        reader.onload = function(){
+            var output = document.getElementById('profilePreview');
+            output.src = reader.result;
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    }
+</script>

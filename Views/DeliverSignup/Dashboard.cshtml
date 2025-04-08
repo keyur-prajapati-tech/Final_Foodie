@@ -1,6 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Delivery Partner Dashboard";
     Layout = ViewBag.Layout ?? "_DeliveryPartnerLayout";
+    var user = Context.Session.GetString("UserName");
 }
 
 <style>
@@ -123,7 +124,7 @@
 </style>
 
 <div class="dashboard-container">
-    <h2 class="fade-in text-center">🚀 Welcome, Delivery Partner!</h2>
+    <h2 class="fade-in text-center"> Welcome, @user</h2>
 
     <!-- Overview Cards -->
     <div class="row g-3">
