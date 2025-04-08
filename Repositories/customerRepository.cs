@@ -12,6 +12,11 @@ namespace Foodie.Repositories
             _connectionstring = configuration.GetConnectionString("Defaultconnection");
         }
 
+        public void AddUser(tbl_customer tbl_Customer)
+        {
+            throw new NotImplementedException();
+        }
+
         public IEnumerable<tbl_city> GetCitiesByDistrictName(string districtName)
         {
             var tbl_cities = new List<tbl_city>();
@@ -19,9 +24,9 @@ namespace Foodie.Repositories
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string query = @"SELECT cc.* 
-FROM customers.tbl_city cc
-JOIN customers.tbl_district cd ON cc.DistrictId = cd.DistrictId
-WHERE cd.DisrictName = 'surat';";
+                FROM customers.tbl_city cc
+                JOIN customers.tbl_district cd ON cc.DistrictId = cd.DistrictId
+                WHERE cd.DisrictName = 'surat';";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
 
@@ -40,6 +45,16 @@ WHERE cd.DisrictName = 'surat';";
                 conn.Close();
             }
             return tbl_cities;
+        }
+
+        public tbl_customer GetTbl_Customer(string email)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool updateProfile(tbl_customer tbl_Customer)
+        {
+            throw new NotImplementedException();
         }
     }
 }

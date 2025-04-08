@@ -14,6 +14,8 @@ namespace Foodie
             builder.Services.AddScoped<IcustomerRepository, customerRepository>();
             builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
 
+            builder.Services.AddSession();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -28,6 +30,8 @@ namespace Foodie
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseSession();
 
             app.UseAuthorization();
 
