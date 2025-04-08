@@ -12,6 +12,7 @@ namespace Foodie
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddScoped<IcustomerRepository, customerRepository>();
+            builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
 
             var app = builder.Build();
 
