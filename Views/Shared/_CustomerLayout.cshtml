@@ -241,7 +241,7 @@
         }
 
         .collection-container {
-            max-width: 60%;
+            max-width: 67%;
             margin: auto;
             padding: 40px 0;
         }
@@ -388,55 +388,11 @@
                     <li><a asp-area=" " asp-controller="AddRestaurant" asp-action="home">Add Restaurant</a></li>
                     <li><a asp-area=" " asp-controller="DeliverSignup" asp-action="DeliveryRegister">Add Deliver Partner</a></li>
                     <li style="cursor: pointer"><a class="" data-bs-toggle="modal" data-bs-target="#loginModal" aria-current="page">Sign In</a></li>
+                    <li style="cursor: pointer"><a class="" data-bs-toggle="modal" data-bs-target="#editProfileModal">👨‍✈️</a></li>
                 </ul>
             </div>
         </nav>
     </header>
-
-    @* <!-- Modal -->
-    <div class="modal fade " id="login" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class=" modal-content">
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="card m-2 shadow">
-                            <div class="card-header modal-header" style="background-color:#dfe3f3;display:flex;justify-content:space-between">
-                                <h6 class="fw-bold">LOGIN IN</h6>
-                                <button type="button" class="btn-close btn" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="card-body">
-
-                                <div class="d-flex flex-column">
-                                    <form action="/" method="post">
-                                        <div class="form-floating mb-3 w-100">
-                                            <input type="number" class="form-control w-100" id="floatingInput" placeholder="name@example.com">
-                                            <label for="floatingInput">enter 10 Didgit Mobile Number</label>
-                                        </div>
-                                    </form>
-                                    <button type="submit" class="btn fw-bolder" style="background-color:#493d9e;color:white;">Send One Time Password</button>
-                                </div>
-
-                                <p class="text-center mt-3" style="font-weight:800">OR</p>
-
-                                <div class="card mx-3">
-                                    <button type="submit" class="btn fw-bolder w-100 ">Login with Email</button>
-                                </div>
-                                <div class="card-body h-25">
-                                    <div class="card d-flex flex-row justify-content-between align-items-center w-100 px-3 p-3">
-                                        <span class="fw-bolder text-xl-center"> Sign In As kevinprajapati123@gmail.com </span>
-                                    </div>
-
-                                </div>
-
-                                <hr />
-                                <p style="font-size:15px;font-weight:800;">New To Foodie ? <a asp-area="" asp-controller="Register" asp-action="CustomerRegister" style="color:blue">create Account</a></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div> *@
 
     <!-- Login Modal -->
     <div class="modal fade" id="loginModal" tabindex="-1">
@@ -471,8 +427,8 @@
                                     </div>
                                 </div>
 
-                                <hr />
-                                <p class="mt-2 text-center">New to Foodie? <a href="#" id="openRegister">Register Now</a></p>
+                                @* <hr />
+                                <p class="mt-2 text-center">New to Foodie? <a href="#" id="openRegister">Register Now</a></p> *@
                             </div>
                         </div>
                     </div>
@@ -498,6 +454,62 @@
                     </form>
                     <p class="mt-2 text-center">Already have an account? <a href="#" id="openLogin">Login</a></p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✨ Edit Profile Modal -->
+    <div class="modal fade" id="editProfileModal" tabindex="-1" aria-labelledby="editProfileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editProfileModalLabel">Edit Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form action="/Customer/UpdateProfile" method="post" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="row g-3">
+
+                            <div class="col-md-6">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" name="email" id="email" class="form-control" required />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="phone" class="form-label">Phone</label>
+                                <input type="text" name="phone" id="phone" class="form-control" required />
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="gender" class="form-label">Gender</label>
+                                <select name="gender" id="gender" class="form-select" required>
+                                    <option value="">Select</option>
+                                    <option>Male</option>
+                                    <option>Female</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="dob" class="form-label">Date of Birth</label>
+                                <input type="date" name="dob" id="dob" class="form-control" />
+                            </div>
+
+                            <div class="col-12">
+                                <label for="profilepic" class="form-label">Profile Picture</label>
+                                <input type="file" name="profilepic" id="profilepic" class="form-control" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Save Changes</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+
+                </form>
             </div>
         </div>
     </div>

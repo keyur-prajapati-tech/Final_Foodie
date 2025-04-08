@@ -19,9 +19,9 @@ namespace Foodie.Repositories
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string query = @"SELECT cc.* 
-FROM customers.tbl_city cc
-JOIN customers.tbl_district cd ON cc.DistrictId = cd.DistrictId
-WHERE cd.DisrictName = 'surat';";
+                FROM customers.tbl_city cc
+                JOIN customers.tbl_district cd ON cc.DistrictId = cd.DistrictId
+                WHERE cd.DisrictName = 'surat';";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
 
@@ -40,6 +40,11 @@ WHERE cd.DisrictName = 'surat';";
                 conn.Close();
             }
             return tbl_cities;
+        }
+
+        public bool updateProfile(tbl_customer tbl_Customer)
+        {
+            throw new NotImplementedException();
         }
     }
 }
