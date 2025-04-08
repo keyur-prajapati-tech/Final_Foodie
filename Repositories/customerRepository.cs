@@ -12,6 +12,11 @@ namespace Foodie.Repositories
             _connectionstring = configuration.GetConnectionString("Defaultconnection");
         }
 
+        public void AddUser(tbl_customer tbl_Customer)
+        {
+            throw new NotImplementedException();
+        }
+
         public IEnumerable<tbl_city> GetCitiesByDistrictName(string districtName)
         {
             var tbl_cities = new List<tbl_city>();
@@ -40,6 +45,11 @@ namespace Foodie.Repositories
                 conn.Close();
             }
             return tbl_cities;
+        }
+
+        public tbl_customer GetTbl_Customer(string email)
+        {
+            throw new NotImplementedException();
         }
 
         public bool updateProfile(tbl_customer tbl_Customer)

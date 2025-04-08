@@ -12,6 +12,9 @@ namespace Foodie
             builder.Services.AddControllersWithViews();
 
             builder.Services.AddScoped<IcustomerRepository, customerRepository>();
+            builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
+
+            builder.Services.AddSession();
 
             var app = builder.Build();
 
@@ -27,6 +30,8 @@ namespace Foodie
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseSession();
 
             app.UseAuthorization();
 

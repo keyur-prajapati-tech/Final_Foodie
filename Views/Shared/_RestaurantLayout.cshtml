@@ -41,7 +41,7 @@
         <div class="backdrop" id="backdrop" onclick="toggleSidebar()"></div>
         <div>
             <header>
-                <div style=" background: #dfe3f3;">
+                <div style=" background: #dfe3f3; border-color:black" class="card shadow border-2">
 
 
                     <nav class="navbar navbar-expand-lg navbar-light ">
@@ -54,15 +54,17 @@
                         <div class="container-fluid collapse navbar-collapse d-lg-flex justify-content-end align-items-end" id="navbarSupportedContent">
                             <ul class="navbar-nav">
                                 <li class="nav-item">
-                                    <a class="nav-link" href="#"><i class="fa-solid fa-gear"></i></a>
-                                </li>
-                                <li class="nav-item">
-                                    <div class="form-check form-switch mt-2">
+
+                                    <div class="form-check form-switch m-2">
                                         <div class="form-check form-switch">
-                                            <input class="form-check-input" type="checkbox" role="switch" id="switchCheckDefault" onchange="toggleSwitch()">
-                                            <label class="form-check-label text-danger" for="switchCheckDefault" id="switchLabel">Offline</label>
+                                            <input class="form-check-input" type="checkbox" id="switchCheckDefault" onchange="toggleSwitch()">
+                                            <label class="form-check-label text-danger " for="switchCheckDefault" id="switchLabel">Offline</label>
                                         </div>
                                     </div>
+
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#"><i class="fa-solid fa-gear"></i></a>
                                 </li>
 
                             </ul>
@@ -70,13 +72,13 @@
                         <button class="menu-btn" onclick="toggleSidebar()">&#9776;</button>
                         <div class="sidebar pt-1" id="sidebar">
 
-                            <ul >
+                            <ul>
                                 <li class="nav-item"><a class="nav-link" asp-controller="Restaurant" asp-action="OrderReady">Order</a></li>
                                 <li class="nav-item"><a class="nav-link" asp-controller="Menu" asp-action="Add">Menus</a></li>
                                 <li class="nav-item"><a class="nav-link" asp-controller="OrderHistory" asp-action="OrdHistory">Order History</a></>
                                 <li class="nav-item"><a class="nav-link" asp-controller="OrderHistory" asp-action="reports">Reporting</a></li>
                                 <li class="nav-item"><a class="nav-link" asp-controller="OrderHistory" asp-action="offers">Offers</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="OrderHistory" asp-action="payouts">Payout</a></li>                               
+                                <li class="nav-item"><a class="nav-link" asp-controller="OrderHistory" asp-action="payouts">Payout</a></li>
                                 <li class="nav-item"><a class="nav-link" asp-controller="OrderHistory" asp-action="OutletInfo">Outlet Info</a></li>
                                 <li class="nav-item"><a class="nav-link" asp-controller="OrderHistory" asp-action="complaint">Customer Complaints</a></li>
                                 <li class="nav-item"><a class="nav-link" asp-controller="OrderHistory" asp-action="Reviews">Reviews</a></li>
@@ -86,8 +88,8 @@
                 </div>
 
             </header>
- 
-            
+
+
             <div>
                 @RenderBody()
             </div>
