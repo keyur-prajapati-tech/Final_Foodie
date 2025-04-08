@@ -17,7 +17,24 @@ namespace Foodie.Controllers.Restaurant
         [Route("Registerres")]
         public IActionResult Registerres()
         {
-            return View();
+
+            int r_id = RestaurantRepository.getRId();
+
+            if (r_id != 0)
+            {
+                RestaurantRegistrationViewModel model = new RestaurantRegistrationViewModel
+                {
+
+                    tbl_Restaurant = _repository.getRestaurant(r_id),
+                    tbl_Owner = _repository.getOwner(r_id)
+                };
+                return View(model);
+
+            }
+            else
+            {
+                return View();
+            }
         }
 
         [Route("ResDocument")]
@@ -55,6 +72,8 @@ namespace Foodie.Controllers.Restaurant
                 };
 
                 _repository.AddRestaurant(restaurant);
+
+
 
                 return RedirectToAction("MenuItems");
             }
