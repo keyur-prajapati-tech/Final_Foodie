@@ -1,10 +1,5 @@
-// <<<<<<< delivery
-// using Microsoft.AspNetCore.Authentication.Cookies;
-// =======
-// using Foodie.Repositories;
-// >>>>>>> master
-
 using Foodie.Repositories;
+
 
 namespace Foodie
 {
@@ -18,10 +13,10 @@ namespace Foodie
             builder.Services.AddControllersWithViews();
 
 
-             builder.Services.AddScoped<IcustomerRepository, customerRepository>();
-             builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
+            builder.Services.AddScoped<IcustomerRepository, customerRepository>();
+            builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
 
-             builder.Services.AddSession();
+            builder.Services.AddSession();
 
 
             var app = builder.Build();
@@ -41,6 +36,7 @@ namespace Foodie
             app.UseSession();
 
             app.UseRouting();
+
 
             app.UseAuthorization();
 
