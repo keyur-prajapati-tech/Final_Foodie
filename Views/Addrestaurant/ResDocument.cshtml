@@ -1,6 +1,8 @@
 ﻿@{
     Layout = "~/Views/Shared/_RestaurantRegister.cshtml";
 }
+@model Foodie.Models.Restaurant.RestuarantDocumnetViewModel
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -21,132 +23,135 @@
     <div class="container-fluid">
 
         <div>
-            <h3 class="fs-2 fw-bolder">Restaurant Documents</h3>
-            <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
-                <div>
-                    <span class="fs-4 fw-bold">
-                        PAN details
-                    </span>
-                    <br />
-                    <span class="fw-lighter">Enter the PAN details of the person or company who legally owns the restaurant</span>
-                </div>
-
-                <div class="d-flex justify-content-between m-3">
-                    <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" id="owner_name" placeholder="PAN Number*">
-
-                    <input type="email" class="form-control fw-lighter " style="border-radius:10px" id="owner_email" placeholder="Full name as per PAN*">
-                </div>
-                <div class="mb-3">
-                    <label for="formFile" class="form-label">Upload Your PAN Image</label>
-                    <input class="form-control" type="file" id="formFile">
-                </div>
-            </div>
-
-            <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
-                <div>
-                    <span class="fs-4 fw-bold">
-                        GST Details <small>(If Applicable)</small>
-                    </span>
-                    <br />
-                    <span class="fw-lighter">This should be linked to the PAN provided earlier for tax calculations</span>
-                </div>
-
-                <div class="mt-3">
+            <form action="@Url.Action("ResDocument","Addrestaurant")" method="post" enctype="multipart/form-data">
+                <h3 class="fs-2 fw-bolder">Restaurant Documents</h3>
+                <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
                     <div>
-                        <span class="fw-lighter">Are you GST registered?</span>
+                        <span class="fs-4 fw-bold">
+                            PAN details
+                        </span>
+                        <br />
+                        <span class="fw-lighter">Enter the PAN details of the person or company who legally owns the restaurant</span>
                     </div>
-                    <div class="d-flex ps-3">
+
+                    <div class="d-flex justify-content-between m-3">
+                        <input type="text" asp-for="@Model.PanDetails.pan_number" class="form-control fw-lighter me-4" style="border-radius:10px" placeholder="PAN Number*">
+
+                        <input type="text" asp-for="@Model.PanDetails.pan_holder_name" class="form-control fw-lighter " style="border-radius:10px" placeholder="Full name as per PAN*">
+                    </div>
+                    <div class="mb-3">
+                        <label for="formFile" class="form-label">Upload Your PAN Image</label>
+                        <input class="form-control" name="pan_img" type="file" id="formFile">
+                    </div>
+                </div>
+
+                <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
+                    <div>
+                        <span class="fs-4 fw-bold">
+                            GST Details <small>(If Applicable)</small>
+                        </span>
+                        <br />
+                        <span class="fw-lighter">This should be linked to the PAN provided earlier for tax calculations</span>
+                    </div>
+
+                    <div class="mt-3">
                         <div>
-                            <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
-                            <label class="form-check-label" for="exampleRadios1">
-                                Yes
-                            </label>
+                            <span class="fw-lighter">Are you GST registered?</span>
                         </div>
-                        <div class="ps-3">
-                            <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2" checked>
-                            <label class="form-check-label" for="exampleRadios2">
-                                No
-                            </label>
+                        <div class="d-flex ps-3">
+                            <div>
+                                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
+                                <label class="form-check-label" for="exampleRadios1">
+                                    Yes
+                                </label>
+                            </div>
+                            <div class="ps-3">
+                                <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2" checked>
+                                <label class="form-check-label" for="exampleRadios2">
+                                    No
+                                </label>
+                            </div>
+
+                           
+                        </div>
+
+                        <div class="d-flex justify-content-between m-3">
+                            <input type="text" asp-for="@Model.GstDetails.gst_number" class="form-control fw-lighter me-4" style="border-radius:10px" placeholder="GST Number*" />                           
+                        </div>
+                      
+
+                    </div>
+                </div>
+
+                <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
+                    <div>
+                        <span class="fs-4 fw-bold">
+                            FSSAI details
+                        </span>
+                        <br />
+                        <span class="fw-lighter">This is required to comply with regulations on food safety</span>
+                    </div>
+
+                    <div class="mt-2" style="border-radius:10px; background-color:beige;">
+                        <div>
+                            <small>FSSAI requirements</small>
+                        </div>
+                        <div>
+                            <ul>
+                                <li><small>The name on the FSSAI certificate should match either the restaurant's name or the name on the PAN card.</small></li>
+                                <li><small>The address on the FSSAI certificate should match the restaurant's address.</small></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between m-3">
+                        <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" asp-for="@Model.FssaiDetails.fssai_certi" placeholder="Fassai Number*">
+
+                        <input type="date" class="form-control fw-lighter " style="border-radius:10px" asp-for="@Model.FssaiDetails.Ex_Date" placeholder="Expiry Date">
+                    </div>
+                    <div class="mb-3">
+                        <label for="formFile"  class="form-label">Upload Your Fassai Image</label>
+                        <input class="form-control" name="fssai_img" type="file" id="formFile">
+                    </div>
+
+
+
+                </div>
+
+                <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
+
+                    <div>
+                        <span class="fs-4 fw-bold">
+                            Bank Account details
+                        </span>
+                        <p class="fw-lighter">This is where Zomato will deposit your earnings</p>
+
+                    </div>
+                    <div class="d-flex justify-content-between m-3">
+                        <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px"  placeholder="Bank Account Name*" asp-for="@Model.BankDetails.bank_name">
+
+                        <input type="text" class="form-control fw-lighter " style="border-radius:10px" placeholder="Bank Account Number*" asp-for="@Model.BankDetails.ACC_NO">
+                    </div>
+
+                    <div class="d-flex justify-content-between m-3">
+                        <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" placeholder="Enter IFSC Code*" asp-for="@Model.BankDetails.IFSC_code">
+
+                        <div class="form-control dropdown">
+                            <button class="btn dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Account Type
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="#">Saving</a></li>
+                                <li><a class="dropdown-item" href="#">Current</a></li>
+                            </ul>
                         </div>
 
 
                     </div>
 
-                </div>
-            </div>
-
-            <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
-                <div>
-                    <span class="fs-4 fw-bold">
-                        FSSAI details
-                    </span>
-                    <br />
-                    <span class="fw-lighter">This is required to comply with regulations on food safety</span>
-                </div>
-
-                <div class="mt-2" style="border-radius:10px; background-color:beige;">
-                    <div>
-                        <small>FSSAI requirements</small>
-                    </div>
-                    <div>
-                        <ul>
-                            <li><small>The name on the FSSAI certificate should match either the restaurant's name or the name on the PAN card.</small></li>
-                            <li><small>The address on the FSSAI certificate should match the restaurant's address.</small></li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="d-flex justify-content-between m-3">
-                    <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" id="owner_name" placeholder="Fassai Number*">
-
-                    <input type="date" class="form-control fw-lighter " style="border-radius:10px" id="owner_email" placeholder="Expiry Date">
-                </div>
-                <div class="mb-3">
-                    <label for="formFile" class="form-label">Upload Your Fassai Image</label>
-                    <input class="form-control" type="file" id="formFile">
-                </div>
-
-
-
-            </div>
-
-            <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
-
-                <div>
-                    <span class="fs-4 fw-bold">
-                        Bank Account details
-                    </span>
-                    <p class="fw-lighter">This is where Zomato will deposit your earnings</p>
-
-                </div>
-                <div class="d-flex justify-content-between m-3">
-                    <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" id="owner_name" placeholder="Bank Account Number*">
-
-                    <input type="text" class="form-control fw-lighter " style="border-radius:10px" id="owner_email" placeholder="Re-enter Bank Account Number*">
-                </div>
-
-                <div class="d-flex justify-content-between m-3">
-                    <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" id="owner_name" placeholder="Enter IFSC Code*">
-
-                    <div class="form-control dropdown">
-                        <button class="btn dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Account Type
-                        </button>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#">Saving</a></li>
-                            <li><a class="dropdown-item" href="#">Current</a></li>
-                        </ul>
-                    </div>
-
 
                 </div>
 
-
-            </div>
-
-           
-
-            <form action="@Url.Action("OrderReady","Restaurant")" method="post">
 
                 <div class="container-fluid mt-3 d-flex justify-content-end align-items-end bg-light position-sticky p-3 card ">
                     <button type="submit" class="btn btn-outline-success w-25">Next</button>

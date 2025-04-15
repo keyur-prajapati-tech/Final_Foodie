@@ -1,10 +1,15 @@
 ﻿namespace Foodie.Models.Restaurant
 {
-    public class tbl_vendor_img
+    public class tbl_vendor_availability
     {
-        public int vendore_img_id { get; set; }
+        public int ven_ava_id { get; set; }
         public int Restaurant_id { get; set; }
-        public byte[] Restaurant_img { get; set; }
-        public byte[] Restaurant_menu_img { get; set; }
+        public DateTime open_time { get; set; }
+        public DateTime close_time { get; set; }
+
+        public string day_of_week { get; set; }
+
+        public bool is_Open { get; set; }
+
     }
 }
