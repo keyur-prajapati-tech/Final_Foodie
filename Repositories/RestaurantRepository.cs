@@ -1,5 +1,7 @@
 ﻿using Foodie.Models.Restaurant;
 using Microsoft.Data.SqlClient;
+using System.Collections.Generic;
+using System.Security.Cryptography;
 
 
 namespace Foodie.Repositories
@@ -270,5 +272,27 @@ namespace Foodie.Repositories
             }
         }
 
+        public int AddMenu(tbl_menu_items menu, byte[] menu_img)
+        {
+            using(SqlConnection conn = new SqlConnection())
+            {
+                string qry = "insert into vendores.tbl_menu_items(menu_name, cuisine_id, menu_img, menu_descripation, amount, isAvalable, Restaurant_id)values(@name, @cid, @img, @desc, @amt, @avai, @rid)";
+
+                SqlCommand cmd = new SqlCommand(qry, conn);
+                cmd.Parameters.AddWithValue("@name", menu.menu_name);
+                cmd.Parameters.AddWithValue("@cid", menu.cuisine_id);
+                cmd.Parameters.AddWithValue("@img", menu_img);
+                cmd.Parameters.AddWithValue("@desc", menu.menu_descripation);
+                cmd.Parameters.AddWithValue("@amt", menu.amount);
+                cmd.Parameters.AddWithValue("@avai", menu.isAvailable);
+                cmd.Parameters.AddWithValue("@rid", menu.Restaurant_id);
+
+                conn.Open();
+                int result = cmd.ExecuteNonQuery();
+                conn.Close();
+                return result;
+
+            }
+        }
     }
 }

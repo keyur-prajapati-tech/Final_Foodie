@@ -25,6 +25,7 @@ namespace Foodie.Repositories
         public int AddFssaiDetails(tbl_fssai_Details fssai, byte[] img);
         public int AddBankDetails(tbl_bank_details bank);
 
-
+        //Add Menu
+        public int AddMenu(tbl_menu_items menu, byte[] menu_img);
     }
 }
