@@ -1,4 +1,6 @@
-﻿@{
+﻿
+
+@{
     Layout = "~/Views/Shared/_foodieheader.cshtml";
     ViewData["Food_name"] = "Gujrati Dishes";
 }
@@ -364,10 +366,46 @@
         </div>
     </div>
 
+    <hr/>
+ @*    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Open Days</th>
+                <th>Image</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Restaurant_name</td>
+                    <td>@item.DayOfWeek</td>
+                    <td>
+                        <img src="data:image/png;base64,@Convert.ToBase64String(item.Restaurant_img)" width="100" />
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table> *@
+    <hr/>
+
     <div class="brand-container">
         <h3 class="fw-bold m-3" style="text-align: center;">Top brands for you</h3>
 
         <div class="owl-carousel brand-carousel owl-theme mt-3">
+            @foreach (var item in Model)
+            {
+                <div class="item text-center">
+                    <a asp-controller="TBrands" asp-action="Brands">
+                        <img src="data:image/png;base64,@Convert.ToBase64String(item.Restaurant_img)" alt="@item.Restaurant_name" style="width:150px; height:100px; object-fit:cover;" />
+                    </a>
+                    <p class="mt-2">@item.Restaurant_name</p>
+                    <span>@item.DayOfWeek days open</span>
+                </div>
+            }
+        </div>
+        @* <div class="owl-carousel brand-carousel owl-theme mt-3">
         <div class="item">
                 <a asp-area="" asp-controller="TBrands" asp-action="Brands">
             <img src="https://logos-world.net/wp-content/uploads/2020/04/McDonalds-Logo-700x394.png" alt="McDonald's">
@@ -410,7 +448,7 @@
                 <p>Mahesh Pav Bhaji</p>
                 <span>26 min</span>
             </div>
-    </div>
+    </div> *@
     </div>
 
     <div class="container mt-4">

@@ -50,5 +50,41 @@ namespace Foodie.Repositories
                 return result;
             }
         }
+
+        public List<RestaurantInfo> GetAllRestaurants()
+        {
+            List<RestaurantInfo> restaurantInfos = new List<RestaurantInfo>();
+
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT 
+                            vr.restaurant_name,
+                            DATEDIFF(DAY, va.close_time, va.open_time) AS OPEN_DAYS,
+                            vi.Restaurant_img
+                         FROM 
+                            vendores.tbl_restaurant vr
+                         JOIN 
+                            vendores.tbl_vendor_availability va ON vr.restaurant_id = va.Restaurant_id
+                         JOIN 
+                            vendores.tbl_vendores_img vi ON vr.restaurant_id = vi.Restaurant_id
+                         WHERE va.is_Open = 1";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    RestaurantInfo list = new RestaurantInfo
+                    {
+                        Restaurant_name = reader["restaurant_name"].ToString(),
+                        DayOfWeek = (int)reader["OPEN_DAYS"],
+                        Restaurant_img = (byte[])reader["Restaurant_img"]
+                    };
+                    restaurantInfos.Add(list);
+                }
+            }
+            return restaurantInfos;
+        }
     }
 }
