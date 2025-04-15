@@ -1,14 +1,19 @@
 ﻿@{
     ViewData["Title"] = "Document Verification";
-    Layout = ViewBag.Layout ?? "_DeliveryPartnerLayout";
+    Layout = ViewBag.Layout ?? "_DeliverRegisterLayout"; ;
 }
 
 <style>
     body {
-        background-color: white;
+        background: linear-gradient(135deg, #e3f2fd, #e1bee7);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
         margin: 0;
         padding: 0;
     }
+
 
     .form-container {
         display: flex;
@@ -76,7 +81,7 @@
             <h3>📑 Upload Necessary Documents</h3>
         </div>
         <div class="card-body">
-            <form asp-action="UploadDocuments" asp-controller="DeliverSignup" method="post" enctype="multipart/form-data">
+            <form asp-action="Document" asp-controller="DeliverSignup" method="post" enctype="multipart/form-data">
 
                 <label for="ProfilePhoto" class="form-label">Upload Profile Photo</label>
                 <input type="file" class="form-control" id="ProfilePhoto" name="ProfilePhoto" accept="image/*" required>

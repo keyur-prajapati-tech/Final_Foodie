@@ -12,11 +12,6 @@ namespace Foodie.Repositories
             _connectionstring = configuration.GetConnectionString("Defaultconnection");
         }
 
-        public void AddUser(tbl_customer tbl_Customer)
-        {
-            throw new NotImplementedException();
-        }
-
         public IEnumerable<tbl_city> GetCitiesByDistrictName(string districtName)
         {
             var tbl_cities = new List<tbl_city>();
@@ -47,14 +42,83 @@ namespace Foodie.Repositories
             return tbl_cities;
         }
 
-        public tbl_customer GetTbl_Customer(string email)
+        public void AddUser(tbl_customer customer)
         {
-            throw new NotImplementedException();
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                string query = @"
+            INSERT INTO customers.tbl_customer 
+            (email, name, UID, created_at, updated_at) 
+            VALUES (@Email, @Name, @UID, @CreatedAt, @UpdatedAt)";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@Email", customer.email ?? "");
+                cmd.Parameters.AddWithValue("@Name", customer.name ?? "");
+                cmd.Parameters.AddWithValue("@UID", customer.UID ?? "");
+                cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
+                cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
+
+                con.Open();
+                cmd.ExecuteNonQuery();
+            }
         }
 
-        public bool updateProfile(tbl_customer tbl_Customer)
+        public tbl_customer GetTbl_Customer(string email)
         {
-            throw new NotImplementedException();
+            tbl_customer customer = null;
+
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT * FROM customers.tbl_customer WHERE email = @Email";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@Email", email);
+
+                con.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    customer = new tbl_customer
+                    {
+                        customer_id = Convert.ToInt32(reader["customer_id"]),
+                        email = reader["email"].ToString(),
+                        name = reader["name"].ToString(),
+                        UID = reader["UID"].ToString(),
+                        created_at = Convert.ToDateTime(reader["created_at"]),
+                        updated_at = Convert.ToDateTime(reader["updated_at"])
+                    };
+                }
+            }
+
+            return customer;
+        }
+
+
+        public bool updateProfile(tbl_customer tbl_Customer, byte[] profilepic)
+        {
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+
+                DateTime created_at = DateTime.Now;
+                DateTime updated_at = DateTime.Now;
+
+                string query = @"INSERT INTO customers.tbl_customer (email,phone,Gender,profilepic,DOB,created_at,updated_at,name) VALUES (@email,@phone,@Gender,@profilepic,@DOB,@created_at,@updated_at,@name)";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@email", tbl_Customer.email);
+                cmd.Parameters.AddWithValue("@phone", tbl_Customer.phone);
+                cmd.Parameters.AddWithValue("@Gender", tbl_Customer.Gender);
+                cmd.Parameters.AddWithValue("@profilepic", tbl_Customer.profilepic ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@DOB", tbl_Customer.DOB);
+                cmd.Parameters.AddWithValue("@created_at", created_at);
+                cmd.Parameters.AddWithValue("@updated_at", updated_at);
+                cmd.Parameters.AddWithValue("@name", tbl_Customer.name);
+
+                conn.Open();
+                int rowsEffected = cmd.ExecuteNonQuery();
+                conn.Close();
+
+                return rowsEffected > 0;
+            }
         }
     }
 }

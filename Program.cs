@@ -1,5 +1,6 @@
 using Foodie.Repositories;
 
+
 namespace Foodie
 {
     public class Program
@@ -29,11 +30,10 @@ namespace Foodie
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
-            app.UseRouting();
-
+            // Add session middleware
             app.UseSession();
 
-            app.UseAuthorization();
+            app.UseRouting();
 
             app.MapControllerRoute(
                 name: "default",

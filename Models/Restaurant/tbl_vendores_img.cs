@@ -9,6 +9,5 @@
         public byte[] Restaurant_img { get; set; }
 
         public byte[] Restaurant_menu_img { get; set; }
-
     }
 }

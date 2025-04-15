@@ -10,6 +10,6 @@ namespace Foodie.Repositories
 
         void AddUser(tbl_customer tbl_Customer);
 
-        bool updateProfile(tbl_customer tbl_Customer);
+        bool updateProfile(tbl_customer tbl_Customer, byte[] profilepic);
     }
 }

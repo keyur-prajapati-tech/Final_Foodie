@@ -1,10 +1,19 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Foodie.Repositories;
+using Microsoft.AspNetCore.Mvc;
+using Foodie.Models.Restaurant;
 
 namespace Foodie.Controllers.Customer
 {
     [Route("FCollection")]
     public class CollectionController : Controller
     {
+        private readonly IRestaurantRepository _repository;
+
+        public CollectionController(IRestaurantRepository repository)
+        {
+            _repository = repository;
+        }
+
         [Route("")]
         [Route("FoodCollection")]
         public IActionResult Foodcollection()
@@ -15,7 +24,8 @@ namespace Foodie.Controllers.Customer
         [Route("Delivery")]
         public IActionResult Delivery()
         {
-            return View();
+            var data = _repository.GetAllRestaurants();
+            return View(data);
         }
 
         [Route("Dinningout")]
