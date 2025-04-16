@@ -7,9 +7,9 @@ namespace Foodie.Controllers.Customer
     [Route("FCollection")]
     public class CollectionController : Controller
     {
-        private readonly IRestaurantRepository _repository;
+        private readonly IcustomerRepository _repository;
 
-        public CollectionController(IRestaurantRepository repository)
+        public CollectionController(IcustomerRepository repository)
         {
             _repository = repository;
         }

@@ -1,4 +1,5 @@
 ﻿using Foodie.Models.customers;
+using Foodie.Models.Restaurant;
 
 namespace Foodie.Repositories
 {
@@ -11,5 +12,7 @@ namespace Foodie.Repositories
         void AddUser(tbl_customer tbl_Customer);
 
         bool updateProfile(tbl_customer tbl_Customer, byte[] profilepic);
+
+        List<RestaurantInfo> GetAllRestaurants();
     }
 }
