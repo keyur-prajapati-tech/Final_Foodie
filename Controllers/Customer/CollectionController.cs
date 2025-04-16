@@ -24,8 +24,8 @@ namespace Foodie.Controllers.Customer
         [Route("Delivery")]
         public IActionResult Delivery()
         {
-            var data = _repository.GetAllRestaurants();
-            return View(data);
+           // var data = _repository.GetAllRestaurants();
+            return View();
         }
 
         [Route("Dinningout")]
