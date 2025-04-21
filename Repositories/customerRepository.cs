@@ -43,29 +43,13 @@ namespace Foodie.Repositories
             return tbl_cities;
         }
 
-        public void AddUser(tbl_customer customer)
-        {
-            using (SqlConnection con = new SqlConnection(_connectionstring))
-            {
-                string query = @"
-            INSERT INTO customers.tbl_customer 
-            (email, name, UID, created_at, updated_at) 
-            VALUES (@Email, @Name, @UID, @CreatedAt, @UpdatedAt)";
-
-                SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@Email", customer.email ?? "");
-                cmd.Parameters.AddWithValue("@Name", customer.name ?? "");
-                cmd.Parameters.AddWithValue("@UID", customer.UID ?? "");
-                cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
-                cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
-
-                con.Open();
-                cmd.ExecuteNonQuery();
-            }
-        }
-
         public tbl_customer GetTbl_Customer(string email)
         {
+            if(string.IsNullOrEmpty(email))
+            {
+                return null;
+            }
+
             tbl_customer customer = null;
 
             using (SqlConnection con = new SqlConnection(_connectionstring))
@@ -82,8 +66,7 @@ namespace Foodie.Repositories
                     {
                         customer_id = Convert.ToInt32(reader["customer_id"]),
                         email = reader["email"].ToString(),
-                        name = reader["name"].ToString(),
-                        UID = reader["UID"].ToString(),
+                        customer_name = reader["customer_name"].ToString(),
                         created_at = Convert.ToDateTime(reader["created_at"]),
                         updated_at = Convert.ToDateTime(reader["updated_at"])
                     };
@@ -91,35 +74,6 @@ namespace Foodie.Repositories
             }
 
             return customer;
-        }
-
-
-        public bool updateProfile(tbl_customer tbl_Customer, byte[] profilepic)
-        {
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
-            {
-
-                DateTime created_at = DateTime.Now;
-                DateTime updated_at = DateTime.Now;
-
-                string query = @"INSERT INTO customers.tbl_customer (email,phone,Gender,profilepic,DOB,created_at,updated_at,name) VALUES (@email,@phone,@Gender,@profilepic,@DOB,@created_at,@updated_at,@name)";
-
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@email", tbl_Customer.email);
-                cmd.Parameters.AddWithValue("@phone", tbl_Customer.phone);
-                cmd.Parameters.AddWithValue("@Gender", tbl_Customer.Gender);
-                cmd.Parameters.AddWithValue("@profilepic", tbl_Customer.profilepic ?? (object)DBNull.Value);
-                cmd.Parameters.AddWithValue("@DOB", tbl_Customer.DOB);
-                cmd.Parameters.AddWithValue("@created_at", created_at);
-                cmd.Parameters.AddWithValue("@updated_at", updated_at);
-                cmd.Parameters.AddWithValue("@name", tbl_Customer.name);
-
-                conn.Open();
-                int rowsEffected = cmd.ExecuteNonQuery();
-                conn.Close();
-
-                return rowsEffected > 0;
-            }
         }
 
         public List<RestaurantInfo> GetAllRestaurants()
@@ -156,6 +110,93 @@ namespace Foodie.Repositories
                 }
             }
             return restaurantInfos;
+        }
+
+        public void AddUser(tbl_customer customer, byte[] profilepic)
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                string query = @"
+            INSERT INTO customers.tbl_customer 
+            (email, phone, Gender, profilepic, dob, created_at, updated_at,customer_name,password) 
+            VALUES (@email, @phone, @gender, @profilepic, @dob, @createdAt, @updatedAt, @customername, @password)";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@email", customer.email ?? "");
+                cmd.Parameters.AddWithValue("@phone", customer.phone ?? "");
+                cmd.Parameters.AddWithValue("@gender", customer.Gender ?? "");
+                cmd.Parameters.AddWithValue("@profilepic", customer.profilepic ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@dob", customer.DOB);
+                cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
+                cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
+                cmd.Parameters.AddWithValue("@customername", customer.customer_name ?? "");
+                cmd.Parameters.AddWithValue("@password", customer.password ?? "");
+
+                con.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public tbl_customer ValidateCustomerLogin(string email, string password)
+        {
+            tbl_customer customer = null;
+
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT * FROM customers.tbl_customer WHERE email = @Email AND password = @Password";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@Email", email);
+                cmd.Parameters.AddWithValue("@Password", password); // ⚠️ Consider hashing passwords in production
+
+                con.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    customer = new tbl_customer
+                    {
+                        customer_id = Convert.ToInt32(reader["customer_id"]),
+                        email = reader["email"].ToString(),
+                        customer_name = reader["customer_name"].ToString(),
+                        phone = reader["phone"].ToString(),
+                        Gender = reader["Gender"].ToString(),
+                        DOB = Convert.ToDateTime(reader["dob"]),
+                        created_at = Convert.ToDateTime(reader["created_at"]),
+                        updated_at = Convert.ToDateTime(reader["updated_at"]),
+                        password = reader["password"].ToString()
+                    };
+                }
+            }
+
+            return customer;
+        }
+
+        public void UpdateCustomerProfile(tbl_customer customerinfo, byte[] profilePic)
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                string query = @"
+                    UPDATE customers.tbl_customer 
+                    SET customer_name = @customer_name,
+                        phone = @phone,
+                        Gender = @gender,
+                        DOB = @dob,
+                        updated_at = @updatedAt,
+                        profilepic = @profilepic
+                    WHERE email = @Email";
+
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@customer_name", customerinfo.customer_name ?? "");
+                cmd.Parameters.AddWithValue("@phone", customerinfo.phone ?? "");
+                cmd.Parameters.AddWithValue("@gender", customerinfo.Gender ?? "");
+                cmd.Parameters.AddWithValue("@dob", customerinfo.DOB);
+                cmd.Parameters.AddWithValue("@updatedAt", DateTime.Now);
+                cmd.Parameters.AddWithValue("@createdAt", DateTime.Now);
+                cmd.Parameters.AddWithValue("@profilepic", customerinfo.profilepic ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@Email", customerinfo.email);
+
+                con.Open();
+                cmd.ExecuteNonQuery();
+            }
         }
     }
 }
