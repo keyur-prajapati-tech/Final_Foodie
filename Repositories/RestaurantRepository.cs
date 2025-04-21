@@ -88,6 +88,7 @@ namespace Foodie.Repositories
                 return tbl_Owner_Details;
             }
         }
+
         public int AddOwner(tbl_owner_details owner)
         {
             using(SqlConnection conn = new SqlConnection(_connectionstring))
@@ -111,8 +112,8 @@ namespace Foodie.Repositories
         {
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = @"INSERT INTO vendores.tbl_restaurant (restaurant_name, restaurant_contact, restaurant_email, restaurant_street, restaurant_pincode, restaurant_lat, restaurant_lag, restaurant_isActive,est_id,owner_id) 
-                                 VALUES (@restaurant_name, @restaurant_contact, @restaurant_email, @restaurant_street, @restaurant_pincode, @restaurant_lat, @restaurant_lag, @restaurant_isActive,1,@owner_id);
+                string query = @"INSERT INTO vendores.tbl_restaurant (restaurant_name, restaurant_contact, restaurant_email, restaurant_street, restaurant_pincode, restaurant_lat, restaurant_lag, restaurant_isApprov,restaurant_isOnline,est_id,owner_id) 
+                                 VALUES (@restaurant_name, @restaurant_contact, @restaurant_email, @restaurant_street, @restaurant_pincode, @restaurant_lat, @restaurant_lag, @restaurant_isApprov,@restaurant_isOnline,1,@owner_id);
                                     SELECT SCOPE_IDENTITY();";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@restaurant_name", restaurant.restaurant_name);
@@ -122,7 +123,8 @@ namespace Foodie.Repositories
                 cmd.Parameters.AddWithValue("@restaurant_pincode", restaurant.restaurant_pincode);
                 cmd.Parameters.AddWithValue("@restaurant_lat", restaurant.restaurant_lat);
                 cmd.Parameters.AddWithValue("@restaurant_lag", restaurant.restaurant_lag);
-                cmd.Parameters.AddWithValue("@restaurant_isActive", restaurant.restaurant_isActive);
+                cmd.Parameters.AddWithValue("@restaurant_isApprov", restaurant.restaurant_isApprov);
+                cmd.Parameters.AddWithValue("@restaurant_isOnline", restaurant.restaurant_isOnline);
                 cmd.Parameters.AddWithValue("@owner_id", o_id);
 
                 conn.Open();
@@ -132,6 +134,56 @@ namespace Foodie.Repositories
 
                 conn.Close();
                 return result;
+            }
+        }
+
+        public tbl_vendores_img getVendors_img(int id)
+        {
+            tbl_vendores_img tbl_Vendores_Img = null;
+
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string qry = "select * from vendores.tbl_vendores_img where restaurant_id = @id";
+                SqlCommand cmd = new SqlCommand(qry, conn);
+                cmd.Parameters.AddWithValue("@id", id);
+                conn.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
+                {
+                    tbl_Vendores_Img = new tbl_vendores_img
+                    {
+                        Restaurant_img = (byte[])dr["Restaurant_img"],
+                        Restaurant_menu_img = (byte[])dr["Restaurant_menu_img"]
+                    };
+                }
+                conn.Close();
+                return tbl_Vendores_Img;
+            }
+        }
+
+        public tbl_vendor_availability getVendor_Available(int id)
+        {
+            tbl_vendor_availability tbl_Vendor_Availability = null;
+
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string qry = "select * from vendores.tbl_vendor_availability where restaurant_id = @id";
+                SqlCommand cmd = new SqlCommand(qry, conn);
+                cmd.Parameters.AddWithValue("@id", id);
+                conn.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
+                {
+                    tbl_Vendor_Availability = new tbl_vendor_availability
+                    {
+                        open_time = Convert.ToDateTime(dr["open_datetime"]),
+                        close_time = Convert.ToDateTime(dr["close_datetime"]),
+                        day_of_week = dr["day_of_week"].ToString(),
+                        is_Open = Convert.ToBoolean(dr["is_Open"])
+                    };
+                }
+                conn.Close();
+                return tbl_Vendor_Availability;
             }
         }
 
@@ -156,7 +208,7 @@ namespace Foodie.Repositories
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 
-                string qry = "insert into vendores.tbl_vendor_availability(Restaurant_id,open_time,close_time,day_of_week,is_Open) values(@resid,@o_time,@c_time,@dyw,@open)";
+                string qry = "insert into vendores.tbl_vendor_availability(Restaurant_id,open_datetime,close_datetime,day_of_week,is_Open) values(@resid,@o_time,@c_time,@dyw,@open)";
 
                 SqlCommand cmd = new SqlCommand(qry, conn);
 
@@ -177,6 +229,8 @@ namespace Foodie.Repositories
             }
            
         }
+
+
 
         public int AddPanDetails(tbl_pan_details pan, byte[] img)
         {
@@ -294,5 +348,7 @@ namespace Foodie.Repositories
 
             }
         }
+
+       
     }
 }

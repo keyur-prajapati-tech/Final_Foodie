@@ -39,7 +39,11 @@
                         <input type="text" asp-for="@Model.PanDetails.pan_number" class="form-control fw-lighter me-4" style="border-radius:10px" placeholder="PAN Number*">
 
                         <input type="text" asp-for="@Model.PanDetails.pan_holder_name" class="form-control fw-lighter " style="border-radius:10px" placeholder="Full name as per PAN*">
+
+                      
                     </div>
+
+                    
                     <div class="mb-3">
                         <label for="formFile" class="form-label">Upload Your PAN Image</label>
                         <input class="form-control" name="pan_img" type="file" id="formFile">
@@ -164,7 +168,8 @@
     <script>
 
         $(document).ready(function(){
-            
+            $('#gst_number').hide();
+
             $('#gst_yes').click(function(){
 
                 $('#gst_number').show();

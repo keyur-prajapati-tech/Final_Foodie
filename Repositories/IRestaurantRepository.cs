@@ -19,6 +19,10 @@ namespace Foodie.Repositories
         public int AddVendors_img(byte[] r_img,byte[] m_img);
         public int AddVendor_Avalaiable (tbl_vendor_availability tbl_Vendor_Availability);
 
+        public tbl_vendores_img getVendors_img(int id);
+
+        public tbl_vendor_availability getVendor_Available(int id);
+
         //Restaurant 3rd page
         public int AddPanDetails(tbl_pan_details pan, byte[] img);
         public int AddGSTDetails(tbl_gst_details gst);
