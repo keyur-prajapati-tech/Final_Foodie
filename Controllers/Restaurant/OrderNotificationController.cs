@@ -1,5 +1,6 @@
 ﻿using Foodie.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 
 namespace Foodie.Controllers.Restaurant
 {
@@ -24,40 +25,37 @@ namespace Foodie.Controllers.Restaurant
             return View();
         }
 
-        //[HttpPost]
-        //public JsonResult ReceiveOrder(OrderModel order)
-        //{
-        //    // Save the order to the database
-        //    // Simulate order processing
-        //    Console.WriteLine("Received order for restaurant");
-
-        //    return Json(new { success = true, message = "Order received successfully" });
-        //}
-        [HttpPost]
-        public JsonResult ReceiveOrder(OrderModel order)
+        public JsonResult CheckNewOrders(int restaurantId)
         {
-            if (order == null || order.Items.Count == 0)
+            List<object> orders = new List<object>();
+
+            string connectionString = "Data Source=SSMOZ9;Initial Catalog=order_demo;User ID=sa;Password=SSM@123;Encrypt=False";
+            //"Data Source=RISHI\\SSMSERVER;Initial Catalog=order_demo;User ID=sa;Password=rishi8102;Encrypt=False";
+
+            string query = "SELECT OrderId, OrderDetails FROM Orders WHERE RestaurantId = @RestaurantId AND Status = 'Pending'";
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                return Json(new { success = false, message = "Invalid order details" });
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@RestaurantId", restaurantId);
+
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    orders.Add(new
+                    {
+                        OrderId = reader["OrderId"],
+                        OrderDetails = reader["OrderDetails"].ToString()
+                    });
+                }
+
+                conn.Close();
             }
 
-            // Save the order to the database (you can implement this logic)
-
-            return Json(new { success = true });
+            return Json(orders);
         }
 
-        [Route("popup")]
-        public ActionResult displaypopup()
-        {
-            // Fetch orders from the database (dummy data for now)
-            List<OrderItem> orders = new List<OrderItem>
-    {
-        new OrderItem { Name = "Dal Kachori", Quantity = 1, Price = 120 },
-        new OrderItem { Name = "Naylon Khaman", Quantity = 1, Price = 120 }
-    };
-
-            ViewBag.Orders = orders; // Pass orders to the view
-            return View();
-        }
     }
 }
