@@ -45,7 +45,7 @@ namespace Foodie.Repositories
 
         public tbl_customer GetTbl_Customer(string email)
         {
-            if(string.IsNullOrEmpty(email))
+            if (string.IsNullOrEmpty(email))
             {
                 return null;
             }
@@ -112,30 +112,7 @@ namespace Foodie.Repositories
             return restaurantInfos;
         }
 
-        public void AddUser(tbl_customer customer, byte[] profilepic)
-        {
-            using (SqlConnection con = new SqlConnection(_connectionstring))
-            {
-                string query = @"
-            INSERT INTO customers.tbl_customer 
-            (email, phone, Gender, profilepic, dob, created_at, updated_at,customer_name,password) 
-            VALUES (@email, @phone, @gender, @profilepic, @dob, @createdAt, @updatedAt, @customername, @password)";
 
-                SqlCommand cmd = new SqlCommand(query, con);
-                cmd.Parameters.AddWithValue("@email", customer.email ?? "");
-                cmd.Parameters.AddWithValue("@phone", customer.phone ?? "");
-                cmd.Parameters.AddWithValue("@gender", customer.Gender ?? "");
-                cmd.Parameters.AddWithValue("@profilepic", customer.profilepic ?? (object)DBNull.Value);
-                cmd.Parameters.AddWithValue("@dob", customer.DOB);
-                cmd.Parameters.AddWithValue("@CreatedAt", DateTime.Now);
-                cmd.Parameters.AddWithValue("@UpdatedAt", DateTime.Now);
-                cmd.Parameters.AddWithValue("@customername", customer.customer_name ?? "");
-                cmd.Parameters.AddWithValue("@password", customer.password ?? "");
-
-                con.Open();
-                cmd.ExecuteNonQuery();
-            }
-        }
 
         public tbl_customer ValidateCustomerLogin(string email, string password)
         {
@@ -197,6 +174,11 @@ namespace Foodie.Repositories
                 con.Open();
                 cmd.ExecuteNonQuery();
             }
+        }
+
+        public void AddUser(tbl_customer tbl_Customer, byte[] profilepic)
+        {
+            throw new NotImplementedException();
         }
     }
 }
