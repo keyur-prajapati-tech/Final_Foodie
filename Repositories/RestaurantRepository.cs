@@ -230,8 +230,6 @@ namespace Foodie.Repositories
            
         }
 
-
-
         public int AddPanDetails(tbl_pan_details pan, byte[] img)
         {
             using (SqlConnection conn = new SqlConnection(_connectionstring)) 
@@ -349,6 +347,110 @@ namespace Foodie.Repositories
             }
         }
 
-       
+        public List<tbl_orders_notifi> tbl_Orders_Notifis(int restaurant_id)
+        {
+            List<tbl_orders_notifi> orders = new List<tbl_orders_notifi>();
+
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "select top 1 coi.*,co.food_status,co.resturant_id from customers.tbl_orders co inner join customers.tbl_order_items coi on co.order_id = coi.order_id where food_status = 'waiting' and resturant_id = @RestaurantId";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@RestaurantId", restaurant_id);
+
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    tbl_orders_notifi order = new tbl_orders_notifi
+                    {
+                        order_items_id = Convert.ToInt32(reader["order_items_id"]),
+                        order_id = Convert.ToInt32(reader["order_id"]),
+                        restaurant_id = Convert.ToInt32(reader["resturant_id"]),
+                        menu_id = Convert.ToInt32(reader["menu_id"]),
+                        quantity = Convert.ToInt32(reader["quantity"]),
+                        list_price = Convert.ToInt32(reader["list_price"]),
+                        discount = Convert.ToDecimal(reader["discount"]),
+                        estimated_time = Convert.ToDateTime(reader["estimated_time"]),
+                        food_status = reader["food_status"].ToString()
+                    };
+
+                    orders.Add(order);
+                }
+
+                conn.Close();
+            }
+
+            return orders;
+        }
+
+        public int AcceptOrder(int order_id)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string qry = "update customers.tbl_orders set food_status = 'accept' where order_id = @order_id";
+                SqlCommand cmd = new SqlCommand(qry, conn);
+                cmd.Parameters.AddWithValue("@order_id", order_id);
+                conn.Open();
+                int result = cmd.ExecuteNonQuery();
+                conn.Close();
+                return result;
+            }
+        }
+
+        public List<tbl_orders_notifi> tbl_Orders_Notifis_Accepted(int restaurant_id)
+        {
+            List<tbl_orders_notifi> orders = new List<tbl_orders_notifi>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "select *\r\nfrom customers.tbl_orders co \r\ninner join customers.tbl_order_items coi \r\non co.order_id = coi.order_id\r\ninner join customers.tbl_customer cc\r\non co.customer_id = cc.customer_id\r\nwhere co.food_status = 'accept' and resturant_id = @RestaurantId";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@RestaurantId", restaurant_id);
+
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    tbl_orders_notifi order = new tbl_orders_notifi
+                    {
+                        order_items_id = Convert.ToInt32(reader["order_items_id"]),
+                        order_id = Convert.ToInt32(reader["order_id"]),
+                        restaurant_id = Convert.ToInt32(reader["resturant_id"]),
+                        menu_id = Convert.ToInt32(reader["menu_id"]),
+                        quantity = Convert.ToInt32(reader["quantity"]),
+                        list_price = Convert.ToInt32(reader["list_price"]),
+                        discount = Convert.ToDecimal(reader["discount"]),
+                        estimated_time = Convert.ToDateTime(reader["estimated_time"]),
+                        food_status = reader["food_status"].ToString(),
+                        customer_name = reader["customer_name"].ToString()
+                    };
+
+                    orders.Add(order);
+                }
+
+                conn.Close();
+            }
+
+            return orders;
+        }
+
+        public int RejectOrder(int order_id)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string qry = "update customers.tbl_orders set food_status = 'reject' where order_id = @order_id";
+                SqlCommand cmd = new SqlCommand(qry, conn);
+                cmd.Parameters.AddWithValue("@order_id", order_id);
+                conn.Open();
+                int result = cmd.ExecuteNonQuery();
+                conn.Close();
+                return result;
+            }
+        }
     }
 }

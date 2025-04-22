@@ -31,5 +31,16 @@ namespace Foodie.Repositories
 
         //Add Menu
         public int AddMenu(tbl_menu_items menu, byte[] menu_img);
+
+        //Order Notification
+        public List<tbl_orders_notifi> tbl_Orders_Notifis(int restaurant_id);
+
+        //Accept Order by Resturant
+        public int AcceptOrder(int order_id);
+
+        public int RejectOrder(int order_id);
+               
+        //get all Order with Accepted status
+        public List<tbl_orders_notifi> tbl_Orders_Notifis_Accepted(int restaurant_id);
     }
 }

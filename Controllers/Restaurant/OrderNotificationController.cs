@@ -1,4 +1,5 @@
 ﻿using Foodie.Models;
+using Foodie.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
@@ -7,6 +8,13 @@ namespace Foodie.Controllers.Restaurant
     [Route("Restaurant")]
     public class OrderNotificationController : Controller
     {
+        private readonly IRestaurantRepository _repository;
+
+        public OrderNotificationController(IRestaurantRepository repository)
+        {
+            _repository = repository;
+        }
+
         [Route("OrderNoti")]
         public IActionResult OrderNoti()
         {
@@ -16,7 +24,9 @@ namespace Foodie.Controllers.Restaurant
         [Route("OrderReady")]
         public IActionResult OrderReady()
         {
-            return View();
+            var orders = _repository.tbl_Orders_Notifis_Accepted(1);
+
+            return View(orders);
         }
 
         [Route("OrderPickedUp")]
@@ -25,36 +35,50 @@ namespace Foodie.Controllers.Restaurant
             return View();
         }
 
+        [HttpGet]
+        [Route("CheckNewOrders")]
         public JsonResult CheckNewOrders(int restaurantId)
         {
-            List<object> orders = new List<object>();
-
-            string connectionString = "Data Source=SSMOZ9;Initial Catalog=order_demo;User ID=sa;Password=SSM@123;Encrypt=False";
-            //"Data Source=RISHI\\SSMSERVER;Initial Catalog=order_demo;User ID=sa;Password=rishi8102;Encrypt=False";
-
-            string query = "SELECT OrderId, OrderDetails FROM Orders WHERE RestaurantId = @RestaurantId AND Status = 'Pending'";
-
-            using (SqlConnection conn = new SqlConnection(connectionString))
+            var orders = _repository.tbl_Orders_Notifis(restaurantId);
+            if (orders == null || orders.Count == 0)
             {
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@RestaurantId", restaurantId);
-
-                conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    orders.Add(new
-                    {
-                        OrderId = reader["OrderId"],
-                        OrderDetails = reader["OrderDetails"].ToString()
-                    });
-                }
-
-                conn.Close();
+                return Json(new { success = false, message = "No new orders found." });
             }
 
             return Json(orders);
+
+        }
+
+        [HttpPost]
+        [Route("acceptOrder")]
+        public IActionResult acceptOrder(int order_id)
+        {
+            var result = _repository.AcceptOrder(order_id);
+            if (result > 0)
+            {
+                return Json(new { success = true, message = "Order accepted successfully." });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Failed to accept order." });
+            }
+           
+        }
+
+        [HttpPost]
+        [Route("rejectOrder")]
+        public IActionResult rejectOrder(int order_id)
+        {
+            var result = _repository.RejectOrder(order_id);
+            if (result > 0)
+            {
+                return Json(new { success = true, message = "Order accepted successfully." });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Failed to accept order." });
+            }
+
         }
 
     }
