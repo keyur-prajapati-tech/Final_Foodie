@@ -1,6 +1,8 @@
 ﻿@{
     Layout = "~/Views/Shared/_RestaurantRegister.cshtml";
 }
+@model Foodie.Models.Restaurant.RestaurantMenuViewmodel
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -18,138 +20,148 @@
 <body class="bg-white">
     <div class="container-fluid">
 
-        <div>
-            <h3 class="fs-2 fw-bolder">Menu and other operational details</h3>
-            <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
-                <div>
-                    <span class="fs-4 fw-bold">
-                        Add menu images
-                    </span>
-                    <br />
-                    <span class="fw-lighter">These will be used to create your in-app menu for online ordering</span>
+
+        <form action="@Url.Action("MenuItems","Addrestaurant")" method="post" enctype="multipart/form-data">
+
+            <div>
+                <h3 class="fs-2 fw-bolder">Menu and other operational details</h3>
+                <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
+                    <div>
+                        <span class="fs-4 fw-bold">
+                            Add menu images
+                        </span>
+                        <br />
+                        <span class="fw-lighter">These will be used to create your in-app menu for online ordering</span>
+                    </div>
+
+                    <div class="mb-3 mt-2">
+                        <label for="formFile" class="form-label">Upload More Images</label>
+                        <input class="form-control" type="file" name="m_img" id="formFile">
+                    </div>
+
+
+                   
+                            <img src="data:image/png;base64,@Convert.ToBase64String(Model.tbl_Vendores_Img.Restaurant_menu_img)" alt="Alternate Text" />
+                 
+                    
                 </div>
 
-                <div class="mb-3 mt-2">
-                    <label for="formFile" class="form-label">Upload More Images</label>
-                    <input class="form-control" type="file" id="formFile">
-                </div>
-            </div>
+                <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
+                    <div>
+                        <span class="fs-4 fw-bold">
+                            Add Restaurant images
+                        </span>
+                        <br />
+                        <span class="fw-lighter">This will be your restaurant’s profile picture on Zomato — so use your best food shot!</span>
+                    </div>
 
-            <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
-                <div>
-                    <span class="fs-4 fw-bold">
-                        Add Restaurant images
-                    </span>
-                    <br />
-                    <span class="fw-lighter">This will be your restaurant’s profile picture on Zomato — so use your best food shot!</span>
-                </div>
+                    <div class="mb-3 mt-2">
+                        <label for="formFile" class="form-label">Upload Restaurant Images</label>
+                        <input class="form-control" name="r_img" type="file" id="formFile">
+                    </div>
 
-                <div class="mb-3 mt-2">
-                    <label for="formFile" class="form-label">Upload Restaurant Images</label>
-                    <input class="form-control" type="file" id="formFile">
-                </div>
-            </div>
-
-            <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
-                <div>
-                    <span class="fs-4 fw-bold">
-                        Select upto 3 cuisines
-                    </span>
-                    <br />
-                    <span class="fw-lighter">Your restaurant will appear in searches for these cuisines</span>
+                   
+                            <img src="data:image/png;base64,@Convert.ToBase64String(Model.tbl_Vendores_Img.Restaurant_menu_img)" width="200px" alt="Alternate Text" />
+                        
                 </div>
 
-                <div class="mb-3 mt-2">
-                    <form class="d-flex mt-3 mt-lg-0" role="search">
+                <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
+                    <div>
+                        <span class="fs-4 fw-bold">
+                            Select upto 3 cuisines
+                        </span>
+                        <br />
+                        <span class="fw-lighter">Your restaurant will appear in searches for these cuisines</span>
+                    </div>
+
+                    <div class="mb-3 mt-2">
+
                         <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
                         <button class="btn btn-outline-success" type="submit">Search</button>
-                    </form>
-                </div>
-
-
-            </div>
-
-            <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
-                <div>
-                    <span class="fs-4 fw-bold">
-                        Restaurant delivery timings
-                    </span>
-                    <br />
-
-                </div>
-                <div>
-                    <span>
-                        More Open Days
-                    </span>
-                    <br />
-                    <small>Don't forget to uncheck your off-day</small>
-                </div>
-                <div class="btn-group mt-3 d-flex flex-wrap" role="group" aria-label="Basic checkbox toggle button group">
-                    <input type="checkbox" class="btn-check" id="btncheck1" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="btncheck1">Sunday</label>
-
-                    <input type="checkbox" class="btn-check" id="btncheck2" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="btncheck2">Monday</label>
-
-                    <input type="checkbox" class="btn-check" id="btncheck3" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="btncheck3">Tuesday</label>
-
-                    <input type="checkbox" class="btn-check" id="btncheck4" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="btncheck4">Wednesday</label>
-
-                    <input type="checkbox" class="btn-check" id="btncheck5" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="btncheck5">Thursday</label>
-
-                    <input type="checkbox" class="btn-check" id="btncheck6" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="btncheck6">Friday</label>
-
-                    <input type="checkbox" class="btn-check" id="btncheck7" autocomplete="off">
-                    <label class="btn btn-outline-primary" for="btncheck7">Saturday</label>
-                </div>
-            </div>
-
-            <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
-                <div>
-                    <span class="fs-4 fw-bold">
-                        Select the device type you will use for online ordering
-                    </span>
-                    <br />
-
-                </div>
-
-                <div class="mt-2 p-1">
-                    <div class="card shadow d-flex mt-2  flex-row">
-                        <span class=" p-3">
-                            Zomato restaurant partner mobile app [Android Only]
-
-                        </span>
 
                     </div>
 
-                    <div class="card shadow d-flex mt-2 flex-row">
-                        <span class="p-3">
-                            Zomato restaurant partner web dashboard
-
-                        </span>
-
-                    </div>
-
-                    <div class="card shadow d-flex mt-2 flex-row">
-                        <span class=" p-3 ">
-                            Point of sale system [POS]
-
-                        </span>
-
-                    </div>
 
                 </div>
 
+                <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
+                    <div>
+                        <span class="fs-4 fw-bold">
+                            Restaurant delivery timings
+                        </span>
+                        <br />
 
+                    </div>
+                    <div>
+                        <span>
+                            More Open Days
+                        </span>
+                        <br />
+                        <small>Don't forget to uncheck your off-day</small>
+                    </div>
+                    <div class="btn-group mt-3 d-flex flex-wrap" role="group" aria-label="Basic checkbox toggle button group">
+                        <input type="checkbox" class="btn-check" id="btncheck1" name="SelectedDays" value="Sunday" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="btncheck1">Sunday</label>
+
+                        <input type="checkbox" class="btn-check" id="btncheck2" name="SelectedDays" value="Monday" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="btncheck2">Monday</label>
+
+                        <input type="checkbox" class="btn-check" id="btncheck3" name="SelectedDays" value="Tuesday" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="btncheck3">Tuesday</label>
+
+                        <input type="checkbox" class="btn-check" id="btncheck4" name="SelectedDays" value="Wednesday" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="btncheck4">Wednesday</label>
+
+                        <input type="checkbox" class="btn-check" id="btncheck5" name="SelectedDays" value="Thursday" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="btncheck5">Thursday</label>
+
+                        <input type="checkbox" class="btn-check" id="btncheck6" name="SelectedDays" value="Friday" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="btncheck6">Friday</label>
+
+                        <input type="checkbox" class="btn-check" id="btncheck7" name="SelectedDays" value="Saturday" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="btncheck7">Saturday</label>
+                    </div>
+                </div>
+
+                <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
+                    <div>
+                        <span class="fs-4 fw-bold">
+                            Select the device type you will use for online ordering
+                        </span>
+                        <br />
+
+                    </div>
+
+                    <div class="mt-2 p-1">
+                        <div class="card shadow d-flex mt-2  flex-row">
+                            <span class=" p-3">
+                                Zomato restaurant partner mobile app [Android Only]
+
+                            </span>
+
+                        </div>
+
+                        <div class="card shadow d-flex mt-2 flex-row">
+                            <span class="p-3">
+                                Zomato restaurant partner web dashboard
+
+                            </span>
+
+                        </div>
+
+                        <div class="card shadow d-flex mt-2 flex-row">
+                            <span class=" p-3 ">
+                                Point of sale system [POS]
+
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
             </div>
-        </div>
-
-        <form action="@Url.Action("ResDocument","AddRestaurant")" method="post">
-
             <div class="container-fluid mt-3 d-flex justify-content-end align-items-end bg-light position-sticky p-3 card ">
                 <button type="submit" class="btn btn-outline-success w-25">Next</button>
             </div>

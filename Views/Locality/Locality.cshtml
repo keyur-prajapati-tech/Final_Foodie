@@ -1,8 +1,8 @@
-﻿@model IEnumerable<Foodie.Models.customers.tbl_city>
+﻿@model Foodie.Models.customers.RegisterViewModel
 
-@{
+@* @{
     Layout = "~/Views/shared/_CustomerLayout.cshtml";
-}
+} *@
 
 <style>
     .localities-grid {
@@ -54,7 +54,7 @@
     <div class="container-fluid mt-4">
         <div class="localities-grid">
             @{int count = 0;}
-            @foreach (var item in Model)
+            @foreach (var item in Model.Cities)
             {
                 <div class="locality-card @(count >= 8 ? "hidden" : "")"> 
                     <p>@item.CityName</p> 
@@ -64,7 +64,7 @@
             }
         </div>
 
-        @if(Model.Count() > 8)
+        @if(Model.Cities.Count() > 8)
         {
             <!-- Button for expanding/collapsing -->
             <div class="toggle-btn">

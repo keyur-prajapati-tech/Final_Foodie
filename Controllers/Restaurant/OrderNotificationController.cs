@@ -1,11 +1,20 @@
 ﻿using Foodie.Models;
+using Foodie.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 
 namespace Foodie.Controllers.Restaurant
 {
     [Route("Restaurant")]
     public class OrderNotificationController : Controller
     {
+        private readonly IRestaurantRepository _repository;
+
+        public OrderNotificationController(IRestaurantRepository repository)
+        {
+            _repository = repository;
+        }
+
         [Route("OrderNoti")]
         public IActionResult OrderNoti()
         {
@@ -15,7 +24,9 @@ namespace Foodie.Controllers.Restaurant
         [Route("OrderReady")]
         public IActionResult OrderReady()
         {
-            return View();
+            var orders = _repository.tbl_Orders_Notifis_Accepted(1);
+
+            return View(orders);
         }
 
         [Route("OrderPickedUp")]
@@ -24,40 +35,51 @@ namespace Foodie.Controllers.Restaurant
             return View();
         }
 
-        //[HttpPost]
-        //public JsonResult ReceiveOrder(OrderModel order)
-        //{
-        //    // Save the order to the database
-        //    // Simulate order processing
-        //    Console.WriteLine("Received order for restaurant");
-
-        //    return Json(new { success = true, message = "Order received successfully" });
-        //}
-        [HttpPost]
-        public JsonResult ReceiveOrder(OrderModel order)
+        [HttpGet]
+        [Route("CheckNewOrders")]
+        public JsonResult CheckNewOrders(int restaurantId)
         {
-            if (order == null || order.Items.Count == 0)
+            var orders = _repository.tbl_Orders_Notifis(restaurantId);
+            if (orders == null || orders.Count == 0)
             {
-                return Json(new { success = false, message = "Invalid order details" });
+                return Json(new { success = false, message = "No new orders found." });
             }
 
-            // Save the order to the database (you can implement this logic)
+            return Json(orders);
 
-            return Json(new { success = true });
         }
 
-        [Route("popup")]
-        public ActionResult displaypopup()
+        [HttpPost]
+        [Route("acceptOrder")]
+        public IActionResult acceptOrder(int order_id)
         {
-            // Fetch orders from the database (dummy data for now)
-            List<OrderItem> orders = new List<OrderItem>
-    {
-        new OrderItem { Name = "Dal Kachori", Quantity = 1, Price = 120 },
-        new OrderItem { Name = "Naylon Khaman", Quantity = 1, Price = 120 }
-    };
-
-            ViewBag.Orders = orders; // Pass orders to the view
-            return View();
+            var result = _repository.AcceptOrder(order_id);
+            if (result > 0)
+            {
+                return Json(new { success = true, message = "Order accepted successfully." });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Failed to accept order." });
+            }
+           
         }
+
+        [HttpPost]
+        [Route("rejectOrder")]
+        public IActionResult rejectOrder(int order_id)
+        {
+            var result = _repository.RejectOrder(order_id);
+            if (result > 0)
+            {
+                return Json(new { success = true, message = "Order accepted successfully." });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Failed to accept order." });
+            }
+
+        }
+
     }
 }
