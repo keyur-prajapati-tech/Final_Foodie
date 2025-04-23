@@ -1,6 +1,6 @@
 ﻿@{
     Layout = "~/Views/Shared/_RestaurantRegister.cshtml";
-    
+
 }
 @model Foodie.Models.Restaurant.RestaurantRegistrationViewModel
 <!DOCTYPE html>
@@ -17,122 +17,175 @@
     <link href="~/css/mycss.css" rel="stylesheet" />
 
     <title>Order Details Card</title>
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
 
+    <style>
+        #map {
+            width: 100%;
+            height: 400px;
+        }
+    </style>
 </head>
-<body class="bg-white">
+<body class="bg-white" onload="getLocation()">
     <div class="container-fluid">
 
         <div>
             <form action="@Url.Action("Registerres","Addrestaurant")" method="post">
-            <h3 class="fs-2 fw-bolder">Restaurant Information</h3>
-            <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
-                <div>
-                    <span class="fs-4 fw-bold">
-                        Restaurant Name
-                    </span>
-                    <br />
-                    <span class="fw-lighter">Customer will see this name on Foodie</span>
+                <h3 class="fs-2 fw-bolder">Restaurant Information</h3>
+                <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
+                    <div>
+                        <span class="fs-4 fw-bold">
+                            Restaurant Name
+                        </span>
+                        <br />
+                        <span class="fw-lighter">Customer will see this name on Foodie</span>
+                    </div>
+
+                    <div class="m-3">
+                        <input type="text" class="form-control fw-lighter" style="border-radius:10px"
+                               asp-for="@Model.tbl_Restaurant.restaurant_name" id="rest_name" placeholder="Restaurant Name*">
+                    </div>
+
                 </div>
 
-                <div class="m-3">
-                    <input type="text" class="form-control fw-lighter" style="border-radius:10px"  
-                    asp-for="@Model.tbl_Restaurant.restaurant_name" id="rest_name" placeholder="Restaurant Name*">
-                </div>
+                <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
+                    <div>
+                        <span class="fs-4 fw-bold">
+                            Owner Details
+                        </span>
+                        <br />
+                        <span class="fw-lighter">Foodie will use these details for all business communications and updates</span>
+                    </div>
 
-            </div>
-
-            <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
-                <div>
-                    <span class="fs-4 fw-bold">
-                        Owner Details
-                    </span>
-                    <br />
-                    <span class="fw-lighter">Foodie will use these details for all business communications and updates</span>
-                </div>
-
-                <div class="d-flex justify-content-between m-3">
-                    <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" asp-for="@Model.tbl_Owner.owner_name" id="owner_name"  placeholder="Full Name*">
+                    <div class="d-flex justify-content-between m-3">
+                        <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" asp-for="@Model.tbl_Owner.owner_name" id="owner_name" placeholder="Full Name*">
 
                         <input type="email" class="form-control fw-lighter " style="border-radius:10px" asp-for="@Model.tbl_Owner.owner_email" id="owner_email" placeholder="Email Address*">
+                    </div>
+
+                    <div class="mx-3">
+                        <input type="number" class="form-control fw-lighter" style="border-radius:10px" id="owner_phone" asp-for="@Model.tbl_Owner.owner_contact" placeholder="Phone Number*">
+                    </div>
+
+                    <div class="form-check mx-3">
+                        <input class="form-check-input" type="checkbox" value="" id="phone_Checked" checked>
+                        <label class="form-check-label" for="flexCheckChecked">
+                            Get Restaurant updates Via Whatsapp
+                        </label>
+                    </div>
+
+                    <div class="mt-3">
+                        <span class="fs-5 fw-bold">
+                            Restaurant's Primary Contact number
+                        </span>
+                        <br />
+                        <span class="fw-lighter">Customers,Delivery Partners and Foodie may call on this number for order support</span>
+                    </div>
+
+                    <div class="card d-flex flex-row mx-3 mt-3">
+                        <input class="form-check-input" type="checkbox" value="" id="phone_Checked" checked>
+                        <label class="form-check-label ms-2" for="flexCheckChecked">
+                            Same as Owner Mobile Number
+                        </label>
+                    </div>
                 </div>
 
-                <div class="mx-3">
-                    <input type="number" class="form-control fw-lighter" style="border-radius:10px" id="owner_phone" asp-for="@Model.tbl_Owner.owner_contact" placeholder="Phone Number*">
+                <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
+                    <div>
+                        <span class="fs-4 fw-bold">
+                            Add your restaurant's location for order pick-up
+                        </span>
+
+                        <hr />
+                    </div>
+
+
+                    <div id="map"></div>
+
+
+                    <div>
+                        <p class="fs-5 mt-3">
+                            Restaurant address details
+                        </p>
+
+                        <p class="fw-lighter">Address details are basis the restaurant location mentioned above</p>
+
+                    </div>
+                    <div class="d-flex justify-content-between m-3">
+                        <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px"
+                               id="shop" placeholder="Shop no. / building no. (optional)">
+
+                        <input type="text" class="form-control fw-lighter " style="border-radius:10px" id="floor" placeholder="Floor / tower (optional)">
+                    </div>
+
+                    <div class="d-flex justify-content-between m-3">
+                        <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" id="area" asp-for="@Model.tbl_Restaurant.restaurant_street" placeholder="Area / Sector / Locality*">
+
+                        <input type="text" class="form-control fw-lighter " style="border-radius:10px" id="city" asp-for="@Model.tbl_Restaurant.restaurant_pincode" placeholder="City">
+                    </div>
+
+                    <div class="d-flex justify-content-between m-3">
+                        <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" id="owner_name" placeholder="Add any nearby landmark (optional)">
+
+
+                    </div>
                 </div>
-
-                <div class="form-check mx-3">
-                    <input class="form-check-input" type="checkbox" value="" id="phone_Checked" checked>
-                    <label class="form-check-label" for="flexCheckChecked">
-                        Get Restaurant updates Via Whatsapp
-                    </label>
-                </div>
-
-                <div class="mt-3">
-                    <span class="fs-5 fw-bold">
-                        Restaurant's Primary Contact number
-                    </span>
-                    <br />
-                    <span class="fw-lighter">Customers,Delivery Partners and Foodie may call on this number for order support</span>
-                </div>
-
-                <div class="card d-flex flex-row mx-3 mt-3">
-                    <input class="form-check-input" type="checkbox" value="" id="phone_Checked" checked>
-                    <label class="form-check-label ms-2" for="flexCheckChecked">
-                        Same as Owner Mobile Number
-                    </label>
-                </div>
-            </div>
-
-            <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">
-                <div>
-                    <span class="fs-4 fw-bold">
-                        Add your restaurant's location for order pick-up
-                    </span>
-
-                    <hr />
-                </div>
-
-                <div class="container-fluid shadow bg-black">
-                    <img src="~/NewFolder/png-transparent-world-map-map-world-map-miscellaneous-blue-color-thumbnail.png" class="img-fluid" alt="MAP" />
-                </div>
-
-                <div>
-                    <p class="fs-5 mt-3">
-                        Restaurant address details
-                    </p>
-
-                    <p class="fw-lighter">Address details are basis the restaurant location mentioned above</p>
-
-                </div>
-                <div class="d-flex justify-content-between m-3">
-                    <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" 
-                    id="shop" placeholder="Shop no. / building no. (optional)">
-
-                    <input type="text" class="form-control fw-lighter " style="border-radius:10px" id="floor" placeholder="Floor / tower (optional)">
-                </div>
-
-                <div class="d-flex justify-content-between m-3">
-                    <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" id="area" asp-for="@Model.tbl_Restaurant.restaurant_street" placeholder="Area / Sector / Locality*">
-
-                        <input type="text" class="form-control fw-lighter " style="border-radius:10px" id="city" asp-for="@Model.tbl_Restaurant.restaurant_pincode"  placeholder="City">
-                </div>
-
-                <div class="d-flex justify-content-between m-3">
-                    <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" id="owner_name" placeholder="Add any nearby landmark (optional)">
-
-
-                </div>
-            </div>
 
                 <div class="container-fluid mt-3 d-flex justify-content-end align-items-end bg-light position-sticky p-3 card ">
                     <button type="submit" class="btn btn-outline-success w-25">Next</button>
                 </div>
             </form>
 
-          
+
 
         </div>
     </div>
+
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoicmlzaGk4MTAyIiwiYSI6ImNtOTFpbXpjeDAxZGwybHNjdjljdnlpZ2UifQ.lwfPOwA0QilljmyDYiUV6A';
+
+
+
+        let userMarker;
+
+       
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    let lat = position.coords.latitude;
+                    let lon = position.coords.longitude;
+                   
+                    let map = new mapboxgl.Map({
+                        container: 'map',
+                        style: 'mapbox://styles/mapbox/streets-v11',
+                        center: [lat, lon],
+                        zoom: 10
+                    });
+                    map.flyTo({ center: [lon, lat], zoom: 14 });
+
+                    if (userMarker) userMarker.remove();
+                    userMarker =  new mapboxgl.Marker({ color: 'blue' })
+                    .setLngLat([lon, lat])
+                    .setPopup(new mapboxgl.Popup().setText("You are here"))
+                    .addTo(map);
+                    
+                    // new mapboxgl.Marker().setLngLat([lon, lat]).addTo(map);
+
+
+
+                    // // Optional: add navigation controls
+                     map.addControl(new mapboxgl.NavigationControl());
+                }, error => {
+                    alert("Error fetching location: " + error.message);
+                });
+            } else {
+                alert("Geolocation is not supported by this browser.");
+            }
+        }
+
+    </script>
 </body>
 </html>
 
