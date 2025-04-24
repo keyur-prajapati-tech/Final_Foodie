@@ -1,0 +1,49 @@
+﻿@{
+    Layout = "_AdminLayout";
+}
+<head>
+    <title>@ViewBag.Title</title>
+</head>
+<div class="text-center">
+    <h1>Customers</h1>
+</div>
+
+<div class="container shadow">
+    <div class="border-2">
+        <div class="mt-1 mb-1 pt-3 ps-4 pb-3 shadow">
+            @* <a asp-controller="Login" asp-action="Addcustomers"><button type="button" class="btn btn-outline-primary">Add</button></a> *@
+            @*     <button type="button" class="btn btn-outline-primary">Restaurant</button> *@
+            @*     <button type="button" class="btn btn-outline-primary">Delivery Boy</button> *@
+        </div>
+        <div class="table-responsive border-4">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Customer Id</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Phone</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Registration Date</th>
+                        <th scope="col">Action</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @* @foreach(var emp in Model) *@
+                    @* { *@
+                        <tr>
+                            <th scope="row"></th>
+                            <td scope="col"></td>
+                            <td scope="col"></td>
+                            <td scope="col"></td>
+                            <td scope="col"></td>
+                            <td scope="col">
+                            </td>
+                        </tr>
+                    @* } *@
+                </tbody>
+            </table>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,213 @@
+﻿@{
+    Layout = "_AdminLayout";
+}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Example</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <div class=" py-2 bg-body-tertiary">
+        <div class="container mt-5 mb-5">
+            <div class="row">
+                <!-- Sales Card -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card text-center shadow p-3">
+                        <h5>Sales (In $)</h5>
+                        <hr style="border:1px solid #000" />
+                        <h3>$0.00</h3>
+                        <p>This Month</p>
+                    </div>
+                </div>
+
+                <!-- Customers Card -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card text-center shadow p-3">
+                        <h5>Customers</h5>
+                        <hr style="border:1px solid #000" />
+                        <h3>1</h3>
+                        <p>This Month</p>
+                    </div>
+                </div>
+
+                <!-- Restaurants Card -->
+                <div class="col-md-6 col-lg-4">
+                    <div class="card text-center shadow p-3">
+                        <h5>Restaurants</h5>
+                        <hr style="border:1px solid #000" />
+                        <h3>0</h3>
+                        <p>Total This Month</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-3 ">
+                <!-- Orders Cards -->
+                <div class="col-md-3">
+                    <div class="card text-center shadow p-3">
+                        <h5>Cancelled Orders</h5>
+                        <h3>0</h3>
+                    </div>
+                </div>
+                <div class="col-md-3 ">
+                    <div class="card text-center shadow p-3">
+                        <h5>Pending Orders</h5>
+                        <h3>0</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center shadow p-3">
+                        <h5>Dispatched Orders</h5>
+                        <h3>0</h3>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card text-center shadow p-3">
+                        <h5>Completed Orders</h5>
+                        <h3>0</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-3 mb-2 ">
+                <!-- Restaurants Status -->
+                <div class="col-md-3">
+                    <div class="card text-center shadow p-3">
+                        <h5>Active Restaurants</h5>
+                        <h3>4</h3>
+                    </div>
+                </div>
+                <div class="col-md-3 ">
+                    <div class="card text-center shadow p-3">
+                        <h5>Inactive Restaurants</h5>
+                        <h3>2</h3>
+                    </div>
+                </div>
+                <div class="col-md-3 ">
+                    <div class="card text-center shadow p-3">
+                        <h5>Open Restaurants</h5>
+                        <h3>4</h3>
+                    </div>
+                </div>
+                <div class="col-md-3 ">
+                    <div class="card text-center shadow p-3">
+                        <h5>Closed Restaurants</h5>
+                        <h3>0</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class=" py-2 bg-body-tertiary ">
+            <div class="container w-100">
+                <div class="row ">
+                    <!-- Sales Card -->
+                    <div class="col-md-6 col-lg-6">
+                        <div class="card text-center shadow p-3">
+                            <h2>Yearly Sale</h2>
+                            <div class="col-md-8 offset-md-2">
+                                <canvas id="myChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-6">
+                        <div class="card text-center shadow p-3">
+                            <h2>Yearly Sale</h2>
+                            <div class="col-md-8 offset-md-2">
+                                <canvas id="lineChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- <div>
+
+                 <div class="container-fluid shadow d-flex">
+                     <div class="container mt-5 w-50">
+                         <h2>Yearly Sale</h2>
+                          <div class="row">
+                             <div class="col-md-8 offset-md-2">
+                                 <canvas id="myChart"></canvas>
+                             </div>
+                          </div>
+                     </div>
+                     <div class="container mt-5 w-50">
+                         <h2>Yearly Sale</h2>
+                          <div class="row">
+                             <div class="col-md-8 offset-md-2">
+                                 <canvas id="lineChart"></canvas>
+                             </div>
+                          </div>
+                     </div>
+                      </div>-->
+
+
+            <script>
+                // Set up the chart data and options
+                const ctx = document.getElementById('myChart').getContext('2d');
+                const myChart = new Chart(ctx, {
+                    type: 'bar', // Type of chart (bar, line, pie, etc.)
+                    data: {
+                        labels: ['January', 'February', 'March', 'April', 'May'], // X-axis labels
+                        datasets: [{
+                            label: 'Monthly Sales', // Label for the dataset
+                            data: [12, 19, 3, 5, 2], // Data points for the Y-axis
+                            backgroundColor: '#000957', // Bar color
+                            borderColor: '#8697C4', // Border color of bars
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            y: {
+                                beginAtZero: true // Start the Y-axis at zero
+                            }
+                        }
+                    }
+                });
+
+                const ctx1 = document.getElementById('lineChart').getContext('2d');
+                const lineChart = new Chart(ctx1, {
+                    type: 'line', // Type of chart (line chart in this case)
+                    data: {
+                        labels: ['January', 'February', 'March', 'April', 'May'], // X-axis labels (months)
+                        datasets: [{
+                            label: 'Sales (in USD)', // Label for the dataset
+                            data: [300, 400, 150, 500, 200], // Data points for the Y-axis (sales figures)
+                            fill: false, // Don't fill the area under the line
+                            borderColor: '#000957', // Line color
+                            tension: 0.4, // Tension for the line (smoothness)
+                            borderWidth: 2 // Line thickness
+                        }]
+                    },
+                    options: {
+                        responsive: true, // Make the chart responsive to window size
+                        scales: {
+                            y: {
+                                beginAtZero: true // Start the Y-axis at zero
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'top' // Position of the legend
+                            }
+                        }
+                    }
+                });
+            </script>
+
+            <!-- Bootstrap JS Bundle (Optional for components like modals, dropdowns) -->
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+            <!--</div>-->
+        </div>
+</body>
+
+
+

@@ -36,11 +36,14 @@ namespace Foodie.Repositories
         public List<tbl_orders_notifi> tbl_Orders_Notifis(int restaurant_id);
 
         //Accept Order by Resturant
-        public int AcceptOrder(int order_id);
-
-        public int RejectOrder(int order_id);
+        public int AcceptOrder(int order_id,string food_status);
                
         //get all Order with Accepted status
         public List<tbl_orders_notifi> tbl_Orders_Notifis_Accepted(int restaurant_id);
+
+        //isOnline
+        public int IsOnline(int restaurant_id, int isOnline);
+
+        public int getOnline(int restaurant_id);
     }
 }
