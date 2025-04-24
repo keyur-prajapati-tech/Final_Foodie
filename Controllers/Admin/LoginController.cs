@@ -60,7 +60,8 @@ namespace Foodie.Controllers
         }
         public IActionResult customers()
         {
-            return View();
+            var customer = _AdminRepository.GetAllCustomer();
+            return View(customer);
         }
         public IActionResult AddAdmin()
         {

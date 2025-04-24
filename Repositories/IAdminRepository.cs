@@ -1,4 +1,5 @@
 ﻿using Foodie.Models;
+using Foodie.Models.customers;
 using Foodie.Models.Restaurant;
 using Foodie.ViewModels;
 
@@ -23,5 +24,6 @@ namespace Foodie.Repositories
 
 
         public IEnumerable<tbl_restaurant> GetAllRestaurant();
+        public IEnumerable<tbl_customer> GetAllCustomer();
     }
 }

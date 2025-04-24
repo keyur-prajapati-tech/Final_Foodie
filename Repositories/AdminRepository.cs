@@ -1,7 +1,9 @@
 ﻿using Foodie.Models;
+using Foodie.Models.customers;
 using Foodie.Models.Restaurant;
 using Foodie.ViewModels;
 using Microsoft.Data.SqlClient;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Foodie.Repositories
 {
@@ -50,15 +52,16 @@ namespace Foodie.Repositories
 
                     admins.Add(new tbl_admin
                     {
-                        admin_id = Convert.ToInt32(reader["admin_id"]),
-                        Full_name = reader["Full_name"].ToString(),
-                        Password = reader["Password"].ToString(),
-                        Email = reader["Email"].ToString(),
-                        CreatedAt = Convert.ToDateTime(reader["CreatedAt"]),
-                        Phone = reader["Phone"].ToString(),
-                        LastLogin = Convert.ToDateTime(reader["LastLogin"]),
-                        role_type = reader["role_type"].ToString(),
-                        IMAGE = reader["Image"] as byte[]
+                        admin_id = reader["admin_id"] != DBNull.Value ? Convert.ToInt32(reader["admin_id"]) : 0,
+                        Full_name = reader["Full_name"] != DBNull.Value ? reader["Full_name"].ToString() : string.Empty,
+                        Password = reader["Password"] != DBNull.Value ? reader["Password"].ToString() : string.Empty,
+                        Email = reader["Email"] != DBNull.Value ? reader["Email"].ToString() : string.Empty,
+                        CreatedAt = reader["CreatedAt"] != DBNull.Value ? Convert.ToDateTime(reader["CreatedAt"]) : DateTime.MinValue,
+                        Phone = reader["Phone"] != DBNull.Value ? reader["Phone"].ToString() : string.Empty,
+                        LastLogin = reader["LastLogin"] != DBNull.Value ? Convert.ToDateTime(reader["LastLogin"]) : DateTime.MinValue, // nullable
+                        role_type = reader["role_type"] != DBNull.Value ? reader["role_type"].ToString() : string.Empty,
+                        IMAGE = reader["Image"] != DBNull.Value ? (byte[])reader["Image"] : null
+
                     });
                 }
                 conn.Close();
@@ -392,6 +395,37 @@ namespace Foodie.Repositories
                 conn.Close();
             }
             return restaurants;
+        }
+
+        public IEnumerable<tbl_customer> GetAllCustomer()
+        {
+            var customers = new List<tbl_customer>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_Sel_Customer", conn);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    customers.Add(new tbl_customer
+                    {
+                        customer_id = reader["customer_id"] != DBNull.Value ? (int)reader["customer_id"] : 0,
+                        customer_name = reader["customer_name"] != DBNull.Value ? reader["customer_name"].ToString() : string.Empty,
+                        email = reader["email"] != DBNull.Value ? reader["email"].ToString() : string.Empty,
+                        phone = reader["phone"] != DBNull.Value ? reader["phone"].ToString() : string.Empty,
+                        Gender = reader["Gender"] != DBNull.Value ? reader["Gender"].ToString() : string.Empty,
+                        profilepic = reader["profilepic"] != DBNull.Value ? (byte[])reader["profilepic"] : null,
+                        DOB = reader["DOB"] != DBNull.Value ? Convert.ToDateTime(reader["DOB"]) : DateTime.MinValue,
+                        created_at = reader["created_at"] != DBNull.Value ? Convert.ToDateTime(reader["created_at"]) : DateTime.MinValue,
+                        updated_at = reader["updated_at"] != DBNull.Value ? Convert.ToDateTime(reader["updated_at"]) : DateTime.MinValue,
+                        
+                    });
+                }
+                conn.Close();
+            }
+            return customers;
         }
     }
 }
