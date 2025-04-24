@@ -1,4 +1,5 @@
 using Foodie.Repositories;
+using Foodie.Repositories;
 
 
 namespace Foodie
@@ -12,6 +13,7 @@ namespace Foodie
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
+            builder.Services.AddScoped<IAdminRepository, AdminRepository>();
             builder.Services.AddScoped<IcustomerRepository, customerRepository>();
             builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
 

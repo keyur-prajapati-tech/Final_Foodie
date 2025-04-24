@@ -1,10 +1,10 @@
-﻿using food_Demo.Models;
-using food_Demo.Repositories;
-using food_Demo.ViewModels;
+﻿using Foodie.Models;
+using Foodie.Repositories;
+using Foodie.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using System.Reflection;
 
-namespace food_Demo.Controllers
+namespace Foodie.Controllers
 {
     public class ComplaintsController : Controller
     {

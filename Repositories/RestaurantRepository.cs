@@ -408,7 +408,7 @@ namespace Foodie.Repositories
 
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = "select *\r\nfrom customers.tbl_orders co \r\ninner join customers.tbl_order_items coi \r\non co.order_id = coi.order_id\r\ninner join customers.tbl_customer cc\r\non co.customer_id = cc.customer_id\r\ninner join vendores.tbl_restaurant vs\r\non co.restaurant_id = vs.restaurant_id\r\nwhere co.food_status = 'accept'\r\nand co.restaurant_id = @RestaurantId and vs.restaurant_isOnline = 1";
+                string query = "select *\r\nfrom customers.tbl_orders co \r\ninner join customers.tbl_order_items coi \r\non co.order_id = coi.order_id\r\ninner join customers.tbl_customer cc\r\non co.customer_id = cc.customer_id\r\ninner join vendores.tbl_restaurant vs\r\non co.restaurant_id = vs.resturant_id\r\nwhere co.food_status = 'accept'\r\nand co.restaurant_id = @RestaurantId and vs.restaurant_isOnline = 1";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@RestaurantId", restaurant_id);

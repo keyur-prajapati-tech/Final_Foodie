@@ -1,0 +1,98 @@
+﻿@{
+    Layout = "_AdminLayout";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Cuisine Name</title>
+    <!-- Link to Bootstrap CSS (you can use the latest version) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <div class="container mt-5">
+        <div class="text-center">
+            <h1>Cuisine</h1>
+        </div>
+
+        <!-- Button to Open Modal -->
+        <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#addCuisineModal">
+            Add Cuisine
+        </button>
+
+        <!-- Table to display cuisine names -->
+        <div class="table-responsive d-flex justify-content-center align-items-center">
+            <table class="table table-striped mt-4 " id="cuisineTable">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th class="w-50">Cuisine Name</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Rows will be added here dynamically -->
+                </tbody>
+            </table>
+        </div>
+        
+    </div>
+
+    <!-- Modal for adding cuisine -->
+    <div class="modal fade" id="addCuisineModal" tabindex="-1" aria-labelledby="addCuisineModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addCuisineModalLabel">Add Cuisine Name</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Form to add cuisine name -->
+                    <form id="cuisineForm">
+                        <div class="mb-3">
+                            <label for="cuisineName" class="form-label">Cuisine Name</label>
+                            <input type="text" class="form-control" id="cuisineName" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" id="saveCuisineBtn">Save Cuisine</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Link to Bootstrap JS and dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- JavaScript to handle form submission and table update -->
+    <script>
+        document.getElementById('saveCuisineBtn').addEventListener('click', function() {
+          const cuisineName = document.getElementById('cuisineName').value;
+
+          if (cuisineName) {
+            // Add new row to the table
+            const tableBody = document.getElementById('cuisineTable').getElementsByTagName('tbody')[0];
+            const row = tableBody.insertRow();
+            const cell1 = row.insertCell(0);
+            const cell2 = row.insertCell(1);
+
+            // Get the number of rows in the table
+            const rowCount = tableBody.rows.length;
+            cell1.textContent = rowCount; // Set row number
+            cell2.textContent = cuisineName; // Set cuisine name
+
+            // Clear the form input and close the modal
+            document.getElementById('cuisineForm').reset();
+           // var myModal = new bootstrap.Modal(document.getElementById('addCuisineModal'));
+           //  myModal.hide();
+          } else {
+            alert('Please enter a cuisine name');
+          }
+        });
+    </script>
+
+</body>
+</html>
