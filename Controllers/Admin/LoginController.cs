@@ -1,9 +1,9 @@
-﻿using food_Demo.Models;
-using food_Demo.Repositories;
+﻿using Foodie.Models;
+using Foodie.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
-namespace food_Demo.Controllers
+namespace Foodie.Controllers
 {
     public class LoginController : Controller
     {

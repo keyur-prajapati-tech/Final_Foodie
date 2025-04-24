@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using System.Runtime.InteropServices;
 
-namespace food_Demo.Controllers
+namespace Foodie.Controllers
 {
     public class order
     {
