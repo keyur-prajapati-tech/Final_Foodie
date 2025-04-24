@@ -1,4 +1,5 @@
 ﻿using Foodie.Models;
+using Foodie.Models.Restaurant;
 using Foodie.ViewModels;
 using Microsoft.Data.SqlClient;
 
@@ -359,6 +360,38 @@ namespace Foodie.Repositories
                     conn.Close();
                 }
             }
+        }
+
+        public IEnumerable<tbl_restaurant> GetAllRestaurant()
+        {
+            var restaurants = new List<tbl_restaurant>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_Sel_Restaurant", conn);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    restaurants.Add(new tbl_restaurant
+                    {
+                        restaurant_id = reader["restaurant_id"] != DBNull.Value ? (int)reader["restaurant_id"] : 0,
+                        restaurant_name = reader["restaurant_name"] != DBNull.Value ? reader["restaurant_name"].ToString() : string.Empty,
+                        restaurant_contact = reader["restaurant_contact"] != DBNull.Value ? reader["restaurant_contact"].ToString() : string.Empty,
+                        restaurant_email = reader["restaurant_email"] != DBNull.Value ? reader["restaurant_email"].ToString() : string.Empty,
+                        restaurant_street = reader["restaurant_street"] != DBNull.Value ? reader["restaurant_street"].ToString() : string.Empty,
+                        restaurant_pincode = reader["restaurant_pincode"] != DBNull.Value ? reader["restaurant_pincode"].ToString() : string.Empty,
+                        restaurant_isApprov = reader["restaurant_isApprov"] != DBNull.Value && Convert.ToBoolean(reader["restaurant_isApprov"]),
+                        restaurant_isOnline = reader["restaurant_isOnline"] != DBNull.Value && Convert.ToBoolean(reader["restaurant_isOnline"]),
+                        est_id = reader["est_id"] != DBNull.Value ? (int)reader["est_id"] : 0,
+                        owner_name = reader["owner_name"] != DBNull.Value ? reader["owner_name"].ToString() : string.Empty
+
+                    });
+                }
+                conn.Close();
+            }
+            return restaurants;
         }
     }
 }

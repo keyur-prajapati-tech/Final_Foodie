@@ -15,6 +15,8 @@ namespace Foodie.Models.Restaurant
         public bool restaurant_isApprov { get; set; } = false;
         public bool restaurant_isOnline { get; set; } = false;
         public int est_id { get; set; }
+        public string est_type { get; set; }
         public int owner_id { get; set; } 
+        public string owner_name { get; set; }
     }
 }
