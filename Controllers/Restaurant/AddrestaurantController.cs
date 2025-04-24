@@ -67,10 +67,10 @@ namespace Foodie.Controllers.Restaurant
                         restaurant_email = model.tbl_Owner.owner_email,
                         restaurant_street = model.tbl_Restaurant.restaurant_street,
                         restaurant_pincode = model.tbl_Restaurant.restaurant_pincode,
-                        restaurant_lat = "dfg",
-                        restaurant_lag = "ddgbfg",
+                        restaurant_lat = model.tbl_Restaurant.restaurant_lat,
+                        restaurant_lag = model.tbl_Restaurant.restaurant_lag,
                         restaurant_isApprov = true,
-                        restaurant_isOnline = true,
+                        restaurant_isOnline = false,
                         est_id = 1,
                         owner_id = model.tbl_Owner.owner_id
                     };
@@ -234,5 +234,8 @@ namespace Foodie.Controllers.Restaurant
         {
             return View();
         }
+
+
+       
     }
 }
