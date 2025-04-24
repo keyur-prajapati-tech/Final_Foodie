@@ -24,12 +24,14 @@
     }
 
 </style>
-<hr />
+
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
 
-<div class="container">
+@*<div class="container">
     <div class="row">
         <div class="col-md-12">
             <div class="card bg-white p-3 border-3 shadow-sm">
@@ -87,11 +89,10 @@
             </div>
         </div>
     </div>
-</div>
-
+</div>*@
 
 <!-- Order Confirmation Modal -->
-<div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="foodieplaceorderLabel" aria-hidden="true">
+@*<div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="foodieplaceorderLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <!-- Modal Header -->
@@ -161,7 +162,7 @@
             });
         });
     });
-</script>
+</script>*@
 
 
 
@@ -240,7 +241,8 @@
 
             <!-- Payment Section -->
             <div class="card p-3">
-                <h5>Payment</h5>
+                <h3 class="text-uppercase">Payment</h3>
+                <button class="btn btn-primary">Pay Now</button>
             </div>
         </div>
 
@@ -264,7 +266,7 @@
                 </div>
 
                 <div class="d-flex justify-content-between align-items-center" style="border:3px solid #000;border-radius:5px;padding:5px;margin:5px;">
-                    <img src="https://b.zmtcdn.com/data/dish_photos/121/3db1de484b41bf0827e0e4f98f4de121.png?fit=around|130:130&crop=130:130;*,*" alt="food-img" width="100px" />
+                    <img src="https://b.zmtcdn.com/data/dish_photos/121/3db1de484b41bf0827e0e4f98f4de121.png?fit=around|130:130&crop=130:130;*,*" alt="food-img" width="100" />
                     <span>Paneer Tikka</span>
                     <div>
                         <button class="btn btn-outline-secondary btn-sm">-</button>
@@ -357,6 +359,7 @@
                     <div class="card p-3 mb-2">
                         <strong>STEALDEAL</strong>
                         <p>Get <b>30% off</b> on orders above ₹149. Max discount: ₹75.</p>
+                        <p>Expiry Date : <strong>03-04-2025</strong></p>
                         <button class="btn btn-sm btn-outline-primary">Apply Coupon</button>
                     </div>
 
@@ -364,6 +367,7 @@
                     <div class="card p-3 mb-2">
                         <strong>TRYNEW</strong>
                         <p>Get <b>20% off</b> on orders above ₹149. Max discount: ₹50.</p>
+                        <p>Expiry Date : <strong>09-04-2025</strong></p>
                         <button class="btn btn-sm btn-outline-primary">Apply Coupon</button>
                     </div>
 
@@ -371,6 +375,7 @@
                     <div class="card p-3 mb-2">
                         <strong>APAYFEST</strong>
                         <p>Get up to <b>₹100 cashback</b> using Amazon Pay Balance. Min order ₹199.</p>
+                        <p>Expiry Date : <strong>10-04-2025</strong></p>
                         <button class="btn btn-sm btn-outline-primary">Apply Coupon</button>
                     </div>
 
@@ -378,6 +383,7 @@
                     <div class="card p-3 mb-2">
                         <strong>AXIS30</strong>
                         <p>Get <b>30% discount</b> using Axis Bank Credit Cards. Min order ₹200.</p>
+                        <p>Expiry Date : <strong>12-04-2025</strong></p>
                         <button class="btn btn-sm btn-outline-primary">Apply Coupon</button>
                     </div>
 
@@ -385,6 +391,7 @@
                     <div class="card p-3 mb-2">
                         <strong>HDFC25</strong>
                         <p>Get <b>30% discount</b> using HDFC Bank Credit Cards. Min order ₹200.</p>
+                        <p>Expiry Date : <strong>05-04-2025</strong></p>
                         <button class="btn btn-sm btn-outline-primary">Apply Coupon</button>
                     </div>
                 </div>
@@ -408,9 +415,8 @@
             <!-- Modal Body -->
             <div class="modal-body">
                 <!-- Google Map -->
-                <div class="mb-3">
-                    <div id="map" style="width: 100%; height: 170px; border-radius: 10px; border: 1px solid #ddd;"></div>
-                </div>
+                <div id="map" style="width:100%;height:180px;"></div>
+                
 
                 <!-- Address Fields -->
                 <div class="mb-3">
@@ -458,11 +464,21 @@
                 </div>
 
                 <!-- Address Type Selection -->
-                <div class="btn-group w-100">
-                    <button type="button" class="btn btn-outline-secondary">🏠 Home</button>
-                    <button type="button" class="btn btn-outline-secondary">💼 Work</button>
-                    <button type="button" class="btn btn-outline-secondary">📍 Other</button>
+                <div class="mb-3">
+                    <label class="form-label">Address Type</label><br>
+                    <div class="btn-group" role="group" aria-label="Address Type selection">
+                        <input type="radio" class="btn-check" name="address_type" id="home" value="home" autocomplete="off" checked>
+                        <label class="btn btn-outline-primary" for="home">🏠 Home</label>
+
+                        <input type="radio" class="btn-check" name="address_type" id="work" value="work" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="work">💼 Work</label>
+
+                        <input type="radio" class="btn-check" name="address_type" id="other" value="other" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="other">📍 Other</label>
+                    </div>
                 </div>
+
+
             </div>
 
             <!-- Modal Footer -->
@@ -475,30 +491,11 @@
 
 
 <script>
-    function initMap() {
-        var map = new google.maps.Map(document.getElementById('map'), {
-            center: { lat: 22.5726, lng: 88.3639 }, // Default location (Kolkata, India)
-            zoom: 14,
+        mapboxgl.accessToken = 'pk.eyJ1IjoicmlzaGk4MTAyIiwiYSI6ImNtOTFpbXpjeDAxZGwybHNjdjljdnlpZ2UifQ.lwfPOwA0QilljmyDYiUV6A'; // Replace with your token
+        var map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v11',
+            center: [72.8367104, 21.2140032], // Default location
+            zoom: 12
         });
-
-        var marker = new google.maps.Marker({
-            position: map.getCenter(),
-            map: map,
-            draggable: true,
-        });
-
-        // Get address when marker is moved
-        google.maps.event.addListener(marker, 'dragend', function () {
-            var latlng = marker.getPosition();
-            var geocoder = new google.maps.Geocoder();
-            geocoder.geocode({ 'location': latlng }, function (results, status) {
-                if (status === 'OK' && results[0]) {
-                    $('#address').val(results[0].formatted_address);
-                }
-            });
-        });
-    }
-
-    // Load Google Maps API
 </script>
-@* <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZUhf2Ol83gsHZ9YaA_aOIy01pry_Bh7I&callback=initMap" async defer></script> *@

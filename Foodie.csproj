@@ -10,6 +10,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Repositories\For_Customer\**" />
+    <Compile Remove="Repositories\For_Restaurant\**" />
+    <Content Remove="Repositories\For_Customer\**" />
+    <Content Remove="Repositories\For_Restaurant\**" />
+    <EmbeddedResource Remove="Repositories\For_Customer\**" />
+    <EmbeddedResource Remove="Repositories\For_Restaurant\**" />
+    <None Remove="Repositories\For_Customer\**" />
+    <None Remove="Repositories\For_Restaurant\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.3" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
@@ -18,8 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Repositories\For_Customer\" />
-    <Folder Include="Repositories\For_Restaurant\" />
+    <Folder Include="Models\Admin\" />
     <Folder Include="wwwroot\Uploads\Documents\" />
   </ItemGroup>
 
