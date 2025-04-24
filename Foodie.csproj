@@ -29,7 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\Admin\" />
     <Folder Include="wwwroot\Uploads\Documents\" />
   </ItemGroup>
 

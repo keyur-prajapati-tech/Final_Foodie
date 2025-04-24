@@ -1,0 +1,66 @@
+﻿@model IEnumerable<Foodie.Models.tbl_admin>
+@{
+    Layout = "_AdminLayout";
+}
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+<head>
+    <title>@ViewBag.Title</title>
+</head>
+<div class="text-center">
+    <h1>Admins</h1>
+</div>
+
+<div class="container shadow">
+    <div class="border-2">
+        <div class="mt-1 mb-1 pt-3 ps-4 pb-3">
+            <a asp-controller="Login" asp-action="AddAdmin"><button type="button" class="btn btn-outline-secondary">Add</button></a>
+            @*     <button type="button" class="btn btn-outline-primary">Restaurant</button> *@
+            @*     <button type="button" class="btn btn-outline-primary">Delivery Boy</button> *@
+            @* </div> *@
+            <div class="table-responsive mt-1 border-4 shadow">
+                <table class="table table-striped table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">Admin Id</th>
+                            <th scope="col">Full Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Phone</th>
+                            <th scope="col">Role Type</th>
+                            <th scope="col">Image</th>
+                            <th scope="col">Created At</th>
+                            <th scope="col">Last Login</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var admin in Model)
+                        {
+                            <tr>
+                                <th scope="row">@admin.admin_id</th>
+                                <td scope="col">@admin.Full_name</td>
+                                <td scope="col">@admin.Email</td>
+                                <td scope="col">@admin.Phone</td>
+                                <td scope="col">@admin.role_type</td>
+                                <td scope="col">
+                                    @if (admin.IMAGE != null)
+                                    {
+                                        <img src="data:.png;base64,@Convert.ToBase64String(admin.IMAGE)" width="50" height="50" />
+                                    }
+                                    else
+                                    {
+                                        <p>No profile Img</p>
+                                    }
+                                </td>
+                                <td scope="col">@admin.CreatedAt</td> 
+                                <td scope="col">@admin.LastLogin</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
