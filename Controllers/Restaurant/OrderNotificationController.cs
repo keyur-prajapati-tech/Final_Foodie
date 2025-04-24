@@ -51,9 +51,10 @@ namespace Foodie.Controllers.Restaurant
 
         [HttpPost]
         [Route("acceptOrder")]
-        public IActionResult acceptOrder(int order_id)
+        public IActionResult acceptOrder(int order_id,string food_status)
         {
-            var result = _repository.AcceptOrder(order_id);
+            
+            var result = _repository.AcceptOrder(order_id,food_status);
             if (result > 0)
             {
                 return Json(new { success = true, message = "Order accepted successfully." });
@@ -62,24 +63,41 @@ namespace Foodie.Controllers.Restaurant
             {
                 return Json(new { success = false, message = "Failed to accept order." });
             }
-           
+
         }
 
+       
         [HttpPost]
-        [Route("rejectOrder")]
-        public IActionResult rejectOrder(int order_id)
+        [Route("isOnline")]
+        public JsonResult isOnline(int status)
         {
-            var result = _repository.RejectOrder(order_id);
-            if (result > 0)
+            var restaurantId = 1;
+
+            if (status == 1)
             {
-                return Json(new { success = true, message = "Order accepted successfully." });
+                var result = _repository.IsOnline(restaurantId, 1);
+
+                return Json(new { success = true, message = "Restaurant is offline." });
+
             }
             else
             {
-                return Json(new { success = false, message = "Failed to accept order." });
+                var result = _repository.IsOnline(restaurantId, 0);
+
+                return Json(new { success = true, message = "Restaurant is online." });
+
             }
 
         }
 
+        [HttpGet]
+        [Route("getOnline")]
+        public JsonResult getOnline(int restaurantId)
+        {
+            var data = _repository.getOnline(restaurantId);
+
+            return Json(data);
+
+        }
     }
 }

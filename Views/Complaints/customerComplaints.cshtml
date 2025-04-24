@@ -1,0 +1,306 @@
+﻿@{
+    Layout = "_AdminLayout";
+}
+@model Foodie.ViewModels.complaintsViewModel
+<head>
+    <title>@ViewBag.Title</title>
+</head>
+<div class="text-center">
+    <h1>Complaints</h1>
+</div>
+
+<div class="container shadow">
+    <div class="border-2">
+        <div id="div1" class="mt-1 mb-1 pt-3 ps-4 pb-3 shadow">
+        </div>
+
+        <div id="customer" class="table-responsive border-4" style="display:none;">
+            <table class="table table-striped table-bordered">
+                @* <thead>
+                    <tr>
+                        <th scope="col">Customer Complaints Id</th>
+                        <th scope="col">Customer Name</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Admin Name </th>
+                        <th scope="col">Restaurant Name</th>
+                        <th scope="col">Resolution Remarks</th>
+                        <th scope="col">CreatedAt</th>
+                        <th scope="col">ResolvedAt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var feedback in Model.tbl_customer_complaints)
+                    {
+                        <tr>
+                            <th scope="row">@feedback.customer_complaint_id</th>
+                            <td scope="col">@feedback.customer_name</td>
+                            <td scope="col">@feedback.cmp_Descr</td>
+                            <td scope="col">@feedback.cmp_Status</td>
+                            <td scope="col">@feedback.Full_name</td>
+                            <td scope="col">@feedback.restaurant_name</td>
+                            <td scope="col">@feedback.ResolutionRemarks</td>
+                            <td scope="col">@feedback.createdAt</td>
+                            <td scope="col">@feedback.ResolvedAt</td>
+                        </tr>
+                    }
+                </tbody> *@
+            </table>
+        </div>
+
+        <div id="restaurant" class="table-responsive border-4" style="display:none;">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Vendor Complaints Id</th>
+                        <th scope="col">Vendor Name</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Admin Name </th>
+                        <th scope="col">Resolution Remarks</th>
+                        <th scope="col">CreatedAt</th>
+                        <th scope="col">ResolvedAt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var feedback in Model.tbl_Vendor_Complaints)
+                    {
+                        <tr>
+                            <th scope="row" class="">@feedback.vendor_complaint_id</th>
+                            <td scope="col">@feedback.restaurant_id</td>
+                            <td scope="col">@feedback.cmp_Descr</td>
+                            <td scope="col">@feedback.cmp_Status</td>
+                            <td scope="col">@feedback.admin_id</td>
+                            <td scope="col">@feedback.ResolutionRemarks</td>
+                            <td scope="col">@feedback.createdAt</td>
+                            <td scope="col">@feedback.ResolvedAt</td>
+                            <td>
+                                <button type="button" class="btn btn-outline-dark updatedata" data-bs-toggle="modal" data-bs-target="#updatetable"
+                                        data-Iid="@feedback.vendor_complaint_id"
+                                        data-cmpdesc="@feedback.cmp_Descr"
+                                        onclick="FillData(this)">
+
+                                    Update
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div id="delivery" class="table-responsive border-4" style="display:none;">
+            <table class="table table-striped table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Partner Complaints Id</th>
+                        <th scope="col">Partner Name</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Admin Name </th>
+                        <th scope="col">Resolution Remarks</th>
+                        <th scope="col">CreatedAt</th>
+                        <th scope="col">ResolvedAt</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var feedback in Model.tbl_partner_complaints)
+                    {
+                        <tr>
+                            <th scope="row" class="">@feedback.partner_complaint_id</th>
+                            <td scope="col">@feedback.partner_id</td>
+                            <td scope="col">@feedback.cmp_Descr</td>
+                            <td scope="col">@feedback.cmp_Status</td>
+                            <td scope="col">@feedback.admin_id</td>
+                            <td scope="col">@feedback.ResolutionRemarks</td>
+                            <td scope="col">@feedback.createdAt</td>
+                            <td scope="col">@feedback.ResolvedAt</td>
+                            <td>
+                                <button type="button" class="btn btn-outline-dark updatedata1" data-bs-toggle="modal" data-bs-target="#updatetable1"
+                                        data-Iid="@feedback.partner_complaint_id"
+                                        data-cmpdesc="@feedback.cmp_Descr"
+                                        onclick="FillData1(this)">
+                                    Update
+                                </button>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <script>
+            // Function to hide all tables
+            function hideTables() {
+                document.getElementById('customer').style.display = 'none';
+                document.getElementById('restaurant').style.display = 'none';
+                document.getElementById('delivery').style.display = 'none';
+            }
+
+            // Function to show a specific table
+            function showTable(tableId) {
+                hideTables(); // Hide all tables
+                document.getElementById(tableId).style.display = 'block';  // Show the selected table
+            }
+
+            // On page load, check the user's role and show the relevant table
+            document.addEventListener("DOMContentLoaded", function () {
+
+                const role = '@Context.Session.GetString("role")'; // Assuming you're fetching the role from the session
+
+                // Check role and display the relevant table
+                switch (role) {
+                    case "1":
+
+                    createButton("restaurant1","restaurant",()=>showTable('restaurant'));
+                    createButton("customer1","customer",()=>showTable('customer'));
+                    createButton("delivery1","delivery",()=>showTable('delivery'));
+
+                    break;
+                    case "2":
+                    // createButton("restaurant","restaurant",showTable('restaurant'));
+                        showTable('restaurant'); // Directly show customer table when role is 2
+                        break;
+
+                    case "3":
+                        showTable('customer'); // Directly show customer table when role is 2
+                        break;
+                    case "4":
+                        showTable('delivery'); // Show delivery table
+                        break;
+                    default:
+                        hideTables(); // Hide all tables if no valid role
+                        break;
+                }
+            });
+             function createButton(id,text,handler){
+                    let button = document.createElement("button");
+                    button.id=id;
+                    button.innerText = text;
+                    button.classList.add("btn", "btn-outline-primary");
+                    button.addEventListener("click",handler);
+                    document.getElementById("div1").appendChild(button);
+              }
+
+        </script>
+
+        <div class="modal fade" id="updatetable" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-secondary">
+                        <h5 class="modal-title text-white" id="exampleModalLabel">Update Table</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container">
+                            <form class="form-control border-0 p-4 " method="post" asp-action="EditComplaint">
+
+                                <div class="mb-4 row">
+                                    <div class="col-md-12">
+                                        <label asp-for="tbl_Vendor_Complaint.cmp_Descr" class="form-label">Description </label>
+                                        <input type="text" asp-for="tbl_Vendor_Complaint.cmp_Descr" id="cmp_Descr1" class="form-control" disabled />
+                                    </div>
+
+                                </div>
+
+                                @*  <div class="mb-4 row">
+                                    <div class="col-md-12">
+                                        <label asp-for="tbl_Vendor_Complaint.admin_id" class="form-label">AdminId</label>
+                                        <input type="text" class="form-control" id="admin_id" asp-for="tbl_Vendor_Complaint.admin_id" disabled/>
+
+                                    </div>
+                                </div> *@
+
+                                <div class="mb-4 row">
+                                    <div class="col-md-12">
+                                        <label asp-for="tbl_Vendor_Complaint.ResolutionRemarks" class="form-label">Resolution Remark</label>
+                                        <input type="text" asp-for="tbl_Vendor_Complaint.ResolutionRemarks" id="ResolutionRemarks" class="form-control" />
+                                    </div>
+                                </div>
+                                <input type="hidden" class="form-control" asp-for="tbl_Vendor_Complaint.vendor_complaint_id" id="ven_id" />
+
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-outline-primary">Update </button>
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+             //const adminid1 = '@Context.Session.GetString("admin_id")';
+             //console.log(adminid1);
+                function FillData(element) {
+                     var vendor_id = element.getAttribute("data-Iid");
+                       var desc = element.getAttribute("data-cmpdesc");
+            document.getElementById("ven_id").value = vendor_id;
+            document.getElementById("cmp_Descr1").value = desc;
+            //document.getElementById("admin_id").value = adminid1;
+                }
+
+        </script>
+
+
+        <div class="modal fade" id="updatetable1" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-secondary">
+                        <h5 class="modal-title text-white" id="exampleModalLabel">Update Table</h5>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="container">
+                            <form class="form-control border-0 p-4 " method="post" asp-action="EditComplaint1">
+
+                                <div class="mb-4 row">
+                                    <div class="col-md-12">
+                                        <label asp-for="tbl_Partner_Complaints.cmp_Descr" class="form-label">Description </label>
+                                        <input type="text" asp-for="tbl_Partner_Complaints.cmp_Descr" id="cmp_Descr2" class="form-control" disabled />
+                                    </div>
+
+                                </div>
+
+                                @*  <div class="mb-4 row">
+                                    <div class="col-md-12">
+                                        <label asp-for="tbl_Vendor_Complaint.admin_id" class="form-label">AdminId</label>
+                                        <input type="text" class="form-control" id="admin_id" asp-for="tbl_Vendor_Complaint.admin_id" disabled/>
+
+                                    </div>
+                                </div> *@
+
+                                <div class="mb-4 row">
+                                    <div class="col-md-12">
+                                        <label asp-for="tbl_Partner_Complaints.ResolutionRemarks" class="form-label">Resolution Remark</label>
+                                        <input type="text" asp-for="tbl_Partner_Complaints.ResolutionRemarks" id="ResolutionRemarks1" class="form-control" />
+                                    </div>
+                                </div>
+                                <input type="hidden" class="form-control" asp-for="tbl_Partner_Complaints.partner_complaint_id" id="ven_id1" />
+
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-outline-primary">Update </button>
+                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+             //const adminid1 = '@Context.Session.GetString("admin_id")';
+             //console.log(adminid1);
+                function FillData1(element) {
+                     var vendor_id = element.getAttribute("data-Iid");
+                       var desc = element.getAttribute("data-cmpdesc");
+            document.getElementById("ven_id1").value = vendor_id;
+            document.getElementById("cmp_Descr2").value = desc;
+            //document.getElementById("admin_id").value = adminid1;
+                }
+
+        </script>
+
+    </div>
+</div>

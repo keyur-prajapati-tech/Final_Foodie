@@ -1,0 +1,70 @@
+﻿@model Foodie.Models.tbl_admin;
+@{
+    Layout = "_AdminLayout";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Form</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+    <div class="container mt-5 mb-5">
+        <div class="d-flex justify-content-center align-content-center mt-5 mb-5">
+            <h1>Admin Form</h1>
+        </div>
+        
+        <form action="AddAdmin" method="POST" enctype="multipart/form-data">
+
+            <!--Full Name-->
+            <div class="mb-3 d-flex">
+                <label asp-for="Full_name" class="col-form-label-lg w-25">Full Name</label>
+                <input asp-for="Full_name" class="form-control" required />
+            </div>
+            <!--Password-->
+            <div class="mb-3 d-flex">
+                <label asp-for="Password" class="col-form-label-lg w-25">Password</label>
+                <input asp-for="Password" type="password" class="form-control" required />
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3 d-flex">
+                <label asp-for="Email" class="col-form-label-lg w-25 ">Email</label>
+                <input asp-for="Email" type="email" class="form-control" required>
+            </div>
+
+            <!-- Phone -->
+            <div class="mb-3 d-flex">
+                <label asp-for="Phone" class="col-form-label-lg w-25">Phone</label>
+                <input asp-for="Phone" type="tel" class="form-control" required>
+            </div>
+
+            <!-- Role ID (Dropdown) -->
+            <div class ="mb-3 d-flex">
+                <label asp-for="role_id" class="col-form-label-lg w-25">Role</label>
+                <select asp-for="role_id" class="form-select" asp-items="@(new SelectList(ViewBag.role,"role_id","role_type"))">
+                    <option value="">Select Role</option>
+                </select>
+            </div>
+            <!-- IMAGE -->
+            <div class="mb-3 d-flex">
+                <label asp-for="IMAGE" class="col-form-label-lg w-25" >Image</label>
+                <input asp-for="IMAGE" type="file" class="form-control">
+            </div>
+
+            <!-- Submit Button -->
+           <div class="d-flex justify-content-center align-items-center">
+                <button type="submit" class="btn btn-secondary ">Submit</button>
+           </div>
+           
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
+
+
