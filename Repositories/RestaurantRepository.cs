@@ -354,7 +354,7 @@ namespace Foodie.Repositories
 
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = "select top 1 coi.*,co.food_status,co.restaurant_id from customers.tbl_orders co inner join customers.tbl_order_items coi on co.order_id = coi.order_id where food_status = 'waiting' and co.restaurant_id = @RestaurantId";
+                string query = "select top 1 coi.*,co.food_status,co.resturant_id from customers.tbl_orders co inner join customers.tbl_order_items coi on co.order_id = coi.order_id where food_status = 'waiting' and co.resturant_id = @RestaurantId";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@RestaurantId", restaurant_id);
@@ -368,12 +368,12 @@ namespace Foodie.Repositories
                     {
                         order_items_id = Convert.ToInt32(reader["order_items_id"]),
                         order_id = Convert.ToInt32(reader["order_id"]),
-                        restaurant_id = Convert.ToInt32(reader["restaurant_id"]),
+                        restaurant_id = Convert.ToInt32(reader["resturant_id"]),
                         menu_id = Convert.ToInt32(reader["menu_id"]),
                         quantity = Convert.ToInt32(reader["quantity"]),
                         list_price = Convert.ToInt32(reader["list_price"]),
                         discount = Convert.ToDecimal(reader["discount"]),
-                        estimated_time = Convert.ToDateTime(reader["estimated_time"]),
+                        estimated_time = Convert.ToDateTime(reader["estimated_DATETIME"]),
                         food_status = reader["food_status"].ToString()
                     };
 
@@ -408,7 +408,7 @@ namespace Foodie.Repositories
 
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = "select *\r\nfrom customers.tbl_orders co \r\ninner join customers.tbl_order_items coi \r\non co.order_id = coi.order_id\r\ninner join customers.tbl_customer cc\r\non co.customer_id = cc.customer_id\r\ninner join vendores.tbl_restaurant vs\r\non co.restaurant_id = vs.restaurant_id\r\nwhere co.food_status = 'accept'\r\nand co.restaurant_id = @RestaurantId and vs.restaurant_isOnline = 1";
+                string query = "select * \r\nfrom customers.tbl_orders co \r\ninner join customers.tbl_order_items coi \r\non co.order_id = coi.order_id\r\ninner join customers.tbl_customer cc\r\non co.customer_id = cc.customer_id\r\ninner join vendores.tbl_restaurant vs\r\non co.resturant_id = vs.restaurant_id\r\nwhere co.food_status = 'ACCEPT'\r\nand co.resturant_id = 1 and vs.restaurant_isOnline = 1";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@RestaurantId", restaurant_id);
@@ -427,7 +427,7 @@ namespace Foodie.Repositories
                         quantity = Convert.ToInt32(reader["quantity"]),
                         list_price = Convert.ToInt32(reader["list_price"]),
                         discount = Convert.ToDecimal(reader["discount"]),
-                        estimated_time = Convert.ToDateTime(reader["estimated_time"]),
+                        estimated_time = Convert.ToDateTime(reader["estimated_DATETIME"]),
                         food_status = reader["food_status"].ToString(),
                         customer_name = reader["customer_name"].ToString()
                     };
