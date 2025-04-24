@@ -1,4 +1,14 @@
-﻿@{
+﻿@model List<Foodie.Models.customers.tbl_cart_item>
+
+@{
+    ViewData["Title"] = "Add To Cart";
+    decimal grandTotal = 0;
+    string couponeCode = ViewBag.CouponCode as string;
+    decimal discountamount = ViewBag.Discount ?? 0;
+    string successmessage = TempData["successmessage"] as string;
+}
+
+@{
     Layout = "~/Views/Shared/_foodieheader.cshtml";
 }
 
@@ -400,8 +410,6 @@
     </div>
 </div>
 
-
-
 <!-- Address Modal -->
 <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -489,6 +497,69 @@
     </div>
 </div>
 
+
+<hr/>
+<h2>Here We Use ADD TO CART TESTING</h2>
+<h2>Your Cart</h2>
+
+@if (!string.IsNullOrEmpty(successmessage))
+{
+    <div class="alert alert-success">@successmessage</div>
+}
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Menu Item</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            @* <th>Discount</th>
+            <th>Final Amount</th> *@
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.menu_id</td>
+                <td>@item.price.ToString("C")</td>
+                <td>@item.quantity</td>
+                @* <td>@item.Discount.ToString("C")</td> *@
+                @* <td>@item.FinalAmount.ToString("C")</td> *@
+                <td>
+                    <form asp-action="UpdateQuantity" method="post" style="display:inline">
+                        <input type="hidden" name="cartItemId" value="@item.cart_item_id" />
+                        <input type="hidden" name="increment" value="true" />
+                        <button type="submit" class="btn btn-success btn-sm">+</button>
+                    </form>
+                    <form asp-action="UpdateQuantity" method="post" style="display:inline">
+                        <input type="hidden" name="cartItemId" value="@item.cart_item_id" />
+                        <input type="hidden" name="increment" value="false" />
+                        <button type="submit" class="btn btn-danger btn-sm">-</button>
+                    </form>
+                </td>
+            </tr>
+            //grandTotal += item.FinalAmount;
+        }
+    </tbody>
+</table>
+
+<h4>Coupon Code: @couponeCode</h4>
+<h4>Discount: @discountamount%</h4>
+<h3>Total: @grandTotal.ToString("C")</h3>
+
+<form asp-action="ApplyCoupon" method="post">
+    <div class="form-group">
+        <label for="coupon">Enter Coupon Code</label>
+        <input type="text" name="couponCode" class="form-control" id="coupon" />
+    </div>
+    <button type="submit" class="btn btn-info">Apply Coupon</button>
+</form>
+
+<form asp-action="PlaceOrder" method="post">
+    <button type="submit" class="btn btn-primary mt-3">Place Order</button>
+</form>
 
 <script>
         mapboxgl.accessToken = 'pk.eyJ1IjoicmlzaGk4MTAyIiwiYSI6ImNtOTFpbXpjeDAxZGwybHNjdjljdnlpZ2UifQ.lwfPOwA0QilljmyDYiUV6A'; // Replace with your token
