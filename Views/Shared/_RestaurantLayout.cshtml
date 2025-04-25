@@ -33,14 +33,6 @@
                 border-color: red !important;
             }
 
-        .offline-card {
-            max-width: 600px;
-            margin: 100px auto;
-            border: 2px dashed #dc3545;
-            border-radius: 15px;
-            padding: 40px;
-            background-color: #fff5f5;
-        }
     </style>
     
 
@@ -112,9 +104,7 @@
             </div>
         </div>
 
-        <div class="container-fluid" id="isoffline">
-
-        </div>
+        
     </div>
 
     <script>
@@ -236,17 +226,7 @@
                             });
                         },5000); // Check every 10 seconds
                     } else {
-                            html = `  <div class="offline-card text-center shadow-sm">
-                                            <i class="bi bi-wifi-off display-3 text-danger mb-3"></i>
-                                            <h2 class="text-danger">You're Offline</h2>
-                                            <p class="text-muted mt-3">
-                                                Your restaurant is currently not accepting orders.<br>
-                                                Please come online to start receiving customer requests.
-                                            </p>
-                                        </div>`;
-
-                                        $("#isoffline").html(html); 
-
+                           
                         $switchInput.prop('checked', false); // Uncheck the switch
                         $switchLabel.text('Offline')
                                     .removeClass('text-success')
