@@ -24,23 +24,14 @@ namespace Foodie.Controllers.Customer
         //    return PartialView("_MenuItemModalPartial",item);
         //}
 
-       public IActionResult AddToCartIteminfo(int menuid,int quantity,decimal price)
+       public IActionResult AddToCartIteminfo()
        {
-            int customerId = int.Parse(HttpContext.Session.GetString("customer_id"));
+            int customerId = Convert.ToInt32(HttpContext.Session.GetString("customerId"));
 
-            var cart = _repository.GetOrCreateCart(customerId);
-
-            _repository.AddToCart(new Models.customers.tbl_cart_item
-            {
-                menu_id = menuid,
-                cart_id = cart.cart_id,
-                quantity = quantity,
-                price = price
-            });
-
-            return Json(new { success = true, message = "Item Add To Cart Successfully...!" });
+            var cartItems = _repository.GetCartItems(customerId);
+            return View(cartItems);
        }
-
+       
         //public IActionResult MyCart()
         //{
         //    int customerId = int.Parse(HttpContext.Session.GetString("customer_id"));

@@ -1,4 +1,4 @@
-﻿@* @model List<Foodie.Models.customers.tbl_cart_item> *@
+﻿@model List<Foodie.Models.customers.CartItemViewModel>
 
 @{
     ViewData["Title"] = "Add To Cart";
@@ -40,141 +40,6 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
 <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
-
-@*<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card bg-white p-3 border-3 shadow-sm">
-                <div class="card bg-primary text-white m-2 p-2 text-center">
-                    <span style="font-size: 20px; font-weight: 800;">😋 You Saved 5 Rupees On This Order</span>
-                </div>
-
-                <!-- Item 1 -->
-                <div class="card m-2 p-3">
-                    <div class="row align-items-center">
-                        <div class="col-md-4 d-flex justify-content-around">
-                            <img src="https://luniamarketing.com/wp-content/uploads/2021/01/Moong-Dal-Ki-Kachori.jpg" alt="food_img" style="width:100px;height:100px;object-fit:contain;" />
-                            <p class="fw-bold mt-4">Dal Kachori [2 Pieces]</p>
-                            <span class="text-success fw-bold mt-4">120 RS/-</span>
-                        </div>
-                        <div class="col-md-3 d-flex gap-3 justify-content-center mb-4" style="margin-left:50px;">
-                            <button class="btn btn-outline-danger btn-sm">-</button>
-                            <span class="fs-5">1</span>
-                            <button class="btn btn-outline-primary btn-sm">+</button>
-                        </div>
-                        <div class="col-md-3 text-end mb-4">
-                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#foodModal1">EDIT ➡</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Item 2 -->
-                <div class="card m-2 p-3">
-                    <div class="row align-items-center">
-                        <div class="col-md-4 d-flex justify-content-around">
-                            <img src="https://modernasopalav.com/assets/images/recipe-image/nylon-khaman.png" alt="food_img" style="width:100px;height:100px;object-fit:contain;" />
-                            <p class="fw-bold mt-4">Naylon Khaman [1 KG]</p>
-                            <span class="text-success fw-bold mt-4">120 RS/-</span>
-                        </div>
-                        <div class="col-md-3 d-flex gap-3 justify-content-center mb-4" style="margin-left:50px;">
-                            <button class="btn btn-outline-danger btn-sm">-</button>
-                            <span class="fs-5">1</span>
-                            <button class="btn btn-outline-primary btn-sm">+</button>
-                        </div>
-                        <div class="col-md-3 text-end mb-4">
-                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#foodModal2">EDIT ➡</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="text-center mt-3">
-                    <a asp-controller="TBrands" asp-action="Brands" class="btn btn-outline-dark">+ Add More Items</a>
-                    <!-- Place Order Button -->
-                    <button type="button" class="btn btn-primary" id="placeOrderBtn">
-                        Place Order
-                    </button>
-
-                </div>
-
-            </div>
-        </div>
-    </div>
-</div>*@
-
-<!-- Order Confirmation Modal -->
-@*<div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="foodieplaceorderLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h5 class="modal-title" id="orderModalLabel">Order Confirmation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="modal-body">
-                <h4>Your order has been placed successfully! 🎉</h4>
-                <p>We have sent your order details to the restaurant.</p>
-                <hr>
-                <h5>Order Summary:</h5>
-                <ul id="orderSummary"></ul>
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <a href="@Url.Action("Index", "Restaurant")" class="btn btn-success">View Restaurant Orders</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    $(document).ready(function () {
-        $("#placeOrderBtn").click(function () {
-            // Sample order data (Replace this with actual cart data)
-            var orderData = {
-                items: [
-                    { name: "Dal Kachori", quantity: 1, price: 120 },
-                    { name: "Naylon Khaman", quantity: 1, price: 120 }
-                ],
-                total: 240
-            };
-
-            // Show Order Summary in Modal
-            var summaryHtml = "";
-            orderData.items.forEach(item => {
-                summaryHtml += `<li>${item.name} - ${item.quantity} x ${item.price} RS</li>`;
-            });
-            summaryHtml += `<strong>Total: ${orderData.total} RS</strong>`;
-            $("#orderSummary").html(summaryHtml);
-
-            // Show the modal
-            $("#orderModal").modal("show");
-
-            // Send Order to Restaurant via AJAX
-            $.ajax({
-                url: "/Restaurant/popup",
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify(orderData),
-                 success: function (response) {
-                if (response.success) {
-                    // Redirect to the restaurant's order management page
-                    window.location.href = "/Restaurant/popup";
-                } else {
-                    alert("Error placing order: " + response.message);
-                }
-            },
-            error: function (err) {
-                console.error("Error sending order:", err);
-            }
-            });
-        });
-    });
-</script>*@
-
-
 
 <!-- MODAL: Dal Kachori -->
 <div class="modal fade" id="foodModal1" tabindex="-1" aria-labelledby="foodModal1Label" aria-hidden="true">
@@ -262,6 +127,81 @@
                 <h5>Roof 5</h5>
                 <p class="text-muted">Chhindwara Locality</p>
 
+                <!-- Loop Through Cart Items -->
+                @foreach (var item in Model)
+                {
+                    <p>iibvibieber</p>
+                    <div class="d-flex justify-content-between align-items-center" style="border:3px solid #000;border-radius:5px;padding:5px;margin:5px;">
+                        <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)" alt="food-img" width="100" />
+                        <span>@item.menu_name</span>
+                        <div>
+                            <button class="btn btn-outline-secondary btn-sm">-</button>
+                            <span class="mx-2">@item.quantity</span>
+                            <button class="btn btn-outline-secondary btn-sm">+</button>
+                        </div>
+                        <span>₹@item.amount</span>
+                    </div>
+                }
+
+                <a asp-controller="TBrands" asp-action="Brands" class="float-end">Add More Item</a>
+
+                <hr>
+
+                <!-- No Contact Delivery -->
+                <div class="form-check">
+                    <input type="checkbox" class="form-check-input" id="noContactDelivery">
+                    <label class="form-check-label" for="noContactDelivery">
+                        Opt-in for No-contact Delivery
+                    </label>
+                </div>
+
+                <hr>
+
+                <!-- Apply Coupon -->
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#couponModal">
+                    Apply Coupon
+                </button>
+
+                <hr>
+
+                <!-- Bill Details -->
+                @{
+                    decimal itemTotal = Model.Sum(x => x.amount * x.quantity);
+                    decimal deliveryFee = 77;
+                    decimal extraDiscount = 20;
+                    decimal finalAmount = itemTotal + deliveryFee - extraDiscount;
+                }
+
+                <h6>Bill Details</h6>
+                <p>Item Total: ₹@itemTotal</p>
+                <p>Delivery Fee: ₹@deliveryFee</p>
+                <p>Extra discount: -₹@extraDiscount</p>
+
+                <a href="#" class="text-danger">Add Tip</a>
+
+                <hr>
+
+                <h5 class="d-flex justify-content-between">
+                    <span>To Pay</span>
+                    <span>₹@finalAmount</span>
+                </h5>
+
+                <div class="alert alert-success text-center">
+                    Savings of ₹@extraDiscount
+                </div>
+
+                <div class="alert alert-light">
+                    <h6>Review your order and address details to avoid cancellations</h6>
+                    <p>Note: This order is non-refundable if cancelled.</p>
+                    <a href="#" class="text-danger">Read policy</a>
+                </div>
+            </div>
+        </div>
+        @* <div class="col-md-4">
+            <div class="card p-3">
+                <h5>Roof 5</h5>
+                <p class="text-muted">Chhindwara Locality</p>
+
                 <!-- Item -->
                 <div class="d-flex justify-content-between align-items-center" style="border:3px solid #000;border-radius:5px;padding:5px;margin:5px;">
                     <img src="https://b.zmtcdn.com/data/dish_photos/121/3db1de484b41bf0827e0e4f98f4de121.png?fit=around|130:130&crop=130:130;*,*" alt="food-img" width="100px" />
@@ -286,6 +226,7 @@
                     <span>₹262</span>
 
                 </div>
+
                 <a asp-controller="TBrands" asp-action="Brands" class="float-end">Add More Item</a>
 
                 <hr>
@@ -337,7 +278,7 @@
                     <a href="#" class="text-danger">Read policy</a>
                 </div>
             </div>
-        </div>
+        </div> *@
     </div>
 </div>
 
@@ -478,7 +419,7 @@
                         <input type="radio" class="btn-check" name="address_type" id="home" value="home" autocomplete="off" checked>
                         <label class="btn btn-outline-primary" for="home">🏠 Home</label>
 
-                        <input type="radio" class="btn-check" name="address_type" id="work" value="work" autocomplete="off">
+                        <input type="radio" class="btn-check"  name="address_type" id="work" value="work" autocomplete="off">
                         <label class="btn btn-outline-primary" for="work">💼 Work</label>
 
                         <input type="radio" class="btn-check" name="address_type" id="other" value="other" autocomplete="off">

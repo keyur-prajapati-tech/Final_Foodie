@@ -262,10 +262,9 @@ namespace Foodie.Repositories
         {
             using(SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = @"INSERT INTO customers.tbl_cart_item (customer_id, cart_id, quantity, price, menu_id, coupone_id) 
-                                 VALUES (@customer_id, @cart_id, @quantity, @price, @menu_id, @coupone_id)";
+                string query = @"INSERT INTO customers.tbl_cart_item (cart_id, quantity, price, menu_id, coupone_id) 
+                                 VALUES (@cart_id, @quantity, @price, @menu_id, @coupone_id)";
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@customer_id", tbl_Cart_Item.customer_id);
                 cmd.Parameters.AddWithValue("@cart_id", tbl_Cart_Item.cart_id);
                 cmd.Parameters.AddWithValue("@quantity", tbl_Cart_Item.quantity);
                 cmd.Parameters.AddWithValue("@price", tbl_Cart_Item.price);
@@ -292,54 +291,67 @@ namespace Foodie.Repositories
                     {
                         cart_id = Convert.ToInt32(rd["cart_id"]),
                         customer_id = Convert.ToInt32(rd["customer_id"]),
-                        TimeStamp = Convert.ToDateTime(rd["TimeStamp"])
+                        DATETIME = Convert.ToDateTime(rd["DATETIME"])
                     };
                 }
                 rd.Close();
 
                 //Create a new cart if it doesn't exist
-                var insertCartQuery = "INSERT INTO customers.tbl_cart (customer_id, TimeStamp) VALUES (@customerId, @TimeStamp)";
+                var insertCartQuery = @"INSERT INTO customers.tbl_cart (customer_id, DATETIME) 
+                        VALUES (@customerId, @datetime);
+                        SELECT SCOPE_IDENTITY();";
+
                 SqlCommand insertCmd = new SqlCommand(insertCartQuery, conn);
                 insertCmd.Parameters.AddWithValue("@customerId", customerId);
-                insertCmd.Parameters.AddWithValue("@TimeStamp", DateTime.Now);
-                
-                int newCartId = (int)insertCmd.ExecuteScalar();
+                insertCmd.Parameters.AddWithValue("@datetime", DateTime.Now);
+
+                object result = insertCmd.ExecuteScalar();
+                int newCartId = Convert.ToInt32(result);
 
                 return new tbl_cart
                 {
                     cart_id = newCartId,
                     customer_id = customerId,
-                    TimeStamp = DateTime.Now
+                    DATETIME = DateTime.Now
                 };
             }
         }
 
-        public List<tbl_cart_item> GetCartItems(int customerId)
+        public List<CartItemViewModel> GetCartItems(int customerId)
         {
-            var items = new List<tbl_cart_item>();
+            var items = new List<CartItemViewModel>();
 
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = @"SELECT * FROM customers.tbl_cart_item WHERE customer_id = @customerId";
+                string query = @"
+            SELECT ci.cart_item_id, ci.menu_id, ci.quantity, ci.price,
+                   mi.menu_name, mi.menu_img
+            FROM customers.tbl_cart_item ci
+            INNER JOIN customers.tbl_cart c ON ci.cart_id = c.cart_id
+            INNER JOIN vendores.tbl_menu_items mi ON ci.menu_id = mi.menu_id
+            WHERE c.customer_id = @customerId";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@customerId", customerId);
                 conn.Open();
+
                 SqlDataReader rd = cmd.ExecuteReader();
                 while (rd.Read())
                 {
-                    items.Add(new tbl_cart_item
+                    items.Add(new CartItemViewModel
                     {
                         cart_item_id = Convert.ToInt32(rd["cart_item_id"]),
-                        customer_id = Convert.ToInt32(rd["customer_id"]),
-                        cart_id = Convert.ToInt32(rd["cart_id"]),
-                        quantity = Convert.ToInt32(rd["quantity"]),
-                        price = Convert.ToDecimal(rd["price"]),
                         menu_id = Convert.ToInt32(rd["menu_id"]),
-                        coupone_id = Convert.ToInt32(rd["coupone_id"])
+                        quantity = Convert.ToInt32(rd["quantity"]),
+                        amount = Convert.ToDecimal(rd["amount"]),
+                        menu_name = rd["menu_name"].ToString(),
+                        menu_img = (byte[])rd["menu_img"]
                     });
                 }
+
                 conn.Close();
             }
+
             return items;
         }
 
@@ -386,7 +398,6 @@ namespace Foodie.Repositories
                         items.Add(new tbl_cart_item
                         {
                             cart_item_id = Convert.ToInt32(cartItemsReader["cart_item_id"]),
-                            customer_id = Convert.ToInt32(cartItemsReader["customer_id"]),
                             cart_id = Convert.ToInt32(cartItemsReader["cart_id"]),
                             quantity = Convert.ToInt32(cartItemsReader["quantity"]),
                             price = Convert.ToDecimal(cartItemsReader["price"]),

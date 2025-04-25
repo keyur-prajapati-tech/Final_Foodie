@@ -22,7 +22,7 @@ namespace Foodie.Repositories
         tbl_menu_items GetMenuItemById(int id);
         void AddToCart(tbl_cart_item tbl_Cart_Item);
         tbl_cart GetOrCreateCart(int customerId);
-        List<tbl_cart_item> GetCartItems(int customerId);
+        List<CartItemViewModel> GetCartItems(int customerId);
         void PlaceOrder(int customerId);
     }
 }

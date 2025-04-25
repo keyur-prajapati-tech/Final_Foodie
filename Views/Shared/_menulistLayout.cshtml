@@ -585,8 +585,7 @@
         </div>
 
         <div id="order-online" class="tab-pane fade">
-            <h1>Order Online</h1>
-            <p>This is the Order Online Section.</p>
+            <a class="btn btn-outline-primary float-end" asp-controller="displayCart" asp-action="AddToCartIteminfo">cart</a>
 
             <div class="container">
                 <div class="row">
@@ -615,14 +614,20 @@
                             <div class="menu-item">
                                 <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)" alt="@item.menu_name" style="width:150px; height:100px; object-fit:cover;" />
                                 <div>
-                                    <h5>@item.menu_name</h5>
-                                    <p>₹@item.amount - @item.menu_descripation</p>
+                                    <h2>@item.menu_name</h2>
+                                    <h4>@item.menu_descripation</h4>
+                                    <p>₹@item.amount</p>
                                     <div class="d-flex gap-2 float-end">
-                                        <button type="button" class="btn btn-outline-success view-item" data-id="@item.menu_id">
+                                        <button type="button" class="btn btn-outline-success view-item" data-id="@item.menu_id" data-quantity="1" data-price="@item.amount">
                                             Item Info
                                         </button>
 
-                                        <a class="btn btn-outline-danger" asp-controller="displayCart" asp-action="AddToCartIteminfo" asp-route-id="@item.menu_id">ADD</a>
+                                        @* <a class="btn btn-outline-danger add-to-cart" asp-controller="displayCart" asp-action="AddToCartIteminfo" asp-route-id="@item.menu_id">ADD</a> *@
+
+                                        <!-- Using Button for Add to Cart -->
+                                        <button type="button" class="btn btn-outline-danger add-to-cart" data-id="@item.menu_id" data-quantity="1" data-price="@item.amount">
+                                            ADD
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -640,6 +645,41 @@
                 </div>
             </div>
         </div>
+
+        <script>
+            $(document).ready(function () {
+                // Handle Add to Cart Button click
+                $(".add-to-cart").click(function () {
+                    var menuId = $(this).data("id");
+                    var quantity = $(this).data("quantity");
+                    var price = $(this).data("price");
+
+                    // Get the customer ID from the session (you might need to adjust this based on how you store it)
+                    var customerId = 1;
+
+                    // Make AJAX call to add the item to the cart
+                    $.ajax({
+                        url: '/displayCart/AddToCartIteminfo',  // Adjust to your actual controller and action
+                        type: 'POST',
+                        data: {
+                            menuid: menuId,
+                            quantity: quantity,
+                            price: price
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                alert(response.message); // Show success message
+                            } else {
+                                alert("Error adding item to cart.");
+                            }
+                        },
+                        error: function () {
+                            alert("An error occurred.");
+                        }
+                    });
+                });
+            });
+        </script>
 
         <!-- jQuery and Bootstrap Bundle at bottom -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

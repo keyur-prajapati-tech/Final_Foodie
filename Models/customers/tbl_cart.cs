@@ -7,6 +7,6 @@ namespace Foodie.Models.customers
         [Key]
         public int cart_id { get; set; }
         public int customer_id { get; set; }
-        public DateTime TimeStamp { get; set; }
+        public DateTime DATETIME { get; set; }
     }
 }
