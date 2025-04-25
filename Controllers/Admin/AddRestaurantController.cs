@@ -1,11 +1,20 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Foodie.Repositories;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Foodie.Controllers
 {
     public class AddRestaurantController : Controller
     {
+        private readonly IAdminRepository _AdminRepository;
+
+        public AddRestaurantController(IAdminRepository adminRepository)
+        {
+            _AdminRepository = adminRepository;
+        }
         public IActionResult AddRestaurant()
         {
+
+            
             return View();
 
 
@@ -34,13 +43,10 @@ namespace Foodie.Controllers
         }
         public IActionResult Restaurant()
         {
-            return View();
+            var vendor = _AdminRepository.GetAllRestaurant();
+            return View(vendor);
         }
 
-        public IActionResult Res()
-        {
-            return View();
-        }
         public IActionResult AddCusine()
         {
             return View();

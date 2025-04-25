@@ -1,4 +1,6 @@
 ﻿using Foodie.Models;
+using Foodie.Models.customers;
+using Foodie.Models.Restaurant;
 using Foodie.ViewModels;
 
 namespace Foodie.Repositories
@@ -20,5 +22,8 @@ namespace Foodie.Repositories
         void updateDelcom(tbl_partner_complaints tbl_Partner_Complaints);
         public IEnumerable<tbl_customer_complaints> GetAllCustomerComplaints();
 
+
+        public IEnumerable<tbl_restaurant> GetAllRestaurant();
+        public IEnumerable<tbl_customer> GetAllCustomer();
     }
 }
