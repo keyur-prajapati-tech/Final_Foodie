@@ -434,7 +434,8 @@
                     <p style="margin-left: 10px;">Get The App</p>
                 </div>
                 <ul>
-                    <li><a asp-area="" asp-controller="OrderNotification" asp-action="OrderNoti">Investor Relations</a></li>
+
+                    <li><a asp-area="" asp-controller="Login" asp-action="Login">Admin</a></li>
                     <li><a asp-area="" asp-controller="AddRestaurant" asp-action="home">Add Restaurant</a></li>
                     <li><a asp-area="" asp-controller="DeliverSignup" asp-action="DeliveryRegister">Add Delivery Partner</a></li>
 
@@ -828,6 +829,47 @@
                     }
                 });
             });
+        });
+
+        //Handle Register alert and data
+        $(document).ready(function () {
+            $("#registerForm").submit(function (e) {
+                e.preventDefault();
+
+                var formData = new FormData(this);
+
+                $.ajax({
+                    url: '/Locality/Register',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        if (response.success) {
+                            showAlert('success', response.message);
+
+                            setTimeout(function () {
+                                window.location.href = response.redirectUrl;
+                            }, 2000); // Delay for user to see the alert
+                        } else {
+                            showAlert('danger', response.message || 'Registration failed.');
+                        }
+                    },
+                    error: function () {
+                        showAlert('danger', 'An unexpected error occurred.');
+                    }
+                });
+            });
+
+            function showAlert(type, message) {
+                const alertHtml = `
+                    <div class="alert alert-${type} alert-dismissible fade show mt-2" role="alert">
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>`;
+
+                $("#alertPlaceholder").html(alertHtml);
+            }
         });
 
     </script>

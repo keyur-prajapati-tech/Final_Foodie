@@ -99,6 +99,5 @@ namespace Foodie.Controllers.Restaurant
             return Json(data);
 
         }
-
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Foodie.Models.customers;
 using Foodie.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -95,6 +96,7 @@ namespace Foodie.Controllers.Customer
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [AllowAnonymous]
         public IActionResult Register(tbl_customer customer, IFormFile profileimg)
         {
             if (customer == null || string.IsNullOrWhiteSpace(customer.email))
@@ -102,13 +104,9 @@ namespace Foodie.Controllers.Customer
                 return Json(new { success = false, message = "Invalid user data." });
             }
 
-            // Normalize email
             string email = customer.email.Trim().ToLower();
-
-            // Check if customer exists
             var existing = _repository.GetTbl_Customer(email);
 
-            // Convert profile image to byte array
             byte[] profileimgBytes = null;
             if (profileimg != null && profileimg.Length > 0)
             {
@@ -119,26 +117,25 @@ namespace Foodie.Controllers.Customer
                 }
             }
 
-            // Register if not existing
             if (existing == null)
             {
                 customer.email = email;
                 _repository.AddUser(customer, profileimgBytes);
             }
 
-            // Use either new customer or existing one to set session
-            var nameToStore = existing?.customer_name ?? customer.customer_name;
-
+            var nameToStore = existing?.customer_name ?? customer.customer_name ?? "User";
             HttpContext.Session.SetString("CustomerEmail", email);
             HttpContext.Session.SetString("CustomerName", nameToStore);
+            HttpContext.Session.SetString("customer_id", existing.customer_id.ToString());
 
             return Json(new
             {
                 success = true,
-                redirectUrl = Url.Action("Locality", "Locality"),
-                message = "Login successful."
+                message = "Registered successfully!",
+                redirectUrl = Url.Action("Locality", "Locality")
             });
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -158,6 +155,7 @@ namespace Foodie.Controllers.Customer
 
             HttpContext.Session.SetString("CustomerEmail", customer.email);
             HttpContext.Session.SetString("CustomerName", customer.customer_name);
+            HttpContext.Session.SetString("customer_id", customer.customer_id.ToString()); // 💥 This fixes the null session issue
 
             return Json(new
             {

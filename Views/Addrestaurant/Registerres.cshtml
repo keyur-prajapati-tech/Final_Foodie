@@ -99,11 +99,21 @@
 
                         <hr />
                     </div>
+                    <div class="container-fluid p-2 d-flex flex-row">
+                        <input type="text" class="form-control fw-lighter mx-5"
+                               id="addressInput" placeholder="Enter address here">
 
+                        <button type="button" onclick="getCoordinates()" class="btn btn-outline-info">Search</button>
+
+                        <input type="hidden" asp-for="@Model.tbl_Restaurant.restaurant_lat" value="" id="lat" />
+                        <input type="hidden" asp-for="@Model.tbl_Restaurant.restaurant_lag" value="" id="lag" />
+
+                    </div>
+                    <hr />
 
                     <div id="map"></div>
 
-
+                    <hr/>
                     <div>
                         <p class="fs-5 mt-3">
                             Restaurant address details
@@ -184,6 +194,54 @@
                 alert("Geolocation is not supported by this browser.");
             }
         }
+
+          function getCoordinates() 
+         {
+             const address = document.getElementById("addressInput").value;
+
+             fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(address)}.json?access_token=${mapboxgl.accessToken}`)
+
+                 .then(response => response.json())
+                 .then(data => {
+                     if (data.features.length > 0) {
+                         const coordinates = data.features[0].center;
+                         const longitude = coordinates[0];
+                         const latitude = coordinates[1];
+
+                        document.getElementById("lat").value = latitude;
+                        document.getElementById("lag").value = longitude;
+
+                          let map = new mapboxgl.Map({
+                             container: 'map',
+                             style: 'mapbox://styles/mapbox/streets-v11',
+                             center: coordinates,
+                             zoom: 10
+                         });
+
+                         // Fly to the location
+                         map.flyTo({
+                             center: coordinates,
+                             zoom: 14,
+                         });
+
+                         // Remove previous marker if exists
+                         if (userMarker) {
+                             userMarker.remove();
+                         }
+
+                         // Add new marker
+                         userMarker = new mapboxgl.Marker({ color: 'red' })
+                             .setLngLat(coordinates)
+                             .addTo(map);
+                     } else {
+                         document.getElementById("output").innerText = "Address not found.";
+                     }
+                 })
+                 .catch(error => {
+                     console.error("Error:", error);
+                     document.getElementById("output").innerText = "Error fetching coordinates.";
+                 });
+             }
 
     </script>
 </body>
