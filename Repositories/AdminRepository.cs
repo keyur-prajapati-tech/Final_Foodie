@@ -427,5 +427,155 @@ namespace Foodie.Repositories
             }
             return customers;
         }
+
+        public int GetMonthlyCustomerCount()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_customers", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count ; 
+            }
+        }
+
+        public int GetMonthlyRestaurantCount()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_Restaurant", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count;
+            }
+        }
+
+        public int GetCancelledOrders()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_cancle_orders", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count;
+            }
+        }
+
+        public int GetPendingOrders()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_pending_orders", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count;
+            }
+        }
+
+        public int GetAcceptedOrders()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_accepted_orders", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count;
+            }
+        }
+
+        public int GetDeliveredOrders()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_Deliverd_orders", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count;
+            }
+        }
+
+        public int GetActiveRestaurants()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_Active_Restaurant", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count;
+            }
+        }
+
+        public int GetInactiveRestaurants()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_InActive_Restaurant", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count;
+            }
+        }
+
+        public int GetOpenRestaurants()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_Open_Restaurant", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count;
+            }
+        }
+
+        public int GetClosedRestaurants()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_Close_Restaurant", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count;
+            }
+        }
     }
 }

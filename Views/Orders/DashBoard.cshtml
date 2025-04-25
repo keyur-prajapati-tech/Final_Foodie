@@ -1,6 +1,7 @@
 ﻿@{
     Layout = "_AdminLayout";
 }
+@model Foodie.ViewModels.DashBoardViewModel;
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -30,7 +31,7 @@
                     <div class="card text-center shadow p-3">
                         <h5>Customers</h5>
                         <hr style="border:1px solid #000" />
-                        <h3>1</h3>
+                        <h3>@Model.MonthlyCustomers</h3>
                         <p>This Month</p>
                     </div>
                 </div>
@@ -40,7 +41,7 @@
                     <div class="card text-center shadow p-3">
                         <h5>Restaurants</h5>
                         <hr style="border:1px solid #000" />
-                        <h3>0</h3>
+                        <h3>@Model.MonthlyRestaurants</h3>
                         <p>Total This Month</p>
                     </div>
                 </div>
@@ -51,25 +52,25 @@
                 <div class="col-md-3">
                     <div class="card text-center shadow p-3">
                         <h5>Cancelled Orders</h5>
-                        <h3>0</h3>
+                        <h3>@Model.CancelledOrders</h3>
                     </div>
                 </div>
                 <div class="col-md-3 ">
                     <div class="card text-center shadow p-3">
                         <h5>Pending Orders</h5>
-                        <h3>0</h3>
+                        <h3>@Model.PendingOrders</h3>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="card text-center shadow p-3">
-                        <h5>Dispatched Orders</h5>
-                        <h3>0</h3>
+                        <h5>Accepted Orders</h5>
+                        <h3>@Model.AcceptedOrders</h3>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="card text-center shadow p-3">
-                        <h5>Completed Orders</h5>
-                        <h3>0</h3>
+                        <h5>Delivered Orders</h5>
+                        <h3>@Model.DeliverdOrders</h3>
                     </div>
                 </div>
             </div>
@@ -79,25 +80,25 @@
                 <div class="col-md-3">
                     <div class="card text-center shadow p-3">
                         <h5>Active Restaurants</h5>
-                        <h3>4</h3>
+                        <h3>@Model.ActiveRestaurants</h3>
                     </div>
                 </div>
                 <div class="col-md-3 ">
                     <div class="card text-center shadow p-3">
                         <h5>Inactive Restaurants</h5>
-                        <h3>2</h3>
+                        <h3>@Model.InactiveRestaurants</h3>
                     </div>
                 </div>
                 <div class="col-md-3 ">
                     <div class="card text-center shadow p-3">
                         <h5>Open Restaurants</h5>
-                        <h3>4</h3>
+                        <h3>@Model.OpenRestaurants</h3>
                     </div>
                 </div>
                 <div class="col-md-3 ">
                     <div class="card text-center shadow p-3">
                         <h5>Closed Restaurants</h5>
-                        <h3>0</h3>
+                        <h3>@Model.ClosedRestaurants</h3>
                     </div>
                 </div>
             </div>

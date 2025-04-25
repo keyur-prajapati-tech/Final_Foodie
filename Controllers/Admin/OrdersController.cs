@@ -1,38 +1,47 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Foodie.Repositories;
+using Foodie.ViewModels;
+using Microsoft.AspNetCore.Mvc;
 using System.Runtime.InteropServices;
 
 namespace Foodie.Controllers
 {
-    public class order
-    {
-        public int oid;
-        public string o_status;
-        public string r_name;
-        public string p_name;
-    }
-    //[Route("")]
-    [Route("order")]
+    
     public class OrdersController : Controller
     {
-        [Route("order")]
+        private readonly IAdminRepository _AdminRepository;
+
+        public OrdersController(IAdminRepository adminRepository)
+        {
+            _AdminRepository = adminRepository;
+        }
         public IActionResult oders()
         {
-
-            List<order> ord = new List<order>();
-
-            ord.Add(new order {oid = 1,o_status="zdc",r_name="ab",p_name="xyz"});
-            ord.Add(new order { oid = 2, o_status = "zdc", r_name = "ab", p_name = "xyz" });
-
-            ViewBag.details = ord;
-
-            ViewBag.Title = "Order Details";
             return View();
         }
-        [Route("")]
-        [Route("dashboard")]
+       
         public IActionResult DashBoard()
         {
-            return View();
+            var vm = new DashBoardViewModel
+            {
+                //MonthlySales = _adminRepo.GetMonthlySales(),
+                MonthlyCustomers = _AdminRepository.GetMonthlyCustomerCount(),
+                MonthlyRestaurants = _AdminRepository.GetMonthlyRestaurantCount(),
+
+                CancelledOrders = _AdminRepository.GetCancelledOrders(),
+                PendingOrders = _AdminRepository.GetPendingOrders(),
+                AcceptedOrders = _AdminRepository.GetAcceptedOrders(),
+                DeliverdOrders = _AdminRepository.GetDeliveredOrders(),
+
+                ActiveRestaurants = _AdminRepository.GetActiveRestaurants(),
+                InactiveRestaurants = _AdminRepository.GetInactiveRestaurants(),
+                OpenRestaurants = _AdminRepository.GetOpenRestaurants(),
+                ClosedRestaurants = _AdminRepository.GetClosedRestaurants(),
+
+               // MonthlySalesChart = _adminRepo.GetMonthlySalesData(),
+               // MonthlyLineChart = _adminRepo.GetLineChartData()
+            };
+
+            return View(vm);
         }
     }
 
