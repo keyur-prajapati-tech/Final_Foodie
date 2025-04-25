@@ -2,7 +2,7 @@
 {
     public class DashBoardViewModel
     {
-         //   public decimal MonthlySales { get; set; }
+            public decimal MonthlySales { get; set; }
             public int MonthlyCustomers { get; set; }
             public int MonthlyRestaurants { get; set; }
 
@@ -16,8 +16,8 @@
             public int OpenRestaurants { get; set; }
             public int ClosedRestaurants { get; set; }
 
-          //  public List<int> MonthlySalesChart { get; set; }
-          //  public List<int> MonthlyLineChart { get; set; }
+            public List<int> MonthlySalesChart { get; set; }
+            public List<int> MonthlyLineChart { get; set; }
 
     }
 }

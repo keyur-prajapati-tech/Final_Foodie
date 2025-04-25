@@ -577,5 +577,58 @@ namespace Foodie.Repositories
                 return count;
             }
         }
+
+        public decimal GetMonthlySales()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_Total_Monthly_Sale", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                decimal count = (decimal)cmd.ExecuteScalar();
+                con.Close();
+    
+                return count;
+            }
+        }
+
+        public List<int> GetMonthlySalesData()
+        {
+            var salesByMonth = new int[12]; // Index 0 = Jan, 11 = Dec
+
+            string query = @"
+        SELECT 
+    MONTH(o.order_date) AS [Month],
+    SUM(oi.quantity * oi.list_price - (1- discount)) AS TotalAmount
+FROM customers.tbl_orders o
+INNER JOIN customers.tbl_order_items oi ON o.order_id = oi.order_id
+WHERE 
+    YEAR(o.order_date) = YEAR(GETDATE()) AND 
+    o.order_status = 'Delivered'
+GROUP BY MONTH(o.order_date)
+ORDER BY [Month];";
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    int month = Convert.ToInt32(reader["Month"]);
+                    int amount = reader["TotalAmount"] != DBNull.Value ? Convert.ToInt32(reader["TotalAmount"]) : 0;
+                    salesByMonth[month - 1] = amount;
+                }
+            }
+
+            return salesByMonth.ToList();
+        }
+
+        public List<int> GetLineChartData()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

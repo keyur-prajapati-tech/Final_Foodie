@@ -42,7 +42,7 @@ namespace Foodie.Repositories
 
         //Dashboard
 
-        //decimal GetMonthlySales();
+        decimal GetMonthlySales();
         int GetMonthlyCustomerCount();
         int GetMonthlyRestaurantCount();
 
@@ -56,7 +56,7 @@ namespace Foodie.Repositories
         int GetOpenRestaurants();
         int GetClosedRestaurants();
 
-       // List<int> GetMonthlySalesData();
-       // List<int> GetLineChartData();
+       List<int> GetMonthlySalesData();
+       List<int> GetLineChartData();
     }
 }

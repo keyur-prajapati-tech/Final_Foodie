@@ -23,7 +23,7 @@ namespace Foodie.Controllers
         {
             var vm = new DashBoardViewModel
             {
-                //MonthlySales = _adminRepo.GetMonthlySales(),
+                MonthlySales = _AdminRepository.GetMonthlySales(),
                 MonthlyCustomers = _AdminRepository.GetMonthlyCustomerCount(),
                 MonthlyRestaurants = _AdminRepository.GetMonthlyRestaurantCount(),
 
@@ -37,10 +37,10 @@ namespace Foodie.Controllers
                 OpenRestaurants = _AdminRepository.GetOpenRestaurants(),
                 ClosedRestaurants = _AdminRepository.GetClosedRestaurants(),
 
-               // MonthlySalesChart = _adminRepo.GetMonthlySalesData(),
+                MonthlySalesChart = _AdminRepository.GetMonthlySalesData(),
                // MonthlyLineChart = _adminRepo.GetLineChartData()
             };
-
+            ViewBag.MonthlySales = vm.MonthlySales;
             return View(vm);
         }
     }

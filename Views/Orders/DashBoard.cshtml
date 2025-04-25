@@ -1,7 +1,14 @@
-﻿@{
+﻿
+@{
     Layout = "_AdminLayout";
 }
+
+
+
 @model Foodie.ViewModels.DashBoardViewModel;
+@{
+    //ViewBag.SalesChartData = JsonConvert.SerializeObject(Model.MonthlySalesChart);
+}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -19,9 +26,9 @@
                 <!-- Sales Card -->
                 <div class="col-md-6 col-lg-4">
                     <div class="card text-center shadow p-3">
-                        <h5>Sales (In $)</h5>
+                        <h5>Sales </h5>
                         <hr style="border:1px solid #000" />
-                        <h3>$0.00</h3>
+                        <h3>@Model.MonthlySales</h3>
                         <p>This Month</p>
                     </div>
                 </div>
@@ -150,6 +157,7 @@
 
             <script>
                 // Set up the chart data and options
+               // const barData = Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(Model.MonthlySalesChart));
                 const ctx = document.getElementById('myChart').getContext('2d');
                 const myChart = new Chart(ctx, {
                     type: 'bar', // Type of chart (bar, line, pie, etc.)
@@ -157,7 +165,7 @@
                         labels: ['January', 'February', 'March', 'April', 'May'], // X-axis labels
                         datasets: [{
                             label: 'Monthly Sales', // Label for the dataset
-                            data: [12, 19, 3, 5, 2], // Data points for the Y-axis
+                            data: , // Data points for the Y-axis
                             backgroundColor: '#000957', // Bar color
                             borderColor: '#8697C4', // Border color of bars
                             borderWidth: 2
