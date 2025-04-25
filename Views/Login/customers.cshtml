@@ -1,4 +1,5 @@
-﻿@{
+﻿@model IEnumerable<Foodie.Models.customers.tbl_customer>
+@{
     Layout = "_AdminLayout";
 }
 <head>
@@ -10,11 +11,11 @@
 
 <div class="container shadow">
     <div class="border-2">
-        <div class="mt-1 mb-1 pt-3 ps-4 pb-3 shadow">
-            @* <a asp-controller="Login" asp-action="Addcustomers"><button type="button" class="btn btn-outline-primary">Add</button></a> *@
-            @*     <button type="button" class="btn btn-outline-primary">Restaurant</button> *@
-            @*     <button type="button" class="btn btn-outline-primary">Delivery Boy</button> *@
-        </div>
+        @* <div class="mt-1 mb-1 pt-3 ps-4 pb-3 shadow">
+             <a asp-controller="Login" asp-action="Addcustomers"><button type="button" class="btn btn-outline-primary">Add</button></a> 
+                <button type="button" class="btn btn-outline-primary">Restaurant</button> 
+                <button type="button" class="btn btn-outline-primary">Delivery Boy</button> 
+        </div> *@
         <div class="table-responsive border-4">
             <table class="table table-striped table-bordered">
                 <thead>
@@ -23,24 +24,38 @@
                         <th scope="col">Name</th>
                         <th scope="col">Phone</th>
                         <th scope="col">Email</th>
-                        <th scope="col">Registration Date</th>
-                        <th scope="col">Action</th>
+                        <th scope="col">Gender</th>
+                        <th scope="col">ProfilePic</th>
+                        <th scope="col">Date Of Birth</th>
+                        <th scope="col">Created At</th>
+                        <th scope="col">Updated At</th>
 
                     </tr>
                 </thead>
                 <tbody>
-                    @* @foreach(var emp in Model) *@
-                    @* { *@
+                     @foreach(var emp in Model) 
+                     { 
                         <tr>
-                            <th scope="row"></th>
-                            <td scope="col"></td>
-                            <td scope="col"></td>
-                            <td scope="col"></td>
-                            <td scope="col"></td>
+                            <th scope="row">@emp.customer_id</th>
+                            <td scope="col">@emp.customer_name</td>
+                            <td scope="col">@emp.phone</td>
+                            <td scope="col">@emp.email</td>
+                            <td scope="col">@emp.Gender</td>
                             <td scope="col">
+                                @if (emp.profilepic != null)
+                                {
+                                    <img src="data:.png;base64,@Convert.ToBase64String(emp.profilepic)" width="50" height="50" />
+                                }
+                                else
+                                {
+                                    <p>No profile Img</p>
+                                }
                             </td>
+                            <td scope="col">@emp.DOB</td>
+                            <td scope="col">@emp.created_at</td>
+                            <td scope="col">@emp.updated_at</td>
                         </tr>
-                    @* } *@
+                     } 
                 </tbody>
             </table>
 

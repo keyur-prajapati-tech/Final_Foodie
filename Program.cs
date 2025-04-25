@@ -17,7 +17,12 @@ namespace Foodie
             builder.Services.AddScoped<IcustomerRepository, customerRepository>();
             builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
 
-            builder.Services.AddSession();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromHours(24); // ? Set session timeout here
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
 
             var app = builder.Build();
 
