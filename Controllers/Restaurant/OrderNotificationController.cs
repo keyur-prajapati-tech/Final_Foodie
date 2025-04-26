@@ -90,6 +90,8 @@ namespace Foodie.Controllers.Restaurant
 
         }
 
+
+
         [HttpGet]
         [Route("getOnline")]
         public JsonResult getOnline(int restaurantId)
@@ -98,6 +100,18 @@ namespace Foodie.Controllers.Restaurant
 
             return Json(data);
 
+        }
+
+        [HttpGet]
+        [Route("isApprove")]
+        public JsonResult isApprove(int restaurantId)
+        {
+            var data = _repository.isApprove(restaurantId);
+            if (data == false)
+            {
+                ViewBag.LayoutDisabled = true;
+            }
+            return Json(data);
         }
     }
 }

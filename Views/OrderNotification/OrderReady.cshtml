@@ -24,11 +24,37 @@
             margin-left: -3px;
             top: 0;
         }
+
+        .offline-card {
+            margin: 100px auto;
+            border: 2px dashed #dc3545;
+            border-radius: 15px;
+            padding: 40px;
+            background-color: #fff5f5;
+        }
+
+        .approval-box {
+            max-width: 500px;
+            margin: 100px auto;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            background: #f9fafc;
+            text-align: center;
+            display: none;
+        }
+
+        .approval-icon {
+            font-size: 60px;
+            color: #ffc107;
+        }
     </style>
 
 
 </head>
 <body>
+
+
 
     @* <nav class="navbar navbar-expand mt-3">
         <div class="container-fluid">
@@ -73,10 +99,10 @@
         </div>
     </nav> *@
     <!-- Modal -->
-   @*  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    @*  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content" id="modalcontent">
-              
+
             </div>
         </div>
     </div>
@@ -198,9 +224,73 @@
             </div>
         }
     </div>
+    <div class="container-fluid" id="isoffline">
+    </div>
 
+    <div class="approval-box">
+        <div class="approval-icon mb-3">
+            <i class="bi bi-hourglass-split"></i> <!-- Optional: Bootstrap Icon -->
+        </div>
+        <h2 class="mb-3 text-warning">Registration Pending</h2>
+        <p class="mb-4">
+            Thank you for registering your restaurant with <strong>Foodie</strong>. <br>
+            Your request is currently under review by our admin team.
+        </p>
+        <p class="text-muted">
+            You’ll be notified via email once your registration is approved. <br>
+            If you have questions, please contact support@foodie.com.
+        </p>
+        <a asp-action="Locality" asp-controller="Locality" class="btn btn-outline-secondary mt-4">Return to Homepage</a>
+    </div>
     <script>
-     
+
+        setInterval(function () {
+           $.ajax({
+                url: '/Restaurant/isApprove',
+                type: 'GET',
+                data: { restaurantId: 1 },
+                success: function (data) {
+                    if (data == 0)
+                    {
+                        $("#isoffline").hide();
+                        $(".approval-box").show();
+                    }
+                    else
+                    {
+                        $(".approval-box").hide();
+                          $.ajax({
+                                url: '/Restaurant/getOnline',
+                                type: 'GET',
+                                data: { restaurantId: 1 },
+                                success: function (data) {
+                                    if (data == 0)
+                                    {
+                                          $("#isoffline").show();
+                                       html = `  <div class="offline-card text-center shadow-sm">
+                                                            <i class="bi bi-wifi-off display-3 text-danger mb-3"></i>
+                                                            <h2 class="text-danger">You're Offline</h2>
+                                                            <p class="text-muted mt-3">
+                                                                Your restaurant is currently not accepting orders.<br>
+                                                                Please come online to start receiving customer requests.
+                                                            </p>
+                                                        </div>`;
+
+                                                        $("#isoffline").html(html);
+
+
+                                    }
+                                },
+                                error: function (error) {
+                                    console.error('Error fetching status:', error);
+                                }
+                            });
+                    }
+                },
+                error: function (error) {
+                    console.error('Error fetching status:', error);
+                }
+         });
+         },5000);
 
          $(document).on('click', '#acceptbtn', function () {
 
