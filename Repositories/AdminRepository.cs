@@ -1,6 +1,9 @@
 ﻿using Foodie.Models;
+using Foodie.Models.customers;
+using Foodie.Models.Restaurant;
 using Foodie.ViewModels;
 using Microsoft.Data.SqlClient;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Foodie.Repositories
 {
@@ -49,15 +52,16 @@ namespace Foodie.Repositories
 
                     admins.Add(new tbl_admin
                     {
-                        admin_id = Convert.ToInt32(reader["admin_id"]),
-                        Full_name = reader["Full_name"].ToString(),
-                        Password = reader["Password"].ToString(),
-                        Email = reader["Email"].ToString(),
-                        CreatedAt = Convert.ToDateTime(reader["CreatedAt"]),
-                        Phone = reader["Phone"].ToString(),
-                        LastLogin = Convert.ToDateTime(reader["LastLogin"]),
-                        role_type = reader["role_type"].ToString(),
-                        IMAGE = reader["Image"] as byte[]
+                        admin_id = reader["admin_id"] != DBNull.Value ? Convert.ToInt32(reader["admin_id"]) : 0,
+                        Full_name = reader["Full_name"] != DBNull.Value ? reader["Full_name"].ToString() : string.Empty,
+                        Password = reader["Password"] != DBNull.Value ? reader["Password"].ToString() : string.Empty,
+                        Email = reader["Email"] != DBNull.Value ? reader["Email"].ToString() : string.Empty,
+                        CreatedAt = reader["CreatedAt"] != DBNull.Value ? Convert.ToDateTime(reader["CreatedAt"]) : DateTime.MinValue,
+                        Phone = reader["Phone"] != DBNull.Value ? reader["Phone"].ToString() : string.Empty,
+                        LastLogin = reader["LastLogin"] != DBNull.Value ? Convert.ToDateTime(reader["LastLogin"]) : DateTime.MinValue, // nullable
+                        role_type = reader["role_type"] != DBNull.Value ? reader["role_type"].ToString() : string.Empty,
+                        IMAGE = reader["Image"] != DBNull.Value ? (byte[])reader["Image"] : null
+
                     });
                 }
                 conn.Close();
@@ -156,8 +160,8 @@ namespace Foodie.Repositories
                     vendor_feedback.Add(new tbl_vendor_feedback
                     {
                         vendore_feedback_id = reader["vendore_feedback_id"] != DBNull.Value ? (int)reader["vendore_feedback_id"] : 0,
-                        restaurant_id = reader["restaurant_id"] != DBNull.Value ? (int)reader["restaurant_id"] : 0,
-                        //restaurant_name = reader["restaurant_name"] != DBNull.Value ? reader["restaurant_name"].ToString() : string.Empty,
+                        //restaurant_id = reader["restaurant_id"] != DBNull.Value ? (int)reader["restaurant_id"] : 0,
+                        restaurant_name = reader["restaurant_name"] != DBNull.Value ? reader["restaurant_name"].ToString() : string.Empty,
                         rating = reader["rating"] != DBNull.Value ? Convert.ToDecimal(reader["rating"]) : 0m,
                         feedback_description = reader["feedback_description"] != DBNull.Value ? reader["feedback_description"].ToString() : string.Empty,
                         createdAt = reader["createdAt"] != DBNull.Value ? Convert.ToDateTime(reader["createdAt"]) : DateTime.MinValue
@@ -183,9 +187,10 @@ namespace Foodie.Repositories
                     customer_feedback.Add(new tbl_customer_feedback
                     {
                         cust_feedback_id = reader["cust_feedback_id"] != DBNull.Value ? (int)reader["cust_feedback_id"] : 0,
-                        customer_id = reader["customer_id"] != DBNull.Value ? (int)reader["customer_id"] : 0,
-                        //restaurant_name = reader["restaurant_name"] != DBNull.Value ? reader["restaurant_name"].ToString() : string.Empty,
-                        restaurant_id = reader["restaurant_id"] != DBNull.Value ? (int)reader["restaurant_id"] : 0,
+                        //customer_id = reader["customer_id"] != DBNull.Value ? (int)reader["customer_id"] : 0,
+                        restaurant_name = reader["restaurant_name"] != DBNull.Value ? reader["restaurant_name"].ToString() : string.Empty,
+                        customer_name = reader["customer_name"] != DBNull.Value ? reader["customer_name"].ToString() : string.Empty,
+                        //restaurant_id = reader["restaurant_id"] != DBNull.Value ? (int)reader["restaurant_id"] : 0,
                         rating = reader["rating"] != DBNull.Value ? Convert.ToDecimal(reader["rating"]) : 0m,
                         feedback_description = reader["feedback_description"] != DBNull.Value ? reader["feedback_description"].ToString() : string.Empty,
                         createdAt = reader["createdAt"] != DBNull.Value ? Convert.ToDateTime(reader["createdAt"]) : DateTime.MinValue
@@ -238,10 +243,12 @@ namespace Foodie.Repositories
                     vendor_complaints.Add(new tbl_vendor_complaints
                     {
                         vendor_complaint_id = reader["vendor_complaint_id"] != DBNull.Value ? (int)reader["vendor_complaint_id"] : 0,
-                        restaurant_id = reader["restaurant_id"] != DBNull.Value ? (int)reader["restaurant_id"] : 0,
+                        //restaurant_id = reader["restaurant_id"] != DBNull.Value ? (int)reader["restaurant_id"] : 0,
+                        restaurant_name = reader["restaurant_name"] != DBNull.Value ? reader["restaurant_name"].ToString() : string.Empty,
                         cmp_Descr = reader["cmp_Descr"] != DBNull.Value ? reader["cmp_Descr"].ToString() : string.Empty,
                         cmp_Status = reader["cmp_Status"] != DBNull.Value ? Convert.ToBoolean(reader["cmp_Status"]) : false,
-                        admin_id = reader["admin_id"] != DBNull.Value ? (int)reader["admin_id"] : 0,
+                        //admin_id = reader["admin_id"] != DBNull.Value ? (int)reader["admin_id"] : 0,
+                        Full_name = reader["Full_name"] != DBNull.Value ? reader["Full_name"].ToString() : string.Empty,
                         ResolutionRemarks = reader["ResolutionRemarks"] != DBNull.Value ? reader["ResolutionRemarks"].ToString() : string.Empty,
                         createdAt = reader["createdAt"] != DBNull.Value ? Convert.ToDateTime(reader["createdAt"]) : DateTime.MinValue,
                         ResolvedAt = reader["ResolvedAt"] != DBNull.Value ? Convert.ToDateTime(reader["ResolvedAt"]) : DateTime.MinValue
@@ -356,6 +363,69 @@ namespace Foodie.Repositories
                     conn.Close();
                 }
             }
+        }
+
+        public IEnumerable<tbl_restaurant> GetAllRestaurant()
+        {
+            var restaurants = new List<tbl_restaurant>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_Sel_Restaurant", conn);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    restaurants.Add(new tbl_restaurant
+                    {
+                        restaurant_id = reader["restaurant_id"] != DBNull.Value ? (int)reader["restaurant_id"] : 0,
+                        restaurant_name = reader["restaurant_name"] != DBNull.Value ? reader["restaurant_name"].ToString() : string.Empty,
+                        restaurant_contact = reader["restaurant_contact"] != DBNull.Value ? reader["restaurant_contact"].ToString() : string.Empty,
+                        restaurant_email = reader["restaurant_email"] != DBNull.Value ? reader["restaurant_email"].ToString() : string.Empty,
+                        restaurant_street = reader["restaurant_street"] != DBNull.Value ? reader["restaurant_street"].ToString() : string.Empty,
+                        restaurant_pincode = reader["restaurant_pincode"] != DBNull.Value ? reader["restaurant_pincode"].ToString() : string.Empty,
+                        restaurant_isApprov = reader["restaurant_isApprov"] != DBNull.Value && Convert.ToBoolean(reader["restaurant_isApprov"]),
+                        restaurant_isOnline = reader["restaurant_isOnline"] != DBNull.Value && Convert.ToBoolean(reader["restaurant_isOnline"]),
+                        est_id = reader["est_id"] != DBNull.Value ? (int)reader["est_id"] : 0,
+                        owner_name = reader["owner_name"] != DBNull.Value ? reader["owner_name"].ToString() : string.Empty
+
+                    });
+                }
+                conn.Close();
+            }
+            return restaurants;
+        }
+
+        public IEnumerable<tbl_customer> GetAllCustomer()
+        {
+            var customers = new List<tbl_customer>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_Sel_Customer", conn);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    customers.Add(new tbl_customer
+                    {
+                        customer_id = reader["customer_id"] != DBNull.Value ? (int)reader["customer_id"] : 0,
+                        customer_name = reader["customer_name"] != DBNull.Value ? reader["customer_name"].ToString() : string.Empty,
+                        email = reader["email"] != DBNull.Value ? reader["email"].ToString() : string.Empty,
+                        phone = reader["phone"] != DBNull.Value ? reader["phone"].ToString() : string.Empty,
+                        Gender = reader["Gender"] != DBNull.Value ? reader["Gender"].ToString() : string.Empty,
+                        profilepic = reader["profilepic"] != DBNull.Value ? (byte[])reader["profilepic"] : null,
+                        DOB = reader["DOB"] != DBNull.Value ? Convert.ToDateTime(reader["DOB"]) : DateTime.MinValue,
+                        created_at = reader["created_at"] != DBNull.Value ? Convert.ToDateTime(reader["created_at"]) : DateTime.MinValue,
+                        updated_at = reader["updated_at"] != DBNull.Value ? Convert.ToDateTime(reader["updated_at"]) : DateTime.MinValue,
+                        
+                    });
+                }
+                conn.Close();
+            }
+            return customers;
         }
     }
 }

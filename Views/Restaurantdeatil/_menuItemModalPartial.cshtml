@@ -1,0 +1,26 @@
+﻿@model Foodie.Models.Restaurant.tbl_menu_items
+
+<div class="modal-header">
+    <h5 class="modal-title">@Model.menu_name</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+</div>
+
+<div class="modal-body">
+    <img src="data:image/png;base64,@Convert.ToBase64String(Model.menu_img)" alt="@Model.menu_name" class="w-100 mb-3" />
+    <p>@Model.menu_descripation</p>
+    <p><strong>Price: ₹@Model.amount</strong></p>
+
+    <div class="form-group mt-3">
+        <label>Cooking Request (Optional):</label>
+        <textarea class="form-control" rows="3" placeholder="e.g. Don't make it too spicy"></textarea>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+    <form method="post" asp-controller="displayCart" asp-action="AddToCartInfo">
+        <input type="hidden" name="menuId" value="@Model.menu_id" />
+        <button type="submit" class="btn btn-primary">Add to Cart</button>
+    </form>
+</div>

@@ -17,5 +17,12 @@ namespace Foodie.Repositories
 
         // 🔐 Add this method
         tbl_customer ValidateCustomerLogin(string email, string password);
+
+        List<tbl_menu_items> GetAllMenuItems();
+        tbl_menu_items GetMenuItemById(int id);
+        void AddToCart(tbl_cart_item tbl_Cart_Item);
+        tbl_cart GetOrCreateCart(int customerId);
+        List<CartItemViewModel> GetCartItems(int customerId);
+        void PlaceOrder(int customerId);
     }
 }

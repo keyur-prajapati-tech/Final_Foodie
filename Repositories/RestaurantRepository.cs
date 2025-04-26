@@ -123,9 +123,9 @@ namespace Foodie.Repositories
                 cmd.Parameters.AddWithValue("@restaurant_pincode", restaurant.restaurant_pincode);
                 cmd.Parameters.AddWithValue("@restaurant_lat", restaurant.restaurant_lat);
                 cmd.Parameters.AddWithValue("@restaurant_lag", restaurant.restaurant_lag);
-                cmd.Parameters.AddWithValue("@restaurant_isApprov", restaurant.restaurant_isApprov);
-                cmd.Parameters.AddWithValue("@restaurant_isOnline", restaurant.restaurant_isOnline);
-                cmd.Parameters.AddWithValue("@owner_id", o_id);
+                //cmd.Parameters.AddWithValue("@restaurant_isApprov", restaurant.restaurant_isApprov);
+                //cmd.Parameters.AddWithValue("@restaurant_isOnline", restaurant.restaurant_isOnline);
+                //cmd.Parameters.AddWithValue("@owner_id", o_id);
 
                 conn.Open();
                 int result = Convert.ToInt32(cmd.ExecuteScalar());

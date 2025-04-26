@@ -393,7 +393,7 @@
     <div class="brand-container">
         <h3 class="fw-bold m-3" style="text-align: center;">Top brands for you</h3>
 
-        <div class="owl-carousel brand-carousel owl-theme mt-3">
+        @* <div class="owl-carousel brand-carousel owl-theme mt-3">
             @foreach (var item in Model)
             {
                 <div class="item text-center">
@@ -404,51 +404,32 @@
                     <span>@item.DayOfWeek days open</span>
                 </div>
             }
-        </div>
-        @* <div class="owl-carousel brand-carousel owl-theme mt-3">
-        <div class="item">
-                <a asp-area="" asp-controller="TBrands" asp-action="Brands">
-            <img src="https://logos-world.net/wp-content/uploads/2020/04/McDonalds-Logo-700x394.png" alt="McDonald's">
-            </a>
-            <p>McDonald's</p>
-            <span>26 min</span>
-        </div>
-        <div class="item">
-            <img src="https://b.zmtcdn.com/data/brand_creatives/logos/33817818ed447c69423bfaf01f633a29_1617972828.png" alt="McDonald's">
-                <p>@ViewData["food_name"]</p>
-            <span>27 min</span>
-        </div>
-        <div class="item">
-                <img src="https://b.zmtcdn.com/data/brand_creatives/logos/05142cf68ce04384bb185659e1bfe450_1625160258.png" alt="La Pino'z Pizza">
-            <p>La Pino'z Pizza</p>
-            <span>24 min</span>
-        </div>
-        <div class="item">
-                <img src="https://b.zmtcdn.com/data/brand_creatives/logos/a6927d83d9185b7788814049b4a9fc8c_1726606697.png" alt="Burger King">
-                <p>Burger King</p>
-            <span>36 min</span>
-        </div>
-        <div class="item">
-                <img src="https://b.zmtcdn.com/data/brand_creatives/logos/391ef4a08c761310e9460008c2acaeee_1571919223.png" alt="Mahalaxmi Juice">
-            <p>Mahalaxmi Juice & Fastfood</p>
-            <span>38 min</span>
-        </div>
-        <div class="item">
-                <img src="https://b.zmtcdn.com/data/brand_creatives/logos/5caf38856d23347b351bb7abf97134d3_1521806960.png" alt="Domino's Pizza">
-            <p>Domino's Pizza</p>
-            <span>26 min</span>
-        </div>  
-            <div class="item">
-                <img src="https://b.zmtcdn.com/data/brand_creatives/logos/a318b612b2031bf631503a27c6e3d3d21736679102.png" alt="Domino's Pizza">
-                <p>Punjabi Di Hatti</p>
-                <span>26 min</span>
+        </div> *@
+        @if (Model.Count() > 1)
+        {
+            <div class="owl-carousel brand-carousel owl-theme mt-3">
+                @foreach (var item in Model)
+                {
+                    <div class="item text-center">
+                        <a asp-controller="TBrands" asp-action="Brands">
+                            <img src="data:image/png;base64,@Convert.ToBase64String(item.Restaurant_img)" alt="@item.Restaurant_name" style="width:150px; height:100px; object-fit:cover;" />
+                        </a>
+                        <p class="mt-2">@item.Restaurant_name</p>
+                        <span>@item.DayOfWeek days open</span>
+                    </div>
+                }
             </div>
-            <div class="item">
-                <img src="https://b.zmtcdn.com/data/brand_creatives/logos/c57f22bdf13844d8a566f26c5753ef5d_1611306689.png" alt="Domino's Pizza">
-                <p>Mahesh Pav Bhaji</p>
-                <span>26 min</span>
+        }
+        else if (Model.Count() == 1)
+        {
+            <div class="text-center mt-3">
+                <a asp-controller="TBrands" asp-action="Brands">
+                    <img src="data:image/png;base64,@Convert.ToBase64String(Model.First().Restaurant_img)" alt="@Model.First().Restaurant_name" style="width:150px; height:100px; object-fit:cover;" />
+                </a>
+                <p class="mt-2">@Model.First().Restaurant_name</p>
+                <span>@Model.First().DayOfWeek days open</span>
             </div>
-    </div> *@
+        }
     </div>
 
     <div class="container mt-4">
