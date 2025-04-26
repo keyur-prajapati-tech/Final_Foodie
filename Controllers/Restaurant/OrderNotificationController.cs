@@ -51,10 +51,10 @@ namespace Foodie.Controllers.Restaurant
 
         [HttpPost]
         [Route("acceptOrder")]
-        public IActionResult acceptOrder(int order_id,string food_status)
+        public IActionResult acceptOrder(int order_id, string food_status)
         {
-            
-            var result = _repository.AcceptOrder(order_id,food_status);
+
+            var result = _repository.AcceptOrder(order_id, food_status);
             if (result > 0)
             {
                 return Json(new { success = true, message = "Order accepted successfully." });
@@ -66,7 +66,7 @@ namespace Foodie.Controllers.Restaurant
 
         }
 
-       
+
         [HttpPost]
         [Route("isOnline")]
         public JsonResult isOnline(int status)
@@ -103,15 +103,27 @@ namespace Foodie.Controllers.Restaurant
         }
 
         [HttpGet]
-        [Route("isApprove")]
-        public JsonResult isApprove(int restaurantId)
+        [Route("isApproved")]
+        public JsonResult isApproved(int restaurantId)
         {
             var data = _repository.isApprove(restaurantId);
-            if (data == false)
-            {
-                ViewBag.LayoutDisabled = true;
-            }
+            //if (data == false)
+            //{
+            //    ViewBag.Layout = "~/Views/Shared/_RestaurantRegister.cshtml";
+            //}
+            //else
+            //{
+            //    ViewBag.Layout = "~/Views/Shared/_RestaurantLayout.cshtml";
+            //}
+
             return Json(data);
+        }
+
+        [HttpGet]
+        [Route("isApprov")]
+        public IActionResult isApprov()
+        {
+            return View();
         }
     }
 }
