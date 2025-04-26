@@ -10,7 +10,7 @@ namespace Foodie.Repositories
     {
         private readonly string _connectionstring;
         private int o_id = 0;
-        private static  int r_id = 0;
+        private static int r_id = 0;
         public static void setRId(int id)
         {
             r_id = id;
@@ -28,7 +28,7 @@ namespace Foodie.Repositories
         public tbl_restaurant getRestaurant(int id)
         {
             tbl_restaurant tbl_Restaurant = null;
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string qry = "select * from vendores.tbl_restaurant where restaurant_id = @id";
 
@@ -38,9 +38,9 @@ namespace Foodie.Repositories
 
                 conn.Open();
 
-                SqlDataReader dr =  cmd.ExecuteReader();
+                SqlDataReader dr = cmd.ExecuteReader();
 
-                if(dr.Read())
+                if (dr.Read())
                 {
                     tbl_Restaurant = new tbl_restaurant
                     {
@@ -91,7 +91,7 @@ namespace Foodie.Repositories
 
         public int AddOwner(tbl_owner_details owner)
         {
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string query = @"INSERT INTO vendores.tbl_owner_details (owner_name, owner_email, owner_contact) 
                                  VALUES (@owner_name, @owner_email, @owner_contact);
@@ -141,7 +141,7 @@ namespace Foodie.Repositories
         {
             tbl_vendores_img tbl_Vendores_Img = null;
 
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string qry = "select * from vendores.tbl_vendores_img where restaurant_id = @id";
                 SqlCommand cmd = new SqlCommand(qry, conn);
@@ -165,7 +165,7 @@ namespace Foodie.Repositories
         {
             tbl_vendor_availability tbl_Vendor_Availability = null;
 
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string qry = "select * from vendores.tbl_vendor_availability where restaurant_id = @id";
                 SqlCommand cmd = new SqlCommand(qry, conn);
@@ -194,7 +194,7 @@ namespace Foodie.Repositories
                 string query = @"insert into vendores.tbl_vendores_img(Restaurant_id,Restaurant_img,Restaurant_menu_img) values (@Restaurant_id,@Restaurant_img,@Restaurant_menu_img)";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@Restaurant_id", getRId());
-                cmd.Parameters.AddWithValue("@Restaurant_img",r_img);
+                cmd.Parameters.AddWithValue("@Restaurant_img", r_img);
                 cmd.Parameters.AddWithValue("@Restaurant_menu_img", m_img);
                 conn.Open();
                 int result = cmd.ExecuteNonQuery();
@@ -207,7 +207,7 @@ namespace Foodie.Repositories
         {
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                
+
                 string qry = "insert into vendores.tbl_vendor_availability(Restaurant_id,open_datetime,close_datetime,day_of_week,is_Open) values(@resid,@o_time,@c_time,@dyw,@open)";
 
                 SqlCommand cmd = new SqlCommand(qry, conn);
@@ -227,12 +227,12 @@ namespace Foodie.Repositories
                 return result;
 
             }
-           
+
         }
 
         public int AddPanDetails(tbl_pan_details pan, byte[] img)
         {
-            using (SqlConnection conn = new SqlConnection(_connectionstring)) 
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string qry = "insert into vendores.tbl_pan_details(pan_number,pan_holder_name,is_Verify,Restaurant_id,img) values(@number,@name,@verify,@rid,@img)";
 
@@ -241,7 +241,7 @@ namespace Foodie.Repositories
                 cmd.Parameters.AddWithValue("@number", pan.pan_number);
                 cmd.Parameters.AddWithValue("@name", pan.pan_holder_name);
                 cmd.Parameters.AddWithValue("@verify", pan.is_Verify);
-                cmd.Parameters.AddWithValue("@rid",pan.Restaurant_id);
+                cmd.Parameters.AddWithValue("@rid", pan.Restaurant_id);
                 cmd.Parameters.AddWithValue("@img", img);
 
                 conn.Open();
@@ -256,7 +256,7 @@ namespace Foodie.Repositories
 
         public int AddGSTDetails(tbl_gst_details gst)
         {
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string qry = "insert into vendores.tbl_gst_details(gst_number,is_Verify,Restaurant_id) values(@number,@verify,@rid)";
 
@@ -324,16 +324,16 @@ namespace Foodie.Repositories
             }
         }
 
-        public int AddMenu(tbl_menu_items menu, byte[] menu_img)
+        public int AddMenu(tbl_menu_items menu)
         {
-            using(SqlConnection conn = new SqlConnection())
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string qry = "insert into vendores.tbl_menu_items(menu_name, cuisine_id, menu_img, menu_descripation, amount, isAvalable, Restaurant_id)values(@name, @cid, @img, @desc, @amt, @avai, @rid)";
 
                 SqlCommand cmd = new SqlCommand(qry, conn);
                 cmd.Parameters.AddWithValue("@name", menu.menu_name);
                 cmd.Parameters.AddWithValue("@cid", menu.cuisine_id);
-                cmd.Parameters.AddWithValue("@img", menu_img);
+                cmd.Parameters.AddWithValue("@img", menu.menu_img);
                 cmd.Parameters.AddWithValue("@desc", menu.menu_descripation);
                 cmd.Parameters.AddWithValue("@amt", menu.amount);
                 cmd.Parameters.AddWithValue("@avai", menu.isAvailable);
@@ -344,6 +344,101 @@ namespace Foodie.Repositories
                 conn.Close();
                 return result;
 
+            }
+        }
+
+        public List<tbl_menu_items> getMenuByRes(int id)
+        {
+            List<tbl_menu_items> tbl_Menu_Items = new List<tbl_menu_items>();
+
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string qry = "select * from vendores.tbl_menu_items where restaurant_id = @id";
+                SqlCommand cmd = new SqlCommand(qry, conn);
+                cmd.Parameters.AddWithValue("@id", id);
+                conn.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
+                {
+                    tbl_Menu_Items.Add(new tbl_menu_items
+                    {
+                        menu_id = Convert.ToInt32(dr["menu_id"]),
+                        menu_name = dr["menu_name"].ToString(),
+                        cuisine_id = Convert.ToInt32(dr["cuisine_id"]),
+                        menu_img = (byte[])dr["menu_img"],
+                        menu_descripation = dr["menu_descripation"].ToString(),
+                        amount = Convert.ToDecimal(dr["amount"]),
+                        isAvailable = Convert.ToBoolean(dr["isAvalable"]),
+                        Restaurant_id = Convert.ToInt32(dr["Restaurant_id"])
+                    });
+                }
+                conn.Close();
+            }
+
+            return tbl_Menu_Items;
+        }
+
+        public tbl_menu_items getMenu(int id)
+        {
+            tbl_menu_items tbl_Menu_Items = null;
+
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string qry = "select * from vendores.tbl_menu_items where menu_id = @id";
+                SqlCommand cmd = new SqlCommand(qry, conn);
+                cmd.Parameters.AddWithValue("@id", id);
+                conn.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
+                {
+                    tbl_Menu_Items = new tbl_menu_items
+                    {
+                        menu_id = Convert.ToInt32(dr["menu_id"]),
+                        menu_name = dr["menu_name"].ToString(),
+                        cuisine_id = Convert.ToInt32(dr["cuisine_id"]),
+                        menu_img = (byte[])dr["menu_img"],
+                        menu_descripation = dr["menu_descripation"].ToString(),
+                        amount = Convert.ToDecimal(dr["amount"]),
+                        isAvailable = Convert.ToBoolean(dr["isAvalable"]),
+                        Restaurant_id = Convert.ToInt32(dr["Restaurant_id"])
+                    };
+                }
+                conn.Close();
+            }
+            return tbl_Menu_Items;
+        }
+
+        public int DeleteMenu(int id)
+        {
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string qry = "delete from vendores.tbl_menu_items where menu_id = @id";
+                SqlCommand cmd = new SqlCommand(qry, conn);
+                cmd.Parameters.AddWithValue("@id", id);
+                conn.Open();
+                int result = cmd.ExecuteNonQuery();
+                conn.Close();
+                return result;
+            }
+        }
+
+        public int UpdateMenu(tbl_menu_items menu)
+        {
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string qry = "update vendores.tbl_menu_items set menu_name = @name, cuisine_id = @cid, menu_img = @img, menu_descripation = @desc, amount = @amt, isAvalable = @avai where menu_id = @id";
+                SqlCommand cmd = new SqlCommand(qry, conn);
+                cmd.Parameters.AddWithValue("@name", menu.menu_name);
+                cmd.Parameters.AddWithValue("@cid", menu.cuisine_id);
+                cmd.Parameters.AddWithValue("@img", menu.menu_img);
+                cmd.Parameters.AddWithValue("@desc", menu.menu_descripation);
+                cmd.Parameters.AddWithValue("@amt", menu.amount);
+                cmd.Parameters.AddWithValue("@avai", menu.isAvailable);
+                cmd.Parameters.AddWithValue("@id", menu.menu_id);
+                conn.Open();
+                int result = cmd.ExecuteNonQuery();
+                conn.Close();
+                return result;
             }
         }
 
@@ -386,7 +481,7 @@ namespace Foodie.Repositories
             return orders;
         }
 
-        public int AcceptOrder(int order_id,string food_status)
+        public int AcceptOrder(int order_id, string food_status)
         {
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
@@ -443,7 +538,7 @@ namespace Foodie.Repositories
 
         public int IsOnline(int restaurant_id, int isOnline)
         {
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string qry = "update vendores.tbl_restaurant set restaurant_isOnline = @isOnline where restaurant_id = @restaurant_id";
                 SqlCommand cmd = new SqlCommand(qry, conn);
@@ -458,21 +553,36 @@ namespace Foodie.Repositories
 
         public int getOnline(int restaurant_id)
         {
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string qry = "select restaurant_isOnline from vendores.tbl_restaurant where restaurant_id = @resid";
                 SqlCommand cmd = new SqlCommand(qry, conn);
-               
+
                 cmd.Parameters.AddWithValue("@resid", restaurant_id);
 
                 conn.Open();
                 int result = Convert.ToInt32(cmd.ExecuteScalar());
 
-                
+
                 return result;
 
 
 
+            }
+        }
+
+        public bool isApprove(int restaurant_id)
+        {
+           using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string qry = "select restaurant_isApprov from vendores.tbl_restaurant where  restaurant_id = @restaurant_id";
+                SqlCommand cmd = new SqlCommand(qry, conn);
+              
+                cmd.Parameters.AddWithValue("@restaurant_id", restaurant_id);
+                conn.Open();
+                bool result = (bool)cmd.ExecuteScalar();
+                conn.Close();
+                return result;
             }
         }
     }
