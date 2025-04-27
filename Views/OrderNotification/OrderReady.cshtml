@@ -244,20 +244,14 @@
     </div>
     <script>
 
-        setInterval(function () {
-           $.ajax({
-                url: '/Restaurant/isApprove',
-                type: 'GET',
-                data: { restaurantId: 1 },
-                success: function (data) {
-                    if (data == 0)
-                    {
-                        $("#isoffline").hide();
-                        $(".approval-box").show();
-                    }
-                    else
-                    {
-                        $(".approval-box").hide();
+        $(document).ready(function(){
+
+            isOnline();
+        });
+        
+        function isOnline()
+        {
+            
                           $.ajax({
                                 url: '/Restaurant/getOnline',
                                 type: 'GET',
@@ -265,7 +259,8 @@
                                 success: function (data) {
                                     if (data == 0)
                                     {
-                                          $("#isoffline").show();
+                                       $("#isoffline").show();
+
                                        html = `  <div class="offline-card text-center shadow-sm">
                                                             <i class="bi bi-wifi-off display-3 text-danger mb-3"></i>
                                                             <h2 class="text-danger">You're Offline</h2>
@@ -284,6 +279,23 @@
                                     console.error('Error fetching status:', error);
                                 }
                             });
+        }
+
+        setInterval(function () {
+           $.ajax({
+                url: '/Restaurant/isApproved',
+                type: 'GET',
+                data: { restaurantId: 1 },
+                success: function (data) {
+                    if (data == 0)
+                    {
+                       $(".approval-box").show();
+                       $("#isoffline").hide();
+                    }
+                    else
+                    {
+                        $(".approval-box").hide();
+                        isOnline();
                     }
                 },
                 error: function (error) {
