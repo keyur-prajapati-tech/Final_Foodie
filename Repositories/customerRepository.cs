@@ -441,5 +441,98 @@ namespace Foodie.Repositories
                 }
             }
         }
+
+        public IEnumerable<tbl_state> GetAllStates()
+        {
+            var state_list = new List<tbl_state>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT * FROM customers.tbl_state";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+                while (rd.Read())
+                {
+                    state_list.Add(new tbl_state
+                    {
+                        StateId = Convert.ToInt32(rd["StateId"]),
+                        StateName = rd["StateName"].ToString()
+                    });
+                }
+                conn.Close();
+            }
+            return state_list;
+        }
+
+        public IEnumerable<tbl_district> GetDistrictByStateId(int stateId)
+        {
+            var district_list = new List<tbl_district>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT * FROM customers.tbl_district WHERE StateId = @StateId";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@StateId", stateId);
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+                while (rd.Read())
+                {
+                    district_list.Add(new tbl_district
+                    {
+                        DistrictId = Convert.ToInt32(rd["DistrictId"]),
+                        DisrictName = rd["DisrictName"].ToString()
+                    });
+                }
+                conn.Close();
+            }
+            return district_list;
+        }
+
+        public IEnumerable<tbl_city> GetCitiesByDistrictId(int districtId)
+        {
+            var cities_list = new List<tbl_city>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT * FROM customers.tbl_city WHERE DistrictId = @DistrictId";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@DistrictId", districtId);
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+                while (rd.Read())
+                {
+                    cities_list.Add(new tbl_city
+                    {
+                        CityId = Convert.ToInt32(rd["CityId"]),
+                        CityName = rd["CityName"].ToString()
+                    });
+                }
+                conn.Close();
+            }
+            return cities_list;
+        }
+
+        public void AddAddress(tbl_address tbl_Address)
+        {
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"INSERT INTO customers.tbl_address (customer_id, address_type, CountryName, StateId, DistrictId, CityId, latitude, longitude, address) 
+                                 VALUES (@customer_id, @address_type, @CountryName, @StateId, @DistrictId, @CityId, @latitude, @longitude, @address)";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@customer_id", tbl_Address.customer_id);
+                cmd.Parameters.AddWithValue("@address_type", tbl_Address.address_type);
+                cmd.Parameters.AddWithValue("@CountryName", tbl_Address.CountryName);
+                cmd.Parameters.AddWithValue("@StateId", tbl_Address.StateId);
+                cmd.Parameters.AddWithValue("@DistrictId", tbl_Address.DistrictId);
+                cmd.Parameters.AddWithValue("@CityId", tbl_Address.CityId);
+                cmd.Parameters.AddWithValue("@latitude", tbl_Address.latitude ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@longitude", tbl_Address.longitude ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@address", tbl_Address.address);
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                conn.Close();
+            }
+        }
     }
 }
