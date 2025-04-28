@@ -16,8 +16,11 @@
             public int OpenRestaurants { get; set; }
             public int ClosedRestaurants { get; set; }
 
-            public List<int> MonthlySalesChart { get; set; }
-            public List<int> MonthlyLineChart { get; set; }
+        public List<int> Month { get; set; } = new List<int>();
+        public List<int> MonthlySalesdata { get; set; } = new List<int>();
+        public List<int> Year { get; set; } = new List<int>();
+        public List<int> YearlySalesdata { get; set; } = new List<int>();
+       
 
     }
 }

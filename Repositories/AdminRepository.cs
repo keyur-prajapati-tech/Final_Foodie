@@ -131,11 +131,11 @@ namespace Foodie.Repositories
                     reader.Read(); // Assuming email is unique, we can use Read() to get the first (and only) record
                     admin = new tbl_admin
                     {
-                        Email = reader["Email"].ToString(),
-                        Password = reader["Password"].ToString(),
-                        role_id = Convert.ToInt32(reader["role_id"]),
-                        admin_id = (int)reader["admin_id"]
-                        // EmployeeID = Convert.ToInt32(reader["EmployeeID"])
+                        Email = reader["Email"] != DBNull.Value ? reader["Email"].ToString() : null,
+                        Password = reader["Password"] != DBNull.Value ? reader["Password"].ToString() : null,
+                        role_id = reader["role_id"] != DBNull.Value ? Convert.ToInt32(reader["role_id"]) : 0, // default 0 or handle as needed
+                        IMAGE = reader["Image"] != DBNull.Value ? (byte[])reader["Image"] : null,
+                        admin_id = reader["admin_id"] != DBNull.Value ? Convert.ToInt32(reader["admin_id"]) : 0 // or nullable int
                     };
                 }
 
@@ -593,9 +593,9 @@ namespace Foodie.Repositories
             }
         }
 
-        public List<int> GetMonthlySalesData()
+        public DashBoardViewModel GetMonthlySalesData()
         {
-            var salesByMonth = new int[12]; // Index 0 = Jan, 11 = Dec
+           // var salesByMonth = new int[12]; // Index 0 = Jan, 11 = Dec
 
             string query = @"
         SELECT 
@@ -609,6 +609,7 @@ WHERE
 GROUP BY MONTH(o.order_date)
 ORDER BY [Month];";
 
+            DashBoardViewModel dashBoard = new DashBoardViewModel();
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -617,18 +618,48 @@ ORDER BY [Month];";
 
                 while (reader.Read())
                 {
-                    int month = Convert.ToInt32(reader["Month"]);
-                    int amount = reader["TotalAmount"] != DBNull.Value ? Convert.ToInt32(reader["TotalAmount"]) : 0;
-                    salesByMonth[month - 1] = amount;
+                    dashBoard.Month.Add(Convert.ToInt32(reader["Month"]));
+                    dashBoard.MonthlySalesdata.Add(Convert.ToInt32(reader["TotalAmount"]));
+
                 }
+
+                conn.Close();
             }
 
-            return salesByMonth.ToList();
+            return dashBoard;
         }
 
-        public List<int> GetLineChartData()
+        public DashBoardViewModel GetYearlyChartData()
         {
-            throw new NotImplementedException();
+            string query = @"
+       SELECT 
+    year(o.order_date) AS [year],
+    SUM(oi.quantity * oi.list_price - (1- discount)) AS TotalAmount
+FROM customers.tbl_orders o
+INNER JOIN customers.tbl_order_items oi ON o.order_id = oi.order_id
+WHERE 
+    o.order_status = 'Delivered'
+GROUP BY year(o.order_date)
+ORDER BY [year];";
+
+            DashBoardViewModel dashBoard = new DashBoardViewModel();
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    dashBoard.Year.Add(Convert.ToInt32(reader["year"]));
+                    dashBoard.YearlySalesdata.Add(Convert.ToInt32(reader["TotalAmount"]));
+
+                }
+
+                conn.Close();
+            }
+
+            return dashBoard;
         }
     }
 }

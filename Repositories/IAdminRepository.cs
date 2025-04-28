@@ -56,7 +56,7 @@ namespace Foodie.Repositories
         int GetOpenRestaurants();
         int GetClosedRestaurants();
 
-       List<int> GetMonthlySalesData();
-       List<int> GetLineChartData();
+        DashBoardViewModel GetMonthlySalesData();
+        DashBoardViewModel GetYearlyChartData();
     }
 }
