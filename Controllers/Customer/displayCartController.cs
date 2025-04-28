@@ -50,7 +50,16 @@ namespace Foodie.Controllers.Customer
         public IActionResult Address()
         {
             var states = _repository.GetAllStates();
-            ViewBag.States = new SelectList(states, "staed_id","state_name");
+
+            if (states != null && states.Any())
+            {
+                ViewBag.States = new SelectList(states, "StateId", "StateName");
+            }
+            else
+            {
+                ViewBag.States = new List<SelectListItem>(); // empty safe list
+            }
+
             return View();
         }
 

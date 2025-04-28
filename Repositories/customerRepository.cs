@@ -343,7 +343,7 @@ namespace Foodie.Repositories
                         cart_item_id = Convert.ToInt32(rd["cart_item_id"]),
                         menu_id = Convert.ToInt32(rd["menu_id"]),
                         quantity = Convert.ToInt32(rd["quantity"]),
-                        amount = Convert.ToDecimal(rd["amount"]),
+                        amount = Convert.ToDecimal(rd["price"]),
                         menu_name = rd["menu_name"].ToString(),
                         menu_img = (byte[])rd["menu_img"]
                     });
