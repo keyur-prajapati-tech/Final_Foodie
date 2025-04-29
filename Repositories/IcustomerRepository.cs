@@ -24,5 +24,10 @@ namespace Foodie.Repositories
         tbl_cart GetOrCreateCart(int customerId);
         List<CartItemViewModel> GetCartItems(int customerId);
         void PlaceOrder(int customerId);
+
+        IEnumerable<tbl_state> GetAllStates();
+        IEnumerable<tbl_district> GetDistrictByStateId(int stateId);
+        IEnumerable<tbl_city> GetCitiesByDistrictId(int districtId);
+        void AddAddress(tbl_address tbl_Address);
     }
 }

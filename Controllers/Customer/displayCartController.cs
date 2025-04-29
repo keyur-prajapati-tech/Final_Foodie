@@ -1,6 +1,7 @@
 ﻿using Foodie.Models.customers;
 using Foodie.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Foodie.Controllers.Customer
 {
@@ -45,6 +46,27 @@ namespace Foodie.Controllers.Customer
         //        return View("EmptyCart");
         //    }
         //}
+
+        public IActionResult Address()
+        {
+            var states = _repository.GetAllStates();
+            ViewBag.States = new SelectList(states, "staed_id","state_name");
+            return View();
+        }
+
+        [HttpGet]
+        public JsonResult GetDistricts(int stateId)
+        {
+            var districts = _repository.GetDistrictByStateId(stateId);
+            return Json(districts);
+        }
+
+        [HttpGet]
+        public JsonResult GetCities(int districtId)
+        {
+            var cities = _repository.GetCitiesByDistrictId(districtId);
+            return Json(cities);
+        }
 
         //public IActionResult Checkout()
         //{
