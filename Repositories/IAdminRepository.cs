@@ -58,5 +58,10 @@ namespace Foodie.Repositories
 
         DashBoardViewModel GetMonthlySalesData();
         DashBoardViewModel GetYearlyChartData();
+
+
+        //orders
+
+        List<OrderViewModel> GetAllOrders(string status);
     }
 }

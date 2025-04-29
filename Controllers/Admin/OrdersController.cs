@@ -15,11 +15,21 @@ namespace Foodie.Controllers
         {
             _AdminRepository = adminRepository;
         }
+
         public IActionResult oders()
         {
+           
+
             return View();
         }
-       
+
+        [HttpGet]
+        public IActionResult oders1(string status)
+        {
+            var orders = _AdminRepository.GetAllOrders(status);
+
+            return Json(orders);
+        }
         public IActionResult DashBoard()
         {
             var vm = new DashBoardViewModel

@@ -661,5 +661,57 @@ ORDER BY [year];";
 
             return dashBoard;
         }
+
+        public List<OrderViewModel> GetAllOrders(string status)
+        {
+            var orders = new List<OrderViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"
+            select co.order_id , customer_name,order_status,restaurant_name,order_date,deliver_dateTime ,coupone_id , menu_name, discount  from 
+customers.tbl_orders co
+inner join customers.tbl_order_items coi
+on co.order_id = coi.order_id
+inner join customers.tbl_customer cc
+on co.customer_id = cc.customer_id
+inner join vendores.tbl_restaurant vr 
+on co.resturant_id = vr.restaurant_id
+inner join vendores.tbl_menu_items vmi
+on coi.menu_id = vmi.menu_id";
+
+                if (!string.IsNullOrEmpty(status) && status != "All")
+                {
+                    query += " AND co.order_status = @status";
+                }
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                if (!string.IsNullOrEmpty(status) && status != "All")
+                {
+                    cmd.Parameters.AddWithValue("@status", status);
+                }
+
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    orders.Add(new OrderViewModel
+                    {
+                        OrderId = reader["order_id"] != DBNull.Value ? Convert.ToInt32(reader["order_id"]) : 0,
+                        order_status = reader["order_status"]?.ToString(),
+                        RestaurantName = reader["restaurant_name"]?.ToString(),
+                        OrderDate = reader["order_date"] != DBNull.Value ? Convert.ToDateTime(reader["order_date"]) : DateTime.MinValue,
+                        DeliveryTime = reader["deliver_dateTime"] != DBNull.Value ? Convert.ToDateTime(reader["deliver_dateTime"]) : (DateTime?)null,
+                        customer_name = reader["customer_name"]?.ToString(),
+                        coupone_id = reader["coupone_id"] != DBNull.Value ? Convert.ToInt32(reader["coupone_id"]) : 0,
+                        discount = reader["discount"] != DBNull.Value ? Convert.ToDecimal(reader["discount"]) : 0m,
+                        Menu = reader["menu_name"] != DBNull.Value ? reader["menu_name"].ToString() : null,
+                    });
+                }
+            }
+
+            return orders;
+        }
     }
 }
