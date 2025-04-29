@@ -130,20 +130,25 @@
                 <!-- Loop Through Cart Items -->
                 @foreach (var item in Model)
                 {
-                    <p>iibvibieber</p>
-                    <div class="d-flex justify-content-between align-items-center" style="border:3px solid #000;border-radius:5px;padding:5px;margin:5px;">
-                        <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)" alt="food-img" width="100" />
-                        <span>@item.menu_name</span>
-                        <div>
-                            <button class="btn btn-outline-secondary btn-sm">-</button>
-                            <span class="mx-2">@item.quantity</span>
-                            <button class="btn btn-outline-secondary btn-sm">+</button>
+                    <div class="p-2 bg-dark">
+                        <div class="menu-item" data-price="@item.amount">
+                            <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)" alt="@item.menu_name" style="width:150px; height:100px; object-fit:cover;" />
+                            <div>
+                                <h2>@item.menu_name</h2>
+                                <p>Price: ₹<span class="unit-price">@item.amount</span></p>
+
+                                <div class="d-flex gap-2 align-items-center">
+                                    <button class="btn btn-outline-secondary qty-minus">-</button>
+                                    <span class="qty">1</span>
+                                    <button class="btn btn-outline-secondary qty-plus">+</button>
+                                    <span class="item-total text-primary fw-bold ms-3">₹@item.amount</span>
+                                </div>
+                            </div>
                         </div>
-                        <span>₹@item.amount</span>
                     </div>
                 }
 
-                <a asp-controller="TBrands" asp-action="Brands" class="float-end">Add More Item</a>
+                <a asp-controller="Restaurantdeatil" asp-action="Restuarantinfo" class="float-end">Add More Item</a>
 
                 <hr>
 
@@ -197,88 +202,6 @@
                 </div>
             </div>
         </div>
-        @* <div class="col-md-4">
-            <div class="card p-3">
-                <h5>Roof 5</h5>
-                <p class="text-muted">Chhindwara Locality</p>
-
-                <!-- Item -->
-                <div class="d-flex justify-content-between align-items-center" style="border:3px solid #000;border-radius:5px;padding:5px;margin:5px;">
-                    <img src="https://b.zmtcdn.com/data/dish_photos/121/3db1de484b41bf0827e0e4f98f4de121.png?fit=around|130:130&crop=130:130;*,*" alt="food-img" width="100px" />
-                    <span>Paneer Tikka</span>
-                    <div>
-                        <button class="btn btn-outline-secondary btn-sm">-</button>
-                        <span class="mx-2">1</span>
-                        <button class="btn btn-outline-secondary btn-sm">+</button>
-                    </div>
-                    <span>₹262</span>
-
-                </div>
-
-                <div class="d-flex justify-content-between align-items-center" style="border:3px solid #000;border-radius:5px;padding:5px;margin:5px;">
-                    <img src="https://b.zmtcdn.com/data/dish_photos/121/3db1de484b41bf0827e0e4f98f4de121.png?fit=around|130:130&crop=130:130;*,*" alt="food-img" width="100" />
-                    <span>Paneer Tikka</span>
-                    <div>
-                        <button class="btn btn-outline-secondary btn-sm">-</button>
-                        <span class="mx-2">1</span>
-                        <button class="btn btn-outline-secondary btn-sm">+</button>
-                    </div>
-                    <span>₹262</span>
-
-                </div>
-
-                <a asp-controller="TBrands" asp-action="Brands" class="float-end">Add More Item</a>
-
-                <hr>
-
-                <!-- No Contact Delivery -->
-                <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="noContactDelivery">
-                    <label class="form-check-label" for="noContactDelivery">
-                        Opt-in for No-contact Delivery
-                    </label>
-                </div>
-
-                <hr>
-
-                <!-- Apply Coupon -->
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#couponModal">
-                    Apply Coupon
-                </button>
-
-
-                <hr>
-
-                <!-- Bill Details -->
-                <h6>Bill Details</h6>
-                <p>Item Total: ₹282</p>
-                <p>Delivery Fee: ₹77</p>
-                <p>Extra discount: -₹20</p>
-
-                <!-- Delivery Tip -->
-                <a href="#" class="text-danger">Add Tip</a>
-
-                <hr>
-
-                <!-- Final Amount -->
-                <h5 class="d-flex justify-content-between">
-                    <span>To Pay</span>
-                    <span>₹360</span>
-                </h5>
-
-                <!-- Savings -->
-                <div class="alert alert-success text-center">
-                    Savings of ₹20
-                </div>
-
-                <!-- Cancellation Policy -->
-                <div class="alert alert-light">
-                    <h6>Review your order and address details to avoid cancellations</h6>
-                    <p>Note: This order is non-refundable if cancelled.</p>
-                    <a href="#" class="text-danger">Read policy</a>
-                </div>
-            </div>
-        </div> *@
     </div>
 </div>
 
@@ -355,159 +278,212 @@
 <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h5 class="modal-title" id="addressModalLabel">Save delivery address</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="modal-body">
-                <!-- Google Map -->
-                <div id="map" style="width:100%;height:180px;"></div>
-
-
-                <!-- Address Fields -->
-                <div class="mb-3">
-                    <label class="form-label">Country</label>
-                    <input type="text" value="India" class="form-control" />
+            <form method="post" id="addressForm">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addressModalLabel">Save delivery address</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">state</label>
-                    <select name="state" class="form-control">
-                        <option>Gujart</option>
-                        <option>Maharashtr</option>
-                        <option>Goa</option>
-                    </select>
-                </div>
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <!-- Google Map -->
+                    <div id="map" style="width: 100%; height: 300px; border-radius: 10px; margin-bottom: 15px;"></div>
+                    <input type="hidden" name="latitude" id="latitude" />
+                    <input type="hidden" name="longitude" id="longitude" />
 
-                <div class="mb-3">
-                    <label class="form-label">District</label>
-                    <select name="district" class="form-control">
-                        <option>Valsad</option>
-                        <option>Surat</option>
-                        <option>Ahmedabad</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">City</label>
-                    <select name="city" class="form-control">
-                        <option>Valsad</option>
-                        <option>pardi</option>
-                        <option>atual</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <input type="text" class="form-control" placeholder="Door / Flat No.">
-                </div>
-
-                <div class="mb-3">
-                    <input type="text" class="form-control" placeholder="Area">
-                </div>
-
-                <div class="mb-3">
-                    <input type="text" class="form-control" placeholder="Landmark">
-                </div>
-
-                <!-- Address Type Selection -->
-                <div class="mb-3">
-                    <label class="form-label">Address Type</label><br>
-                    <div class="btn-group" role="group" aria-label="Address Type selection">
-                        <input type="radio" class="btn-check" name="address_type" id="home" value="home" autocomplete="off" checked>
-                        <label class="btn btn-outline-primary" for="home">🏠 Home</label>
-
-                        <input type="radio" class="btn-check"  name="address_type" id="work" value="work" autocomplete="off">
-                        <label class="btn btn-outline-primary" for="work">💼 Work</label>
-
-                        <input type="radio" class="btn-check" name="address_type" id="other" value="other" autocomplete="off">
-                        <label class="btn btn-outline-primary" for="other">📍 Other</label>
+                    <!-- Country -->
+                    <div class="mb-3">
+                        <label for="country" class="form-label">Country</label>
+                        <input type="text" id="country" name="country" value="India" class="form-control" readonly />
                     </div>
+
+                    <!-- State -->
+                    <div class="mb-3">
+                        <label for="state" class="form-label">State</label>
+                        <select name="state" id="state" class="form-control">
+                            <option value="">-- Select State --</option>
+                        </select> 
+                    </div>
+
+                    <!-- District -->
+                    <div class="mb-3">
+                        <label for="district" class="form-label">District</label>
+                        <select name="district" id="district" class="form-control">
+                            <option value="">-- Select District --</option>
+                        </select>
+                    </div>
+
+                    <!-- City -->
+                    <div class="mb-3">
+                        <label for="city" class="form-label">City</label>
+                        <select name="city" id="city" class="form-control">
+                            <option value="">-- Select City --</option>
+                        </select>
+                    </div>
+
+                    <!-- Address Inputs -->
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="door_no" class="form-label">Door / Flat No.</label>
+                            <input type="text" id="door_no" name="door_no" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="area" class="form-label">Area</label>
+                            <input type="text" id="area" name="area" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="landmark" class="form-label">Landmark</label>
+                        <input type="text" id="landmark" name="landmark" class="form-control" />
+                    </div>
+
+                    <!-- Address Type Selection -->
+                    <div class="mb-3">
+                        <label class="form-label">Address Type</label><br />
+                        <div class="btn-group" role="group" aria-label="Address Type selection">
+                            <input type="radio" class="btn-check" name="address_type" id="home" value="home" autocomplete="off" checked />
+                            <label class="btn btn-outline-primary" for="home">🏠 Home</label>
+
+                            <input type="radio" class="btn-check" name="address_type" id="work" value="work" autocomplete="off" />
+                            <label class="btn btn-outline-primary" for="work">💼 Work</label>
+
+                            <input type="radio" class="btn-check" name="address_type" id="other" value="other" autocomplete="off" />
+                            <label class="btn btn-outline-primary" for="other">📍 Other</label>
+                        </div>
+                    </div>
+
                 </div>
 
-
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary w-100">SAVE ADDRESS & PROCEED</button>
-            </div>
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary w-100">SAVE ADDRESS & PROCEED</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
 
-<hr />
-@* <h2>Here We Use ADD TO CART TESTING</h2>
-<h2>Your Cart</h2>
-
-@if (!string.IsNullOrEmpty(successmessage))
-{
-    <div class="alert alert-success">@successmessage</div>
-}
-
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Menu Item</th>
-            <th>Price</th>
-            <th>Quantity</th>
-            @* <th>Discount</th>
-            <th>Final Amount</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.menu_id</td>
-                <td>@item.price.ToString("C")</td>
-                <td>@item.quantity</td>
-                <td>@item.Discount.ToString("C")</td>
-                <td>@item.FinalAmount.ToString("C")</td>
-                <td>
-                    <form asp-action="UpdateQuantity" method="post" style="display:inline">
-                        <input type="hidden" name="cartItemId" value="@item.cart_item_id" />
-                        <input type="hidden" name="increment" value="true" />
-                        <button type="submit" class="btn btn-success btn-sm">+</button>
-                    </form>
-                    <form asp-action="UpdateQuantity" method="post" style="display:inline">
-                        <input type="hidden" name="cartItemId" value="@item.cart_item_id" />
-                        <input type="hidden" name="increment" value="false" />
-                        <button type="submit" class="btn btn-danger btn-sm">-</button>
-                    </form>
-                </td>
-            </tr>
-            //grandTotal += item.FinalAmount;
-        }
-    </tbody>
-</table>
-
-<h4>Coupon Code: @couponeCode</h4>
-<h4>Discount: @discountamount%</h4>
-<h3>Total: @grandTotal.ToString("C")</h3>*@
-
-<form asp-action="ApplyCoupon" method="post">
-    <div class="form-group">
-        <label for="coupon">Enter Coupon Code</label>
-        <input type="text" name="couponCode" class="form-control" id="coupon" />
-    </div>
-    <button type="submit" class="btn btn-info">Apply Coupon</button>
-</form>
-
-<form asp-action="PlaceOrder" method="post">
-    <button type="submit" class="btn btn-primary mt-3">Place Order</button>
-</form>
-
 <script>
     mapboxgl.accessToken = 'pk.eyJ1IjoicmlzaGk4MTAyIiwiYSI6ImNtOTFpbXpjeDAxZGwybHNjdjljdnlpZ2UifQ.lwfPOwA0QilljmyDYiUV6A'; // Replace with your token
-    var map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v11',
-        center: [72.8367104, 21.2140032], // Default location
-        zoom: 12
+    // var map = new mapboxgl.Map({
+    //     container: 'map',
+    //     style: 'mapbox://styles/mapbox/streets-v11',
+    //     center: [72.8367104, 21.2140032], // Default location
+    //     zoom: 12
+    // });
+
+    let map;
+    let marker;
+
+    $('#addressModal').on('shown.bs.modal', function () {
+        if (!map) {
+            map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v11',
+                center: [72.8311, 21.1702], // Default: Surat
+                zoom: 10
+            });
+
+            // Add zoom and rotation controls
+            map.addControl(new mapboxgl.NavigationControl());
+
+            // Click to drop pin
+            map.on('click', function (e) {
+                const lng = e.lngLat.lng;
+                const lat = e.lngLat.lat;
+
+                // Set hidden inputs
+                $('#latitude').val(lat);
+                $('#longitude').val(lng);
+
+                // If marker exists, remove it
+                if (marker) marker.remove();
+
+                // Add new marker
+                marker = new mapboxgl.Marker({ draggable: true })
+                    .setLngLat([lng, lat])
+                    .addTo(map);
+
+                // On drag end, update lat/lng
+                marker.on('dragend', function () {
+                    const lngLat = marker.getLngLat();
+                    $('#latitude').val(lngLat.lat);
+                    $('#longitude').val(lngLat.lng);
+                });
+            });
+        }
     });
+
+    $(document).ready(function () {
+        function updateTotal(container) {
+            const price = parseFloat(container.data('price'));
+            const qty = parseInt(container.find('.qty').text());
+            const total = price * qty;
+            container.find('.item-total').text('₹' + total.toFixed(2));
+        }
+
+        $('.qty-plus').click(function () {
+            const parent = $(this).closest('.menu-item');
+            const qtySpan = parent.find('.qty');
+            let qty = parseInt(qtySpan.text());
+            qtySpan.text(++qty);
+            updateTotal(parent);
+        });
+
+        $('.qty-minus').click(function () {
+            const parent = $(this).closest('.menu-item');
+            const qtySpan = parent.find('.qty');
+            let qty = parseInt(qtySpan.text());
+            if (qty > 1) {
+                qtySpan.text(--qty);
+                updateTotal(parent);
+            }
+        });
+// Load all states on page load
+        $.ajax({
+            url: '/displayCart/GetAllStates',
+            type: 'GET',
+            success: function (states) {
+                $('#state').empty().append('<option value="">-- Select State --</option>');
+                $.each(states, function (i, state) {
+                    $('#state').append(`<option value="${state.state_id}">${state.state_name}</option>`);
+                });
+            }
+        });
+
+        // State → District
+        $('#state').change(function () {
+            const stateId = $(this).val();
+            $.ajax({
+                url: '/displayCart/GetDistricts',
+                type: 'GET',
+                data: { stateId: stateId },
+                success: function (districts) {
+                    $('#district').empty().append('<option value="">-- Select District --</option>');
+                    $.each(districts, function (i, district) {
+                        $('#district').append(`<option value="${district.district_id}">${district.district_name}</option>`);
+                    });
+                }
+            });
+        });
+
+        // District → City
+        $('#district').change(function () {
+            const districtId = $(this).val();
+            $.ajax({
+                url: '/displayCart/GetCities',
+                type: 'GET',
+                data: { districtId: districtId },
+                success: function (cities) {
+                    $('#city').empty().append('<option value="">-- Select City --</option>');
+                    $.each(cities, function (i, city) {
+                        $('#city').append(`<option value="${city.city_id}">${city.city_name}</option>`);
+                    });
+                }
+            });
+        });
+    });  
 </script>

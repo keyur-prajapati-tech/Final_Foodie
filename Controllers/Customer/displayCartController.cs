@@ -25,14 +25,50 @@ namespace Foodie.Controllers.Customer
         //    return PartialView("_MenuItemModalPartial",item);
         //}
 
-       public IActionResult AddToCartIteminfo()
-       {
-            int customerId = Convert.ToInt32(HttpContext.Session.GetString("customerId"));
+        //public IActionResult AddToCartIteminfo()
+        //{
+        //     int customerId = Convert.ToInt32(HttpContext.Session.GetString("customer_id"));
+
+        //     var cartItems = _repository.GetCartItems(customerId);
+        //     return View(cartItems);
+        //}
+        public IActionResult AddToCartIteminfo()
+        {
+            var customerIdString = HttpContext.Session.GetString("customer_id");
+
+            if (string.IsNullOrEmpty(customerIdString))
+            {
+                // Session not available, redirect to login or show error
+                return RedirectToAction("Locality", "Locality");
+            }
+
+            int customerId = Convert.ToInt32(customerIdString);
 
             var cartItems = _repository.GetCartItems(customerId);
             return View(cartItems);
-       }
-       
+        }
+
+
+        //[HttpPost]
+        //public IActionResult AddToCartIteminfo(int menuid, int quantity, decimal price)
+        //{
+        //    int customerId = Convert.ToInt32(HttpContext.Session.GetString("customer_id"));
+
+        //    // Get or create the cart
+        //    var cart = _repository.GetOrCreateCart(customerId);
+
+        //    // Add the item to the cart
+        //    _repository.AddToCart(new Models.customers.tbl_cart_item
+        //    {
+        //        menu_id = menuid,
+        //        cart_id = cart.cart_id,
+        //        quantity = quantity,
+        //        price = price
+        //    });
+
+        //    return View("AddToCartIteminfo");
+        //}
+
         //public IActionResult MyCart()
         //{
         //    int customerId = int.Parse(HttpContext.Session.GetString("customer_id"));
@@ -47,20 +83,30 @@ namespace Foodie.Controllers.Customer
         //    }
         //}
 
-        public IActionResult Address()
+        [HttpPost]
+        public IActionResult Address(tbl_address model)
         {
-            var states = _repository.GetAllStates();
+            // Set logged-in customer_id from session (example only)
+            model.customer_id = Convert.ToInt32(HttpContext.Session.GetString("CustomerId"));
 
-            if (states != null && states.Any())
+            if (ModelState.IsValid)
             {
-                ViewBag.States = new SelectList(states, "StateId", "StateName");
-            }
-            else
-            {
-                ViewBag.States = new List<SelectListItem>(); // empty safe list
+                _repository.AddAddress(model);
+                return RedirectToAction("AddToCartItemInfo"); // Or any confirmation page
             }
 
-            return View();
+            // Reload state dropdown if validation fails
+            ViewBag.States = new SelectList(_repository.GetAllStates(), "StateId", "StateName");
+            return View(model);
+        }
+
+        [HttpGet]
+        public JsonResult GetAllStates()
+        {
+            var allstates = _repository.GetAllStates();
+
+            ViewBag.States = new SelectList(allstates, "state_id", "state_name");
+            return Json(allstates);
         }
 
         [HttpGet]

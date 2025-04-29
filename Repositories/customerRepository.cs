@@ -324,12 +324,12 @@ namespace Foodie.Repositories
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string query = @"
-            SELECT ci.cart_item_id, ci.menu_id, ci.quantity, ci.price,
-                   mi.menu_name, mi.menu_img
-            FROM customers.tbl_cart_item ci
-            INNER JOIN customers.tbl_cart c ON ci.cart_id = c.cart_id
-            INNER JOIN vendores.tbl_menu_items mi ON ci.menu_id = mi.menu_id
-            WHERE c.customer_id = @customerId";
+        SELECT ci.cart_item_id, ci.menu_id, ci.quantity, ci.price,
+               mi.menu_name, mi.menu_img
+        FROM customers.tbl_cart_item ci
+        INNER JOIN customers.tbl_cart c ON ci.cart_id = c.cart_id
+        INNER JOIN vendores.tbl_menu_items mi ON ci.menu_id = mi.menu_id
+        WHERE c.customer_id = @customerId";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@customerId", customerId);
