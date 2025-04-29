@@ -45,9 +45,13 @@ namespace Foodie.Repositories
 
         //Accept Order by Resturant
         public int AcceptOrder(int order_id,string food_status);
-               
+
+        public int OrderReady(int order_id,int restaurant_id);
+
         //get all Order with Accepted status
-        public List<tbl_orders_notifi> tbl_Orders_Notifis_Accepted(int restaurant_id);
+        public List<ordersViewMdel> tbl_Orders_Notifis_Accepted(int restaurant_id);
+
+        public List<ordersViewMdel> tbl_Orders_History(int restaurant_id);
 
         //isOnline
         public int IsOnline(int restaurant_id, int isOnline);
@@ -55,5 +59,8 @@ namespace Foodie.Repositories
         public int getOnline(int restaurant_id);
 
         public bool isApprove(int restaurant_id);
+
+        public OutletInfo getOutletInfo(int restaurant_id);
+
     }
 }

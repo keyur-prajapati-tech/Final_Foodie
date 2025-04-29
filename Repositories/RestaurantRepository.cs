@@ -123,9 +123,9 @@ namespace Foodie.Repositories
                 cmd.Parameters.AddWithValue("@restaurant_pincode", restaurant.restaurant_pincode);
                 cmd.Parameters.AddWithValue("@restaurant_lat", restaurant.restaurant_lat);
                 cmd.Parameters.AddWithValue("@restaurant_lag", restaurant.restaurant_lag);
-                //cmd.Parameters.AddWithValue("@restaurant_isApprov", restaurant.restaurant_isApprov);
-                //cmd.Parameters.AddWithValue("@restaurant_isOnline", restaurant.restaurant_isOnline);
-                //cmd.Parameters.AddWithValue("@owner_id", o_id);
+                cmd.Parameters.AddWithValue("@restaurant_isApprov", restaurant.restaurant_isApprov);
+                cmd.Parameters.AddWithValue("@restaurant_isOnline", restaurant.restaurant_isOnline);
+                cmd.Parameters.AddWithValue("@owner_id", o_id);
 
                 conn.Open();
                 int result = Convert.ToInt32(cmd.ExecuteScalar());
@@ -351,7 +351,7 @@ namespace Foodie.Repositories
         {
             List<tbl_menu_items> tbl_Menu_Items = new List<tbl_menu_items>();
 
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string qry = "select * from vendores.tbl_menu_items where restaurant_id = @id";
                 SqlCommand cmd = new SqlCommand(qry, conn);
@@ -382,7 +382,7 @@ namespace Foodie.Repositories
         {
             tbl_menu_items tbl_Menu_Items = null;
 
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string qry = "select * from vendores.tbl_menu_items where menu_id = @id";
                 SqlCommand cmd = new SqlCommand(qry, conn);
@@ -410,7 +410,7 @@ namespace Foodie.Repositories
 
         public int DeleteMenu(int id)
         {
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string qry = "delete from vendores.tbl_menu_items where menu_id = @id";
                 SqlCommand cmd = new SqlCommand(qry, conn);
@@ -424,7 +424,7 @@ namespace Foodie.Repositories
 
         public int UpdateMenu(tbl_menu_items menu)
         {
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string qry = "update vendores.tbl_menu_items set menu_name = @name, cuisine_id = @cid, menu_img = @img, menu_descripation = @desc, amount = @amt, isAvalable = @avai where menu_id = @id";
                 SqlCommand cmd = new SqlCommand(qry, conn);
@@ -497,39 +497,76 @@ namespace Foodie.Repositories
             }
         }
 
-        public List<tbl_orders_notifi> tbl_Orders_Notifis_Accepted(int restaurant_id)
+        public List<ordersViewMdel> tbl_Orders_Notifis_Accepted(int restaurant_id)
         {
-            List<tbl_orders_notifi> orders = new List<tbl_orders_notifi>();
+            var orders = new List<ordersViewMdel>();
+
 
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = "select * \r\nfrom customers.tbl_orders co \r\ninner join customers.tbl_order_items coi \r\non co.order_id = coi.order_id\r\ninner join customers.tbl_customer cc\r\non co.customer_id = cc.customer_id\r\ninner join vendores.tbl_restaurant vs\r\non co.resturant_id = vs.restaurant_id\r\nwhere co.food_status = 'ACCEPT'\r\nand co.resturant_id = 1 and vs.restaurant_isOnline = 1";
-
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@RestaurantId", restaurant_id);
-
                 conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
 
-                while (reader.Read())
+                string orderQuery = @"SELECT DISTINCT co.order_id, co.food_status, cc.customer_name
+                              FROM customers.tbl_orders co
+                              INNER JOIN customers.tbl_customer cc ON co.customer_id = cc.customer_id
+                              INNER JOIN vendores.tbl_restaurant vs ON co.resturant_id = vs.restaurant_id
+                              WHERE co.food_status in ('ACCEPT','completed','PickUp')
+                                AND co.resturant_id = @RestaurantId 
+                                AND vs.restaurant_isOnline = 1";
+
+                using (SqlCommand orderCmd = new SqlCommand(orderQuery, conn))
                 {
-                    tbl_orders_notifi order = new tbl_orders_notifi
+                    orderCmd.Parameters.AddWithValue("@RestaurantId", restaurant_id);
+
+                    using (SqlDataReader reader = orderCmd.ExecuteReader())
                     {
-                        order_items_id = Convert.ToInt32(reader["order_items_id"]),
-                        order_id = Convert.ToInt32(reader["order_id"]),
-                        restaurant_id = Convert.ToInt32(reader["restaurant_id"]),
-                        menu_id = Convert.ToInt32(reader["menu_id"]),
-                        quantity = Convert.ToInt32(reader["quantity"]),
-                        list_price = Convert.ToInt32(reader["list_price"]),
-                        discount = Convert.ToDecimal(reader["discount"]),
-                        estimated_time = Convert.ToDateTime(reader["estimated_DATETIME"]),
-                        food_status = reader["food_status"].ToString(),
-                        customer_name = reader["customer_name"].ToString()
-                    };
-
-                    orders.Add(order);
+                        while (reader.Read())
+                        {
+                            orders.Add(new ordersViewMdel
+                            {
+                                order_id = Convert.ToInt32(reader["order_id"]),
+                                food_status = reader["food_status"].ToString(),
+                                customer_name = reader["customer_name"].ToString(),
+                                Dishes = new List<orderNotiViewModel>()
+                            });
+                        }
+                    }
                 }
+                conn.Close(); // close connection after reading orders
+            }
 
+            // Second: Load all items for each order
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+                foreach (var order in orders)
+                {
+                    string itemQuery = @"SELECT quantity,estimated_DATETIME, list_price, discount ,vm.menu_name,sum(list_price * quantity * (1 - discount))['Total Price']
+                                        FROM customers.tbl_order_items coi
+                                        inner join vendores.tbl_menu_items vm
+                                        on coi.menu_id = vm.menu_id WHERE order_id = @OrderId
+										group by quantity,estimated_DATETIME, list_price, discount ,vm.menu_name";
+
+                    using (SqlCommand itemCmd = new SqlCommand(itemQuery, conn))
+                    {
+                        itemCmd.Parameters.AddWithValue("@OrderId", order.order_id);
+
+                        using (SqlDataReader reader = itemCmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                order.Dishes.Add(new orderNotiViewModel
+                                {
+                                    menu_name = reader["menu_name"].ToString(),
+                                    quantity = Convert.ToInt32(reader["quantity"]),
+                                    list_price = Convert.ToInt32(reader["list_price"]),
+                                    discount = Convert.ToDecimal(reader["discount"]),
+                                    estimated_time = Convert.ToDateTime(reader["estimated_DATETIME"]),
+                                });
+                            }
+                        }
+                    }
+                }
                 conn.Close();
             }
 
@@ -573,17 +610,138 @@ namespace Foodie.Repositories
 
         public bool isApprove(int restaurant_id)
         {
-           using (SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string qry = "select restaurant_isApprov from vendores.tbl_restaurant where  restaurant_id = @restaurant_id";
                 SqlCommand cmd = new SqlCommand(qry, conn);
-              
+
                 cmd.Parameters.AddWithValue("@restaurant_id", restaurant_id);
                 conn.Open();
                 bool result = (bool)cmd.ExecuteScalar();
                 conn.Close();
                 return result;
             }
+        }
+
+        public int OrderReady(int order_id, int restaurant_id)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string qry = "update customers.tbl_orders set food_status = 'completed' where order_id = @order_id and resturant_id = @restaurant_id";
+                SqlCommand cmd = new SqlCommand(qry, conn);
+                cmd.Parameters.AddWithValue("@order_id", order_id);
+                cmd.Parameters.AddWithValue("@restaurant_id", restaurant_id);
+                conn.Open();
+                int result = cmd.ExecuteNonQuery();
+                conn.Close();
+                return result;
+            }
+        }
+
+        public List<ordersViewMdel> tbl_Orders_History(int restaurant_id)
+        {
+            var orders = new List<ordersViewMdel>();
+
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+
+                string orderQuery = @"SELECT  co.order_id, co.food_status, cc.customer_name
+                                    FROM customers.tbl_orders co
+                                    INNER JOIN customers.tbl_customer cc ON co.customer_id = cc.customer_id
+                                    INNER JOIN vendores.tbl_restaurant vs ON co.resturant_id = vs.restaurant_id
+                                    AND co.resturant_id =@RestaurantId";
+
+                using (SqlCommand orderCmd = new SqlCommand(orderQuery, conn))
+                {
+                    orderCmd.Parameters.AddWithValue("@RestaurantId", restaurant_id);
+
+                    using (SqlDataReader reader = orderCmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            orders.Add(new ordersViewMdel
+                            {
+                                order_id = Convert.ToInt32(reader["order_id"]),
+                                food_status = reader["food_status"].ToString(),
+                                customer_name = reader["customer_name"].ToString(),
+                                Dishes = new List<orderNotiViewModel>()
+                            });
+                        }
+                    }
+                }
+                conn.Close(); // close connection after reading orders
+            }
+
+            // Second: Load all items for each order
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+                foreach (var order in orders)
+                {
+                    string itemQuery = @"SELECT quantity,estimated_DATETIME, list_price, discount ,vm.menu_name
+                                            FROM customers.tbl_order_items coi
+                                            inner join vendores.tbl_menu_items vm
+                                            on coi.menu_id = vm.menu_id WHERE order_id = @OrderId";
+
+                    using (SqlCommand itemCmd = new SqlCommand(itemQuery, conn))
+                    {
+                        itemCmd.Parameters.AddWithValue("@OrderId", order.order_id);
+
+                        using (SqlDataReader reader = itemCmd.ExecuteReader())
+                        {
+                            while (reader.Read())
+                            {
+                                order.Dishes.Add(new orderNotiViewModel
+                                {
+                                    menu_name = reader["menu_name"].ToString(),
+                                    quantity = Convert.ToInt32(reader["quantity"]),
+                                    list_price = Convert.ToInt32(reader["list_price"]),
+                                    discount = Convert.ToDecimal(reader["discount"]),
+                                    estimated_time = Convert.ToDateTime(reader["estimated_DATETIME"]),
+                                });
+                            }
+                        }
+                    }
+                }
+                conn.Close();
+            }
+
+            return orders;
+        }
+
+        public OutletInfo getOutletInfo(int restaurant_id)
+        {
+            OutletInfo outletInfo = null;
+
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string qry = "select vr.restaurant_id,vr.restaurant_name,vr.restaurant_street,vr.restaurant_pincode,vv.open_datetime,vv.close_datetime,vr.restaurant_isOnline,vr.restaurant_contact,vr.restaurant_email\r\nfrom vendores.tbl_restaurant vr\r\ninner join vendores.tbl_vendor_availability vv\r\non vr.restaurant_id = vv.Restaurant_id\r\nwhere vr.restaurant_id = @restaurant_id";
+                SqlCommand cmd = new SqlCommand(qry, conn);
+                cmd.Parameters.AddWithValue("@restaurant_id", restaurant_id);
+                conn.Open();
+                SqlDataReader dr = cmd.ExecuteReader();
+                if (dr.Read())
+                {
+                    outletInfo = new OutletInfo()
+                    {
+                        restaurant_id = Convert.ToInt32(dr["restaurant_id"]),
+                        restaurant_name = dr["restaurant_name"].ToString(),
+                        restaurant_address = dr["restaurant_street"].ToString(),
+                        restaurant_pincode = dr["restaurant_pincode"].ToString(),
+                        restaurant_phone = dr["restaurant_contact"].ToString(),
+                        restaurant_email = dr["restaurant_email"].ToString(),
+                        restaurant_opening_hours = dr["open_datetime"].ToString(),
+                        restaurant_closing_hours = dr["close_datetime"].ToString(),
+                        restaurant_isOnline = Convert.ToBoolean(dr["restaurant_isOnline"])
+
+                    };
+                }
+                conn.Close();
+            }
+
+            return outletInfo;
         }
     }
 }

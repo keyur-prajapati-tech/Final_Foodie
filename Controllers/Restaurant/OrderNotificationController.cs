@@ -24,6 +24,7 @@ namespace Foodie.Controllers.Restaurant
         [Route("OrderReady")]
         public IActionResult OrderReady()
         {
+
             var orders = _repository.tbl_Orders_Notifis_Accepted(1);
 
             return View(orders);
@@ -105,25 +106,54 @@ namespace Foodie.Controllers.Restaurant
         [HttpGet]
         [Route("isApproved")]
         public JsonResult isApproved(int restaurantId)
+
         {
             var data = _repository.isApprove(restaurantId);
-            //if (data == false)
-            //{
-            //    ViewBag.Layout = "~/Views/Shared/_RestaurantRegister.cshtml";
-            //}
-            //else
-            //{
-            //    ViewBag.Layout = "~/Views/Shared/_RestaurantLayout.cshtml";
-            //}
+
+
 
             return Json(data);
         }
 
-        [HttpGet]
-        [Route("isApprov")]
-        public IActionResult isApprov()
+        [HttpPost]
+        [Route("OrderReady")]
+        public JsonResult OrderReady(int order_id, int restaurant_id)
         {
-            return View();
+            var result = _repository.OrderReady(order_id, restaurant_id);
+            if (result > 0)
+            {
+                return Json(new { success = true, message = "Order is ready." });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Failed to update order status." });
+            }
+
         }
+
+
+        //[HttpGet]
+        //[Route("getOrderReady")]
+        //public JsonResult getOrderReady(int restaurantId)
+        //{
+        //    var orders = _repository.tbl_Orders_Notifis_Ready(restaurantId);
+        //    if (orders == null || orders.Count == 0)
+        //    {
+        //        return Json(new { success = false, message = "No new orders found." });
+        //    }
+        //    return Json(orders);
+        //}
+
+        //[HttpGet]
+        //[Route("getOrderPickedUp")]
+        //public JsonResult getOrderPickedUp(int restaurantId)
+        //{
+        //    var orders = _repository.tbl_Orders_Notifis_Picked(restaurantId);
+        //    if (orders == null || orders.Count == 0)
+        //    {
+        //        return Json(new { success = false, message = "No new orders found." });
+        //    }
+        //    return Json(orders);
+        //}
     }
 }

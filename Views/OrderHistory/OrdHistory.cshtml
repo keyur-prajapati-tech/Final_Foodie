@@ -1,6 +1,9 @@
 ﻿@{
     Layout = "~/Views/Shared/_RestaurantLayout.cshtml";
+    decimal listprice = 0;
 }
+@model List<Foodie.Models.Restaurant.ordersViewMdel>;
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,7 +48,7 @@
     <div class="container-fluid mt-4">
         <h2 class="mb-4">Order History</h2>
 
-      
+
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div class="d-flex flex-row w-75">
                 <input type="text" id="searchOrder" class="form-control w-100" placeholder="Enter full order ID to search">
@@ -72,38 +75,63 @@
         </div>
 
 
-     
+
 
         <div class="container-fluid">
 
-            <!-- Order 1 - Delivered -->
-            <div class="card order-card delivered" onclick="showOrderDetails('6310582851', 'Delivered', 5, '9:29 PM', '₹358.00', '2 x Crispy Tawa Fried Litti')">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <span class="badge bg-success">DELIVERED</span>
-                        <span class="text-muted">9:29 PM | 1 Nov</span>
-                    </div>
-                    <p class="fw-bold mt-2">Order ID: 6310582851</p>
-                    <p>Item: 4 x Crispy Tawa Fried Litti</p>
-                    <p>Total: ₹358.00</p>
-                    <p>Customer Rating: ⭐ 5</p>
-                </div>
-            </div>
 
-            <!-- Order 2 - Rejected -->
-            <div class="card order-card rejected" onclick="showOrderDetails('6321605839', 'Rejected', 0, '9:19 PM', '₹109.00', '1 x Poha')">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        <span class="badge bg-danger">REJECTED</span>
-                        <span class="text-muted">9:19 PM | 2 Nov</span>
-                    </div>
-                    <p class="fw-bold mt-2">Order ID: 6321605839</p>
-                    <p>Item: 4 x Crispy Tawa Fried Litti</p>
-                    <p>Total: ₹109.00</p>
-                    <p class="text-danger">Rejected by customer</p>
-                </div>
-            </div>
 
+
+            @foreach (var ord in Model)
+            {
+                if (ord.food_status == "REJECT")
+                {
+                    <div class="card order-card rejected">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <span class="badge bg-danger">REJECTED</span>
+                                <span class="text-muted">9:29 PM | 1 Nov</span>
+                            </div>
+                            <p class="fw-bolder mt-2">Order ID: @ord.order_id</p>
+
+                            @foreach (var menu in ord.Dishes)
+                            {
+
+                                listprice += menu.list_price;
+
+                                <p class="fw-bold mt-2">Item: @menu.quantity x @menu.menu_name</p>
+
+                            }
+                            <p class="fw-bold mt-2">Total: ₹ @listprice</p>
+                            <p class="fw-bold mt-2">Customer Name: @ord.customer_name</p>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="card order-card delivered">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <span class="badge bg-success">DELIVERED</span>
+                                <span class="text-muted">9:29 PM | 1 Nov</span>
+                            </div>
+                            <p class="fw-bold mt-2">Order ID: @ord.order_id</p>
+
+                            @foreach (var menu in ord.Dishes)
+                            {
+
+                                listprice += menu.list_price;
+
+                                <p class="fw-bold mt-2">Item: @menu.quantity x @menu.menu_name</p>
+
+                            }
+                            <p class="fw-bold mt-2">Total: ₹ @listprice</p>
+                            <p class="fw-bold mt-2">Customer Name: @ord.customer_name</p>
+                        </div>
+                    </div>
+                   
+                }
+            }
         </div>
     </div>
 
@@ -145,7 +173,7 @@
             }
         }
 
-        
+
         document.getElementById("downloadBtn").addEventListener("click", function () {
             document.getElementById("popup").style.display = "block";
 
