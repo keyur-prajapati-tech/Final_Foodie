@@ -291,6 +291,7 @@
                     <div id="map" style="width: 100%; height: 300px; border-radius: 10px; margin-bottom: 15px;"></div>
                     <input type="hidden" name="latitude" id="latitude" />
                     <input type="hidden" name="longitude" id="longitude" />
+                    <input type="hidden" name="address" id="fullAddress" />
 
                     <!-- Country -->
                     <div class="mb-3">
@@ -301,7 +302,7 @@
                     <!-- State -->
                     <div class="mb-3">
                         <label for="state" class="form-label">State</label>
-                        <select name="state" id="state" class="form-control">
+                        <select name="stateId" id="state" class="form-control">
                             <option value="">-- Select State --</option>
                         </select> 
                     </div>
@@ -309,7 +310,7 @@
                     <!-- District -->
                     <div class="mb-3">
                         <label for="district" class="form-label">District</label>
-                        <select name="district" id="district" class="form-control">
+                        <select name="districtId" id="district" class="form-control">
                             <option value="">-- Select District --</option>
                         </select>
                     </div>
@@ -317,7 +318,7 @@
                     <!-- City -->
                     <div class="mb-3">
                         <label for="city" class="form-label">City</label>
-                        <select name="city" id="city" class="form-control">
+                        <select name="cityId" id="city" class="form-control">
                             <option value="">-- Select City --</option>
                         </select>
                     </div>
@@ -343,13 +344,13 @@
                     <div class="mb-3">
                         <label class="form-label">Address Type</label><br />
                         <div class="btn-group" role="group" aria-label="Address Type selection">
-                            <input type="radio" class="btn-check" name="address_type" id="home" value="home" autocomplete="off" checked />
+                            <input type="radio" class="btn-check" name="addresses_type" id="home" value="home" autocomplete="off" checked />
                             <label class="btn btn-outline-primary" for="home">🏠 Home</label>
 
-                            <input type="radio" class="btn-check" name="address_type" id="work" value="work" autocomplete="off" />
+                            <input type="radio" class="btn-check" name="addresses_type" id="work" value="work" autocomplete="off" />
                             <label class="btn btn-outline-primary" for="work">💼 Work</label>
 
-                            <input type="radio" class="btn-check" name="address_type" id="other" value="other" autocomplete="off" />
+                            <input type="radio" class="btn-check" name="addresses_type" id="other" value="other" autocomplete="off" />
                             <label class="btn btn-outline-primary" for="other">📍 Other</label>
                         </div>
                     </div>
@@ -442,14 +443,14 @@
                 updateTotal(parent);
             }
         });
-// Load all states on page load
+        // Load all states on page load
         $.ajax({
             url: '/displayCart/GetAllStates',
             type: 'GET',
             success: function (states) {
                 $('#state').empty().append('<option value="">-- Select State --</option>');
                 $.each(states, function (i, state) {
-                    $('#state').append(`<option value="${state.state_id}">${state.state_name}</option>`);
+                    $('#state').append(`<option value="${state.stateId}">${state.stateName}</option>`);
                 });
             }
         });
@@ -464,7 +465,7 @@
                 success: function (districts) {
                     $('#district').empty().append('<option value="">-- Select District --</option>');
                     $.each(districts, function (i, district) {
-                        $('#district').append(`<option value="${district.district_id}">${district.district_name}</option>`);
+                        $('#district').append(`<option value="${district.districtId}">${district.disrictName}</option>`);
                     });
                 }
             });
@@ -480,8 +481,33 @@
                 success: function (cities) {
                     $('#city').empty().append('<option value="">-- Select City --</option>');
                     $.each(cities, function (i, city) {
-                        $('#city').append(`<option value="${city.city_id}">${city.city_name}</option>`);
+                        $('#city').append(`<option value="${city.cityId}">${city.cityName}</option>`);
                     });
+                }
+            });
+        });
+
+         $('#addressForm').submit(function (e) {
+            e.preventDefault();
+
+            const address = `${$('#door_no').val()}, ${$('#area').val()}, ${$('#landmark').val()}`;
+            $('#fullAddress').val(address);
+
+            $.ajax({
+                type: 'POST',
+                url: '/displayCart/Address',
+                data: $(this).serialize(),
+                success: function (res) {
+                    if (res.success) {
+                        $('#addressModal').modal('hide');
+                        alert('Address saved successfully!');
+                        location.reload();
+                    } else {
+                        alert(res.message || 'Error saving address.');
+                    }
+                },
+                error: function () {
+                    alert('An error occurred.');
                 }
             });
         });

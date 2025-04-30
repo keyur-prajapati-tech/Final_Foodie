@@ -101,23 +101,21 @@ namespace Foodie.Controllers.Customer
         }
 
         [HttpGet]
-        public JsonResult GetAllStates()
+        public IActionResult GetAllStates()
         {
             var allstates = _repository.GetAllStates();
-
-            ViewBag.States = new SelectList(allstates, "state_id", "state_name");
             return Json(allstates);
         }
 
         [HttpGet]
-        public JsonResult GetDistricts(int stateId)
+        public IActionResult GetDistricts(int stateId)
         {
             var districts = _repository.GetDistrictByStateId(stateId);
             return Json(districts);
         }
 
         [HttpGet]
-        public JsonResult GetCities(int districtId)
+        public IActionResult GetCities(int districtId)
         {
             var cities = _repository.GetCitiesByDistrictId(districtId);
             return Json(cities);

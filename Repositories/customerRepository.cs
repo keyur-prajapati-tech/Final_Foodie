@@ -471,7 +471,7 @@ namespace Foodie.Repositories
 
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = "SELECT * FROM customers.tbl_district WHERE StateId = @StateId";
+                string query = "SELECT DistrictId, DisrictName FROM customers.tbl_district WHERE StateId = @StateId";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@StateId", stateId);
                 conn.Open();
@@ -495,7 +495,7 @@ namespace Foodie.Repositories
 
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = "SELECT * FROM customers.tbl_city WHERE DistrictId = @DistrictId";
+                string query = "SELECT CityId,CityName FROM customers.tbl_city WHERE DistrictId = @DistrictId";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@DistrictId", districtId);
                 conn.Open();
@@ -517,8 +517,8 @@ namespace Foodie.Repositories
         {
             using(SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = @"INSERT INTO customers.tbl_address (customer_id, address_type, CountryName, StateId, DistrictId, CityId, latitude, longitude, address) 
-                                 VALUES (@customer_id, @address_type, @CountryName, @StateId, @DistrictId, @CityId, @latitude, @longitude, @address)";
+                string query = @"INSERT INTO customers.tbl_address (customer_id, address_type, CountryName, StateId, DistrictId, CityId, latitude, longitude,created_at,updated_at, address) 
+                                 VALUES (@customer_id, @address_type, @CountryName, @StateId, @DistrictId, @CityId, @latitude, @longitude, @created_at, @updated_at, @address)";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@customer_id", tbl_Address.customer_id);
                 cmd.Parameters.AddWithValue("@address_type", tbl_Address.address_type);
@@ -528,6 +528,8 @@ namespace Foodie.Repositories
                 cmd.Parameters.AddWithValue("@CityId", tbl_Address.CityId);
                 cmd.Parameters.AddWithValue("@latitude", tbl_Address.latitude ?? (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@longitude", tbl_Address.longitude ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@created_at", DateTime.Now);
+                cmd.Parameters.AddWithValue("@updated_at", DateTime.Now);
                 cmd.Parameters.AddWithValue("@address", tbl_Address.address);
                 conn.Open();
                 cmd.ExecuteNonQuery();
