@@ -82,23 +82,27 @@ namespace Foodie.Controllers.Customer
         //        return View("EmptyCart");
         //    }
         //}
-
         [HttpPost]
-        public IActionResult Address(tbl_address model)
+        public IActionResult Address(tbl_address address)
         {
-            // Set logged-in customer_id from session (example only)
-            model.customer_id = Convert.ToInt32(HttpContext.Session.GetString("CustomerId"));
-
-            if (ModelState.IsValid)
+            try
             {
-                _repository.AddAddress(model);
-                return RedirectToAction("AddToCartItemInfo"); // Or any confirmation page
+                address.customer_id = Convert.ToInt32(HttpContext.Session.GetString("customer_id"));
+
+                if (ModelState.IsValid)
+                {
+                    _repository.AddAddress(address);
+                    return Json(new { success = true });
+                }
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
             }
 
-            // Reload state dropdown if validation fails
-            ViewBag.States = new SelectList(_repository.GetAllStates(), "StateId", "StateName");
-            return View(model);
+            return Json(new { success = false, message = "Validation failed." });
         }
+
 
         [HttpGet]
         public IActionResult GetAllStates()
@@ -120,12 +124,5 @@ namespace Foodie.Controllers.Customer
             var cities = _repository.GetCitiesByDistrictId(districtId);
             return Json(cities);
         }
-
-        //public IActionResult Checkout()
-        //{
-        //    int customerId = int.Parse(HttpContext.Session.GetString("CustomerId"));
-        //    _repository.Placeorder(customerId);
-        //    return RedirectToAction("OrderSuccess");
-        //}
     }
 }

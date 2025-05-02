@@ -19,7 +19,6 @@ namespace Foodie.Repositories
         tbl_customer ValidateCustomerLogin(string email, string password);
 
         List<tbl_menu_items> GetAllMenuItems();
-        tbl_menu_items GetMenuItemById(int id);
         void AddToCart(tbl_cart_item tbl_Cart_Item);
         tbl_cart GetOrCreateCart(int customerId);
         List<CartItemViewModel> GetCartItems(int customerId);
@@ -29,5 +28,8 @@ namespace Foodie.Repositories
         IEnumerable<tbl_district> GetDistrictByStateId(int stateId);
         IEnumerable<tbl_city> GetCitiesByDistrictId(int districtId);
         void AddAddress(tbl_address tbl_Address);
+
+
+        tbl_menu_items GetMenuItemById(int id);
     }
 }

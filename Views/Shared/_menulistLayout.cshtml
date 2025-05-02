@@ -584,6 +584,24 @@
 
         </div>
 
+        <!-- Item Info Modal -->
+        <div class="modal fade" id="itemInfoModal" tabindex="-1" aria-labelledby="itemInfoModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="itemInfoModalLabel">Item Details</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <h4 id="itemName"></h4>
+                        <p id="itemDescription"></p>
+                        <p><strong>Price:</strong> ₹<span id="itemAmount"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
         <div id="order-online" class="tab-pane fade">
             <a class="btn btn-outline-primary float-end" asp-controller="displayCart" asp-action="AddToCartIteminfo">cart</a>
 
@@ -618,11 +636,7 @@
                                     <h4>@item.menu_descripation</h4>
                                     <p>₹@item.amount</p>
                                     <div class="d-flex gap-2 float-end">
-                                        <button type="button" class="btn btn-outline-success view-item" data-id="@item.menu_id" data-quantity="1" data-price="@item.amount">
-                                            Item Info
-                                        </button>
-
-                                        @* <a class="btn btn-outline-danger add-to-cart" asp-controller="displayCart" asp-action="AddToCartIteminfo" asp-route-id="@item.menu_id">ADD</a> *@
+                                        <button class="btn btn-info btn-sm" onclick="loadItemInfo(@item.menu_id)">Item Info</button>
 
                                         <!-- Using Button for Add to Cart -->
                                         <button type="button" class="btn btn-outline-danger add-to-cart" data-id="@item.menu_id" data-quantity="1" data-price="@item.amount">
@@ -647,6 +661,22 @@
         </div>
 
         <script>
+            function loadItemInfo(id) {
+                $.ajax({
+                    url: '/Menu/GetMenuItemById?id=' + id,
+                    method: 'GET',
+                    success: function (data) {
+                        $('#itemName').text(data.menu_name);
+                        $('#itemDescription').text(data.menu_description);
+                        $('#itemAmount').text(data.amount);
+                        $('#itemInfoModal').modal('show');
+                    },
+                    error: function () {
+                        alert('Failed to load item information.');
+                    }
+                });
+            }
+
             $(document).ready(function () {
                 // Handle Add to Cart Button click
                 $(".add-to-cart").click(function () {

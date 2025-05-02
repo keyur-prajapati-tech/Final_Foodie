@@ -278,91 +278,81 @@
 <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form method="post" id="addressForm">
-                <!-- Modal Header -->
+            <form method="post" asp-action="Address">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="addressModalLabel">Save delivery address</h5>
+                    <h5 class="modal-title">Save delivery address</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <!-- Modal Body -->
                 <div class="modal-body">
-                    <!-- Google Map -->
                     <div id="map" style="width: 100%; height: 300px; border-radius: 10px; margin-bottom: 15px;"></div>
                     <input type="hidden" name="latitude" id="latitude" />
                     <input type="hidden" name="longitude" id="longitude" />
                     <input type="hidden" name="address" id="fullAddress" />
 
-                    <!-- Country -->
                     <div class="mb-3">
-                        <label for="country" class="form-label">Country</label>
-                        <input type="text" id="country" name="country" value="India" class="form-control" readonly />
+                        <label class="form-label">Country</label>
+                        <input type="text" id="country" name="CountryName" value="India" class="form-control" readonly />
                     </div>
 
-                    <!-- State -->
                     <div class="mb-3">
-                        <label for="state" class="form-label">State</label>
-                        <select name="stateId" id="state" class="form-control">
+                        <label class="form-label">State</label>
+                        <select name="StateId" id="state" class="form-control">
                             <option value="">-- Select State --</option>
-                        </select> 
+                        </select>
                     </div>
 
-                    <!-- District -->
                     <div class="mb-3">
-                        <label for="district" class="form-label">District</label>
-                        <select name="districtId" id="district" class="form-control">
+                        <label class="form-label">District</label>
+                        <select name="DistrictId" id="district" class="form-control">
                             <option value="">-- Select District --</option>
                         </select>
                     </div>
 
-                    <!-- City -->
                     <div class="mb-3">
-                        <label for="city" class="form-label">City</label>
-                        <select name="cityId" id="city" class="form-control">
+                        <label class="form-label">City</label>
+                        <select name="CityId" id="city" class="form-control">
                             <option value="">-- Select City --</option>
                         </select>
                     </div>
 
-                    <!-- Address Inputs -->
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label for="door_no" class="form-label">Door / Flat No.</label>
+                            <label class="form-label">Door / Flat No.</label>
                             <input type="text" id="door_no" name="door_no" class="form-control" />
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label for="area" class="form-label">Area</label>
+                            <label class="form-label">Area</label>
                             <input type="text" id="area" name="area" class="form-control" />
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label for="landmark" class="form-label">Landmark</label>
+                        <label class="form-label">Landmark</label>
                         <input type="text" id="landmark" name="landmark" class="form-control" />
                     </div>
 
-                    <!-- Address Type Selection -->
                     <div class="mb-3">
                         <label class="form-label">Address Type</label><br />
-                        <div class="btn-group" role="group" aria-label="Address Type selection">
-                            <input type="radio" class="btn-check" name="addresses_type" id="home" value="home" autocomplete="off" checked />
+                        <div class="btn-group" role="group">
+                            <input type="radio" class="btn-check" name="addresses_type" id="home" value="home" checked />
                             <label class="btn btn-outline-primary" for="home">🏠 Home</label>
 
-                            <input type="radio" class="btn-check" name="addresses_type" id="work" value="work" autocomplete="off" />
+                            <input type="radio" class="btn-check" name="addresses_type" id="work" value="work" />
                             <label class="btn btn-outline-primary" for="work">💼 Work</label>
 
-                            <input type="radio" class="btn-check" name="addresses_type" id="other" value="other" autocomplete="off" />
+                            <input type="radio" class="btn-check" name="addresses_type" id="other" value="other" />
                             <label class="btn btn-outline-primary" for="other">📍 Other</label>
                         </div>
                     </div>
-
                 </div>
 
-                <!-- Modal Footer -->
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary w-100">SAVE ADDRESS & PROCEED</button>
                 </div>
             </form>
         </div>
+
     </div>
 </div>
 
@@ -487,29 +477,21 @@
             });
         });
 
-         $('#addressForm').submit(function (e) {
-            e.preventDefault();
+        $('#addressForm').submit(function (e) {
+        e.preventDefault();
 
-            const address = `${$('#door_no').val()}, ${$('#area').val()}, ${$('#landmark').val()}`;
-            $('#fullAddress').val(address);
-
-            $.ajax({
-                type: 'POST',
-                url: '/displayCart/Address',
-                data: $(this).serialize(),
-                success: function (res) {
-                    if (res.success) {
-                        $('#addressModal').modal('hide');
-                        alert('Address saved successfully!');
-                        location.reload();
-                    } else {
-                        alert(res.message || 'Error saving address.');
-                    }
-                },
-                error: function () {
-                    alert('An error occurred.');
-                }
-            });
+        $.ajax({
+            type: "POST",
+            url: '/displayCart/Address',
+            data: $(this).serialize(),
+            success: function (response) {
+                // Optionally hide modal and reload part of page
+                $('#addressModal').modal('hide');
+                location.reload(); // or update section dynamically
+            },
+            error: function () {
+                alert("Something went wrong while saving address.");
+            }
         });
-    });  
+    });
 </script>
