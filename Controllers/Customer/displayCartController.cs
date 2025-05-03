@@ -32,6 +32,8 @@ namespace Foodie.Controllers.Customer
         //     var cartItems = _repository.GetCartItems(customerId);
         //     return View(cartItems);
         //}
+
+        [HttpGet]
         public IActionResult AddToCartIteminfo()
         {
             var customerIdString = HttpContext.Session.GetString("customer_id");
@@ -49,25 +51,25 @@ namespace Foodie.Controllers.Customer
         }
 
 
-        //[HttpPost]
-        //public IActionResult AddToCartIteminfo(int menuid, int quantity, decimal price)
-        //{
-        //    int customerId = Convert.ToInt32(HttpContext.Session.GetString("customer_id"));
+        [HttpPost]
+        public IActionResult AddToCartIteminfo(int menuid, int quantity, decimal price)
+        {
+            int customerId = Convert.ToInt32(HttpContext.Session.GetString("customer_id"));
 
-        //    // Get or create the cart
-        //    var cart = _repository.GetOrCreateCart(customerId);
+            // Get or create the cart
+            var cart = _repository.GetOrCreateCart(customerId);
 
-        //    // Add the item to the cart
-        //    _repository.AddToCart(new Models.customers.tbl_cart_item
-        //    {
-        //        menu_id = menuid,
-        //        cart_id = cart.cart_id,
-        //        quantity = quantity,
-        //        price = price
-        //    });
+            // Add the item to the cart
+            _repository.AddToCart(new Models.customers.tbl_cart_item
+            {
+                menu_id = menuid,
+                cart_id = cart.cart_id,
+                quantity = quantity,
+                price = price
+            });
 
-        //    return View("AddToCartIteminfo");
-        //}
+            return View("AddToCartIteminfo");
+        }
 
         //public IActionResult MyCart()
         //{

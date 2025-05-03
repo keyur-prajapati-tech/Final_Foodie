@@ -41,58 +41,6 @@
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
 <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
 
-<!-- MODAL: Dal Kachori -->
-<div class="modal fade" id="foodModal1" tabindex="-1" aria-labelledby="foodModal1Label" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold">Dal Kachori [2 Pieces]</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <img src="https://luniamarketing.com/wp-content/uploads/2021/01/Moong-Dal-Ki-Kachori.jpg" class="img-fluid rounded" alt="Dal Kachori">
-                <p class="mt-2 text-muted">Delicious crispy Dal Kachori with perfect spices.</p>
-                <div class="d-flex justify-content-center gap-3">
-                    <button class="btn btn-outline-danger">-</button>
-                    <span class="fs-5">1</span>
-                    <button class="btn btn-outline-primary">+</button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Update</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- MODAL: Naylon Khaman -->
-<div class="modal fade" id="foodModal2" tabindex="-1" aria-labelledby="foodModal2Label" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold">Naylon Khaman [1 KG]</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <img src="https://modernasopalav.com/assets/images/recipe-image/nylon-khaman.png" class="img-fluid rounded" alt="Naylon Khaman">
-                <p class="mt-2 text-muted">Soft and fluffy Naylon Khaman made from gram flour.</p>
-                <div class="d-flex justify-content-center gap-3">
-                    <button class="btn btn-outline-danger">-</button>
-                    <span class="fs-5">1</span>
-                    <button class="btn btn-outline-primary">+</button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Update</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<hr />
 <div class="container mt-4">
     <div class="row">
         <!-- Left Section -->
@@ -356,8 +304,145 @@
     </div>
 </div>
 
-
 <script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoicmlzaGk4MTAyIiwiYSI6ImNtOTFpbXpjeDAxZGwybHNjdjljdnlpZ2UifQ.lwfPOwA0QilljmyDYiUV6A'; // Replace with your token
+    // var map = new mapboxgl.Map({
+    //     container: 'map',
+    //     style: 'mapbox://styles/mapbox/streets-v11',
+    //     center: [72.8367104, 21.2140032], // Default location
+    //     zoom: 12
+    // });
+
+    let map;
+    let marker;
+
+    $('#addressModal').on('shown.bs.modal', function () {
+        if (!map) {
+            map = new mapboxgl.Map({
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v11',
+                center: [72.8311, 21.1702], // Default: Surat
+                zoom: 10
+            });
+
+            // Add zoom and rotation controls
+            map.addControl(new mapboxgl.NavigationControl());
+
+            // Click to drop pin
+            map.on('click', function (e) {
+                const lng = e.lngLat.lng;
+                const lat = e.lngLat.lat;
+
+                // Set hidden inputs
+                $('#latitude').val(lat);
+                $('#longitude').val(lng);
+
+                // If marker exists, remove it
+                if (marker) marker.remove();
+
+                // Add new marker
+                marker = new mapboxgl.Marker({ draggable: true })
+                    .setLngLat([lng, lat])
+                    .addTo(map);
+
+                // On drag end, update lat/lng
+                marker.on('dragend', function () {
+                    const lngLat = marker.getLngLat();
+                    $('#latitude').val(lngLat.lat);
+                    $('#longitude').val(lngLat.lng);
+                });
+            });
+        }
+    });
+
+    $(document).ready(function () {
+        function updateTotal(container) {
+            const price = parseFloat(container.data('price'));
+            const qty = parseInt(container.find('.qty').text());
+            const total = price * qty;
+            container.find('.item-total').text('₹' + total.toFixed(2));
+        }
+
+        $('.qty-plus').click(function () {
+            const parent = $(this).closest('.menu-item');
+            const qtySpan = parent.find('.qty');
+            let qty = parseInt(qtySpan.text());
+            qtySpan.text(++qty);
+            updateTotal(parent);
+        });
+
+        $('.qty-minus').click(function () {
+            const parent = $(this).closest('.menu-item');
+            const qtySpan = parent.find('.qty');
+            let qty = parseInt(qtySpan.text());
+            if (qty > 1) {
+                qtySpan.text(--qty);
+                updateTotal(parent);
+            }
+        });
+        // Load all states on page load
+        $.ajax({
+            url: '/displayCart/GetAllStates',
+            type: 'GET',
+            success: function (states) {
+                $('#state').empty().append('<option value="">-- Select State --</option>');
+                $.each(states, function (i, state) {
+                    $('#state').append(`<option value="${state.stateId}">${state.StateName}</option>`);
+                });
+            }
+        });
+
+        // State → District
+        $('#state').change(function () {
+            const stateId = $(this).val();
+            $.ajax({
+                url: '/displayCart/GetDistricts',
+                type: 'GET',
+                data: { stateId: stateId },
+                success: function (districts) {
+                    $('#district').empty().append('<option value="">-- Select District --</option>');
+                    $.each(districts, function (i, district) {
+                        $('#district').append(`<option value="${district.districtId}">${district.disrictName}</option>`);
+                    });
+                }
+            });
+        });
+
+        // District → City
+        $('#district').change(function () {
+            const districtId = $(this).val();
+            $.ajax({
+                url: '/displayCart/GetCities',
+                type: 'GET',
+                data: { districtId: districtId },
+                success: function (cities) {
+                    $('#city').empty().append('<option value="">-- Select City --</option>');
+                    $.each(cities, function (i, city) {
+                        $('#city').append(`<option value="${city.cityId}">${city.cityName}</option>`);
+                    });
+                }
+            });
+        });
+
+        $('#addressForm').submit(function (e) {
+        e.preventDefault();
+
+        $.ajax({
+            type: "POST",
+            url: '/displayCart/Address',
+            data: $(this).serialize(),
+            success: function (response) {
+                // Optionally hide modal and reload part of page
+                $('#addressModal').modal('hide');
+                location.reload(); // or update section dynamically
+            },
+            error: function () {
+                alert("Something went wrong while saving address.");
+            }
+        });
+    });
+</script>
+@* <script>
     mapboxgl.accessToken = 'pk.eyJ1IjoicmlzaGk4MTAyIiwiYSI6ImNtOTFpbXpjeDAxZGwybHNjdjljdnlpZ2UifQ.lwfPOwA0QilljmyDYiUV6A'; // Replace with your token
     // var map = new mapboxgl.Map({
     //     container: 'map',
@@ -494,4 +579,4 @@
             }
         });
     });
-</script>
+</script> *@

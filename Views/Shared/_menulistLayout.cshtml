@@ -584,22 +584,17 @@
 
         </div>
 
-        <!-- Item Info Modal -->
-        <div class="modal fade" id="itemInfoModal" tabindex="-1" aria-labelledby="itemInfoModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="itemInfoModalLabel">Item Details</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <h4 id="itemName"></h4>
-                        <p id="itemDescription"></p>
-                        <p><strong>Price:</strong> ₹<span id="itemAmount"></span></p>
-                    </div>
+        <!-- Modal HTML -->
+        <div class="modal fade" id="itemInfoModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content p-3">
+                    <h5 id="itemName"></h5>
+                    <p id="itemDescription"></p>
+                    <p><strong>₹<span id="itemAmount"></span></strong></p>
                 </div>
             </div>
         </div>
+
 
 
         <div id="order-online" class="tab-pane fade">
@@ -661,22 +656,6 @@
         </div>
 
         <script>
-            function loadItemInfo(id) {
-                $.ajax({
-                    url: '/Menu/GetMenuItemById?id=' + id,
-                    method: 'GET',
-                    success: function (data) {
-                        $('#itemName').text(data.menu_name);
-                        $('#itemDescription').text(data.menu_description);
-                        $('#itemAmount').text(data.amount);
-                        $('#itemInfoModal').modal('show');
-                    },
-                    error: function () {
-                        alert('Failed to load item information.');
-                    }
-                });
-            }
-
             $(document).ready(function () {
                 // Handle Add to Cart Button click
                 $(".add-to-cart").click(function () {
@@ -685,7 +664,7 @@
                     var price = $(this).data("price");
 
                     // Get the customer ID from the session (you might need to adjust this based on how you store it)
-                    var customerId = 1;
+                    var customerId = 2;
 
                     // Make AJAX call to add the item to the cart
                     $.ajax({
@@ -710,6 +689,26 @@
                 });
             });
         </script>
+
+        <script>
+            function loadItemInfo(id) {
+                console.log(id);
+                $.ajax({
+                    url: '/Restaurantdeatil/GetMenuItemById?id=' + id,
+                    method: 'GET',
+                    success: function (data) {
+                        $('#itemName').text(data.menu_name);
+                        $('#itemDescription').text(data.menu_descripation);
+                        $('#itemAmount').text(data.amount);
+                        $('#itemInfoModal').modal('show');
+                    },
+                    error: function () {
+                        alert('Failed to load item information.');
+                    }
+                });
+            }
+        </script>
+
 
         <!-- jQuery and Bootstrap Bundle at bottom -->
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

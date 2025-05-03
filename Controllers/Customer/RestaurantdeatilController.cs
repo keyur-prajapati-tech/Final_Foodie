@@ -18,14 +18,21 @@ namespace Foodie.Controllers.Customer
             return View(items);
         }
 
+        [HttpGet]
         public IActionResult GetMenuItemById(int id)
         {
             var item = _repository.GetMenuItemById(id);
             if (item == null)
             {
-                return Json(item);
+                return NotFound();
             }
-            return NotFound();
+
+            return Json(new
+            {
+                menu_name = item.menu_name,
+                menu_descripation = item.menu_descripation,
+                amount = item.amount
+            });
         }
     }
 }
