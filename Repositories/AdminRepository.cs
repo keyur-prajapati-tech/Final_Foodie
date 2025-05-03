@@ -131,11 +131,11 @@ namespace Foodie.Repositories
                     reader.Read(); // Assuming email is unique, we can use Read() to get the first (and only) record
                     admin = new tbl_admin
                     {
-                        Email = reader["Email"].ToString(),
-                        Password = reader["Password"].ToString(),
-                        role_id = Convert.ToInt32(reader["role_id"]),
-                        admin_id = (int)reader["admin_id"]
-                        // EmployeeID = Convert.ToInt32(reader["EmployeeID"])
+                        Email = reader["Email"] != DBNull.Value ? reader["Email"].ToString() : null,
+                        Password = reader["Password"] != DBNull.Value ? reader["Password"].ToString() : null,
+                        role_id = reader["role_id"] != DBNull.Value ? Convert.ToInt32(reader["role_id"]) : 0, // default 0 or handle as needed
+                        IMAGE = reader["Image"] != DBNull.Value ? (byte[])reader["Image"] : null,
+                        admin_id = reader["admin_id"] != DBNull.Value ? Convert.ToInt32(reader["admin_id"]) : 0 // or nullable int
                     };
                 }
 
@@ -426,6 +426,292 @@ namespace Foodie.Repositories
                 conn.Close();
             }
             return customers;
+        }
+
+        public int GetMonthlyCustomerCount()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_customers", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count ; 
+            }
+        }
+
+        public int GetMonthlyRestaurantCount()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_Restaurant", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count;
+            }
+        }
+
+        public int GetCancelledOrders()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_cancle_orders", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count;
+            }
+        }
+
+        public int GetPendingOrders()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_pending_orders", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count;
+            }
+        }
+
+        public int GetAcceptedOrders()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_accepted_orders", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count;
+            }
+        }
+
+        public int GetDeliveredOrders()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_Deliverd_orders", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count;
+            }
+        }
+
+        public int GetActiveRestaurants()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_Active_Restaurant", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count;
+            }
+        }
+
+        public int GetInactiveRestaurants()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_InActive_Restaurant", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count;
+            }
+        }
+
+        public int GetOpenRestaurants()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_Open_Restaurant", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count;
+            }
+        }
+
+        public int GetClosedRestaurants()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_Close_Restaurant", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                int count = (int)cmd.ExecuteScalar();
+                con.Close();
+
+                return count;
+            }
+        }
+
+        public decimal GetMonthlySales()
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_count_Total_Monthly_Sale", con);
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                con.Open();
+
+                decimal count = (decimal)cmd.ExecuteScalar();
+                con.Close();
+    
+                return count;
+            }
+        }
+
+        public DashBoardViewModel GetMonthlySalesData()
+        {
+           // var salesByMonth = new int[12]; // Index 0 = Jan, 11 = Dec
+
+            string query = @"
+        SELECT 
+    MONTH(o.order_date) AS [Month],
+    SUM(oi.quantity * oi.list_price - (1- discount)) AS TotalAmount
+FROM customers.tbl_orders o
+INNER JOIN customers.tbl_order_items oi ON o.order_id = oi.order_id
+WHERE 
+    YEAR(o.order_date) = YEAR(GETDATE()) AND 
+    o.order_status = 'Delivered'
+GROUP BY MONTH(o.order_date)
+ORDER BY [Month];";
+
+            DashBoardViewModel dashBoard = new DashBoardViewModel();
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    dashBoard.Month.Add(Convert.ToInt32(reader["Month"]));
+                    dashBoard.MonthlySalesdata.Add(Convert.ToInt32(reader["TotalAmount"]));
+
+                }
+
+                conn.Close();
+            }
+
+            return dashBoard;
+        }
+
+        public DashBoardViewModel GetYearlyChartData()
+        {
+            string query = @"
+       SELECT 
+    year(o.order_date) AS [year],
+    SUM(oi.quantity * oi.list_price - (1- discount)) AS TotalAmount
+FROM customers.tbl_orders o
+INNER JOIN customers.tbl_order_items oi ON o.order_id = oi.order_id
+WHERE 
+    o.order_status = 'Delivered'
+GROUP BY year(o.order_date)
+ORDER BY [year];";
+
+            DashBoardViewModel dashBoard = new DashBoardViewModel();
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    dashBoard.Year.Add(Convert.ToInt32(reader["year"]));
+                    dashBoard.YearlySalesdata.Add(Convert.ToInt32(reader["TotalAmount"]));
+
+                }
+
+                conn.Close();
+            }
+
+            return dashBoard;
+        }
+
+        public List<OrderViewModel> GetAllOrders(string status)
+        {
+            var orders = new List<OrderViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"
+            select co.order_id , customer_name,order_status,restaurant_name,order_date,deliver_dateTime ,coupone_id , menu_name, discount  from 
+customers.tbl_orders co
+inner join customers.tbl_order_items coi
+on co.order_id = coi.order_id
+inner join customers.tbl_customer cc
+on co.customer_id = cc.customer_id
+inner join vendores.tbl_restaurant vr 
+on co.resturant_id = vr.restaurant_id
+inner join vendores.tbl_menu_items vmi
+on coi.menu_id = vmi.menu_id";
+
+                if (!string.IsNullOrEmpty(status) && status != "All")
+                {
+                    query += " AND co.order_status = @status";
+                }
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                if (!string.IsNullOrEmpty(status) && status != "All")
+                {
+                    cmd.Parameters.AddWithValue("@status", status);
+                }
+
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    orders.Add(new OrderViewModel
+                    {
+                        OrderId = reader["order_id"] != DBNull.Value ? Convert.ToInt32(reader["order_id"]) : 0,
+                        order_status = reader["order_status"]?.ToString(),
+                        RestaurantName = reader["restaurant_name"]?.ToString(),
+                        OrderDate = reader["order_date"] != DBNull.Value ? Convert.ToDateTime(reader["order_date"]) : DateTime.MinValue,
+                        DeliveryTime = reader["deliver_dateTime"] != DBNull.Value ? Convert.ToDateTime(reader["deliver_dateTime"]) : (DateTime?)null,
+                        customer_name = reader["customer_name"]?.ToString(),
+                        coupone_id = reader["coupone_id"] != DBNull.Value ? Convert.ToInt32(reader["coupone_id"]) : 0,
+                        discount = reader["discount"] != DBNull.Value ? Convert.ToDecimal(reader["discount"]) : 0m,
+                        Menu = reader["menu_name"] != DBNull.Value ? reader["menu_name"].ToString() : null,
+                    });
+                }
+            }
+
+            return orders;
         }
     }
 }
