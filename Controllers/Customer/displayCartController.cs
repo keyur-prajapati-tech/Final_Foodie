@@ -84,25 +84,29 @@ namespace Foodie.Controllers.Customer
         //        return View("EmptyCart");
         //    }
         //}
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Address(tbl_address address)
         {
             try
             {
-                address.customer_id = Convert.ToInt32(HttpContext.Session.GetString("customer_id"));
+                var sessionId = HttpContext.Session.GetString("customer_id");
 
-                if (ModelState.IsValid)
+                if (string.IsNullOrEmpty(sessionId))
                 {
-                    _repository.AddAddress(address);
-                    return Json(new { success = true });
+                    return Json(new { success = false, message = "Session expired. Please log in again." });
                 }
+
+                address.customer_id = Convert.ToInt32(sessionId);
+                _repository.AddAddress(address);
+
+                return Json(new { success = true, message = "Address added successfully." });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, message = ex.Message });
+                return Json(new { success = false, message = "An error occurred while adding the address: " + ex.Message });
             }
-
-            return Json(new { success = false, message = "Validation failed." });
         }
 
 

@@ -492,8 +492,8 @@ namespace Foodie.Repositories
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@customer_id", tbl_Address.customer_id);
-                cmd.Parameters.AddWithValue("@address_type", tbl_Address.addresses_type); // MATCH PARAMETER NAME
-                cmd.Parameters.AddWithValue("@CountryName", tbl_Address.CountryName);
+                cmd.Parameters.AddWithValue("@addresses_type", tbl_Address.addresses_type ?? (object)DBNull.Value); // MATCH PARAMETER NAME
+                cmd.Parameters.AddWithValue("@CountryName", tbl_Address.CountryName ?? (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@StateId", tbl_Address.StateId);
                 cmd.Parameters.AddWithValue("@DistrictId", tbl_Address.DistrictId);
                 cmd.Parameters.AddWithValue("@CityId", tbl_Address.CityId);

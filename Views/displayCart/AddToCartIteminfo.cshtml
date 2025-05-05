@@ -38,8 +38,12 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<!-- Mapbox CSS -->
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+<!-- Mapbox JS -->
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
-<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+
 
 <div class="container mt-4">
     <div class="row">
@@ -78,23 +82,30 @@
                 <!-- Loop Through Cart Items -->
                 @foreach (var item in Model)
                 {
-                    <div class="p-2 bg-dark">
+                    <div class="p-2" style="border: 3px solid #000; border-radius: 5px;margin: 3px 3px;">
                         <div class="menu-item" data-price="@item.amount">
-                            <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)" alt="@item.menu_name" style="width:150px; height:100px; object-fit:cover;" />
+                            <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)" alt="@item.menu_name" style="width:350px; height:200px; object-fit:cover;" />
                             <div>
-                                <h2>@item.menu_name</h2>
-                                <p>Price: ₹<span class="unit-price">@item.amount</span></p>
+                                <h4>Food Name : <strong>@item.menu_name</strong></h4>
+                                <h4>Price: <strong> ₹<span class="unit-price">@item.amount</span></strong></h4>
 
-                                <div class="d-flex gap-2 align-items-center">
-                                    <button class="btn btn-outline-secondary qty-minus">-</button>
-                                    <span class="qty">1</span>
-                                    <button class="btn btn-outline-secondary qty-plus">+</button>
+                                <div class="d-flex gap-2 align-items-center" style="border-top: 3px solid #333;">
+                                    <div class="mt-2">
+                                        <button class="btn btn-outline-secondary qty-minus">-</button>
+                                        <span class="qty">1</span>
+                                        <button class="btn btn-outline-secondary qty-plus">+</button>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between" style="margin-top: 2px; border-top: 3px solid #000;">
+                                    <h5>Total Amount :</h5>
                                     <span class="item-total text-primary fw-bold ms-3">₹@item.amount</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 }
+
 
                 <a asp-controller="Restaurantdeatil" asp-action="Restuarantinfo" class="float-end">Add More Item</a>
 
@@ -226,7 +237,7 @@
 <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form method="post" asp-action="Address">
+            <form id="addressForm" method="post" asp-action="Address">
                 <div class="modal-header">
                     <h5 class="modal-title">Save delivery address</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -236,11 +247,12 @@
                     <div id="map" style="width: 100%; height: 300px; border-radius: 10px; margin-bottom: 15px;"></div>
                     <input type="hidden" name="latitude" id="latitude" />
                     <input type="hidden" name="longitude" id="longitude" />
-                    <input type="hidden" name="address" id="fullAddress" />
+                    <input type="hidden" name="address" id="address" />
+
 
                     <div class="mb-3">
                         <label class="form-label">Country</label>
-                        <input type="text" id="country" name="CountryName" value="India" class="form-control" readonly />
+                        <input type="text" name="CountryName" class="form-control" value="India" />
                     </div>
 
                     <div class="mb-3">
@@ -266,7 +278,7 @@
 
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label">Door / Flat No.</label>
+                            <label class="form-label">Door</label>
                             <input type="text" id="door_no" name="door_no" class="form-control" />
                         </div>
                         <div class="col-md-6 mb-3">
@@ -300,25 +312,21 @@
                 </div>
             </form>
         </div>
-
     </div>
 </div>
 
 <script>
     mapboxgl.accessToken = 'pk.eyJ1IjoicmlzaGk4MTAyIiwiYSI6ImNtOTFpbXpjeDAxZGwybHNjdjljdnlpZ2UifQ.lwfPOwA0QilljmyDYiUV6A'; // Replace with your token
-    // var map = new mapboxgl.Map({
-    //     container: 'map',
-    //     style: 'mapbox://styles/mapbox/streets-v11',
-    //     center: [72.8367104, 21.2140032], // Default location
-    //     zoom: 12
-    // });
 
     let map;
     let marker;
 
-    $('#addressModal').on('shown.bs.modal', function () {
-        if (!map) {
-            map = new mapboxgl.Map({
+    $('#addressModal').on('shown.bs.modal', function () 
+    {
+        if (!map) 
+        {
+            map = new mapboxgl.Map(
+                {
                 container: 'map',
                 style: 'mapbox://styles/mapbox/streets-v11',
                 center: [72.8311, 21.1702], // Default: Surat
@@ -346,23 +354,35 @@
                     .addTo(map);
 
                 // On drag end, update lat/lng
-                marker.on('dragend', function () {
+                marker.on('dragend', function () 
+                {
+
                     const lngLat = marker.getLngLat();
                     $('#latitude').val(lngLat.lat);
                     $('#longitude').val(lngLat.lng);
                 });
+                console.log(lng);
+                console.log(lat);
             });
         }
     });
 
-    $(document).ready(function () {
+
+    $(document).ready(function () 
+    {
         function updateTotal(container) {
-            const price = parseFloat(container.data('price'));
+            const price = parseFloat(container.attr('data-price'));
             const qty = parseInt(container.find('.qty').text());
             const total = price * qty;
             container.find('.item-total').text('₹' + total.toFixed(2));
         }
 
+        // On page load: calculate all totals
+        $('.menu-item').each(function () {
+            updateTotal($(this));
+        });
+
+        // Plus button
         $('.qty-plus').click(function () {
             const parent = $(this).closest('.menu-item');
             const qtySpan = parent.find('.qty');
@@ -371,6 +391,7 @@
             updateTotal(parent);
         });
 
+        // Minus button
         $('.qty-minus').click(function () {
             const parent = $(this).closest('.menu-item');
             const qtySpan = parent.find('.qty');
@@ -380,144 +401,7 @@
                 updateTotal(parent);
             }
         });
-        // Load all states on page load
-        $.ajax({
-            url: '/displayCart/GetAllStates',
-            type: 'GET',
-            success: function (states) {
-                $('#state').empty().append('<option value="">-- Select State --</option>');
-                $.each(states, function (i, state) {
-                    $('#state').append(`<option value="${state.stateId}">${state.StateName}</option>`);
-                });
-            }
-        });
 
-        // State → District
-        $('#state').change(function () {
-            const stateId = $(this).val();
-            $.ajax({
-                url: '/displayCart/GetDistricts',
-                type: 'GET',
-                data: { stateId: stateId },
-                success: function (districts) {
-                    $('#district').empty().append('<option value="">-- Select District --</option>');
-                    $.each(districts, function (i, district) {
-                        $('#district').append(`<option value="${district.districtId}">${district.disrictName}</option>`);
-                    });
-                }
-            });
-        });
-
-        // District → City
-        $('#district').change(function () {
-            const districtId = $(this).val();
-            $.ajax({
-                url: '/displayCart/GetCities',
-                type: 'GET',
-                data: { districtId: districtId },
-                success: function (cities) {
-                    $('#city').empty().append('<option value="">-- Select City --</option>');
-                    $.each(cities, function (i, city) {
-                        $('#city').append(`<option value="${city.cityId}">${city.cityName}</option>`);
-                    });
-                }
-            });
-        });
-
-        $('#addressForm').submit(function (e) {
-        e.preventDefault();
-
-        $.ajax({
-            type: "POST",
-            url: '/displayCart/Address',
-            data: $(this).serialize(),
-            success: function (response) {
-                // Optionally hide modal and reload part of page
-                $('#addressModal').modal('hide');
-                location.reload(); // or update section dynamically
-            },
-            error: function () {
-                alert("Something went wrong while saving address.");
-            }
-        });
-    });
-</script>
-@* <script>
-    mapboxgl.accessToken = 'pk.eyJ1IjoicmlzaGk4MTAyIiwiYSI6ImNtOTFpbXpjeDAxZGwybHNjdjljdnlpZ2UifQ.lwfPOwA0QilljmyDYiUV6A'; // Replace with your token
-    // var map = new mapboxgl.Map({
-    //     container: 'map',
-    //     style: 'mapbox://styles/mapbox/streets-v11',
-    //     center: [72.8367104, 21.2140032], // Default location
-    //     zoom: 12
-    // });
-
-    let map;
-    let marker;
-
-    $('#addressModal').on('shown.bs.modal', function () {
-        if (!map) {
-            map = new mapboxgl.Map({
-                container: 'map',
-                style: 'mapbox://styles/mapbox/streets-v11',
-                center: [72.8311, 21.1702], // Default: Surat
-                zoom: 10
-            });
-
-            // Add zoom and rotation controls
-            map.addControl(new mapboxgl.NavigationControl());
-
-            // Click to drop pin
-            map.on('click', function (e) {
-                const lng = e.lngLat.lng;
-                const lat = e.lngLat.lat;
-
-                // Set hidden inputs
-                $('#latitude').val(lat);
-                $('#longitude').val(lng);
-
-                // If marker exists, remove it
-                if (marker) marker.remove();
-
-                // Add new marker
-                marker = new mapboxgl.Marker({ draggable: true })
-                    .setLngLat([lng, lat])
-                    .addTo(map);
-
-                // On drag end, update lat/lng
-                marker.on('dragend', function () {
-                    const lngLat = marker.getLngLat();
-                    $('#latitude').val(lngLat.lat);
-                    $('#longitude').val(lngLat.lng);
-                });
-            });
-        }
-    });
-
-    $(document).ready(function () {
-        function updateTotal(container) {
-            const price = parseFloat(container.data('price'));
-            const qty = parseInt(container.find('.qty').text());
-            const total = price * qty;
-            container.find('.item-total').text('₹' + total.toFixed(2));
-        }
-
-        $('.qty-plus').click(function () {
-            const parent = $(this).closest('.menu-item');
-            const qtySpan = parent.find('.qty');
-            let qty = parseInt(qtySpan.text());
-            qtySpan.text(++qty);
-            updateTotal(parent);
-        });
-
-        $('.qty-minus').click(function () {
-            const parent = $(this).closest('.menu-item');
-            const qtySpan = parent.find('.qty');
-            let qty = parseInt(qtySpan.text());
-            if (qty > 1) {
-                qtySpan.text(--qty);
-                updateTotal(parent);
-            }
-        });
         // Load all states on page load
         $.ajax({
             url: '/displayCart/GetAllStates',
@@ -526,6 +410,7 @@
                 $('#state').empty().append('<option value="">-- Select State --</option>');
                 $.each(states, function (i, state) {
                     $('#state').append(`<option value="${state.stateId}">${state.stateName}</option>`);
+                    console.log(state);
                 });
             }
         });
@@ -541,6 +426,7 @@
                     $('#district').empty().append('<option value="">-- Select District --</option>');
                     $.each(districts, function (i, district) {
                         $('#district').append(`<option value="${district.districtId}">${district.disrictName}</option>`);
+                        console.log(district);
                     });
                 }
             });
@@ -557,26 +443,47 @@
                     $('#city').empty().append('<option value="">-- Select City --</option>');
                     $.each(cities, function (i, city) {
                         $('#city').append(`<option value="${city.cityId}">${city.cityName}</option>`);
+                        console.log(city);
                     });
                 }
             });
         });
 
-        $('#addressForm').submit(function (e) {
-        e.preventDefault();
+        $('#addressForm').on('submit', function (e) {
+            e.preventDefault();
 
-        $.ajax({
-            type: "POST",
-            url: '/displayCart/Address',
-            data: $(this).serialize(),
-            success: function (response) {
-                // Optionally hide modal and reload part of page
-                $('#addressModal').modal('hide');
-                location.reload(); // or update section dynamically
-            },
-            error: function () {
-                alert("Something went wrong while saving address.");
-            }
+            var form = $(this);
+            var formData = form.serializeArray(); // get the form data as array
+
+            // Manually add values that are NOT in the form or dynamically added
+            formData.push(
+                { name: "latitude", value: $('#latitude').val() },
+                { name: "longitude", value: $('#longitude').val() },
+                { name: "address", value: $('#address').val() }
+            );
+
+            console.log(document.querySelector('#latitude').value);
+            console.log(document.querySelector('#longitude').value);
+            console.log(document.querySelector('#address').value);
+
+
+            $.ajax({
+                type: "POST",
+                url: form.attr('action'),
+                data: $.param(formData), // serialize again after pushing
+                success: function (response) {
+                    if (response.success) {
+                        alert(response.message);
+                        $('#addressModal').modal('hide');
+                        form.trigger('reset');
+                    } else {
+                        alert("Error: " + response.message);
+                    }
+                },
+                error: function () {
+                    alert("Something went wrong while saving address.");
+                }
+            });
         });
     });
-</script> *@
+</script>
