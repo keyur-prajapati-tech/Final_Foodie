@@ -30,6 +30,7 @@ namespace Foodie.Controllers
                 var admin = _AdminRepository.getSessionData(Email); // This will return an employee object
                 int role = admin.role_id; // Assuming Role is a string property in the 'employees' class
                 int adminid = admin.admin_id; // Assuming Role is a string property in the 'employees' class
+                byte[] imageBytes = admin.IMAGE;
 
                 // Check if role is null or not before setting the session
                 if (role != null)
@@ -37,6 +38,7 @@ namespace Foodie.Controllers
                     HttpContext.Session.SetString("role", role.ToString());
                     HttpContext.Session.SetString("admin_id", adminid.ToString());
                     HttpContext.Session.SetString("Email", Email);
+                    HttpContext.Session.SetString("Image", Convert.ToBase64String(imageBytes));
                 }
                 else
                 {

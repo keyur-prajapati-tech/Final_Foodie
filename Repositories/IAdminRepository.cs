@@ -7,15 +7,25 @@ namespace Foodie.Repositories
 {
     public interface IAdminRepository
     {
+
+        //Admin
+         
         List<tbl_admin> GetAll();
-       
         bool Login(string Email, string Password);
         bool AddAdmin(tbl_admin admin ,byte[] Image);
         tbl_admin getSessionData(string Email);
+
+        //Role
+
         IEnumerable<tbl_roles> GetRole();
+
+        //feedback 
+
         public IEnumerable<tbl_vendor_feedback> GetAllVendorFeedback();
         public IEnumerable<tbl_customer_feedback> GetAllCustomerFeedback();
         public IEnumerable<tbl_delivery_feedback> GetAllDeliveryFeedback();
+
+        //Complaints
         public IEnumerable<tbl_vendor_complaints> GetAllVendorComplaints();
         void updateVencom(tbl_vendor_complaints tbl_Vendor_Complaints);
         public IEnumerable<tbl_partner_complaints> GetAllDeliveryComplaints();
@@ -23,7 +33,35 @@ namespace Foodie.Repositories
         public IEnumerable<tbl_customer_complaints> GetAllCustomerComplaints();
 
 
+        //Restaurants
         public IEnumerable<tbl_restaurant> GetAllRestaurant();
+
+        //Customers
         public IEnumerable<tbl_customer> GetAllCustomer();
+
+
+        //Dashboard
+
+        decimal GetMonthlySales();
+        int GetMonthlyCustomerCount();
+        int GetMonthlyRestaurantCount();
+
+        int GetCancelledOrders();
+        int GetPendingOrders();
+        int GetAcceptedOrders();
+        int GetDeliveredOrders();
+
+        int GetActiveRestaurants();
+        int GetInactiveRestaurants();
+        int GetOpenRestaurants();
+        int GetClosedRestaurants();
+
+        DashBoardViewModel GetMonthlySalesData();
+        DashBoardViewModel GetYearlyChartData();
+
+
+        //orders
+
+        List<OrderViewModel> GetAllOrders(string status);
     }
 }

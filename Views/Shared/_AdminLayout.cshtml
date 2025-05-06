@@ -1,4 +1,11 @@
-﻿<html>
+﻿@{
+   // var imageSrc = @Context.Session.GetString("Image");
+}
+@{
+    var base64String = Context.Session.GetString("Image");
+    var imageSrc = !string.IsNullOrEmpty(base64String) ? $"data:image/jpeg;base64,{base64String}" : "/images/default.png";
+}
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -36,9 +43,9 @@
                                 @switch (@Context.Session.GetString("role"))
                                 {
                                     case "1":
-                                        <li class="selected"><a asp-controller="order" asp-action="dashboard">&#127860; Home</a></li>
+                                        <li class="selected"><a asp-controller="Orders" asp-action="DashBoard">&#127860; Home</a></li>
                                         @* <li class="nav-item"><a class="nav-link" asp-controller="order" asp-action="dashboard"><i class="fa-solid fa-bowl-food me-1"></i>Home</a></li> *@
-                                        <li class="nav-item"><a class="nav-link" asp-controller="order" asp-action="order"><i class="fa-solid fa-square-list"></i> Orders</a></li>
+                                        <li class="nav-item"><a class="nav-link" asp-controller="Orders" asp-action="oders"><i class="fa-solid fa-square-list"></i> Orders</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="Restaurant">Restaurant</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="customers">Customers</a></li>
                                         @* <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="Res">Res</a></li> *@
@@ -108,6 +115,7 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="#"><i class="fa-solid fa-gear"></i></a>
                                 </li>
+                                <li class="nav-item "> <a href="#"><img src="@imageSrc" height="50px" width="50px" style="border-radius:50%" /></a></li>
                             </ul>
                         </div>
                     </nav>

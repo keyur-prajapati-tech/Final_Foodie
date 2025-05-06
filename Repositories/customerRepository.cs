@@ -200,7 +200,7 @@ namespace Foodie.Repositories
         {
             List<tbl_menu_items> menuItems = new List<tbl_menu_items>();
 
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string query = @"SELECT * FROM vendores.tbl_menu_items";
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -224,37 +224,6 @@ namespace Foodie.Repositories
                 conn.Close();
             }
             return menuItems;
-        }
-
-        [HttpGet]
-        public tbl_menu_items GetMenuItemById(int id)
-        {
-            tbl_menu_items menuItem = null;
-
-            using (SqlConnection conn = new SqlConnection(_connectionstring))
-            {
-                string query = "SELECT * FROM vendores.tbl_menu_items WHERE menu_id = @menuId";
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@menuId", id);
-                conn.Open();
-                SqlDataReader rd = cmd.ExecuteReader();
-                if (rd.Read())
-                {
-                    menuItem = new tbl_menu_items
-                    {
-                        menu_id = Convert.ToInt32(rd["menu_id"]),
-                        menu_name = rd["menu_name"].ToString(),
-                        cuisine_id = Convert.ToInt32(rd["cuisine_id"]),
-                        menu_img = (byte[])rd["menu_img"],
-                        menu_descripation = rd["menu_descripation"].ToString(),
-                        amount = Convert.ToDecimal(rd["amount"]),
-                        isAvailable = Convert.ToBoolean(rd["isAvalable"]),
-                        Restaurant_id = Convert.ToInt32(rd["Restaurant_id"])
-                    };
-                }
-                conn.Close();
-            }
-            return menuItem;
         }
 
         [HttpPost]
@@ -324,12 +293,12 @@ namespace Foodie.Repositories
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string query = @"
-            SELECT ci.cart_item_id, ci.menu_id, ci.quantity, ci.price,
-                   mi.menu_name, mi.menu_img
-            FROM customers.tbl_cart_item ci
-            INNER JOIN customers.tbl_cart c ON ci.cart_id = c.cart_id
-            INNER JOIN vendores.tbl_menu_items mi ON ci.menu_id = mi.menu_id
-            WHERE c.customer_id = @customerId";
+        SELECT ci.cart_item_id, ci.menu_id, ci.quantity, ci.price,
+               mi.menu_name, mi.menu_img
+        FROM customers.tbl_cart_item ci
+        INNER JOIN customers.tbl_cart c ON ci.cart_id = c.cart_id
+        INNER JOIN vendores.tbl_menu_items mi ON ci.menu_id = mi.menu_id
+        WHERE c.customer_id = @customerId";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@customerId", customerId);
@@ -471,7 +440,7 @@ namespace Foodie.Repositories
 
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = "SELECT * FROM customers.tbl_district WHERE StateId = @StateId";
+                string query = "SELECT DistrictId, DisrictName FROM customers.tbl_district WHERE StateId = @StateId";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@StateId", stateId);
                 conn.Open();
@@ -495,7 +464,7 @@ namespace Foodie.Repositories
 
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = "SELECT * FROM customers.tbl_city WHERE DistrictId = @DistrictId";
+                string query = "SELECT CityId,CityName FROM customers.tbl_city WHERE DistrictId = @DistrictId";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@DistrictId", districtId);
                 conn.Open();
@@ -515,20 +484,147 @@ namespace Foodie.Repositories
 
         public void AddAddress(tbl_address tbl_Address)
         {
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = @"INSERT INTO customers.tbl_address (customer_id, address_type, CountryName, StateId, DistrictId, CityId, latitude, longitude, address) 
-                                 VALUES (@customer_id, @address_type, @CountryName, @StateId, @DistrictId, @CityId, @latitude, @longitude, @address)";
+                string query = @"INSERT INTO customers.tbl_address 
+        (customer_id, addresses_type, CountryName, StateId, DistrictId, CityId, latitude, longitude, created_at, updated_at, address, door_no, area, landmark) 
+        VALUES (@customer_id, @addresses_type, @CountryName, @StateId, @DistrictId, @CityId, @latitude, @longitude, @created_at, @updated_at, @address, @door_no, @area, @landmark)";
+
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@customer_id", tbl_Address.customer_id);
-                cmd.Parameters.AddWithValue("@address_type", tbl_Address.address_type);
-                cmd.Parameters.AddWithValue("@CountryName", tbl_Address.CountryName);
+                cmd.Parameters.AddWithValue("@addresses_type", tbl_Address.addresses_type ?? (object)DBNull.Value); // MATCH PARAMETER NAME
+                cmd.Parameters.AddWithValue("@CountryName", tbl_Address.CountryName ?? (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@StateId", tbl_Address.StateId);
                 cmd.Parameters.AddWithValue("@DistrictId", tbl_Address.DistrictId);
                 cmd.Parameters.AddWithValue("@CityId", tbl_Address.CityId);
                 cmd.Parameters.AddWithValue("@latitude", tbl_Address.latitude ?? (object)DBNull.Value);
                 cmd.Parameters.AddWithValue("@longitude", tbl_Address.longitude ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@created_at", DateTime.Now);
+                cmd.Parameters.AddWithValue("@updated_at", DateTime.Now);
                 cmd.Parameters.AddWithValue("@address", tbl_Address.address);
+                cmd.Parameters.AddWithValue("@door_no", tbl_Address.door_no);
+                cmd.Parameters.AddWithValue("@area", tbl_Address.area);
+                cmd.Parameters.AddWithValue("@landmark", tbl_Address.landmark);
+
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                conn.Close();
+            }
+        }
+
+        public tbl_menu_items GetMenuItemById(int id)
+        {
+            tbl_menu_items menuItem = null;
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT * FROM vendores.tbl_menu_items WHERE menu_id = @menuId";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@menuId", id);
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+                if (rd.Read())
+                {
+                    menuItem = new tbl_menu_items
+                    {
+                        menu_id = Convert.ToInt32(rd["menu_id"]),
+                        menu_name = rd["menu_name"].ToString(),
+                        cuisine_id = Convert.ToInt32(rd["cuisine_id"]),
+                        menu_img = (byte[])rd["menu_img"],
+                        menu_descripation = rd["menu_descripation"].ToString(),
+                        amount = Convert.ToDecimal(rd["amount"]),
+                        isAvailable = Convert.ToBoolean(rd["isAvalable"]),
+                        Restaurant_id = Convert.ToInt32(rd["Restaurant_id"])
+                    };
+                }
+                conn.Close();
+            }
+            return menuItem;
+        }
+
+        public tbl_customer GetCustomerNameAndPhone(int customerId)
+        {
+            tbl_customer customer = null;
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring)) 
+            {
+                string query = @"SELECT customer_name,phone FROM customers.tbl_customer WHERE customer_id=@customerid";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@customerid", customerId);
+
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+
+                if (rd.Read())
+                {
+                    customer = new tbl_customer
+                    {
+                        customer_id = customerId,
+                        customer_name = rd["customer_name"].ToString(),
+                        phone = rd["phone"].ToString()
+                    };
+                }
+                conn.Close();
+            }
+            return customer;
+        }
+
+        public void IncreaseQuantity(int cartItemId)
+        {
+            UpdateQuantity(cartItemId, 1);
+        }
+
+        public void DecreaseQuantity(int cartItemId)
+        {
+            UpdateQuantity(cartItemId, -1);
+        }
+
+        public void RemoveCartItem(int cartItemId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"DELETE FROM customers.tbl_cart_item WHERE cart_item_id = @id";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@id", cartItemId);
+
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                conn.Close();
+            }
+        }
+
+        public decimal GetCartTotal(int customerId)
+        {
+            decimal total = 0;
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT SUM(ci.quantity * mi.amount) AS Total
+                    FROM customers.tbl_cart_item ci
+                    INNER JOIN vendores.tbl_menu_items mi ON ci.menu_id = mi.menu_id
+				    INNER JOIN customers.tbl_cart cc ON cc.cart_id = ci.cart_id
+				    where cc.customer_id = @customerId";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@customerId", customerId);
+
+                conn.Open();
+                var result = cmd.ExecuteScalar();
+                total = result != DBNull.Value ? Convert.ToDecimal(result) : 0;
+            }
+            return total;
+        }
+
+        private void UpdateQuantity(int cartItemId, int delta)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"UPDATE tbl_cart_item
+                SET quantity = quantity + @delta
+                WHERE cart_item_id = @cartItemId AND quantity + @delta > 0"";";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@delta", delta);
+                cmd.Parameters.AddWithValue("@cartItemId", cartItemId);
+
                 conn.Open();
                 cmd.ExecuteNonQuery();
                 conn.Close();
