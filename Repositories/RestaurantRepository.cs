@@ -587,7 +587,6 @@ namespace Foodie.Repositories
                 return result;
             }
         }
-
         public int getOnline(int restaurant_id)
         {
             using (SqlConnection conn = new SqlConnection(_connectionstring))
@@ -607,7 +606,6 @@ namespace Foodie.Repositories
 
             }
         }
-
         public bool isApprove(int restaurant_id)
         {
             using (SqlConnection conn = new SqlConnection(_connectionstring))

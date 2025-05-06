@@ -69,5 +69,13 @@ namespace Foodie.Repositories
         //orders
 
         List<OrderViewModel> GetAllOrders(string status);
+
+
+
+
+        List<VendoreViewModel> GetVendorsForApproval();
+        void UpdateApprovalStatus(int restaurantId, bool isApproved);
+
+        public bool DeleteVendor(int id);
     }
 }

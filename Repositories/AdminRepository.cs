@@ -694,7 +694,7 @@ ORDER BY [Month];";
                 }
 
                 SqlCommand cmd = new SqlCommand(query, conn);
-                if (!string.IsNullOrEmpty(status) && status != "All")
+                if (!string.IsNullOrEmpty(status) && status != ".0All")
                 {
                     cmd.Parameters.AddWithValue("@status", status);
                 }
@@ -831,7 +831,69 @@ ORDER BY [Month];";
 
             return complaints;
         }
+
+        public void UpdateApprovalStatus(int restaurantId, bool isApproved)
+        {
+            using (var con = new SqlConnection(_connectionstring))
+            {
+                var cmd = new SqlCommand("vendores.sp_UpdateVendorApprovalStatus", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.AddWithValue("@restaurant_id", restaurantId);
+                cmd.Parameters.AddWithValue("@isApproved", isApproved);
+                con.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public List<VendoreViewModel> GetVendorsForApproval()
+        {
+            var vendors = new List<VendoreViewModel>();
+            using (var con = new SqlConnection(_connectionstring))
+            {
+                var cmd = new SqlCommand("vendores.sp_GetVendorDetailsForApproval", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                con.Open();
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    vendors.Add(new VendoreViewModel
+                    {
+                        RestaurantId = Convert.ToInt32(reader["restaurant_id"]),
+                        RestaurantName = reader["restaurant_name"]?.ToString(),
+                        RestaurantEmail = reader["restaurant_email"]?.ToString(),
+                        OwnerName = reader["owner_name"]?.ToString(),
+                        OwnerEmail = reader["owner_email"]?.ToString(),
+                        GstNumber = reader["gst_number"]?.ToString(),
+                        PanNumber = reader["pan_number"]?.ToString(),
+                        FssaiCerti = reader["fssai_certi"]?.ToString(),
+                        RestaurantImage = reader["Restaurant_img"] as byte[],
+                        MenuImage = reader["Restaurant_menu_img"] as byte[],
+                        PanImage = reader["pan_img"] as byte[],
+                        FssaiImage = reader["fssai_img"] as byte[]
+                    });
+                }
+            }
+            return vendors;
+        }
+
+        public bool DeleteVendor(int id)
+        {
+            using (var con = new SqlConnection(_connectionstring))
+            {
+                var cmd = new SqlCommand("vendores.sp_DeleteVendorById", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.AddWithValue("@RestaurantId", id);
+                con.Open();
+                var rows = cmd.ExecuteNonQuery();
+                return rows > 0;
+            }
+        }
+
     }
-
-
 }

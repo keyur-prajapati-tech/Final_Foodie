@@ -1,0 +1,118 @@
+﻿@{
+    Layout = "_AdminLayout";
+}
+
+@model List<Foodie.ViewModels.VendoreViewModel>
+
+<div class="container mt-5">
+    <h2 class="mb-4">Vendor Approval Panel</h2>
+
+    @if (Model != null && Model.Count > 0)
+    {
+        foreach (var vendor in Model)
+        {
+            <div class="card mb-4 shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">@vendor.RestaurantName</h5>
+                </div>
+                <div class="card-body">
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>📍 Restaurant Info</h6>
+                            <p><strong>Email:</strong> @vendor.RestaurantEmail</p>
+                            <p><strong>Contact:</strong> @vendor.RestaurantContact</p>
+                            <p><strong>Address:</strong> @vendor.RestaurantStreet, @vendor.RestaurantPincode</p>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6>👤 Owner Info</h6>
+                            <p><strong>Name:</strong> @vendor.OwnerName</p>
+                            <p><strong>Email:</strong> @vendor.OwnerEmail</p>
+                            <p><strong>Contact:</strong> @vendor.OwnerContact</p>
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-4">
+                            <h6>🏦 Bank Details</h6>
+                            <p><strong>Bank:</strong> @vendor.BankName</p>
+                            <p><strong>ACC No:</strong> @vendor.ACCNo</p>
+                            <p><strong>IFSC:</strong> @vendor.IFSCCode</p>
+                            <p><strong>Type:</strong> @vendor.ACCType</p>
+                        </div>
+
+                        <div class="col-md-4">
+                            <h6>🧾 PAN</h6>
+                            <p><strong>Number:</strong> @vendor.PanNumber</p>
+                            <p><strong>Holder:</strong> @vendor.PanHolderName</p>
+                            <p><strong>Status:</strong> @(vendor.PanIsVerified ? "✅ Verified" : "❌ Not Verified")</p>
+                            @if (vendor.PanImage != null)
+                            {
+                                <img src="data:image/png;base64,@Convert.ToBase64String(vendor.PanImage)" class="img-thumbnail" width="150" />
+                            }
+                        </div>
+
+                        <div class="col-md-4">
+                            <h6>🧾 GST / FSSAI</h6>
+                            <p><strong>GST:</strong> @vendor.GstNumber</p>
+                            <p><strong>Status:</strong> @(vendor.GstIsVerified ? "✅ Verified" : "❌ Not Verified")</p>
+                            <p><strong>FSSAI:</strong> @vendor.FssaiCerti</p>
+                            <p><strong>Expiry:</strong> @vendor.ExpiryDate?.ToShortDateString()</p>
+                            <p><strong>Status:</strong> @(vendor.FssaiIsVerified ? "✅ Verified" : "❌ Not Verified")</p>
+                            @if (vendor.FssaiImage != null)
+                            {
+                                <img src="data:image/png;base64,@Convert.ToBase64String(vendor.FssaiImage)" class="img-thumbnail" width="150" />
+                            }
+                        </div>
+                    </div>
+
+                    <hr />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>📸 Restaurant Image</h6>
+                            @if (vendor.RestaurantImage != null)
+                            {
+                                <img src="data:image/png;base64,@Convert.ToBase64String(vendor.RestaurantImage)" class="img-thumbnail" width="150" />
+                            }
+                            else
+                            {
+                                <p>No profile Img</p>
+                            }
+                        </div>
+
+                        <div class="col-md-6">
+                            <h6>📋 Menu Image</h6>
+                            @if (vendor.MenuImage != null)
+                            {
+                                <img src="data:.png;base64,@Convert.ToBase64String(vendor.MenuImage)" width="150" />
+                            }
+                            else
+                            {
+                                <p>No profile Img</p>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="mt-4 text-end">
+                        <form asp-action="ApproveVendor" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@vendor.RestaurantId" />
+                            <button type="submit" class="btn btn-success">✅ Approve</button>
+                        </form>
+                        <form asp-action="RejectVendor" method="post" class="d-inline ms-2">
+                            <input type="hidden" name="id" value="@vendor.RestaurantId" />
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to reject and permanently delete this vendor?')">❌ Reject</button>
+
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-info">No vendors pending approval.</div>
+    }
+</div>
