@@ -1,13 +1,27 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Foodie.Repositories;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Foodie.Controllers.Restaurant
 {
     public class OrderHistoryController : Controller
     {
+        private readonly IRestaurantRepository _restaurantRepository;
+
+        public OrderHistoryController(IRestaurantRepository restaurantRepository)
+        {
+            _restaurantRepository = restaurantRepository;
+        }
+
         public IActionResult OrdHistory()
         {
-            return View();
+            var restaurantId = 1; // Replace with the actual restaurant ID
+
+            var orderHistory = _restaurantRepository.tbl_Orders_History(restaurantId);
+
+            return View(orderHistory);
         }
+
+        
 
         public IActionResult offers()
         {
@@ -37,7 +51,11 @@ namespace Foodie.Controllers.Restaurant
 
         public IActionResult OutletInfo()
         {
-            return View();
+            var restaurantId = 1; // Replace with the actual restaurant ID
+
+            var outletInfo = _restaurantRepository.getOutletInfo(restaurantId);
+
+            return View(outletInfo);
         }
     }
 }

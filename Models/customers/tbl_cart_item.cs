@@ -3,7 +3,6 @@
     public class tbl_cart_item
     {
         public int cart_item_id { get; set; }
-        public int customer_id { get; set; }
         public int cart_id { get; set; }
         public int quantity { get; set; }
         public decimal price { get; set; }

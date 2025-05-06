@@ -1,4 +1,4 @@
-﻿@model List<Foodie.Models.customers.tbl_cart_item>
+﻿@model List<Foodie.Models.customers.CartItemViewModel>
 
 @{
     ViewData["Title"] = "Add To Cart";
@@ -38,196 +38,13 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+<!-- Mapbox CSS -->
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+<!-- Mapbox JS -->
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
-<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
-
-@*<div class="container">
-    <div class="row">
-        <div class="col-md-12">
-            <div class="card bg-white p-3 border-3 shadow-sm">
-                <div class="card bg-primary text-white m-2 p-2 text-center">
-                    <span style="font-size: 20px; font-weight: 800;">😋 You Saved 5 Rupees On This Order</span>
-                </div>
-
-                <!-- Item 1 -->
-                <div class="card m-2 p-3">
-                    <div class="row align-items-center">
-                        <div class="col-md-4 d-flex justify-content-around">
-                            <img src="https://luniamarketing.com/wp-content/uploads/2021/01/Moong-Dal-Ki-Kachori.jpg" alt="food_img" style="width:100px;height:100px;object-fit:contain;" />
-                            <p class="fw-bold mt-4">Dal Kachori [2 Pieces]</p>
-                            <span class="text-success fw-bold mt-4">120 RS/-</span>
-                        </div>
-                        <div class="col-md-3 d-flex gap-3 justify-content-center mb-4" style="margin-left:50px;">
-                            <button class="btn btn-outline-danger btn-sm">-</button>
-                            <span class="fs-5">1</span>
-                            <button class="btn btn-outline-primary btn-sm">+</button>
-                        </div>
-                        <div class="col-md-3 text-end mb-4">
-                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#foodModal1">EDIT ➡</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Item 2 -->
-                <div class="card m-2 p-3">
-                    <div class="row align-items-center">
-                        <div class="col-md-4 d-flex justify-content-around">
-                            <img src="https://modernasopalav.com/assets/images/recipe-image/nylon-khaman.png" alt="food_img" style="width:100px;height:100px;object-fit:contain;" />
-                            <p class="fw-bold mt-4">Naylon Khaman [1 KG]</p>
-                            <span class="text-success fw-bold mt-4">120 RS/-</span>
-                        </div>
-                        <div class="col-md-3 d-flex gap-3 justify-content-center mb-4" style="margin-left:50px;">
-                            <button class="btn btn-outline-danger btn-sm">-</button>
-                            <span class="fs-5">1</span>
-                            <button class="btn btn-outline-primary btn-sm">+</button>
-                        </div>
-                        <div class="col-md-3 text-end mb-4">
-                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#foodModal2">EDIT ➡</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="text-center mt-3">
-                    <a asp-controller="TBrands" asp-action="Brands" class="btn btn-outline-dark">+ Add More Items</a>
-                    <!-- Place Order Button -->
-                    <button type="button" class="btn btn-primary" id="placeOrderBtn">
-                        Place Order
-                    </button>
-
-                </div>
-
-            </div>
-        </div>
-    </div>
-</div>*@
-
-<!-- Order Confirmation Modal -->
-@*<div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="foodieplaceorderLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h5 class="modal-title" id="orderModalLabel">Order Confirmation</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="modal-body">
-                <h4>Your order has been placed successfully! 🎉</h4>
-                <p>We have sent your order details to the restaurant.</p>
-                <hr>
-                <h5>Order Summary:</h5>
-                <ul id="orderSummary"></ul>
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <a href="@Url.Action("Index", "Restaurant")" class="btn btn-success">View Restaurant Orders</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    $(document).ready(function () {
-        $("#placeOrderBtn").click(function () {
-            // Sample order data (Replace this with actual cart data)
-            var orderData = {
-                items: [
-                    { name: "Dal Kachori", quantity: 1, price: 120 },
-                    { name: "Naylon Khaman", quantity: 1, price: 120 }
-                ],
-                total: 240
-            };
-
-            // Show Order Summary in Modal
-            var summaryHtml = "";
-            orderData.items.forEach(item => {
-                summaryHtml += `<li>${item.name} - ${item.quantity} x ${item.price} RS</li>`;
-            });
-            summaryHtml += `<strong>Total: ${orderData.total} RS</strong>`;
-            $("#orderSummary").html(summaryHtml);
-
-            // Show the modal
-            $("#orderModal").modal("show");
-
-            // Send Order to Restaurant via AJAX
-            $.ajax({
-                url: "/Restaurant/popup",
-                type: "POST",
-                contentType: "application/json",
-                data: JSON.stringify(orderData),
-                 success: function (response) {
-                if (response.success) {
-                    // Redirect to the restaurant's order management page
-                    window.location.href = "/Restaurant/popup";
-                } else {
-                    alert("Error placing order: " + response.message);
-                }
-            },
-            error: function (err) {
-                console.error("Error sending order:", err);
-            }
-            });
-        });
-    });
-</script>*@
 
 
-
-<!-- MODAL: Dal Kachori -->
-<div class="modal fade" id="foodModal1" tabindex="-1" aria-labelledby="foodModal1Label" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold">Dal Kachori [2 Pieces]</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <img src="https://luniamarketing.com/wp-content/uploads/2021/01/Moong-Dal-Ki-Kachori.jpg" class="img-fluid rounded" alt="Dal Kachori">
-                <p class="mt-2 text-muted">Delicious crispy Dal Kachori with perfect spices.</p>
-                <div class="d-flex justify-content-center gap-3">
-                    <button class="btn btn-outline-danger">-</button>
-                    <span class="fs-5">1</span>
-                    <button class="btn btn-outline-primary">+</button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Update</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- MODAL: Naylon Khaman -->
-<div class="modal fade" id="foodModal2" tabindex="-1" aria-labelledby="foodModal2Label" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title fw-bold">Naylon Khaman [1 KG]</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body text-center">
-                <img src="https://modernasopalav.com/assets/images/recipe-image/nylon-khaman.png" class="img-fluid rounded" alt="Naylon Khaman">
-                <p class="mt-2 text-muted">Soft and fluffy Naylon Khaman made from gram flour.</p>
-                <div class="d-flex justify-content-center gap-3">
-                    <button class="btn btn-outline-danger">-</button>
-                    <span class="fs-5">1</span>
-                    <button class="btn btn-outline-primary">+</button>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary">Update</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<hr />
 <div class="container mt-4">
     <div class="row">
         <!-- Left Section -->
@@ -262,31 +79,35 @@
                 <h5>Roof 5</h5>
                 <p class="text-muted">Chhindwara Locality</p>
 
-                <!-- Item -->
-                <div class="d-flex justify-content-between align-items-center" style="border:3px solid #000;border-radius:5px;padding:5px;margin:5px;">
-                    <img src="https://b.zmtcdn.com/data/dish_photos/121/3db1de484b41bf0827e0e4f98f4de121.png?fit=around|130:130&crop=130:130;*,*" alt="food-img" width="100px" />
-                    <span>Paneer Tikka</span>
-                    <div>
-                        <button class="btn btn-outline-secondary btn-sm">-</button>
-                        <span class="mx-2">1</span>
-                        <button class="btn btn-outline-secondary btn-sm">+</button>
+                <!-- Loop Through Cart Items -->
+                @foreach (var item in Model)
+                {
+                    <div class="p-2" style="border: 3px solid #000; border-radius: 5px;margin: 3px 3px;">
+                        <div class="menu-item" data-price="@item.amount">
+                            <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)" alt="@item.menu_name" style="width:350px; height:200px; object-fit:cover;" />
+                            <div>
+                                <h4>Food Name : <strong>@item.menu_name</strong></h4>
+                                <h4>Price: <strong> ₹<span class="unit-price">@item.amount</span></strong></h4>
+
+                                <div class="d-flex gap-2 align-items-center" style="border-top: 3px solid #333;">
+                                    <div class="mt-2">
+                                        <button class="btn btn-outline-secondary qty-minus">-</button>
+                                        <span class="qty">1</span>
+                                        <button class="btn btn-outline-secondary qty-plus">+</button>
+                                    </div>
+                                </div>
+
+                                <div class="d-flex justify-content-between" style="margin-top: 2px; border-top: 3px solid #000;">
+                                    <h5>Total Amount :</h5>
+                                    <span class="item-total text-primary fw-bold ms-3">₹@item.amount</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    <span>₹262</span>
+                }
 
-                </div>
 
-                <div class="d-flex justify-content-between align-items-center" style="border:3px solid #000;border-radius:5px;padding:5px;margin:5px;">
-                    <img src="https://b.zmtcdn.com/data/dish_photos/121/3db1de484b41bf0827e0e4f98f4de121.png?fit=around|130:130&crop=130:130;*,*" alt="food-img" width="100" />
-                    <span>Paneer Tikka</span>
-                    <div>
-                        <button class="btn btn-outline-secondary btn-sm">-</button>
-                        <span class="mx-2">1</span>
-                        <button class="btn btn-outline-secondary btn-sm">+</button>
-                    </div>
-                    <span>₹262</span>
-
-                </div>
-                <a asp-controller="TBrands" asp-action="Brands" class="float-end">Add More Item</a>
+                <a asp-controller="Restaurantdeatil" asp-action="Restuarantinfo" class="float-end">Add More Item</a>
 
                 <hr>
 
@@ -305,32 +126,34 @@
                     Apply Coupon
                 </button>
 
-
                 <hr>
 
                 <!-- Bill Details -->
-                <h6>Bill Details</h6>
-                <p>Item Total: ₹282</p>
-                <p>Delivery Fee: ₹77</p>
-                <p>Extra discount: -₹20</p>
+                @{
+                    decimal itemTotal = Model.Sum(x => x.amount * x.quantity);
+                    decimal deliveryFee = 77;
+                    decimal extraDiscount = 20;
+                    decimal finalAmount = itemTotal + deliveryFee - extraDiscount;
+                }
 
-                <!-- Delivery Tip -->
+                <h6>Bill Details</h6>
+                <p>Item Total: ₹@itemTotal</p>
+                <p>Delivery Fee: ₹@deliveryFee</p>
+                <p>Extra discount: -₹@extraDiscount</p>
+
                 <a href="#" class="text-danger">Add Tip</a>
 
                 <hr>
 
-                <!-- Final Amount -->
                 <h5 class="d-flex justify-content-between">
                     <span>To Pay</span>
-                    <span>₹360</span>
+                    <span>₹@finalAmount</span>
                 </h5>
 
-                <!-- Savings -->
                 <div class="alert alert-success text-center">
-                    Savings of ₹20
+                    Savings of ₹@extraDiscount
                 </div>
 
-                <!-- Cancellation Policy -->
                 <div class="alert alert-light">
                     <h6>Review your order and address details to avoid cancellations</h6>
                     <p>Note: This order is non-refundable if cancelled.</p>
@@ -414,159 +237,253 @@
 <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <!-- Modal Header -->
-            <div class="modal-header">
-                <h5 class="modal-title" id="addressModalLabel">Save delivery address</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="modal-body">
-                <!-- Google Map -->
-                <div id="map" style="width:100%;height:180px;"></div>
-                
-
-                <!-- Address Fields -->
-                <div class="mb-3">
-                    <label class="form-label">Country</label>
-                    <input type="text" value="India" class="form-control" />
+            <form id="addressForm" method="post" asp-action="Address">
+                <div class="modal-header">
+                    <h5 class="modal-title">Save delivery address</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
-                <div class="mb-3">
-                    <label class="form-label">state</label>
-                    <select name="state" class="form-control">
-                        <option>Gujart</option>
-                        <option>Maharashtr</option>
-                        <option>Goa</option>
-                    </select>
-                </div>
+                <div class="modal-body">
+                    <div id="map" style="width: 100%; height: 300px; border-radius: 10px; margin-bottom: 15px;"></div>
+                    <input type="hidden" name="latitude" id="latitude" />
+                    <input type="hidden" name="longitude" id="longitude" />
+                    <input type="hidden" name="address" id="address" />
 
-                <div class="mb-3">
-                    <label class="form-label">District</label>
-                    <select name="district" class="form-control">
-                        <option>Valsad</option>
-                        <option>Surat</option>
-                        <option>Ahmedabad</option>
-                    </select>
-                </div>
 
-                <div class="mb-3">
-                    <label class="form-label">City</label>
-                    <select name="city" class="form-control">
-                        <option>Valsad</option>
-                        <option>pardi</option>
-                        <option>atual</option>
-                    </select>
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label">Country</label>
+                        <input type="text" name="CountryName" class="form-control" value="India" />
+                    </div>
 
-                <div class="mb-3">
-                    <input type="text" class="form-control" placeholder="Door / Flat No.">
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label">State</label>
+                        <select name="StateId" id="state" class="form-control">
+                            <option value="">-- Select State --</option>
+                        </select>
+                    </div>
 
-                <div class="mb-3">
-                    <input type="text" class="form-control" placeholder="Area">
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label">District</label>
+                        <select name="DistrictId" id="district" class="form-control">
+                            <option value="">-- Select District --</option>
+                        </select>
+                    </div>
 
-                <div class="mb-3">
-                    <input type="text" class="form-control" placeholder="Landmark">
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label">City</label>
+                        <select name="CityId" id="city" class="form-control">
+                            <option value="">-- Select City --</option>
+                        </select>
+                    </div>
 
-                <!-- Address Type Selection -->
-                <div class="mb-3">
-                    <label class="form-label">Address Type</label><br>
-                    <div class="btn-group" role="group" aria-label="Address Type selection">
-                        <input type="radio" class="btn-check" name="address_type" id="home" value="home" autocomplete="off" checked>
-                        <label class="btn btn-outline-primary" for="home">🏠 Home</label>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Door</label>
+                            <input type="text" id="door_no" name="door_no" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Area</label>
+                            <input type="text" id="area" name="area" class="form-control" />
+                        </div>
+                    </div>
 
-                        <input type="radio" class="btn-check" name="address_type" id="work" value="work" autocomplete="off">
-                        <label class="btn btn-outline-primary" for="work">💼 Work</label>
+                    <div class="mb-3">
+                        <label class="form-label">Landmark</label>
+                        <input type="text" id="landmark" name="landmark" class="form-control" />
+                    </div>
 
-                        <input type="radio" class="btn-check" name="address_type" id="other" value="other" autocomplete="off">
-                        <label class="btn btn-outline-primary" for="other">📍 Other</label>
+                    <div class="mb-3">
+                        <label class="form-label">Address Type</label><br />
+                        <div class="btn-group" role="group">
+                            <input type="radio" class="btn-check" name="addresses_type" id="home" value="home" checked />
+                            <label class="btn btn-outline-primary" for="home">🏠 Home</label>
+
+                            <input type="radio" class="btn-check" name="addresses_type" id="work" value="work" />
+                            <label class="btn btn-outline-primary" for="work">💼 Work</label>
+
+                            <input type="radio" class="btn-check" name="addresses_type" id="other" value="other" />
+                            <label class="btn btn-outline-primary" for="other">📍 Other</label>
+                        </div>
                     </div>
                 </div>
 
-
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary w-100">SAVE ADDRESS & PROCEED</button>
-            </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary w-100">SAVE ADDRESS & PROCEED</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
-
-<hr/>
-<h2>Here We Use ADD TO CART TESTING</h2>
-<h2>Your Cart</h2>
-
-@if (!string.IsNullOrEmpty(successmessage))
-{
-    <div class="alert alert-success">@successmessage</div>
-}
-
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th>Menu Item</th>
-            <th>Price</th>
-            <th>Quantity</th>
-            @* <th>Discount</th>
-            <th>Final Amount</th> *@
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.menu_id</td>
-                <td>@item.price.ToString("C")</td>
-                <td>@item.quantity</td>
-                @* <td>@item.Discount.ToString("C")</td> *@
-                @* <td>@item.FinalAmount.ToString("C")</td> *@
-                <td>
-                    <form asp-action="UpdateQuantity" method="post" style="display:inline">
-                        <input type="hidden" name="cartItemId" value="@item.cart_item_id" />
-                        <input type="hidden" name="increment" value="true" />
-                        <button type="submit" class="btn btn-success btn-sm">+</button>
-                    </form>
-                    <form asp-action="UpdateQuantity" method="post" style="display:inline">
-                        <input type="hidden" name="cartItemId" value="@item.cart_item_id" />
-                        <input type="hidden" name="increment" value="false" />
-                        <button type="submit" class="btn btn-danger btn-sm">-</button>
-                    </form>
-                </td>
-            </tr>
-            //grandTotal += item.FinalAmount;
-        }
-    </tbody>
-</table>
-
-<h4>Coupon Code: @couponeCode</h4>
-<h4>Discount: @discountamount%</h4>
-<h3>Total: @grandTotal.ToString("C")</h3>
-
-<form asp-action="ApplyCoupon" method="post">
-    <div class="form-group">
-        <label for="coupon">Enter Coupon Code</label>
-        <input type="text" name="couponCode" class="form-control" id="coupon" />
-    </div>
-    <button type="submit" class="btn btn-info">Apply Coupon</button>
-</form>
-
-<form asp-action="PlaceOrder" method="post">
-    <button type="submit" class="btn btn-primary mt-3">Place Order</button>
-</form>
-
 <script>
-        mapboxgl.accessToken = 'pk.eyJ1IjoicmlzaGk4MTAyIiwiYSI6ImNtOTFpbXpjeDAxZGwybHNjdjljdnlpZ2UifQ.lwfPOwA0QilljmyDYiUV6A'; // Replace with your token
-        var map = new mapboxgl.Map({
-            container: 'map',
-            style: 'mapbox://styles/mapbox/streets-v11',
-            center: [72.8367104, 21.2140032], // Default location
-            zoom: 12
+    mapboxgl.accessToken = 'pk.eyJ1IjoicmlzaGk4MTAyIiwiYSI6ImNtOTFpbXpjeDAxZGwybHNjdjljdnlpZ2UifQ.lwfPOwA0QilljmyDYiUV6A'; // Replace with your token
+
+    let map;
+    let marker;
+
+    $('#addressModal').on('shown.bs.modal', function () 
+    {
+        if (!map) 
+        {
+            map = new mapboxgl.Map(
+                {
+                container: 'map',
+                style: 'mapbox://styles/mapbox/streets-v11',
+                center: [72.8311, 21.1702], // Default: Surat
+                zoom: 10
+            });
+
+            // Add zoom and rotation controls
+            map.addControl(new mapboxgl.NavigationControl());
+
+            // Click to drop pin
+            map.on('click', function (e) {
+                const lng = e.lngLat.lng;
+                const lat = e.lngLat.lat;
+
+                // Set hidden inputs
+                $('#latitude').val(lat);
+                $('#longitude').val(lng);
+
+                // If marker exists, remove it
+                if (marker) marker.remove();
+
+                // Add new marker
+                marker = new mapboxgl.Marker({ draggable: true })
+                    .setLngLat([lng, lat])
+                    .addTo(map);
+
+                // On drag end, update lat/lng
+                marker.on('dragend', function () 
+                {
+
+                    const lngLat = marker.getLngLat();
+                    $('#latitude').val(lngLat.lat);
+                    $('#longitude').val(lngLat.lng);
+                });
+                console.log(lng);
+                console.log(lat);
+            });
+        }
+    });
+
+
+    $(document).ready(function () 
+    {
+        function updateTotal(container) {
+            const price = parseFloat(container.attr('data-price'));
+            const qty = parseInt(container.find('.qty').text());
+            const total = price * qty;
+            container.find('.item-total').text('₹' + total.toFixed(2));
+        }
+
+        // On page load: calculate all totals
+        $('.menu-item').each(function () {
+            updateTotal($(this));
         });
+
+        // Plus button
+        $('.qty-plus').click(function () {
+            const parent = $(this).closest('.menu-item');
+            const qtySpan = parent.find('.qty');
+            let qty = parseInt(qtySpan.text());
+            qtySpan.text(++qty);
+            updateTotal(parent);
+        });
+
+        // Minus button
+        $('.qty-minus').click(function () {
+            const parent = $(this).closest('.menu-item');
+            const qtySpan = parent.find('.qty');
+            let qty = parseInt(qtySpan.text());
+            if (qty > 1) {
+                qtySpan.text(--qty);
+                updateTotal(parent);
+            }
+        });
+
+        // Load all states on page load
+        $.ajax({
+            url: '/displayCart/GetAllStates',
+            type: 'GET',
+            success: function (states) {
+                $('#state').empty().append('<option value="">-- Select State --</option>');
+                $.each(states, function (i, state) {
+                    $('#state').append(`<option value="${state.stateId}">${state.stateName}</option>`);
+                    console.log(state);
+                });
+            }
+        });
+
+        // State → District
+        $('#state').change(function () {
+            const stateId = $(this).val();
+            $.ajax({
+                url: '/displayCart/GetDistricts',
+                type: 'GET',
+                data: { stateId: stateId },
+                success: function (districts) {
+                    $('#district').empty().append('<option value="">-- Select District --</option>');
+                    $.each(districts, function (i, district) {
+                        $('#district').append(`<option value="${district.districtId}">${district.disrictName}</option>`);
+                        console.log(district);
+                    });
+                }
+            });
+        });
+
+        // District → City
+        $('#district').change(function () {
+            const districtId = $(this).val();
+            $.ajax({
+                url: '/displayCart/GetCities',
+                type: 'GET',
+                data: { districtId: districtId },
+                success: function (cities) {
+                    $('#city').empty().append('<option value="">-- Select City --</option>');
+                    $.each(cities, function (i, city) {
+                        $('#city').append(`<option value="${city.cityId}">${city.cityName}</option>`);
+                        console.log(city);
+                    });
+                }
+            });
+        });
+
+        $('#addressForm').on('submit', function (e) {
+            e.preventDefault();
+
+            var form = $(this);
+            var formData = form.serializeArray(); // get the form data as array
+
+            // Manually add values that are NOT in the form or dynamically added
+            formData.push(
+                { name: "latitude", value: $('#latitude').val() },
+                { name: "longitude", value: $('#longitude').val() },
+                { name: "address", value: $('#address').val() }
+            );
+
+            console.log(document.querySelector('#latitude').value);
+            console.log(document.querySelector('#longitude').value);
+            console.log(document.querySelector('#address').value);
+
+
+            $.ajax({
+                type: "POST",
+                url: form.attr('action'),
+                data: $.param(formData), // serialize again after pushing
+                success: function (response) {
+                    if (response.success) {
+                        alert(response.message);
+                        $('#addressModal').modal('hide');
+                        form.trigger('reset');
+                    } else {
+                        alert("Error: " + response.message);
+                    }
+                },
+                error: function () {
+                    alert("Something went wrong while saving address.");
+                }
+            });
+        });
+    });
 </script>

@@ -1,8 +1,9 @@
 ﻿@{
     Layout = "~/Views/Shared/_RestaurantLayout.cshtml";
+    decimal listprice = 0;
 }
 
-@model List<Foodie.Models.Restaurant.tbl_orders_notifi>
+@model List<Foodie.Models.Restaurant.ordersViewMdel>
 
 <!DOCTYPE html>
 <html lang="en">
@@ -24,27 +25,53 @@
             margin-left: -3px;
             top: 0;
         }
+
+        .offline-card {
+            margin: 100px auto;
+            border: 2px dashed #dc3545;
+            border-radius: 15px;
+            padding: 40px;
+            background-color: #fff5f5;
+        }
+
+        .approval-box {
+            max-width: 500px;
+            margin: 100px auto;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            background: #f9fafc;
+            text-align: center;
+            display: none;
+        }
+
+        .approval-icon {
+            font-size: 60px;
+            color: #ffc107;
+        }
     </style>
 
 
 </head>
 <body>
 
-    @* <nav class="navbar navbar-expand mt-3">
+
+
+    <nav class="navbar navbar-expand mt-3">
         <div class="container-fluid">
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                        <button type="button" class="btn btn-outline-dark mx-2">Preparing</button>
+                        <button type="button" class="btn btn-outline-dark mx-2" id="preparing">Preparing</button>
 
                     </li>
                     <li class="nav-item">
-                        <button type="button" class="btn btn-outline-dark mx-2">Ready</button>
+                        <button type="button" class="btn btn-outline-dark mx-2" id="ready">Ready</button>
 
                     </li>
                     <li class="nav-item" style="width:150px;">
-                        <button type="button" class="btn btn-outline-dark mx-2">Picked</button>
+                        <button type="button" class="btn btn-outline-dark mx-2" id="pick"> Picked</button>
 
                     </li>
 
@@ -71,12 +98,12 @@
                 </div>
             </div>
         </div>
-    </nav> *@
+    </nav>
     <!-- Modal -->
-   @*  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    @*  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content" id="modalcontent">
-              
+
             </div>
         </div>
     </div>
@@ -127,20 +154,34 @@
                         <div class="card-body">
 
 
-                            <div class="d-flex justify-content-between mt-4">
-                                <p>4 x Crispy Tawa Fried Litti</p>
-                                <p>714 Rs/- </p>
-                            </div>
 
 
-                            <hr />
+
+                            @foreach (var dish in ord.Dishes)
+
+                            {
+
+
+                                <div class="d-flex justify-content-between fw-bold">
+                                    <p>@dish.quantity x @dish.menu_name</p>
+
+                                    <p>@dish.list_price </p>
+
+                                    @{
+                                        listprice += dish.list_price;
+                                    }
+                                </div>
+                               
+
+                            }
 
                             <div class="d-flex justify-content-between">
 
                                 <p><strong>Total Bill:</strong> <span class="badge bg-success">PAID</span></p>
 
-                                <p> @ord.list_price</p>
+                                  <p>@listprice @{listprice = 0;}</p>   
                             </div>
+
 
                             <hr>
 
@@ -149,9 +190,18 @@
                                 <p class="mt-3"><strong style="color:green">VEG ONLY ORDER</strong></p>
 
                             </div>
+                            <div class="d-flex justify-content-lg-center m-3" id="need_time">
+
+                                <button type="button" class="btn btn-outline-success me-5" style="width:150px">-</button>
+
+                                <button type="button" class="btn btn-outline-success me-5" style="width:250px">15:00</button>
+
+                                <button type="button" class="btn btn-outline-success me-3 " style="width:150px">+</button>
+                            </div>
+
                             <div class="d-flex justify-content-between">
-                                <button class="btn btn-secondary me-2" style="width:150px">Need more time</button>
-                                <button class="btn btn-danger" style="width:200px">Order Ready</button>
+                                <button class="btn btn-secondary me-2" style="width:150px" id="btnNeedTime">Need more time</button>
+                                <button class="btn btn-danger" style="width:200px" data-ordid="@ord.order_id" id="btnReady">Order Ready</button>
                             </div>
 
 
@@ -164,7 +214,7 @@
 
                 <div class="col">
 
-                    <div class="card shadow h-100  mx-3">
+                    <div class="card shadow h-100  mx-3" id="deli_div">
                         <div class="card-header d-flex justify-content-between bg-white">
                             <div class="card-body d-flex" style="border:2px solid;border-radius:10px">
 
@@ -198,9 +248,30 @@
             </div>
         }
     </div>
+    <div class="container-fluid" id="isoffline">
+    </div>
+
 
     <script>
-     
+        
+
+        // $(document).on('click', '#preparing', function () {
+        //     window.location.href = '/Restaurant/OrderReady';
+        // });
+
+        // $(document).on('click', '#ready', function () {
+        //     //window.location.href = '/Restaurant/OrderReady';
+
+        // });
+
+        // $(document).on('click', '#pick', function () {
+        //     window.location.href = '/Restaurant/OrderPicked';
+        // });
+
+        // $(document).on('click', '#btnNeedTime', function () {
+        //     console.log("Rishi")
+        //     $("#need_time").toggle();
+        // });
 
          $(document).on('click', '#acceptbtn', function () {
 
@@ -250,6 +321,30 @@
                 }
             });
             $("#exampleModal").modal('hide');
+        });
+
+        $(document).on('click', '#btnReady', function () {
+            var orderId = $(this).data('ordid');
+           
+            data = {
+                order_id: orderId,
+                restaurant_id : 1
+            }
+          
+            $.ajax({
+                url: '/Restaurant/OrderReady',
+                type: 'POST',
+                data: data,
+                success: function (response) {
+                    location.reload();
+                    $('#deli_div').show();
+                    console.log(message, response);
+                },
+                error: function (error) {
+                    console.error('Error:', error);
+                }
+            });
+           
         });
 
     </script>

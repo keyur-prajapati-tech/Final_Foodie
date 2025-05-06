@@ -30,20 +30,37 @@ namespace Foodie.Repositories
         public int AddBankDetails(tbl_bank_details bank);
 
         //Add Menu
-        public int AddMenu(tbl_menu_items menu, byte[] menu_img);
+        public int AddMenu(tbl_menu_items menu);
+
+        public List<tbl_menu_items> getMenuByRes(int id);
+
+        //delete menu
+        public int DeleteMenu(int id);
+
+        public tbl_menu_items getMenu(int id);
+        public int UpdateMenu(tbl_menu_items menu);
 
         //Order Notification
         public List<tbl_orders_notifi> tbl_Orders_Notifis(int restaurant_id);
 
         //Accept Order by Resturant
         public int AcceptOrder(int order_id,string food_status);
-               
+
+        public int OrderReady(int order_id,int restaurant_id);
+
         //get all Order with Accepted status
-        public List<tbl_orders_notifi> tbl_Orders_Notifis_Accepted(int restaurant_id);
+        public List<ordersViewMdel> tbl_Orders_Notifis_Accepted(int restaurant_id);
+
+        public List<ordersViewMdel> tbl_Orders_History(int restaurant_id);
 
         //isOnline
         public int IsOnline(int restaurant_id, int isOnline);
 
         public int getOnline(int restaurant_id);
+
+        public bool isApprove(int restaurant_id);
+
+        public OutletInfo getOutletInfo(int restaurant_id);
+
     }
 }

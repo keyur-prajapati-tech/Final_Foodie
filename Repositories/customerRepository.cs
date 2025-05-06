@@ -1,5 +1,6 @@
 ﻿using Foodie.Models.customers;
 using Foodie.Models.Restaurant;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
 namespace Foodie.Repositories
@@ -195,110 +196,135 @@ namespace Foodie.Repositories
             }
         }
 
-        public bool MenuExists(int menuId)
+        public List<tbl_menu_items> GetAllMenuItems()
         {
+            List<tbl_menu_items> menuItems = new List<tbl_menu_items>();
+
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = "SELECT * FROM vendores.tbl_menu WHERE menu_id = @menu_Id";
+                string query = @"SELECT * FROM vendores.tbl_menu_items";
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@menu_Id", menuId);
                 conn.Open();
-                int count = (int)cmd.ExecuteScalar();
-                return count > 0;
-            }
-        }
-
-        public void AddToCart(tbl_cart_item cart_item)
-        {
-            if(!MenuExists(cart_item.menu_id))
-            {
-                throw new Exception("Menu item does not exist.");
-            }
-            else
-            {
-                using (SqlConnection conn = new SqlConnection(_connectionstring))
+                SqlDataReader rd = cmd.ExecuteReader();
+                while (rd.Read())
                 {
-                    string query = @"INSERT INTO customers.tbl_cart_item (customer_id, cart_id, quantity, price, menu_id, coupone_id) 
-                                 VALUES (@customer_id, @cart_id, @quantity, @price, @menu_id, @coupone_id)";
-                    SqlCommand cmd = new SqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@customer_id", cart_item.customer_id);
-                    cmd.Parameters.AddWithValue("@cart_id", cart_item.cart_id);
-                    cmd.Parameters.AddWithValue("@quantity", cart_item.quantity);
-                    cmd.Parameters.AddWithValue("@price", cart_item.price);
-                    cmd.Parameters.AddWithValue("@menu_id", cart_item.menu_id);
-                    cmd.Parameters.AddWithValue("@coupone_id", cart_item.coupone_id);
-                    conn.Open();
-                    cmd.ExecuteNonQuery();
+                    menuItems.Add(new tbl_menu_items
+                    {
+                        menu_id = Convert.ToInt32(rd["menu_id"]),
+                        menu_name = rd["menu_name"].ToString(),
+                        cuisine_id = Convert.ToInt32(rd["cuisine_id"]),
+                        menu_img = (byte[])rd["menu_img"],
+                        menu_descripation = rd["menu_descripation"].ToString(),
+                        amount = Convert.ToDecimal(
+                            rd["amount"]),
+                        isAvailable = Convert.ToBoolean(rd["isAvalable"]) ? true : false,
+                        Restaurant_id = Convert.ToInt32(rd["Restaurant_id"])
+                    });
                 }
+                conn.Close();
             }
+            return menuItems;
         }
 
-        public tbl_cart GetOrCreatecart(int customer_id)
+        [HttpPost]
+        public void AddToCart(tbl_cart_item tbl_Cart_Item)
         {
             using(SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = @"SELECT * FROM customers.tbl_cart WHERE customer_id = @customer_id";
+                string query = @"INSERT INTO customers.tbl_cart_item (cart_id, quantity, price, menu_id, coupone_id) 
+                                 VALUES (@cart_id, @quantity, @price, @menu_id, @coupone_id)";
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@customer_id", customer_id);
+                cmd.Parameters.AddWithValue("@cart_id", tbl_Cart_Item.cart_id);
+                cmd.Parameters.AddWithValue("@quantity", tbl_Cart_Item.quantity);
+                cmd.Parameters.AddWithValue("@price", tbl_Cart_Item.price);
+                cmd.Parameters.AddWithValue("@menu_id", tbl_Cart_Item.menu_id);
+                cmd.Parameters.AddWithValue("@coupone_id", tbl_Cart_Item.coupone_id);
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        [HttpGet]
+        public tbl_cart GetOrCreateCart(int customerId)
+        {
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT * FROM customers.tbl_cart WHERE customer_id = @customerId";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@customerId", customerId);
                 conn.Open();
                 SqlDataReader rd = cmd.ExecuteReader();
-
                 if (rd.Read())
                 {
                     return new tbl_cart
                     {
                         cart_id = Convert.ToInt32(rd["cart_id"]),
                         customer_id = Convert.ToInt32(rd["customer_id"]),
-                        TimeStamp = Convert.ToDateTime(rd["TimeStamp"])
+                        DATETIME = Convert.ToDateTime(rd["DATETIME"])
                     };
                 }
                 rd.Close();
 
-                string insertQuery = @"INSERT INTO customers.tbl_cart (customer_id, TimeStamp) VALUES (@customer_id, @TimeStamp)";
+                //Create a new cart if it doesn't exist
+                var insertCartQuery = @"INSERT INTO customers.tbl_cart (customer_id, DATETIME) 
+                        VALUES (@customerId, @datetime);
+                        SELECT SCOPE_IDENTITY();";
 
-                SqlCommand insertCmd = new SqlCommand(insertQuery, conn);
-                insertCmd.Parameters.AddWithValue("@customer_id", customer_id);
-                insertCmd.Parameters.AddWithValue("@TimeStamp", DateTime.Now);
-                int newCartId = Convert.ToInt32(insertCmd.ExecuteScalar());
+                SqlCommand insertCmd = new SqlCommand(insertCartQuery, conn);
+                insertCmd.Parameters.AddWithValue("@customerId", customerId);
+                insertCmd.Parameters.AddWithValue("@datetime", DateTime.Now);
+
+                object result = insertCmd.ExecuteScalar();
+                int newCartId = Convert.ToInt32(result);
 
                 return new tbl_cart
                 {
                     cart_id = newCartId,
-                    customer_id = customer_id,
-                    TimeStamp = DateTime.Now
+                    customer_id = customerId,
+                    DATETIME = DateTime.Now
                 };
             }
         }
 
-        public List<tbl_cart_item> GetCartItems(int customer_id)
+        public List<CartItemViewModel> GetCartItems(int customerId)
         {
-            var items = new List<tbl_cart_item>();
+            var items = new List<CartItemViewModel>();
 
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                conn.Open();
-                string query = @"SELECT * FROM customers.tbl_cart_item WHERE customer_id = @customer_id";
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@customer_id", customer_id);
-                SqlDataReader rd = cmd.ExecuteReader();
+                string query = @"
+        SELECT ci.cart_item_id, ci.menu_id, ci.quantity, ci.price,
+               mi.menu_name, mi.menu_img
+        FROM customers.tbl_cart_item ci
+        INNER JOIN customers.tbl_cart c ON ci.cart_id = c.cart_id
+        INNER JOIN vendores.tbl_menu_items mi ON ci.menu_id = mi.menu_id
+        WHERE c.customer_id = @customerId";
 
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@customerId", customerId);
+                conn.Open();
+
+                SqlDataReader rd = cmd.ExecuteReader();
                 while (rd.Read())
                 {
-                    items.Add(new tbl_cart_item
+                    items.Add(new CartItemViewModel
                     {
-                        cart_id = Convert.ToInt32(rd["cart_id"]),
-                        customer_id = Convert.ToInt32(rd["customer_id"]),
-                        quantity = Convert.ToInt32(rd["quantity"]),
-                        price = Convert.ToDecimal(rd["price"]),
+                        cart_item_id = Convert.ToInt32(rd["cart_item_id"]),
                         menu_id = Convert.ToInt32(rd["menu_id"]),
-                        coupone_id = Convert.ToInt32(rd["coupone_id"])
+                        quantity = Convert.ToInt32(rd["quantity"]),
+                        amount = Convert.ToDecimal(rd["price"]),
+                        menu_name = rd["menu_name"].ToString(),
+                        menu_img = (byte[])rd["menu_img"]
                     });
                 }
+
+                conn.Close();
             }
+
             return items;
         }
 
-        public void Placeorder(int customer_id)
+        public void PlaceOrder(int customerId)
         {
             using(SqlConnection conn = new SqlConnection(_connectionstring))
             {
@@ -308,64 +334,67 @@ namespace Foodie.Repositories
 
                 try
                 {
-                    var cartquery = @"SELECT * FROM tbl_cart WHERE customer_id = @cid";
-                    SqlCommand cmd = new SqlCommand(cartquery, conn, transaction);
-                    cmd.Parameters.AddWithValue("@cid", customer_id);
-                    SqlDataReader rd = cmd.ExecuteReader();
+                    var cartquery = "SELECT * FROM customers.tbl_cart WHERE customer_id = @customerId";
+                    SqlCommand cartCmd = new SqlCommand(cartquery, conn, transaction);
+                    cartCmd.Parameters.AddWithValue("@customerId", customerId);
+
+                    SqlDataReader cartReader = cartCmd.ExecuteReader();
 
                     int cartId = 0;
-
-                    if(rd.Read())
+                    if (cartReader.Read())
                     {
-                        cartId = Convert.ToInt32(rd["cart_id"]);
+                        cartId = Convert.ToInt32(cartReader["cart_id"]);
                     }
-                    rd.Close();
+                    cartReader.Close();
 
-                    var AddOrderQuery = @"INSERT INTO tbl_orders (customer_id, order_date, order_status, created_at)  OUTPUT INSERTED.order_id VALUES (@cid, @odate, 'Pending', @created)";
-                    SqlCommand cmd1 = new SqlCommand(AddOrderQuery, conn, transaction);
-                    cmd1.Parameters.AddWithValue("@cid", customer_id);
-                    cmd1.Parameters.AddWithValue("@odate", DateTime.Now);
-                    cmd1.Parameters.AddWithValue("@created", DateTime.Now);
+                    var insertOrderQuery = @"INSERT INTO tbl_orders (customer_id, order_date, order_status, created_at) OUTPUT INSERTED.order_id VALUES (@cid, @odate, 'Pending', @created";
+                    SqlCommand insertOrderCmd = new SqlCommand(insertOrderQuery, conn, transaction);
 
-                    int orderId = Convert.ToInt32(cmd1.ExecuteScalar());
+                    insertOrderCmd.Parameters.AddWithValue("@cid", customerId);
+                    insertOrderCmd.Parameters.AddWithValue("@odate", DateTime.Now);
+                    insertOrderCmd.Parameters.AddWithValue("@created", DateTime.Now);
 
-                    var itemscartitem = @"SELECT * FROM tbl_cart_item WHERE customer_id = @cid";
-                    SqlCommand cmd2 = new SqlCommand(itemscartitem, conn, transaction);
+                    int orderId = (int)insertOrderCmd.ExecuteScalar();
 
-                    cmd2.Parameters.AddWithValue("@cid", customer_id);
-                    SqlDataReader rd1 = cmd2.ExecuteReader();
+                    var cartItemsQuery = "SELECT * FROM customers.tbl_cart_item WHERE cart_id = @cartId";
+                    SqlCommand cartItemsCmd = new SqlCommand(cartItemsQuery, conn, transaction);
+                    cartItemsCmd.Parameters.AddWithValue("@cartId", cartId);
 
-                    var items1 = new List<tbl_cart_item>();
-                    while (rd1.Read())
-                    {
-                        items1.Add(new tbl_cart_item
+                    SqlDataReader cartItemsReader = cartItemsCmd.ExecuteReader();
+
+                    var items = new List<tbl_cart_item>();
+                    while (cartItemsReader.Read()){
+                        items.Add(new tbl_cart_item
                         {
-                            cart_item_id = Convert.ToInt32(rd1["cart_item_id"]),
-                            customer_id = Convert.ToInt32(rd1["customer_id"]),
-                            cart_id = Convert.ToInt32(rd1["cart_id"]),
-                            quantity = Convert.ToInt32(rd1["quantity"]),
-                            price = Convert.ToDecimal(rd1["price"]),
-                            menu_id = Convert.ToInt32(rd1["menu_id"]),
-                            coupone_id = Convert.ToInt32(rd1["coupone_id"])
+                            cart_item_id = Convert.ToInt32(cartItemsReader["cart_item_id"]),
+                            cart_id = Convert.ToInt32(cartItemsReader["cart_id"]),
+                            quantity = Convert.ToInt32(cartItemsReader["quantity"]),
+                            price = Convert.ToDecimal(cartItemsReader["price"]),
+                            menu_id = Convert.ToInt32(cartItemsReader["menu_id"]),
+                            coupone_id = Convert.ToInt32(cartItemsReader["coupone_id"])
                         });
                     }
-                    rd1.Close();
+                    cartItemsReader.Close();
 
-                    foreach(var items in items1)
+                    foreach(var item in items)
                     {
-                        var orderitems = @"INSERT INTO tbl_order_items (order_id, menu_id, quantity, price) VALUES (@oid, @menuid, @quantity, @price)";
-                        SqlCommand cmd3 = new SqlCommand(orderitems, conn, transaction);
-                        cmd3.Parameters.AddWithValue("@oid", orderId);
-                        cmd3.Parameters.AddWithValue("@menuid", items.menu_id);
-                        cmd3.Parameters.AddWithValue("@quantity", items.quantity);
-                        cmd3.Parameters.AddWithValue("@price", items.price);
-                        cmd3.ExecuteNonQuery();
+                        var insertOrderItemQuery = @"INSERT INTO tbl_order_items 
+                        (order_id, menu_id, quantity, list_price, discount, created_at) 
+                        VALUES (@order_id, @menu_id, @qty, @price, 0.10, @created)";
+                        
+                        SqlCommand insertCommand = new SqlCommand(insertOrderItemQuery, conn, transaction);
+                        insertCommand.Parameters.AddWithValue("@order_id", orderId);
+                        insertCommand.Parameters.AddWithValue("@menu_id", item.menu_id);
+                        insertCommand.Parameters.AddWithValue("@qty", item.quantity);
+                        insertCommand.Parameters.AddWithValue("@price", item.price);
+                        insertCommand.Parameters.AddWithValue("@created", DateTime.Now);
+                        insertOrderCmd.ExecuteNonQuery();
                     }
 
-                    var deletecart = @"DELETE FROM tbl_cart_item WHERE customer_id = @cid";
-                    SqlCommand cmd4 = new SqlCommand(deletecart, conn, transaction);
-                    cmd4.Parameters.AddWithValue("@cid", customer_id);
-                    cmd4.ExecuteNonQuery();
+                    // Clear the cart after placing the order
+                    var clearCart = new SqlCommand("DELETE FROM tbl_cart_item WHERE customer_id = @cid", conn, transaction);
+                    clearCart.Parameters.AddWithValue("@cid", customerId);
+                    clearCart.ExecuteNonQuery();
 
                     transaction.Commit();
                 }
@@ -374,36 +403,144 @@ namespace Foodie.Repositories
                     transaction.Rollback();
                     throw;
                 }
+                finally
+                {
+                    transaction.Commit();
+                    conn.Close();
+                }
             }
         }
 
-        public tbl_menu_items GetMenuItem(int menuId)
+        public IEnumerable<tbl_state> GetAllStates()
         {
-            tbl_menu_items menu_Items = null;
+            var state_list = new List<tbl_state>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT * FROM customers.tbl_state";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+                while (rd.Read())
+                {
+                    state_list.Add(new tbl_state
+                    {
+                        StateId = Convert.ToInt32(rd["StateId"]),
+                        StateName = rd["StateName"].ToString()
+                    });
+                }
+                conn.Close();
+            }
+            return state_list;
+        }
+
+        public IEnumerable<tbl_district> GetDistrictByStateId(int stateId)
+        {
+            var district_list = new List<tbl_district>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT DistrictId, DisrictName FROM customers.tbl_district WHERE StateId = @StateId";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@StateId", stateId);
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+                while (rd.Read())
+                {
+                    district_list.Add(new tbl_district
+                    {
+                        DistrictId = Convert.ToInt32(rd["DistrictId"]),
+                        DisrictName = rd["DisrictName"].ToString()
+                    });
+                }
+                conn.Close();
+            }
+            return district_list;
+        }
+
+        public IEnumerable<tbl_city> GetCitiesByDistrictId(int districtId)
+        {
+            var cities_list = new List<tbl_city>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT CityId,CityName FROM customers.tbl_city WHERE DistrictId = @DistrictId";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@DistrictId", districtId);
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+                while (rd.Read())
+                {
+                    cities_list.Add(new tbl_city
+                    {
+                        CityId = Convert.ToInt32(rd["CityId"]),
+                        CityName = rd["CityName"].ToString()
+                    });
+                }
+                conn.Close();
+            }
+            return cities_list;
+        }
+
+        public void AddAddress(tbl_address tbl_Address)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"INSERT INTO customers.tbl_address 
+        (customer_id, addresses_type, CountryName, StateId, DistrictId, CityId, latitude, longitude, created_at, updated_at, address, door_no, area, landmark) 
+        VALUES (@customer_id, @addresses_type, @CountryName, @StateId, @DistrictId, @CityId, @latitude, @longitude, @created_at, @updated_at, @address, @door_no, @area, @landmark)";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@customer_id", tbl_Address.customer_id);
+                cmd.Parameters.AddWithValue("@addresses_type", tbl_Address.addresses_type ?? (object)DBNull.Value); // MATCH PARAMETER NAME
+                cmd.Parameters.AddWithValue("@CountryName", tbl_Address.CountryName ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@StateId", tbl_Address.StateId);
+                cmd.Parameters.AddWithValue("@DistrictId", tbl_Address.DistrictId);
+                cmd.Parameters.AddWithValue("@CityId", tbl_Address.CityId);
+                cmd.Parameters.AddWithValue("@latitude", tbl_Address.latitude ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@longitude", tbl_Address.longitude ?? (object)DBNull.Value);
+                cmd.Parameters.AddWithValue("@created_at", DateTime.Now);
+                cmd.Parameters.AddWithValue("@updated_at", DateTime.Now);
+                cmd.Parameters.AddWithValue("@address", tbl_Address.address);
+                cmd.Parameters.AddWithValue("@door_no", tbl_Address.door_no);
+                cmd.Parameters.AddWithValue("@area", tbl_Address.area);
+                cmd.Parameters.AddWithValue("@landmark", tbl_Address.landmark);
+
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                conn.Close();
+            }
+        }
+
+        public tbl_menu_items GetMenuItemById(int id)
+        {
+            tbl_menu_items menuItem = null;
 
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string query = "SELECT * FROM vendores.tbl_menu_items WHERE menu_id = @menuId";
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@menuId", menuId);
+                cmd.Parameters.AddWithValue("@menuId", id);
                 conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.Read())
+                SqlDataReader rd = cmd.ExecuteReader();
+                if (rd.Read())
                 {
-                    menu_Items = new tbl_menu_items
+                    menuItem = new tbl_menu_items
                     {
-                        menu_id = Convert.ToInt32(reader["menu_id"]),
-                        menu_name = reader["menu_name"].ToString(),
-                        cuisine_id = Convert.ToInt32(reader["cuisine_id"]),
-                        menu_img = (byte[])reader["menu_img"],
-                        menu_descripation = reader["menu_descripation"].ToString(),
-                        amount = Convert.ToDecimal(reader["amount"]),
-                        isAvailable = Convert.ToBoolean(reader["isAvailable"]),
-                        Restaurant_id = Convert.ToInt32(reader["Restaurant_id"])
+                        menu_id = Convert.ToInt32(rd["menu_id"]),
+                        menu_name = rd["menu_name"].ToString(),
+                        cuisine_id = Convert.ToInt32(rd["cuisine_id"]),
+                        menu_img = (byte[])rd["menu_img"],
+                        menu_descripation = rd["menu_descripation"].ToString(),
+                        amount = Convert.ToDecimal(rd["amount"]),
+                        isAvailable = Convert.ToBoolean(rd["isAvalable"]),
+                        Restaurant_id = Convert.ToInt32(rd["Restaurant_id"])
                     };
                 }
+                conn.Close();
             }
-            return menu_Items;
+            return menuItem;
         }
+
     }
 }
