@@ -9,6 +9,11 @@
 }
 
 @{
+    var userName = Context.Session.GetString("UserName");
+    var phone = Context.Session.GetString("UserPhone");
+}
+
+@{
     Layout = "~/Views/Shared/_foodieheader.cshtml";
 }
 
@@ -52,7 +57,7 @@
             <!-- Logged In User -->
             <div class="card p-3 mb-3">
                 <h5>Logged in <span class="text-success">✔</span></h5>
-                <p>Keyur Prajapati | 9725802229</p>
+                <p> @userName| @phone</p>
             </div>
 
             <!-- Delivery Address -->
@@ -98,7 +103,7 @@
                                 </div>
 
                                 <div class="d-flex justify-content-between" style="margin-top: 2px; border-top: 3px solid #000;">
-                                    <h5>Total Amount :</h5>
+                                    <h5>Total Amount :- </h5>
                                     <span class="item-total text-primary fw-bold ms-3">₹@item.amount</span>
                                 </div>
                             </div>

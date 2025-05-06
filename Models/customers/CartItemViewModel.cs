@@ -9,5 +9,8 @@
         public byte[] menu_img { get; set; }
         public decimal amount { get; set; }
         public int quantity { get; set; }
+
+        public decimal totalprice => amount * quantity; 
     }
 }
+    

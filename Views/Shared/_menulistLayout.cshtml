@@ -625,7 +625,8 @@
                         @foreach (var item in Model)
                         {
                             <div class="menu-item">
-                                <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)" alt="@item.menu_name" style="width:150px; height:100px; object-fit:cover;" />
+                                <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)"
+                                     id="itemImage"  alt="@item.menu_name" style="width:150px; height:100px; object-fit:cover;" />
                                 <div>
                                     <h2>@item.menu_name</h2>
                                     <h4>@item.menu_descripation</h4>
@@ -700,6 +701,7 @@
                         $('#itemName').text(data.menu_name);
                         $('#itemDescription').text(data.menu_descripation);
                         $('#itemAmount').text(data.amount);
+                        $('#itemImage').attr('src', 'data:image/jpeg;base64,' + data.image_data);
                         $('#itemInfoModal').modal('show');
                     },
                     error: function () {

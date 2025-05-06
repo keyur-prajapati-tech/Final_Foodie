@@ -542,5 +542,93 @@ namespace Foodie.Repositories
             return menuItem;
         }
 
+        public tbl_customer GetCustomerNameAndPhone(int customerId)
+        {
+            tbl_customer customer = null;
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring)) 
+            {
+                string query = @"SELECT customer_name,phone FROM customers.tbl_customer WHERE customer_id=@customerid";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@customerid", customerId);
+
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+
+                if (rd.Read())
+                {
+                    customer = new tbl_customer
+                    {
+                        customer_id = customerId,
+                        customer_name = rd["customer_name"].ToString(),
+                        phone = rd["phone"].ToString()
+                    };
+                }
+                conn.Close();
+            }
+            return customer;
+        }
+
+        public void IncreaseQuantity(int cartItemId)
+        {
+            UpdateQuantity(cartItemId, 1);
+        }
+
+        public void DecreaseQuantity(int cartItemId)
+        {
+            UpdateQuantity(cartItemId, -1);
+        }
+
+        public void RemoveCartItem(int cartItemId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"DELETE FROM customers.tbl_cart_item WHERE cart_item_id = @id";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@id", cartItemId);
+
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                conn.Close();
+            }
+        }
+
+        public decimal GetCartTotal(int customerId)
+        {
+            decimal total = 0;
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT SUM(ci.quantity * mi.amount) AS Total
+                    FROM customers.tbl_cart_item ci
+                    INNER JOIN vendores.tbl_menu_items mi ON ci.menu_id = mi.menu_id
+				    INNER JOIN customers.tbl_cart cc ON cc.cart_id = ci.cart_id
+				    where cc.customer_id = @customerId";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@customerId", customerId);
+
+                conn.Open();
+                var result = cmd.ExecuteScalar();
+                total = result != DBNull.Value ? Convert.ToDecimal(result) : 0;
+            }
+            return total;
+        }
+
+        private void UpdateQuantity(int cartItemId, int delta)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"UPDATE tbl_cart_item
+                SET quantity = quantity + @delta
+                WHERE cart_item_id = @cartItemId AND quantity + @delta > 0"";";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@delta", delta);
+                cmd.Parameters.AddWithValue("@cartItemId", cartItemId);
+
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                conn.Close();
+            }
+        }
     }
 }

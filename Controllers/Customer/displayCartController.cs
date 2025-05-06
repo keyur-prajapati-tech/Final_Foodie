@@ -130,5 +130,17 @@ namespace Foodie.Controllers.Customer
             var cities = _repository.GetCitiesByDistrictId(districtId);
             return Json(cities);
         }
+
+        [HttpGet]
+        public IActionResult GetCustomerInfo(int id)
+        {
+            var customer = _repository.GetCustomerNameAndPhone(id);
+
+            if(customer == null)
+            {
+                return NotFound("Customer Not Found");
+            }
+            return View(customer);
+        }
     }
 }
