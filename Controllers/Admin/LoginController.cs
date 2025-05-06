@@ -1,6 +1,8 @@
 ﻿using Foodie.Models;
 using Foodie.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 using System.Threading.Tasks;
 
 namespace Foodie.Controllers
@@ -8,10 +10,11 @@ namespace Foodie.Controllers
     public class LoginController : Controller
     {
         private readonly IAdminRepository _AdminRepository;
-
-        public LoginController (IAdminRepository adminRepository)
+        private readonly string _connectionstring;
+        public LoginController(IAdminRepository adminRepository, IConfiguration configuration)
         {
             _AdminRepository = adminRepository;
+            _connectionstring = configuration.GetConnectionString("defaultconnection");
         }
         public IActionResult Login()
         {
@@ -50,7 +53,7 @@ namespace Foodie.Controllers
             }
             else
             {
-               // return RedirectToAction("DashBoard", "Orders");
+                // return RedirectToAction("DashBoard", "Orders");
                 // Login failed
                 ViewBag.ErrorMessage = "Invalid username or password.";
                 return View();
@@ -71,14 +74,14 @@ namespace Foodie.Controllers
             return View(new tbl_admin());
         }
         [HttpPost]
-        public async Task<IActionResult> AddAdmin(tbl_admin admin,IFormFile Image)
+        public async Task<IActionResult> AddAdmin(tbl_admin admin, IFormFile Image)
         {
             byte[] Image1 = null;
             if (Image != null && Image.Length > 0)
             {
                 using (var memoryStream = new MemoryStream())
                 {
-                  await Image.CopyToAsync(memoryStream);
+                    await Image.CopyToAsync(memoryStream);
                     Image1 = memoryStream.ToArray();
                 }
             }
@@ -87,10 +90,10 @@ namespace Foodie.Controllers
             {
                 return RedirectToAction("Admin");
             }
-           
-            
+
+
             ViewBag.role = _AdminRepository.GetRole();
-           
+
             return View(admin);
         }
         public IActionResult Admin()
@@ -100,6 +103,56 @@ namespace Foodie.Controllers
             return View(admin);
         }
 
-       
+        [HttpPost]
+
+        public IActionResult UpdateProfile(IFormCollection form, IFormFile IMAGE)
+        {
+            int adminid = Convert.ToInt32(HttpContext.Session.GetString("admin_id"));
+            var admin = _AdminRepository.GetAdminById(adminid);
+            admin.Full_name = form["Full_name"];
+            admin.Email = form["Email"];
+            admin.Phone = form["Phone"];
+            admin.admin_id = adminid;
+            if (IMAGE != null && IMAGE.Length > 0)
+            {
+                using (var ms = new MemoryStream())
+                {
+                    IMAGE.CopyTo(ms);
+                    admin.IMAGE = ms.ToArray();
+                }
+            }
+            else
+            {
+                // Reuse old image
+                string oldImageBase64 = form["IMAGE"];
+                if (!string.IsNullOrEmpty(oldImageBase64))
+                {
+                    admin.IMAGE = Convert.FromBase64String(oldImageBase64);
+                }
+            }
+
+            _AdminRepository.UpdateAdmin(admin);
+
+            HttpContext.Session.SetString("Email", admin.Email);
+            HttpContext.Session.SetString("Image", Convert.ToBase64String(admin.IMAGE));
+            return Ok();
+        }
+
+        public IActionResult GetProfile()
+        {
+            int adminId = Convert.ToInt32(HttpContext.Session.GetString("admin_id"));
+            var admin = _AdminRepository.GetAdminById(adminId);
+
+            var result = new
+            {
+                full_name = admin.Full_name,
+                email = admin.Email,
+                phone = admin.Phone,
+                profilepic = admin.IMAGE != null ? Convert.ToBase64String(admin.IMAGE) : null
+            };
+
+            return Json(result);
+        }
+
     }
 }

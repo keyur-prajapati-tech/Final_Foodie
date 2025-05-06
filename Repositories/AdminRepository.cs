@@ -1,4 +1,6 @@
-﻿using Foodie.Models;
+﻿using System.Data;
+using System.Numerics;
+using Foodie.Models;
 using Foodie.Models.customers;
 using Foodie.Models.Restaurant;
 using Foodie.ViewModels;
@@ -10,7 +12,7 @@ namespace Foodie.Repositories
     public class AdminRepository : IAdminRepository
     {
         private readonly string _connectionstring;
-        public AdminRepository (IConfiguration configuration)
+        public AdminRepository(IConfiguration configuration)
         {
             _connectionstring = configuration.GetConnectionString("defaultconnection");
         }
@@ -69,7 +71,7 @@ namespace Foodie.Repositories
             return admins;
         }
 
-        
+
 
         public IEnumerable<tbl_roles> GetRole()
         {
@@ -317,11 +319,11 @@ namespace Foodie.Repositories
             }
             return customer_complaints;
         }
-        public void updateVencom(tbl_vendor_complaints tbl_Vendor_Complaints )
+        public void updateVencom(tbl_vendor_complaints tbl_Vendor_Complaints)
         {
             using (var conn = new SqlConnection(_connectionstring))
             {
-               //conn.Open();
+                //conn.Open();
 
                 using (var command = new SqlCommand("admins.sp_edit_vendor_complaints", conn))
                 {
@@ -332,7 +334,7 @@ namespace Foodie.Repositories
                     command.Parameters.AddWithValue("@cmp_status", 1);
                     command.Parameters.AddWithValue("@admin_id", tbl_Vendor_Complaints.admin_id);
                     command.Parameters.AddWithValue("@resolutionRemarks", tbl_Vendor_Complaints.ResolutionRemarks);
-                    command.Parameters.AddWithValue("@resolvedAt",DateTime.Now);
+                    command.Parameters.AddWithValue("@resolvedAt", DateTime.Now);
                     // Execute the stored procedure
                     conn.Open();
                     command.ExecuteNonQuery();
@@ -420,7 +422,7 @@ namespace Foodie.Repositories
                         DOB = reader["DOB"] != DBNull.Value ? Convert.ToDateTime(reader["DOB"]) : DateTime.MinValue,
                         created_at = reader["created_at"] != DBNull.Value ? Convert.ToDateTime(reader["created_at"]) : DateTime.MinValue,
                         updated_at = reader["updated_at"] != DBNull.Value ? Convert.ToDateTime(reader["updated_at"]) : DateTime.MinValue,
-                        
+
                     });
                 }
                 conn.Close();
@@ -439,7 +441,7 @@ namespace Foodie.Repositories
                 int count = (int)cmd.ExecuteScalar();
                 con.Close();
 
-                return count ; 
+                return count;
             }
         }
 
@@ -586,16 +588,22 @@ namespace Foodie.Repositories
                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
                 con.Open();
 
-                decimal count = (decimal)cmd.ExecuteScalar();
+                object result = cmd.ExecuteScalar();
                 con.Close();
-    
-                return count;
+
+                if (result == DBNull.Value || result == null)
+                {
+                    return 0m; // or handle appropriately
+                }
+
+                return Convert.ToDecimal(result);
             }
         }
 
+
         public DashBoardViewModel GetMonthlySalesData()
         {
-           // var salesByMonth = new int[12]; // Index 0 = Jan, 11 = Dec
+            // var salesByMonth = new int[12]; // Index 0 = Jan, 11 = Dec
 
             string query = @"
         SELECT 
@@ -632,15 +640,15 @@ ORDER BY [Month];";
         public DashBoardViewModel GetYearlyChartData()
         {
             string query = @"
-       SELECT 
-    year(o.order_date) AS [year],
-    SUM(oi.quantity * oi.list_price - (1- discount)) AS TotalAmount
-FROM customers.tbl_orders o
-INNER JOIN customers.tbl_order_items oi ON o.order_id = oi.order_id
-WHERE 
-    o.order_status = 'Delivered'
-GROUP BY year(o.order_date)
-ORDER BY [year];";
+                SELECT 
+            year(o.order_date) AS [year],
+                SUM(oi.quantity * oi.list_price - (1- discount)) AS TotalAmount
+                    FROM customers.tbl_orders o
+                        INNER JOIN customers.tbl_order_items oi ON o.order_id = oi.order_id
+                    WHERE 
+               o.order_status = 'Delivered'
+                GROUP BY year(o.order_date)
+                ORDER BY [year];";
 
             DashBoardViewModel dashBoard = new DashBoardViewModel();
             using (SqlConnection conn = new SqlConnection(_connectionstring))
@@ -670,15 +678,15 @@ ORDER BY [year];";
             {
                 string query = @"
             select co.order_id , customer_name,order_status,restaurant_name,order_date,deliver_dateTime ,coupone_id , menu_name, discount  from 
-customers.tbl_orders co
-inner join customers.tbl_order_items coi
-on co.order_id = coi.order_id
-inner join customers.tbl_customer cc
-on co.customer_id = cc.customer_id
-inner join vendores.tbl_restaurant vr 
-on co.resturant_id = vr.restaurant_id
-inner join vendores.tbl_menu_items vmi
-on coi.menu_id = vmi.menu_id";
+            customers.tbl_orders co
+            inner join customers.tbl_order_items coi
+            on co.order_id = coi.order_id
+            inner join customers.tbl_customer cc
+            on co.customer_id = cc.customer_id
+            inner join vendores.tbl_restaurant vr 
+            on co.resturant_id = vr.restaurant_id
+            inner join vendores.tbl_menu_items vmi
+            on coi.menu_id = vmi.menu_id";
 
                 if (!string.IsNullOrEmpty(status) && status != "All")
                 {
@@ -713,5 +721,117 @@ on coi.menu_id = vmi.menu_id";
 
             return orders;
         }
+
+        public tbl_admin GetAdminById(int adminId)
+        {
+            var profile = new tbl_admin();
+
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT Full_name, Email, Phone, IMAGE FROM admins.tbl_admin WHERE admin_id = @admin_id";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@admin_id", adminId);
+                    con.Open();
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            profile.Full_name = reader["Full_name"] != DBNull.Value ? reader["Full_name"].ToString() : string.Empty;
+                            profile.Email = reader["Email"] != DBNull.Value ? reader["Email"].ToString() : string.Empty;
+                            profile.Phone = reader["Phone"] != DBNull.Value ? reader["Phone"].ToString() : string.Empty;
+
+                            if (reader["IMAGE"] != DBNull.Value)
+                            {
+                                profile.IMAGE = (byte[])reader["IMAGE"];
+                            }
+                        }
+                    }
+                }
+            }
+            return profile;
+        }
+
+        public async void UpdateAdmin(tbl_admin admin)
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                string query = "UPDATE admins.tbl_admin SET Full_name=@Full_name, Email=@Email, Phone=@Phone, IMAGE=@IMAGE WHERE admin_id=@admin_id";
+
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@Full_name", admin.Full_name);
+                    cmd.Parameters.AddWithValue("@Email", admin.Email);
+                    cmd.Parameters.AddWithValue("@Phone", admin.Phone);
+                    cmd.Parameters.AddWithValue("@IMAGE", (object)admin.IMAGE ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@admin_id", admin.admin_id);
+
+                    await con.OpenAsync();
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
+        public List<tbl_cust_vendor_complaints> GetcustVendorComplaints()
+        {
+            var complaints = new List<tbl_cust_vendor_complaints>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_sel_customer_ven_complaints", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    complaints.Add(new tbl_cust_vendor_complaints
+                    {
+                        vendor_complaint_id = reader["vendor_complaint_id"] != DBNull.Value ? (int)reader["vendor_complaint_id"] : 0,
+                        restaurant_id = reader["restaurant_id"] != DBNull.Value ? (int)reader["restaurant_id"] : 0,
+                        customer_id = reader["customer_id"] != DBNull.Value ? (int)reader["customer_id"] : 0,
+                        cmp_Descr = reader["cmp_Descr"]?.ToString() ?? string.Empty,
+                        cmp_Status = reader["cmp_Status"] != DBNull.Value && (bool)reader["cmp_Status"],
+                        ResolutionRemarks = reader["ResolutionRemarks"]?.ToString() ?? string.Empty,
+                        createdAt = reader["createdAt"] != DBNull.Value ? Convert.ToDateTime(reader["createdAt"]) : DateTime.MinValue,
+                        ResolvedAt = reader["ResolvedAt"] != DBNull.Value ? Convert.ToDateTime(reader["ResolvedAt"]) : DateTime.MinValue
+                    });
+                }
+                conn.Close();
+            }
+
+            return complaints;
+        }
+
+        public List<tbl_cust_partner_complaints> GetcustPartnerComplaints()
+        {
+            var complaints = new List<tbl_cust_partner_complaints>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_sel_customer_par_complaints", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    complaints.Add(new tbl_cust_partner_complaints
+                    {
+                        partner_complaint_id = reader["partner_complaint_id"] != DBNull.Value ? (int)reader["partner_complaint_id"] : 0,
+                        partner_id = reader["partner_id"] != DBNull.Value ? (int)reader["partner_id"] : 0,
+                        customer_id = reader["customer_id"] != DBNull.Value ? (int)reader["customer_id"] : 0,
+                        cmp_Descr = reader["cmp_Descr"]?.ToString() ?? string.Empty,
+                        cmp_Status = reader["cmp_Status"] != DBNull.Value && (bool)reader["cmp_Status"],
+                        ResolutionRemarks = reader["ResolutionRemarks"]?.ToString() ?? string.Empty,
+                        createdAt = reader["createdAt"] != DBNull.Value ? Convert.ToDateTime(reader["createdAt"]) : DateTime.MinValue,
+                        ResolvedAt = reader["ResolvedAt"] != DBNull.Value ? Convert.ToDateTime(reader["ResolvedAt"]) : DateTime.MinValue
+                    });
+                }
+                conn.Close();
+            }
+
+            return complaints;
+        }
     }
+
+
 }

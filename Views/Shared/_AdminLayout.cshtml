@@ -1,7 +1,4 @@
 ﻿@{
-   // var imageSrc = @Context.Session.GetString("Image");
-}
-@{
     var base64String = Context.Session.GetString("Image");
     var imageSrc = !string.IsNullOrEmpty(base64String) ? $"data:image/jpeg;base64,{base64String}" : "/images/default.png";
 }
@@ -35,9 +32,9 @@
                     <nav class="navbar navbar-expand-lg navbar-light ">
                         <button class="menu-btn" onclick="toggleSidebar()">&#9776;</button>
                         <div class="sidebar pt-1" id="sidebar">
-                            <ul>
+                            @* <ul>
                                 <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="Admin">Employee</a></li>
-                            </ul>
+                            </ul> *@
                             <button class="close-btn" onclick="toggleSidebar()">&times;</button>
                             <ul>
                                 @switch (@Context.Session.GetString("role"))
@@ -51,9 +48,9 @@
                                         @* <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="Res">Res</a></li> *@
                                         <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="Feedaback">FeedBack</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="customerComplaints">Complaints</a></li>
-                                        <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="promotion">Promotion</a></li>
+                                        //<li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="promotion">Promotion</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="Notification">Notifications</a></li>
-                                        <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="AddCusine">Add Cusine</a></li>
+                                        // <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="AddCusine">Add Cusine</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="Admin">Employee</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="AuditLogs">Audit Logs</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="Login">Log Out</a></li>
@@ -62,7 +59,7 @@
 
                                     case "2":
                                         <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="Restaurant">Restaurant</a></li>
-                                        <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="AddCusine">Add Cusine</a></li>
+                                        // <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="AddCusine">Add Cusine</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="Feedaback">FeedBack</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="customerComplaints">Complaints</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="Login">Log Out</a></li>
@@ -76,8 +73,6 @@
                                         <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="customerComplaints">Complaints</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="Login">Log Out</a></li>
                                         break;
-
-
                                 }
 
                                 @*  <li class="selected"><a asp-controller="order" asp-action="dashboard">&#127860; Home</a></li>
@@ -115,7 +110,11 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="#"><i class="fa-solid fa-gear"></i></a>
                                 </li>
-                                <li class="nav-item "> <a href="#"><img src="@imageSrc" height="50px" width="50px" style="border-radius:50%" /></a></li>
+                                <li class="nav-item ">
+                                    <a href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
+                                        <img src="@imageSrc" height="50px" width="50px" style="border-radius:50%" />
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </nav>
@@ -184,6 +183,105 @@
             </div>
         </div>
     </div>
+
+
+
+
+    <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="profileModalLabel">Admin Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    <form id="profileForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="fullName" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="fullName" name="Full_name" readonly />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="Email" readonly />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone</label>
+                            <input type="text" class="form-control" id="phone" name="Phone" readonly />
+                        </div>
+
+                        <!-- Add this inside the modal body, before the form if needed -->
+                        <div class="mb-3">
+                            <label class="form-label">Current Profile Image</label><br />
+                            <img id="currentProfilePic" src="" class="img-thumbnail" width="150" />
+                            <input type="hidden" id="oldImageData" name="OldImage" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="profileImage" class="form-label">Upload New Image</label>
+                            <input type="file" class="form-control" id="profileImage" name="IMAGE" disabled />
+                        </div>
+
+
+                        <button type="button" class="btn btn-primary" id="editBtn">Edit</button>
+                        <button type="submit" class="btn btn-success d-none" id="saveBtn">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('editBtn').addEventListener('click', function () {
+            document.getElementById('fullName').removeAttribute('readonly');
+            document.getElementById('email').removeAttribute('readonly');
+            document.getElementById('phone').removeAttribute('readonly');
+            document.getElementById('profileImage').removeAttribute('disabled');
+
+            document.getElementById('editBtn').classList.add('d-none');
+            document.getElementById('saveBtn').classList.remove('d-none');
+        });
+
+        document.getElementById('profileForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            var formData = new FormData(this);
+
+            fetch('/Login/UpdateProfile', {
+                method: 'POST',
+                body: formData
+            }).then(res => {
+                if (res.ok) {
+                    alert('Profile updated successfully.');
+                    location.reload();
+                } else {
+                    alert('Failed to update.');
+                }
+            });
+        });
+    </script>
+
+
+    <script>
+        fetch('/Login/GetProfile')
+            .then(response => response.json())
+            .then(data => {
+                $('#fullName').val(data.full_name);
+                $('#email').val(data.email);
+                $('#phone').val(data.phone);
+
+                if (data.profilepic) {
+                    let imageUrl = `data:image/jpeg;base64,${data.profilepic}`;
+                    $('#currentProfilePic').attr('src', imageUrl);
+                    $('#oldImageData').val(data.profilepic); // Store it in hidden input
+                }
+            });
+
+    </script>
+
+
 
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/popperjs/core@2.11.6/dist/umd/popper.min.js"></script>

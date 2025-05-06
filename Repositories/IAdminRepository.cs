@@ -9,10 +9,13 @@ namespace Foodie.Repositories
     {
 
         //Admin
-         
+
+        tbl_admin GetAdminById(int adminId);
+        void UpdateAdmin(tbl_admin admin);
+
         List<tbl_admin> GetAll();
         bool Login(string Email, string Password);
-        bool AddAdmin(tbl_admin admin ,byte[] Image);
+        bool AddAdmin(tbl_admin admin, byte[] Image);
         tbl_admin getSessionData(string Email);
 
         //Role
@@ -31,6 +34,9 @@ namespace Foodie.Repositories
         public IEnumerable<tbl_partner_complaints> GetAllDeliveryComplaints();
         void updateDelcom(tbl_partner_complaints tbl_Partner_Complaints);
         public IEnumerable<tbl_customer_complaints> GetAllCustomerComplaints();
+
+        List<tbl_cust_vendor_complaints> GetcustVendorComplaints();
+        List<tbl_cust_partner_complaints> GetcustPartnerComplaints();
 
 
         //Restaurants
