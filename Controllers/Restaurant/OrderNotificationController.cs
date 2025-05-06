@@ -24,6 +24,7 @@ namespace Foodie.Controllers.Restaurant
         [Route("OrderReady")]
         public IActionResult OrderReady()
         {
+
             var orders = _repository.tbl_Orders_Notifis_Accepted(1);
 
             return View(orders);
@@ -51,10 +52,10 @@ namespace Foodie.Controllers.Restaurant
 
         [HttpPost]
         [Route("acceptOrder")]
-        public IActionResult acceptOrder(int order_id,string food_status)
+        public IActionResult acceptOrder(int order_id, string food_status)
         {
-            
-            var result = _repository.AcceptOrder(order_id,food_status);
+
+            var result = _repository.AcceptOrder(order_id, food_status);
             if (result > 0)
             {
                 return Json(new { success = true, message = "Order accepted successfully." });
@@ -66,7 +67,7 @@ namespace Foodie.Controllers.Restaurant
 
         }
 
-       
+
         [HttpPost]
         [Route("isOnline")]
         public JsonResult isOnline(int status)
@@ -90,6 +91,8 @@ namespace Foodie.Controllers.Restaurant
 
         }
 
+
+
         [HttpGet]
         [Route("getOnline")]
         public JsonResult getOnline(int restaurantId)
@@ -99,5 +102,58 @@ namespace Foodie.Controllers.Restaurant
             return Json(data);
 
         }
+
+        [HttpGet]
+        [Route("isApproved")]
+        public JsonResult isApproved(int restaurantId)
+
+        {
+            var data = _repository.isApprove(restaurantId);
+
+
+
+            return Json(data);
+        }
+
+        [HttpPost]
+        [Route("OrderReady")]
+        public JsonResult OrderReady(int order_id, int restaurant_id)
+        {
+            var result = _repository.OrderReady(order_id, restaurant_id);
+            if (result > 0)
+            {
+                return Json(new { success = true, message = "Order is ready." });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Failed to update order status." });
+            }
+
+        }
+
+
+        //[HttpGet]
+        //[Route("getOrderReady")]
+        //public JsonResult getOrderReady(int restaurantId)
+        //{
+        //    var orders = _repository.tbl_Orders_Notifis_Ready(restaurantId);
+        //    if (orders == null || orders.Count == 0)
+        //    {
+        //        return Json(new { success = false, message = "No new orders found." });
+        //    }
+        //    return Json(orders);
+        //}
+
+        //[HttpGet]
+        //[Route("getOrderPickedUp")]
+        //public JsonResult getOrderPickedUp(int restaurantId)
+        //{
+        //    var orders = _repository.tbl_Orders_Notifis_Picked(restaurantId);
+        //    if (orders == null || orders.Count == 0)
+        //    {
+        //        return Json(new { success = false, message = "No new orders found." });
+        //    }
+        //    return Json(orders);
+        //}
     }
 }

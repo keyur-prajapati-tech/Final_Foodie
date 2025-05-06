@@ -69,7 +69,7 @@ namespace Foodie.Controllers.Restaurant
                         restaurant_pincode = model.tbl_Restaurant.restaurant_pincode,
                         restaurant_lat = model.tbl_Restaurant.restaurant_lat,
                         restaurant_lag = model.tbl_Restaurant.restaurant_lag,
-                        restaurant_isApprov = true,
+                        restaurant_isApprov = false,
                         restaurant_isOnline = false,
                         est_id = 1,
                         owner_id = model.tbl_Owner.owner_id

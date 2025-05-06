@@ -1,5 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@model List<Foodie.Models.Restaurant.tbl_menu_items>
 
+<!DOCTYPE html>
 <html>
 <head>
     <meta name="viewport" content="width=device-width" />
@@ -498,6 +499,24 @@
                 navText: ["<i class='fas fa-chevron-left'></i>", "<i class='fas fa-chevron-right'></i>"]
             });
         });
+
+        $(document).ready(function () {
+                $(".view-item").click(function () {
+                    var id = $(this).data("id");
+                    console.log("Clicked ID:", id); // Debug log
+                    $.ajax({
+                        url: '/Restaurantdeatil/GetItemInfo/' + id,
+                        type: 'GET',
+                        success: function (data) {
+                            $('#modalContent').html(data);
+                            $('#itemModal').modal('show');
+                        }
+                        error: function (err) {
+                            console.log("Error loading item info", err);
+                        }
+                    });
+                });
+            });
     </script>
     <div>
         @RenderBody()
@@ -565,9 +584,21 @@
 
         </div>
 
+        <!-- Modal HTML -->
+        <div class="modal fade" id="itemInfoModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content p-3">
+                    <h5 id="itemName"></h5>
+                    <p id="itemDescription"></p>
+                    <p><strong>₹<span id="itemAmount"></span></strong></p>
+                </div>
+            </div>
+        </div>
+
+
+
         <div id="order-online" class="tab-pane fade">
-            <h1>Order Online</h1>
-            <p>This is the Order Online Section.</p>
+            <a class="btn btn-outline-primary float-end" asp-controller="displayCart" asp-action="AddToCartIteminfo">cart</a>
 
             <div class="container">
                 <div class="row">
@@ -591,160 +622,97 @@
                         <h3>Newly Launched</h3>
 
                         <!-- Menu Item 1 -->
-                        <div class="menu-item">
-                            <img src="https://www.mccainindia.com/wp-content/uploads/2023/01/tandori-veggi-burger.jpg" alt="Burger" style="cursor:pointer">
-                            <div>
-                                <h5>Crispy Veggie Burger + McAloo Tikki</h5>
-                                <p>₹255.23 - Feel the crunch with our newly launched crispy veggie burger.</p>
-                                <div class="d-flex gap-2 float-end">
+                        @foreach (var item in Model)
+                        {
+                            <div class="menu-item">
+                                <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)" alt="@item.menu_name" style="width:150px; height:100px; object-fit:cover;" />
+                                <div>
+                                    <h2>@item.menu_name</h2>
+                                    <h4>@item.menu_descripation</h4>
+                                    <p>₹@item.amount</p>
+                                    <div class="d-flex gap-2 float-end">
+                                        <button class="btn btn-info btn-sm" onclick="loadItemInfo(@item.menu_id)">Item Info</button>
 
-                                    <!-- Button trigger modal -->
-                                    <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                                        Item Info
-                                    </button>
-                                    <a class="btn btn-outline-danger" asp-controller="displayCart" asp-action="AddToCartIteminfo">ADD</a>
-                                </div>
-
-                                <!-- Modal -->
-                                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                                    <div class="modal-dialog modal-dialog-centered">
-                                        <div class="modal-content">
-                                            <div class="modal-header">
-                                                <h1 class="modal-title fs-5" id="exampleModalLabel">Food Info</h1>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <div class="card p-2">
-                                                    <img src="https://luniamarketing.com/wp-content/uploads/2021/01/Moong-Dal-Ki-Kachori.jpg" alt="food_image" class="w-100 h-50" />
-                                                    <div class="d-flex justify-content-between" style="margin-top:10px;padding:2px;">
-                                                        <h3 style="font-size:15px;font-weight:800;">Dal Kachori [2 pieces]</h3>
-                                                        <div class="border-2 d-flex gap-3">
-                                                            <i class="fa-solid fa-bookmark" style="font-size:15px;"></i>
-                                                            <i class="fa-solid fa-share-from-square" style="font-size:15px;"></i>
-                                                        </div>
-                                                    </div>
-                                                    <div class="d-flex gap-2">
-                                                        <i class="fa-solid fa-star"></i>
-                                                        <i class="fa-solid fa-star"></i>
-                                                        <i class="fa-solid fa-star"></i>
-                                                        <i class="fa-solid fa-star"></i>
-                                                        <i class="fa-solid fa-star-half-stroke"></i>
-                                                        <p style="font-size:15px;font-weight:800;">(11)</p>
-                                                    </div>
-                                                </div>
-
-                                                <div class="card p-2 mt-2">
-                                                    <div class="d-flex justify-content-between">
-                                                        <p style="font-size:12px;font-weight:800;">ADD A Cooking Request(Optional)</p>
-                                                        <i class="fa-solid fa-circle-exclamation"></i>
-                                                    </div>
-                                                    <textarea class="border-3 rounded-3 bg-light" cols="5" rows="5" placeholder="e.g Don't make it too spicy'"></textarea>
-                                                </div>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <div class="d-flex justify-content-around gap-3">
-                                                    <div class="d-flex justify-content-between gap-2">
-                                                        <button class="border-0 fs-4 w-25 h-75">-</button>
-                                                        <p style="font-size:15px;font-weight:800;margin-top:10px;">1</p>
-                                                        <button class="border-0 fs-4 w-25 h-75">+</button>
-                                                        <button type="button" class="btn btn-primary">ADD</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="float-start p-3">
-                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                            </div>
-                                        </div>
+                                        <!-- Using Button for Add to Cart -->
+                                        <button type="button" class="btn btn-outline-danger add-to-cart" data-id="@item.menu_id" data-quantity="1" data-price="@item.amount">
+                                            ADD
+                                        </button>
                                     </div>
                                 </div>
+                            </div>
+                        }
 
+                        <!-- Modal Container -->
+                        <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content" id="modalContent">
+                                    <!-- AJAX loaded content will appear here -->
+                                </div>
                             </div>
                         </div>
-
-                        <!-- Menu Item 2 -->
-                        <div class="menu-item">
-                            <img src="https://via.placeholder.com/100" alt="Burger">
-                            <div>
-                                <h5>Crispy Veggie Burger + McVeggie Burger + Fries (M)</h5>
-                                <p>₹424.76 - Enjoy a perfect combination of burgers and fries.</p>
-                                <button class="btn btn-outline-danger">ADD</button>
-                            </div>
-                        </div>
-
-                        <!-- Menu Item 3 -->
-                        <div class="menu-item">
-                            <img src="https://via.placeholder.com/100" alt="Burger">
-                            <div>
-                                <h5>2 Crispy Veggie Burger + Fries (L) + 2 Coke</h5>
-                                <p>₹635.23 - A perfect combo for two with large fries and Coke.</p>
-                                <button class="btn btn-outline-danger">ADD</button>
-                            </div>
-                        </div>
-
-                        <!-- Menu Item 1 -->
-                        <div class="menu-item">
-                            <img src="https://via.placeholder.com/100" alt="Burger">
-                            <div>
-                                <h5>Crispy Veggie Burger + McAloo Tikki</h5>
-                                <p>₹255.23 - Feel the crunch with our newly launched crispy veggie burger.</p>
-                                <button class="btn btn-outline-danger">ADD</button>
-                            </div>
-                        </div>
-
-                        <!-- Menu Item 2 -->
-                        <div class="menu-item">
-                            <img src="https://via.placeholder.com/100" alt="Burger">
-                            <div>
-                                <h5>Crispy Veggie Burger + McVeggie Burger + Fries (M)</h5>
-                                <p>₹424.76 - Enjoy a perfect combination of burgers and fries.</p>
-                                <button class="btn btn-outline-danger">ADD</button>
-                            </div>
-                        </div>
-
-                        <!-- Menu Item 3 -->
-                        <div class="menu-item">
-                            <img src="https://via.placeholder.com/100" alt="Burger">
-                            <div>
-                                <h5>2 Crispy Veggie Burger + Fries (L) + 2 Coke</h5>
-                                <p>₹635.23 - A perfect combo for two with large fries and Coke.</p>
-                                <button class="btn btn-outline-danger">ADD</button>
-                            </div>
-                        </div>
-
-                        <!-- Menu Item 1 -->
-                        <div class="menu-item">
-                            <img src="https://via.placeholder.com/100" alt="Burger">
-                            <div>
-                                <h5>Crispy Veggie Burger + McAloo Tikki</h5>
-                                <p>₹255.23 - Feel the crunch with our newly launched crispy veggie burger.</p>
-                                <button class="btn btn-outline-danger">ADD</button>
-                            </div>
-                        </div>
-
-                        <!-- Menu Item 2 -->
-                        <div class="menu-item">
-                            <img src="https://via.placeholder.com/100" alt="Burger">
-                            <div>
-                                <h5>Crispy Veggie Burger + McVeggie Burger + Fries (M)</h5>
-                                <p>₹424.76 - Enjoy a perfect combination of burgers and fries.</p>
-                                <button class="btn btn-outline-danger">ADD</button>
-                            </div>
-                        </div>
-
-                        <!-- Menu Item 3 -->
-                        <div class="menu-item">
-                            <img src="https://via.placeholder.com/100" alt="Burger">
-                            <div>
-                                <h5>2 Crispy Veggie Burger + Fries (L) + 2 Coke</h5>
-                                <p>₹635.23 - A perfect combo for two with large fries and Coke.</p>
-                                <button class="btn btn-outline-danger">ADD</button>
-                            </div>
-                        </div>
-
                     </main>
                 </div>
             </div>
         </div>
+
+        <script>
+            $(document).ready(function () {
+                // Handle Add to Cart Button click
+                $(".add-to-cart").click(function () {
+                    var menuId = $(this).data("id");
+                    var quantity = $(this).data("quantity");
+                    var price = $(this).data("price");
+
+                    // Get the customer ID from the session (you might need to adjust this based on how you store it)
+                    var customerId = 2;
+
+                    // Make AJAX call to add the item to the cart
+                    $.ajax({
+                        url: '/displayCart/AddToCartIteminfo',  // Adjust to your actual controller and action
+                        type: 'POST',
+                        data: {
+                            menuid: menuId,
+                            quantity: quantity,
+                            price: price
+                        },
+                        success: function (response) {
+                            if (response.success) {
+                                alert(response.message); // Show success message
+                            } else {
+                                alert("Error adding item to cart.");
+                            }
+                        },
+                        error: function () {
+                            alert("An error occurred.");
+                        }
+                    });
+                });
+            });
+        </script>
+
+        <script>
+            function loadItemInfo(id) {
+                console.log(id);
+                $.ajax({
+                    url: '/Restaurantdeatil/GetMenuItemById?id=' + id,
+                    method: 'GET',
+                    success: function (data) {
+                        $('#itemName').text(data.menu_name);
+                        $('#itemDescription').text(data.menu_descripation);
+                        $('#itemAmount').text(data.amount);
+                        $('#itemInfoModal').modal('show');
+                    },
+                    error: function () {
+                        alert('Failed to load item information.');
+                    }
+                });
+            }
+        </script>
+
+
+        <!-- jQuery and Bootstrap Bundle at bottom -->
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
         <div id="reviews" class="tab-pane fade">
             <h1>Reviews</h1>
@@ -972,221 +940,6 @@
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-    <hr/>
-@*    <div class="sticky-navbar mt-5">
-        <ul class="nav nav-tabs justify-content-center">
-            <li class="nav-item">
-                <a class="nav-link" href="#">Overview</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link active" href="#">Order Online</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Reviews</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Photos</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="#">Menu</a>
-            </li>
-        </ul>
-    </div>
-
-    <div class="container mt-3">
-        <h1>Overview</h1>
-        <p>This This Overview Section</p>
-    </div>
-
-    <div class="container mt-3">
-        <div class="row">
-            <!-- Left Sticky Sidebar -->
-            <nav class="col-md-3 col-lg-2 d-none d-md-block menu-sidebar">
-                <h5 class="px-3">Order Online</h5>
-                <a hr ef="#" class="active">Newly Launched (30)</a>
-                <a href="#">Group Sharing Combos (27)</a>
-                <a href="#">McSaver Combos (2 Pc Meals) (71)</a>
-                <a href="#">Burger Combos (3 Pc Meals) (50)</a>
-                <a href="#">Burgers & Wraps (36)</a>
-                <a href="#">Fries & Sides (17)</a>
-                <a href="#">Coffee & Beverages (44)</a>
-                <a href="#">Cakes Brownies & Cookies (9)</a>
-                <a href="#">Desserts (11)</a>
-                <a href="#">Burgers With Millet Bun (6)</a>
-            </nav>
-
-            <!-- Right Content Section -->
-            <main class="col-md-9 col-lg-10 menu-content">
-                <h3>Newly Launched</h3>
-
-                <!-- Menu Item 1 -->
-                <div class="menu-item">
-                    <img src="https://www.mccainindia.com/wp-content/uploads/2023/01/tandori-veggi-burger.jpg" alt="Burger" style="cursor:pointer">
-                    <div>
-                        <h5>Crispy Veggie Burger + McAloo Tikki</h5>
-                        <p>₹255.23 - Feel the crunch with our newly launched crispy veggie burger.</p>
-                        <a class="btn btn-outline-danger" asp-controller="displayCart" asp-action="AddToCartIteminfo">ADD</a>
-                        
-                        <!-- Button trigger modal -->
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                            Launch demo modal
-                        </button>
-
-                        <!-- Modal -->
-                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <h1 class="modal-title fs-5" id="exampleModalLabel">Food Info</h1>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                              </div>
-                              <div class="modal-body">
-                                <div class="card p-2">
-                                    <img src="https://luniamarketing.com/wp-content/uploads/2021/01/Moong-Dal-Ki-Kachori.jpg" alt="food_image" class="w-100 h-50" />
-                                    <div class="d-flex justify-content-between" style="margin-top:10px;padding:2px;">
-                                        <h3 style="font-size:15px;font-weight:800;">Dal Kachori [2 pieces]</h3>
-                                        <div class="border-2 d-flex gap-3">
-                                            <i class="fa-solid fa-bookmark" style="font-size:15px;"></i>
-                                            <i class="fa-solid fa-share-from-square" style="font-size:15px;"></i>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex gap-2">
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star"></i>
-                                        <i class="fa-solid fa-star-half-stroke"></i>
-                                        <p style="font-size:15px;font-weight:800;">(11)</p>
-                                    </div>
-                                </div>
-
-                                <div class="card p-2 mt-2">
-                                    <div class="d-flex justify-content-between">
-                                        <p style="font-size:12px;font-weight:800;">ADD A Cooking Request(Optional)</p>
-                                        <i class="fa-solid fa-circle-exclamation"></i>
-                                    </div>
-                                    <textarea class="border-3 rounded-3 bg-light" cols="5" rows="5" placeholder="e.g Don't make it too spicy'"></textarea>
-                                </div>
-                              </div>
-                              <div class="modal-footer">
-                                <div class="d-flex justify-content-around gap-3">
-                                    <div class="d-flex justify-content-between gap-2">
-                                                <button class="border-0 fs-4 w-25 h-75">-</button>
-                                                <p style="font-size:15px;font-weight:800;margin-top:10px;">1</p>
-                                                <button class="border-0 fs-4 w-25 h-75">+</button>
-                                                <button type="button" class="btn btn-primary">ADD</button>
-                                    </div>
-                                </div>
-                              </div>
-                              <div class="float-start p-3">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        
-                    </div>
-                </div>
-
-                <!-- Menu Item 2 -->
-                <div class="menu-item">
-                    <img src="https://via.placeholder.com/100" alt="Burger">
-                    <div>
-                        <h5>Crispy Veggie Burger + McVeggie Burger + Fries (M)</h5>
-                        <p>₹424.76 - Enjoy a perfect combination of burgers and fries.</p>
-                        <button class="btn btn-outline-danger">ADD</button>
-                    </div>
-                </div>
-
-                <!-- Menu Item 3 -->
-                <div class="menu-item">
-                    <img src="https://via.placeholder.com/100" alt="Burger">
-                    <div>
-                        <h5>2 Crispy Veggie Burger + Fries (L) + 2 Coke</h5>
-                        <p>₹635.23 - A perfect combo for two with large fries and Coke.</p>
-                        <button class="btn btn-outline-danger">ADD</button>
-                    </div>
-                </div>
-
-                <!-- Menu Item 1 -->
-                <div class="menu-item">
-                    <img src="https://via.placeholder.com/100" alt="Burger">
-                    <div>
-                        <h5>Crispy Veggie Burger + McAloo Tikki</h5>
-                        <p>₹255.23 - Feel the crunch with our newly launched crispy veggie burger.</p>
-                        <button class="btn btn-outline-danger">ADD</button>
-                    </div>
-                </div>
-
-                <!-- Menu Item 2 -->
-                <div class="menu-item">
-                    <img src="https://via.placeholder.com/100" alt="Burger">
-                    <div>
-                        <h5>Crispy Veggie Burger + McVeggie Burger + Fries (M)</h5>
-                        <p>₹424.76 - Enjoy a perfect combination of burgers and fries.</p>
-                        <button class="btn btn-outline-danger">ADD</button>
-                    </div>
-                </div>
-
-                <!-- Menu Item 3 -->
-                <div class="menu-item">
-                    <img src="https://via.placeholder.com/100" alt="Burger">
-                    <div>
-                        <h5>2 Crispy Veggie Burger + Fries (L) + 2 Coke</h5>
-                        <p>₹635.23 - A perfect combo for two with large fries and Coke.</p>
-                        <button class="btn btn-outline-danger">ADD</button>
-                    </div>
-                </div>
-
-                <!-- Menu Item 1 -->
-                <div class="menu-item">
-                    <img src="https://via.placeholder.com/100" alt="Burger">
-                    <div>
-                        <h5>Crispy Veggie Burger + McAloo Tikki</h5>
-                        <p>₹255.23 - Feel the crunch with our newly launched crispy veggie burger.</p>
-                        <button class="btn btn-outline-danger">ADD</button>
-                    </div>
-                </div>
-
-                <!-- Menu Item 2 -->
-                <div class="menu-item">
-                    <img src="https://via.placeholder.com/100" alt="Burger">
-                    <div>
-                        <h5>Crispy Veggie Burger + McVeggie Burger + Fries (M)</h5>
-                        <p>₹424.76 - Enjoy a perfect combination of burgers and fries.</p>
-                        <button class="btn btn-outline-danger">ADD</button>
-                    </div>
-                </div>
-
-                <!-- Menu Item 3 -->
-                <div class="menu-item">
-                    <img src="https://via.placeholder.com/100" alt="Burger">
-                    <div>
-                        <h5>2 Crispy Veggie Burger + Fries (L) + 2 Coke</h5>
-                        <p>₹635.23 - A perfect combo for two with large fries and Coke.</p>
-                        <button class="btn btn-outline-danger">ADD</button>
-                    </div>
-                </div>
-
-            </main>
-        </div>
-    </div>
-
-    <div class="container mt-3">
-        <h1>Reviews</h1>
-        <p>This This Reviews Section</p>
-    </div>
-
-    <div class="container mt-3">
-        <h1>Photos</h1>
-        <p>This This Photos Section</p>
-    </div>
-
-    <div class="container mt-3">
-        <h1>Menu</h1>
-        <p>This This Menu Section</p>
-    </div>*@
 
     <footer class="footer">
         <div class="container">
