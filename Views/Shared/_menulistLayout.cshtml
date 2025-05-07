@@ -379,44 +379,457 @@
                     text-decoration: underline;
                 }
 
-        /* Left Sidebar */
-        .left-sidebar {
-            width: 250px;
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            position: sticky;
-            top: 80px;
-            height: fit-content;
+        /*--------------------------------------overview section css----------------------------------------------*/
+        /* Restaurant Details Section */
+        h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
         }
 
-            .left-sidebar img {
-                width: 100%;
+        .restaurant-type, .restaurant-location {
+            font-size: 16px;
+            color: #666;
+        }
+
+        /* Info Line */
+        .restaurant-info {
+            font-size: 14px;
+            margin: 10px 0;
+            color: #444;
+        }
+
+        .status {
+            color: #ff5733;
+            font-weight: bold;
+        }
+
+        .price {
+            font-weight: bold;
+        }
+
+        .contact a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+        }
+
+        /* Buttons */
+        .buttons {
+            margin-top: 10px;
+        }
+
+        .btn {
+            background: none;
+            border: 1px solid #ddd;
+            padding: 8px 15px;
+            margin-right: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            .btn:hover {
+                background: #f7f7f7;
+            }
+
+        /* Ratings */
+        .ratings {
+            display: flex;
+            margin-top: 15px;
+        }
+
+        .rating-box {
+            background: #f2f2f2;
+            padding: 10px;
+            margin-right: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .rating-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: #28a745;
+        }
+
+        /* Gallery */
+        .gallery {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        .main-image img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .side-images {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 5px;
+            margin-left: 10px;
+        }
+
+            .side-images img {
+                width: 100px;
+                height: 100px;
+                object-fit: cover;
                 border-radius: 5px;
             }
 
-        /* Main Content */
-        .content {
-            flex-grow: 1;
+        .gallery-overlay {
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            text-align: center;
+            font-size: 14px;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+
+
+
+        /* Layout */
+        .res-container {
+            display: flex;
+            width: 100%;
+            margin: auto;
+            gap: 20px;
+        }
+
+        /* Left Content */
+        .left-content {
+            width: 65%;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+            .tabs a {
+                text-decoration: none;
+                color: #666;
+                font-weight: bold;
+            }
+
+            .tabs .active {
+                color: red;
+                border-bottom: 2px solid red;
+            }
+
+        /* Menu Section */
+        .menu-section {
             background: white;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        /* Right Sidebar */
-        .right-sidebar {
-            width: 300px;
+        .cuisines {
+            margin-top: 10px;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #f7c744;
+            padding: 5px 10px;
+            margin-right: 5px;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .menu-card {
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .menu-card img {
+                width: 100px;
+                height: 100px;
+                border-radius: 8px;
+            }
+
+        /* Cost & More Info */
+        .average-cost, .more-info {
+            background: white;
+            padding: 20px;
+            margin-top: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Right Content (Fixed Location Box) */
+        .right-content {
+            width: 30%;
+            position: relative;
+        }
+
+        .location-box {
+            position: sticky;
+            top: 20px; /* Keeps it fixed when scrolling */
             background: white;
             padding: 15px;
-            border-radius: 10px;
-            position: sticky;
-            top: 80px;
-            height: fit-content;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
 
-            .right-sidebar img {
-                width: 100%;
+            .location-box iframe {
                 border-radius: 5px;
+            }
+
+        .copy-btn, .direction-btn {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .copy-btn {
+            background: #ddd;
+        }
+
+        .direction-btn {
+            background: red;
+            color: white;
+        }
+
+        /* Similar Restaurants */
+        .similar-restaurants h2, .featured-section h2 {
+            font-size: 20px;
+            margin: 10px auto;
+        }
+
+        .restaurant-carousel {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto; /* Allows horizontal scrolling */
+            padding-bottom: 10px;
+        }
+
+        .restaurant-card {
+            width: 300px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+            .restaurant-card img {
+                width: 100%;
+                height: 120px;
+                border-radius: 8px;
+            }
+
+        .rating {
+            font-size: 14px;
+            font-weight: bold;
+            color: green;
+        }
+
+        /* Featured Section */
+        .featured-card {
+            display: flex;
+            gap: 10px;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            align-items: center;
+        }
+
+            .featured-card img {
+                width: 80px;
+                height: 80px;
+                border-radius: 8px;
+            }
+
+        .featured-text h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .featured-text p {
+            color: red;
+            font-weight: bold;
+        }
+
+        /* Help Section */
+        .help-section {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+            .help-section h2 {
+                font-size: 16px;
+                letter-spacing: 2px;
+                font-weight: bold;
+                text-transform: uppercase;
+                color: black;
+                margin-bottom: 15px;
+            }
+
+        .help-box {
+            padding: 10px 0;
+        }
+
+            .help-box h3 {
+                font-size: 18px;
+                font-weight: bold;
+                color: black;
+            }
+
+            .help-box p {
+                color: gray;
+                font-size: 14px;
+                margin-bottom: 5px;
+            }
+
+        .report-link, .claim-link {
+            color: red;
+            font-weight: bold;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+            .report-link:hover, .claim-link:hover {
+                text-decoration: underline;
+            }
+
+        hr {
+            border: none;
+            height: 1px;
+            background: lightgray;
+            margin: 10px 0;
+        }
+
+
+        /* Styling for the review pills */
+        .review-pill {
+            display: inline-block;
+            padding: 10px 15px;
+            border: 1px solid #000;
+            border-radius: 5px;
+            font-size: 16px;
+            margin: 8px;
+            color: #333;
+            background-color: #fff;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+            /* Hover Effect */
+            .review-pill:hover {
+                background-color: #f8f8f8;
+                border-color: #ccc;
+            }
+
+        /* Center Align */
+        .review-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /*------------------------Review Section---------------------------------*/
+        .reviews-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .filter-dropdown {
+            font-size: 14px;
+            color: #777;
+            cursor: pointer;
+        }
+
+        .review-card {
+            display: flex;
+            align-items: flex-start;
+            border-bottom: 1px solid #ddd;
+            padding: 15px 0;
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ccc;
+            margin-right: 10px;
+        }
+
+        .review-content {
+            flex-grow: 1;
+        }
+
+        .reviewer-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .review-meta {
+            font-size: 12px;
+            color: #777;
+            margin-top: 3px;
+        }
+
+        .delivery-badge {
+            display: inline-block;
+            padding: 2px 6px;
+            font-size: 12px;
+            font-weight: bold;
+            border-radius: 3px;
+            color: white;
+            background-color: #ff5722;
+            margin-right: 5px;
+        }
+
+        .review-text {
+            margin-top: 5px;
+            font-size: 14px;
+            color: #444;
+        }
+
+        .review-actions {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #777;
+        }
+
+            .review-actions span {
+                margin-right: 15px;
+                cursor: pointer;
+            }
+
+        .follow-btn {
+            border: 1px solid #ff5722;
+            color: #ff5722;
+            background: transparent;
+            padding: 5px 10px;
+            font-size: 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            .follow-btn:hover {
+                background: #ff5722;
+                color: white;
             }
     </style>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -546,93 +959,196 @@
     <!-- Tab Content Sections -->
     <div class="tab-content container mt-3">
         <div id="overview" class="tab-pane fade show active">
-            <h1>Overview</h1>
-            <p>This is the Overview Section.</p>
+            <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+                <div class="res-container mt-3">
+                    <!-- Left Side Content -->
+                    <div class="left-content">
+                        <div class="menu-section">
+                            <h2>Menu</h2>
+                            <div class="cuisines">
+                                <span class="tag">North Indian</span>
+                                <span class="tag">Kathiyawadi</span>
+                            </div>
+                            <div class="menu-card">
+                                <img src="https://i.pinimg.com/736x/e0/92/ac/e092ac87d6ff12512795de70ae181331.jpg" alt="Menu">
+                                <p>Menu <br> 2 pages</p>
+                            </div>
+                        </div>
 
-            <div class="container">
-                <!-- Left Sidebar - Menu -->
-                <aside class="left-sidebar">
-                    <h2>Menu</h2>
-                    <div class="cuisines">
-                        <span class="tag">Gujarati</span>
+                        <div class="average-cost">
+                            <h2>Average Cost</h2>
+                            <p><strong>₹500</strong> for two people (approx.)</p>
+                            <p>Exclusive of taxes & charges, if any</p>
+                            <p>Digital payments accepted</p>
+                        </div>
+
+                        <div class="more-info">
+                            <h2>More Info</h2>
+                            <ul>
+                                <li>Takeaway Available</li>
+                                <li>Vegetarian Only</li>
+                                <li>Family Friendly</li>
+                                <li>Outdoor Seating</li>
+                            </ul>
+                        </div>
+
+                        <!-- Similar Restaurants Section -->
+                        <div class="similar-restaurants">
+                            <h2>Similar Restaurants</h2>
+                            <div class="restaurant-carousel">
+                                <div class="restaurant-card">
+                                    <img src="restaurant1.jpg" alt="Vishala Garden">
+                                    <h3>Vishala Garden R...</h3>
+                                    <p><span class="rating">3.0 ⭐</span> DINING | <span class="rating">3.9 ⭐</span> DELIVERY</p>
+                                    <p>North Indian, Chinese, Gujarati</p>
+                                    <p>Katargam, Surat</p>
+                                </div>
+
+                                <div class="restaurant-card">
+                                    <img src="restaurant2.jpg" alt="Super Seek Paratha">
+                                    <h3>Super Seek Parat...</h3>
+                                    <p><span class="rating">4.1 ⭐</span> DINING | <span class="rating">4.0 ⭐</span> DELIVERY</p>
+                                    <p>North Indian, Biryani</p>
+                                    <p>Shahpore, Surat</p>
+                                </div>
+
+                                <div class="restaurant-card">
+                                    <img src="restaurant3.jpg" alt="Swaminarayan Khichdi">
+                                    <h3>Swaminarayan Khi...</h3>
+                                    <p><span class="rating">3.9 ⭐</span> DINING | <span class="rating">3.9 ⭐</span> DELIVERY</p>
+                                    <p>Gujarati, North Indian</p>
+                                    <p>Kapodra, Surat</p>
+                                </div>
+                            </div>
+                        </div>
+                        <!--Review Highlights-->
+                        <div class="container mt-4" style="background-color:#fff;box-shadow:3px 3px 3px 3px rgba(0,0,0,0);">
+                            <h4>Review Highlights</h4>
+                            <div class="review-container">
+                                <span class="review-pill">Large Servings</span>
+                                <span class="review-pill">Delivery Person</span>
+                                <span class="review-pill">Contactless Delivery</span>
+                                <span class="review-pill">Wonderful Presentation</span>
+                                <span class="review-pill">Nice Food</span>
+                                <span class="review-pill">Student Crowd</span>
+                            </div>
+                        </div>
+                        <!-- Featured Section -->
+                        <div class="featured-section">
+                            <h2>Featured In</h2>
+                            <div class="featured-card">
+                                <img src="featured.jpg" alt="Gujarati Dishes">
+                                <div class="featured-text">
+                                    <h3>Unmissable Gujarati D...</h3>
+                                    <p>11 Places ➜</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Help Us Make Zomato Better Section -->
+                        <div class="help-section mt-3">
+                            <h2>HELP US MAKE ZOMATO BETTER</h2>
+
+                            <div class="help-box">
+                                <h3>Report an error in this listing</h3>
+                                <p>Help us make Zomato more updated and relevant for everyone</p>
+                                <a href="#" class="report-link">Report now ➜</a>
+                            </div>
+
+                            <hr> <!-- Horizontal Line -->
+
+                            <div class="help-box">
+                                <h3>Claim this listing</h3>
+                                <p>Claim this listing to get access to a free management and analytics dashboard, where you can edit information, track your page views, and more.</p>
+                                <a href="#" class="claim-link">Claim now ➜</a>
+                            </div>
+                        </div>
+
                     </div>
-                    <img src="menu-image.jpg" alt="Menu">
-                </aside>
 
-                <!-- Main Content -->
-                <main class="content">
-                    <section>
-                        <h2>People Say This Place Is Known For</h2>
-                        <p>Fusion Dishes, Variety of Veg Options, Family Place, Good Food, Ambience, Value for Money</p>
-                    </section>
-                    <section>
-                        <h2>Average Cost</h2>
-                        <p>₹300 for two people (approx.)</p>
-                        <p>Digital payments accepted</p>
-                    </section>
-                </main>
-
-                <!-- Right Sidebar - Direction -->
-                <aside class="right-sidebar">
-                    <h2>Direction</h2>
-                    <img src="map-image.jpg" alt="Map">
-                    <p>7/132/177, 1st Floor, Malvi Dharamshala Building, Varachha, Surat</p>
-                    <button>Copy</button>
-                    <button>Direction</button>
-                </aside>
+                    <!-- Right Side Fixed Location -->
+                    <div class="right-content">
+                        <div class="location-box">
+                            <h2>Direction</h2>
+                            <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=..." width="100%" height="150"></iframe>
+                            <p>Adajan Hazira Main Road, Opposite Shell Petrol Pump, Bhatha Gam, Pal Gam, Surat</p>
+                            <button class="copy-btn">📋 Copy</button>
+                            <button class="direction-btn">📍 Direction</button>
+                        </div>
+                    </div>
+                </div>
             </div>
 
         </div>
 
-        <!-- Modal HTML -->
+        <!-- RestaurantInfo Modal Container -->
         <div class="modal fade" id="itemInfoModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content p-3">
-                    <h5 id="itemName"></h5>
-                    <p id="itemDescription"></p>
-                    <p><strong>₹<span id="itemAmount"></span></strong></p>
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="itemName">Item Name</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <img id="itemImage" src="" class="img-fluid rounded mb-3 w-100 h-100" alt="Item Image" style="object-fit: cover;">
+                        <p><strong>Description:</strong></p>
+                        <p id="itemDescription">Loading...</p>
+                        <p><strong>Amount:</strong> ₹<span id="itemAmount">0.00</span></p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
                 </div>
             </div>
         </div>
 
 
-
         <div id="order-online" class="tab-pane fade">
             <a class="btn btn-outline-primary float-end" asp-controller="displayCart" asp-action="AddToCartIteminfo">cart</a>
 
-            <div class="container">
-                <div class="row">
-                    <!-- Left Sticky Sidebar -->
-                    <nav class="col-md-3 col-lg-2 d-none d-md-block menu-sidebar">
-                        <h5 class="px-3">Order Online</h5>
-                        <a hr ef="#" class="active">Newly Launched (30)</a>
-                        <a href="#">Group Sharing Combos (27)</a>
-                        <a href="#">McSaver Combos (2 Pc Meals) (71)</a>
-                        <a href="#">Burger Combos (3 Pc Meals) (50)</a>
-                        <a href="#">Burgers & Wraps (36)</a>
-                        <a href="#">Fries & Sides (17)</a>
-                        <a href="#">Coffee & Beverages (44)</a>
-                        <a href="#">Cakes Brownies & Cookies (9)</a>
-                        <a href="#">Desserts (11)</a>
-                        <a href="#">Burgers With Millet Bun (6)</a>
-                    </nav>
+            <div class="row mt-3">
+                <!-- Sidebar Menu Categories -->
+                <div class="left-sidebar col-md-3">
+                    <ul class="list-group">
+                        <li class="list-group-item active">Newly Launched (30)</li>
+                        <li class="list-group-item">Group Sharing Combos (27)</li>
+                        <li class="list-group-item">McSaver Combos (71)</li>
+                        <li class="list-group-item">Burger Combos (49)</li>
+                        <li class="list-group-item">Burgers & Wraps (35)</li>
+                        <li class="list-group-item">Fries & Sides (17)</li>
+                        <li class="list-group-item">Coffee & Beverages (44)</li>
+                        <li class="list-group-item">Cakes & Brownies (11)</li>
+                        <li class="list-group-item">Desserts (11)</li>
+                    </ul>
+                </div>
+
+
+                <!-- Main Menu Content -->
+                <div class="content-area col-md-9">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3>Order Online</h3>
+                        <input type="text" class="form-control w-50" placeholder="Search within menu">
+                    </div>
+
+                    <h4 class="mt-3">Newly Launched</h4>
 
                     <!-- Right Content Section -->
-                    <main class="col-md-9 col-lg-10 menu-content">
-                        <h3>Newly Launched</h3>
+                    <main class="col-md-6 col-lg-12 menu-content">
 
                         <!-- Menu Item 1 -->
                         @foreach (var item in Model)
                         {
-                            <div class="menu-item">
+                            <div class="menu-item" style="border: 3px solid #000;border-radius: 5px;padding: 5px;">
                                 <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)"
-                                     id="itemImage"  alt="@item.menu_name" style="width:150px; height:100px; object-fit:cover;" />
+                                         id="itemImage" alt="@item.menu_name" style="width:150px; height:130px; object-fit:cover;border: 3px solid #000;margin-top:-60px;" />
                                 <div>
                                     <h2>@item.menu_name</h2>
-                                    <h4>@item.menu_descripation</h4>
+                                    <p>@item.menu_descripation</p>
                                     <p>₹@item.amount</p>
-                                    <div class="d-flex gap-2 float-end">
-                                        <button class="btn btn-info btn-sm" onclick="loadItemInfo(@item.menu_id)">Item Info</button>
+                                    <a href="#">Read More</a>
+                                    <hr />
+                                    <div>
+                                        <button class="btn btn-outline-info" onclick="loadItemInfo(@item.menu_id)">Item Info</button>
 
                                         <!-- Using Button for Add to Cart -->
                                         <button type="button" class="btn btn-outline-danger add-to-cart" data-id="@item.menu_id" data-quantity="1" data-price="@item.amount">
@@ -652,6 +1168,7 @@
                             </div>
                         </div>
                     </main>
+
                 </div>
             </div>
         </div>
@@ -701,7 +1218,7 @@
                         $('#itemName').text(data.menu_name);
                         $('#itemDescription').text(data.menu_descripation);
                         $('#itemAmount').text(data.amount);
-                        $('#itemImage').attr('src', 'data:image/jpeg;base64,' + data.image_data);
+                        $('#itemImage').attr('src', 'data:image/jpeg;base64,' + data.menu_img);
                         $('#itemInfoModal').modal('show');
                     },
                     error: function () {
@@ -717,72 +1234,52 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
         <div id="reviews" class="tab-pane fade">
-            <h1>Reviews</h1>
-            <p>This is the Reviews Section.</p>
-
-            <div class="container review-container">
-                <h4>McDonald's Reviews</h4>
-
-                <!-- Review 1 -->
-                <div class="review-card">
-                    <div class="review-header">
-                        <div class="user-info">
-                            <div class="user-img"></div>
-                            <div>
-                                <strong>Krish</strong> <br>
-                                <span style="font-size: 12px; color: gray;">0 reviews • 0 Followers</span>
-                            </div>
-                        </div>
-                        <button class="btn-follow">Follow</button>
-                    </div>
-                    <p><span class="badge bg-warning text-dark">DELIVERY</span> 2 days ago</p>
-                    <p>Free item note added.</p>
+            <div class="reviews-header">
+                <div>McDonald's Reviews</div>
+                <div class="filter-dropdown">🔽 Newest First</div>
+            </div>
+            <div class="review-card">
+                <div class="profile-pic"></div>
+                <div class="review-content">
+                    <div class="reviewer-name">Krishi</div>
+                    <div class="review-meta"><span class="delivery-badge">1★ DELIVERY</span> 2 days ago</div>
+                    <div class="review-text">Free item note added</div>
                     <div class="review-actions">
-                        <span>👍 Helpful</span>
-                        <span>💬 Comment</span>
-                        <span>🔗 Share</span>
+                        <span>👍 Helpful</span> <span>💬 Comment</span> <span>🔗 Share</span>
                     </div>
                 </div>
+                <button class="follow-btn">Follow</button>
+            </div>
 
-                <!-- Review 2 -->
-                <div class="review-card">
-                    <div class="review-header">
-                        <div class="user-info">
-                            <div class="user-img"></div>
-                            <div>
-                                <strong>Nisarg Shroff</strong> <br>
-                                <span style="font-size: 12px; color: gray;">0 reviews • 7 Followers</span>
-                            </div>
-                        </div>
-                        <button class="btn-follow">Follow</button>
-                    </div>
-                    <p><span class="badge bg-warning text-dark">DELIVERY</span> 3 days ago</p>
-                    <p>Received order after one and half hour.</p>
+            <div class="review-card">
+                <div class="profile-pic"></div>
+                <div class="review-content">
+                    <div class="reviewer-name">Nisarg Shroff</div>
+                    <div class="review-meta"><span class="delivery-badge" style="background:green;">5★ DELIVERY</span> 3 days ago</div>
+                    <div class="review-text">Great service and fast delivery!</div>
                     <div class="review-actions">
-                        <span>👍 Helpful</span>
-                        <span>💬 Comment</span>
-                        <span>🔗 Share</span>
+                        <span>👍 Helpful</span> <span>💬 Comment</span> <span>🔗 Share</span>
                     </div>
                 </div>
+                <button class="follow-btn">Follow</button>
+            </div>
 
-                <!-- Pagination -->
-                <nav>
-                    <ul class="pagination">
-                        <li class="page-item"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item"><a class="page-link" href="#">4</a></li>
-                        <li class="page-item"><a class="page-link" href="#">5</a></li>
-                    </ul>
-                </nav>
+            <div class="review-card">
+                <div class="profile-pic"></div>
+                <div class="review-content">
+                    <div class="reviewer-name">Harshit</div>
+                    <div class="review-meta"><span class="delivery-badge">1★ DELIVERY</span> 3 days ago</div>
+                    <div class="review-text">Received order after one and half hour</div>
+                    <div class="review-actions">
+                        <span>👍 Helpful</span> <span>💬 Comment</span> <span>🔗 Share</span>
+                    </div>
+                </div>
+                <button class="follow-btn">Follow</button>
             </div>
 
         </div>
 
         <div id="photos" class="tab-pane fade">
-            <h1>Photos</h1>
-            <p>This is the Photos Section.</p>
-
             <div class="container">
                 <h4>McDonald's Photos</h4>
 
@@ -881,14 +1378,11 @@
         </div>
 
         <div id="menu" class="tab-pane fade">
-            <h1>Menu</h1>
-            <p>This is the Menu Section.</p>
-
             <div class="menu-header">McDonald's Menu</div>
 
             <div class="menu-container">
                 <div class="menu-image">
-                    <img src="menu-image.jpg" alt="McDonald's Menu">
+                    <img src="https://b.zmtcdn.com/data/menus/002/1400002/c536631806a44e45c9e07010a94905bb.jpg" alt="McDonald's Menu">
                 </div>
                 <div class="menu-details">
                     <strong>Menu</strong><br>

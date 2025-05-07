@@ -57,7 +57,7 @@
             <!-- Logged In User -->
             <div class="card p-3 mb-3">
                 <h5>Logged in <span class="text-success">✔</span></h5>
-                <p> @userName| @phone</p>
+                <p> Kevin@123 | +91 9745863219</p>
             </div>
 
             <!-- Delivery Address -->
@@ -81,28 +81,28 @@
         <!-- Right Section (Order Summary) -->
         <div class="col-md-4">
             <div class="card p-3">
-                <h5>Roof 5</h5>
-                <p class="text-muted">Chhindwara Locality</p>
+                <h3>Foodie Tasky Food</h3>
+                <p class="h5">Foodie Tasty - The Commoner's Kitchen'</p>
 
                 <!-- Loop Through Cart Items -->
                 @foreach (var item in Model)
                 {
                     <div class="p-2" style="border: 3px solid #000; border-radius: 5px;margin: 3px 3px;">
                         <div class="menu-item" data-price="@item.amount">
-                            <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)" alt="@item.menu_name" style="width:350px; height:200px; object-fit:cover;" />
+                            <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)" alt="@item.menu_name" style="width:350px; height:200px; object-fit:contain;" />
                             <div>
                                 <h4>Food Name : <strong>@item.menu_name</strong></h4>
                                 <h4>Price: <strong> ₹<span class="unit-price">@item.amount</span></strong></h4>
 
                                 <div class="d-flex gap-2 align-items-center" style="border-top: 3px solid #333;">
                                     <div class="mt-2">
-                                        <button class="btn btn-outline-secondary qty-minus">-</button>
+                                        <button class="btn btn-outline-danger qty-minus">-</button>
                                         <span class="qty">1</span>
-                                        <button class="btn btn-outline-secondary qty-plus">+</button>
+                                        <button class="btn btn-outline-success qty-plus">+</button>
                                     </div>
                                 </div>
 
-                                <div class="d-flex justify-content-between" style="margin-top: 2px; border-top: 3px solid #000;">
+                                <div class="d-flex justify-content-between" style="margin-top: 2px; margin-bottom: 2px; border-top: 3px solid #000;">
                                     <h5>Total Amount :- </h5>
                                     <span class="item-total text-primary fw-bold ms-3">₹@item.amount</span>
                                 </div>
