@@ -71,8 +71,6 @@ namespace Foodie.Repositories
             return admins;
         }
 
-
-
         public IEnumerable<tbl_roles> GetRole()
         {
             var Role = new List<tbl_roles>();
@@ -100,17 +98,31 @@ namespace Foodie.Repositories
         {
             using (SqlConnection con = new SqlConnection(_connectionstring))
             {
-                string query = "SELECT COUNT(*) FROM admins.tbl_admin WHERE Email = @Email AND Password = @Password";
+                string query = "SELECT admin_id FROM admins.tbl_admin WHERE Email = @Email AND Password = @Password";
                 SqlCommand cmd = new SqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@Email", Email);
                 cmd.Parameters.AddWithValue("@Password", Password);
 
                 con.Open();
+                object result = cmd.ExecuteScalar();
 
-                int count = (int)cmd.ExecuteScalar(); // Returns the number of matching rows
+                if (result != null)
+                {
+                    int adminId = Convert.ToInt32(result);
+
+                    // Update LastLogin timestamp
+                    string updateQuery = "UPDATE admins.tbl_admin SET LastLogin = @Now WHERE admin_id = @AdminId";
+                    SqlCommand updateCmd = new SqlCommand(updateQuery, con);
+                    updateCmd.Parameters.AddWithValue("@Now", DateTime.Now);
+                    updateCmd.Parameters.AddWithValue("@AdminId", adminId);
+                    updateCmd.ExecuteNonQuery();
+
+                    con.Close();
+                    return true;
+                }
+
                 con.Close();
-
-                return count > 0; // Login successful if count > 0
+                return false;
             }
         }
 
@@ -893,6 +905,34 @@ ORDER BY [Month];";
                 var rows = cmd.ExecuteNonQuery();
                 return rows > 0;
             }
+        }
+
+        public IEnumerable<tbl_restaurant> GetPendingRestaurant()
+        {
+
+            List<tbl_restaurant> alertList = new List<tbl_restaurant>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("vendores.sp_get_pending_restaurant", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    alertList.Add(new tbl_restaurant
+                    {
+                        restaurant_id = Convert.ToInt32(reader["restaurant_id"]),
+                        restaurant_name = reader["restaurant_name"].ToString(),
+                        restaurant_contact = reader["restaurant_contact"].ToString(),
+                        restaurant_email = reader["restaurant_email"].ToString(),
+                        owner_name = reader["owner_name"].ToString()
+                    }); 
+                }
+            }
+
+            return alertList;
         }
 
     }

@@ -4,61 +4,70 @@
 }
 <head>
     <title>@ViewBag.Title</title>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-<div class="text-center">
-    <h1>Customers</h1>
-</div>
 
-<div class="container shadow">
-    <div class="border-2">
-        @* <div class="mt-1 mb-1 pt-3 ps-4 pb-3 shadow">
-             <a asp-controller="Login" asp-action="Addcustomers"><button type="button" class="btn btn-outline-primary">Add</button></a> 
-                <button type="button" class="btn btn-outline-primary">Restaurant</button> 
-                <button type="button" class="btn btn-outline-primary">Delivery Boy</button> 
-        </div> *@
-        <div class="table-responsive border-4">
-            <table class="table table-striped table-bordered">
-                <thead>
-                    <tr>
-                        <th scope="col">Customer Id</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Phone</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Gender</th>
-                        <th scope="col">ProfilePic</th>
-                        <th scope="col">Date Of Birth</th>
-                        <th scope="col">Created At</th>
-                        <th scope="col">Updated At</th>
+<div class="container mt-4">
+    <div class="text-center mb-4">
+        <h1 class="display-5 fw-bold">Customers</h1>
+        
+    </div>
 
-                    </tr>
-                </thead>
-                <tbody>
-                     @foreach(var emp in Model) 
-                     { 
+    <!-- Table Card -->
+    <div class="card shadow-lg border-0">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">Customer List</h5>
+           
+        </div>
+
+        <div class="card-body p-4">
+            <div class="table-responsive">
+                <table class="table table-hover table-bordered table-striped mb-0 text-center align-middle">
+                    <thead class="table-primary">
                         <tr>
-                            <th scope="row">@emp.customer_id</th>
-                            <td scope="col">@emp.customer_name</td>
-                            <td scope="col">@emp.phone</td>
-                            <td scope="col">@emp.email</td>
-                            <td scope="col">@emp.Gender</td>
-                            <td scope="col">
-                                @if (emp.profilepic != null)
-                                {
-                                    <img src="data:.png;base64,@Convert.ToBase64String(emp.profilepic)" width="50" height="50" />
-                                }
-                                else
-                                {
-                                    <p>No profile Img</p>
-                                }
-                            </td>
-                            <td scope="col">@emp.DOB</td>
-                            <td scope="col">@emp.created_at</td>
-                            <td scope="col">@emp.updated_at</td>
+                            <th scope="col">Customer ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Phone</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Gender</th>
+                            <th scope="col">Profile</th>
+                            <th scope="col">DOB</th>
+                            <th scope="col">Created At</th>
+                            <th scope="col">Updated At</th>
                         </tr>
-                     } 
-                </tbody>
-            </table>
-
+                    </thead>
+                    <tbody>
+                        @foreach (var emp in Model)
+                        {
+                            <tr>
+                                <th scope="row">@emp.customer_id</th>
+                                <td>@emp.customer_name</td>
+                                <td>@emp.phone</td>
+                                <td>@emp.email</td>
+                                <td>@emp.Gender</td>
+                                <td>
+                                    @if (emp.profilepic != null)
+                                    {
+                                        <img src="data:image/png;base64,@Convert.ToBase64String(emp.profilepic)" width="50" height="50" class="rounded-circle" />
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">No profile Img</span>
+                                    }
+                                </td>
+                                <td>@emp.DOB</td>
+                                <td>@emp.created_at</td>
+                                <td>@emp.updated_at</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+    // You can add JavaScript for additional interactivity if necessary
+</script>

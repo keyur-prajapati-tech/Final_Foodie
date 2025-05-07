@@ -1,98 +1,115 @@
 ﻿@{
-    
     ViewData["PageName"] = "Orders";
-}
-@{
     Layout = "_AdminLayout";
 }
-@model Foodie.ViewModels.OrderViewModel;
+@model Foodie.ViewModels.OrderViewModel
+
 <head>
     <title>@ViewBag.Title</title>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-<div class="text-center">
-    <h1>@ViewData["pageName"]</h1>
-</div>
 
-<div class="container shadow">
-    <div class="border-2 pt-3 pb-1">
-        <div class="btn-group" role="group">
-            <button class="btn btn-outline-primary filter-btn" data-status="All">All</button>
-            <button class="btn btn-outline-primary filter-btn" data-status="Pending">Pending</button>
-            <button class="btn btn-outline-primary filter-btn" data-status="Accepted">Accepted</button>
-            <button class="btn btn-outline-primary filter-btn" data-status="Out for Delivery">Out for Delivery</button>
-            <button class="btn btn-outline-primary filter-btn" data-status="Delivered">Delivered</button>
-            <button class="btn btn-outline-primary filter-btn" data-status="Cancelled">Canceled</button>
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h1 class="display-5 fw-bold">@ViewData["PageName"]</h1>
+    </div>
+
+    <div class="card border-0 shadow">
+        <div class="card-header bg-light">
+            <div class="d-flex flex-wrap justify-content-center gap-2">
+                <button class="btn btn-outline-primary active" data-status="All">All</button>
+                <button class="btn btn-outline-secondary" data-status="Pending">Pending</button>
+                <button class="btn btn-outline-secondary" data-status="Accepted">Accepted</button>
+                <button class="btn btn-outline-secondary" data-status="Out for Delivery">Out for Delivery</button>
+                <button class="btn btn-outline-secondary" data-status="Delivered">Delivered</button>
+                <button class="btn btn-outline-danger" data-status="Cancelled">Canceled</button>
+            </div>
         </div>
 
-        <table class="table table-bordered table-striped mt-3">
-            <thead>
-                <tr>
-                    <th>Order Id</th>
-                    <th>Status</th>
-                    <th>Restaurant Name</th>
-                    <th>Order date</th>
-                    <th>Delivery Time</th>
-                    <th>Customer Name</th>
-                    <th>Menu</th>
-                    <th>Coupone Id</th>
-                    <th>Discount</th>
-                </tr>
-            </thead>
-            <tbody id="orderTableBody">
-                
-
-            </tbody>
-        </table>
-        <script>
-            $(document).ready(function () {
-                loadOrders("All");
-
-                $(".filter-btn").click(function () {
-                    const status = $(this).data("status");
-                    loadOrders(status);
-                });
-
-                function loadOrders(status) {
-                    $.ajax({
-                        url: '/Orders/oders1',
-                        type: 'GET',
-                        data: { status: status },
-                                                success: function (data) {
-                let rows = "";
-
-                data.forEach(order => {
-                    rows += `
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped align-middle text-center">
+                    <thead class="table-primary">
                         <tr>
-                            <td>${order.orderId}</td>
-                            <td>${order.order_status}</td>
-                            <td>${order.restaurantName}</td>
-                            <td>${formatDate(order.orderDate)}</td>
-                            <td>${formatDate(order.deliveryTime)}</td>
-                            <td>${order.customer_name}</td>
-                            <td>${order.menu}</td>
-                            <td>${order.coupone_id}</td>
-                            <td>${order.discount.toFixed(2)}</td>
-                        </tr>`;
-                });
-
-                $("#orderTableBody").html(rows); // Clear and replace table body
-            },
-
-
-                        error: function () {
-                            alert("Error loading orders.");
-                        }
-                    });
-                }
-                 function formatDate(dateString) {
-                if (!dateString) return "--";
-                const date = new Date(dateString);
-                return date.toLocaleDateString();
-            }
-
-            });
-        </script>
-
+                            <th>Order Id</th>
+                            <th>Status</th>
+                            <th>Restaurant</th>
+                            <th>Order Date</th>
+                            <th>Delivery Time</th>
+                            <th>Customer</th>
+                            <th>Menu</th>
+                            <th>Coupon</th>
+                            <th>Discount</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderTableBody">
+                        <!-- Dynamic rows inserted here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function () {
+        loadOrders("All");
+
+        $(".btn-group .btn, .card-header .btn").click(function () {
+            $(".card-header .btn").removeClass("active");
+            $(this).addClass("active");
+
+            const status = $(this).data("status");
+            loadOrders(status);
+        });
+
+        function loadOrders(status) {
+            $.ajax({
+                url: '/Orders/oders1',
+                type: 'GET',
+                data: { status: status },
+                success: function (data) {
+                    let rows = "";
+
+                    data.forEach(order => {
+                        rows += `
+                            <tr>
+                                <td>${order.orderId}</td>
+                                <td>${badge(order.order_status)}</td>
+                                <td>${order.restaurantName}</td>
+                                <td>${formatDate(order.orderDate)}</td>
+                                <td>${formatDate(order.deliveryTime)}</td>
+                                <td>${order.customer_name}</td>
+                                <td>${order.menu}</td>
+                                <td>${order.coupone_id ?? "--"}</td>
+                                <td>${order.discount.toFixed(2)}</td>
+                            </tr>`;
+                    });
+
+                    $("#orderTableBody").html(rows);
+                },
+                error: function () {
+                    alert("Error loading orders.");
+                }
+            });
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return "--";
+            const date = new Date(dateString);
+            return date.toLocaleDateString();
+        }
+
+        function badge(status) {
+            let color = "secondary";
+            switch (status) {
+                case "Pending": color = "black"; break;
+                case "Accepted": color = "info"; break;
+                case "Out for Delivery": color = "secondary"; break;
+                case "Delivered": color = "success"; break;
+                case "Cancelled": color = "danger"; break;
+            }
+            return `<span class="badge bg-${color}">${status}</span>`;
+        }
+    });
+</script>

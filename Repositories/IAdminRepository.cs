@@ -77,5 +77,9 @@ namespace Foodie.Repositories
         void UpdateApprovalStatus(int restaurantId, bool isApproved);
 
         public bool DeleteVendor(int id);
+
+
+
+        public IEnumerable<tbl_restaurant> GetPendingRestaurant();
     }
 }
