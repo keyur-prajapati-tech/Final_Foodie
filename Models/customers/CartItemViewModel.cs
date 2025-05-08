@@ -2,7 +2,7 @@
 {
     public class CartItemViewModel
     {
-        public int customerId { get; set; }
+        public int customer_id { get; set; }
         public int cart_item_id { get; set; }
         public int menu_id { get; set; }
         public string menu_name { get; set; }

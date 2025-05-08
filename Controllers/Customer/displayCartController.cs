@@ -142,5 +142,30 @@ namespace Foodie.Controllers.Customer
             }
             return View(customer);
         }
+
+        //Increasing quantity, Decreasing quantity, Removing item, Getting total
+        [HttpPost]
+        public IActionResult IncrementQuantity(int cartItemId,int customerId)
+        {
+            _repository.IncreaseQuantity(cartItemId);
+            var total = _repository.GetCartTotal(customerId);
+            return Json(new { success = true, total });
+        }
+
+        [HttpPost]
+        public IActionResult DecrementQuantity(int cartItemId,int customerId)
+        {
+            _repository.DecreaseQuantity(cartItemId);
+            var total = _repository.GetCartTotal(customerId);
+            return Json(new { success = true, total });
+        }
+
+        [HttpPost]
+        public IActionResult RemoveCartItem(int cartItemId,int customerId)
+        {
+            _repository.RemoveCartItem(cartItemId);
+            var total = _repository.GetCartItems(customerId);
+            return Json(new { success = true, total });
+        }
     }
 }

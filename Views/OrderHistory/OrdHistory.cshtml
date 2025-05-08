@@ -84,12 +84,12 @@
 
             @foreach (var ord in Model)
             {
-                if (ord.food_status == "REJECT")
+                if (ord.food_status == "completed")
                 {
                     <div class="card order-card rejected">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
-                                <span class="badge bg-danger">REJECTED</span>
+                                <span class="badge bg-success">Order Complete</span>
                                 <span class="text-muted">9:29 PM | 1 Nov</span>
                             </div>
                             <p class="fw-bolder mt-2">Order ID: @ord.order_id</p>
@@ -112,7 +112,7 @@
                     <div class="card order-card delivered">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
-                                <span class="badge bg-success">DELIVERED</span>
+                                <span class="badge bg-danger">Rejected</span>
                                 <span class="text-muted">9:29 PM | 1 Nov</span>
                             </div>
                             <p class="fw-bold mt-2">Order ID: @ord.order_id</p>

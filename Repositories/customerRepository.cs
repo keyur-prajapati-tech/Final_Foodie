@@ -618,15 +618,34 @@ namespace Foodie.Repositories
         {
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = @"UPDATE tbl_cart_item
-                SET quantity = quantity + @delta
-                WHERE cart_item_id = @cartItemId AND quantity + @delta > 0"";";
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@delta", delta);
-                cmd.Parameters.AddWithValue("@cartItemId", cartItemId);
-
                 conn.Open();
-                cmd.ExecuteNonQuery();
+
+                //Get Current Quantity
+                string selectQuery = @"SELECT quantity FROM customers.tbl_cart_item WHERE cart_item_id = @id";
+                SqlCommand cmd = new SqlCommand(selectQuery, conn);
+                cmd.Parameters.AddWithValue("@id", cartItemId);
+
+                int currentQty = Convert.ToInt32(cmd.ExecuteScalar());
+
+                int newQty = currentQty + delta;
+
+                if(newQty <= 0)
+                {
+                    //Delete Item form Cart
+                    string deleteQuery = @"DELETE FROM customers.tbl_cart_|item where cart_item_id=@id";
+                    SqlCommand deletecmd = new SqlCommand(deleteQuery, conn);
+                    deletecmd.Parameters.AddWithValue("@id", cartItemId);
+                    deletecmd.ExecuteNonQuery();
+                }
+                else
+                {
+                    //update quantity
+                    string updateQty = "UPDATE customers.tbl_cart_item SET quantity = @qty WHERE cart_item_id = @id";
+                    SqlCommand updatecmd = new SqlCommand(updateQty, conn);
+                    updatecmd.Parameters.AddWithValue("@id", cartItemId);
+                    updatecmd.Parameters.AddWithValue("@qty", newQty);
+                    updatecmd.ExecuteNonQuery();
+                }
                 conn.Close();
             }
         }
