@@ -18,8 +18,6 @@ namespace Foodie.Controllers
 
         public IActionResult oders()
         {
-           
-
             return View();
         }
 
