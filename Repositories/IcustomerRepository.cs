@@ -1,5 +1,6 @@
 ﻿using Foodie.Models.customers;
 using Foodie.Models.Restaurant;
+using static Foodie.Models.customers.tbl_coupone;
 
 namespace Foodie.Repositories
 {
@@ -29,7 +30,7 @@ namespace Foodie.Repositories
 
         void AddToCart(tbl_cart_item tbl_Cart_Item);
         tbl_cart GetOrCreateCart(int customerId);
-        void PlaceOrder(int customerId);
+        //void PlaceOrder(int customerId);
 
         IEnumerable<tbl_state> GetAllStates();
         IEnumerable<tbl_district> GetDistrictByStateId(int stateId);
@@ -40,5 +41,14 @@ namespace Foodie.Repositories
         tbl_menu_items GetMenuItemById(int id);
 
         tbl_customer GetCustomerNameAndPhone(int customerId);
+
+        List<tbl_coupone> GetAllCoupons();
+        tbl_coupone GetAutoApplicableCoupon(decimal grandTotal);
+
+        decimal CalculateGrandTotal(int customer_id);
+
+        int PlaceOrder(int customer_id, int? coupone_id, int address_id, int paymentModeId, decimal totalAmount, decimal discount, string razorpayPaymentId, string razorpayOrderId);
+
+        void SaveOrderItem(int orderId, int menuId, int quantity, decimal price, decimal discount);
     }
 }
