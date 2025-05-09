@@ -1,5 +1,6 @@
 ﻿using Foodie.Models.Restaurant;
 using Microsoft.Data.SqlClient;
+using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;
 
@@ -742,6 +743,84 @@ namespace Foodie.Repositories
             }
 
             return outletInfo;
+        }
+
+
+        //Done By KP
+        public IEnumerable<tbl_special_offers> tbl_Special_Offers()
+        {
+            var offers = new List<tbl_special_offers>();
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT * FROM vendores.tbl_offers WHERE is_Active = 1";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    offers.Add(new tbl_special_offers
+                    {
+                        SoId = (int)reader["so_id"],
+                        OfferTitle = reader["offer_title"].ToString(),
+                        OfferDesc = reader["offer_desc"].ToString(),
+                        PercentageDisc = (int)reader["percentage_disc"],
+                        ValidFrom = (DateTime)reader["validFrom"],
+                        ValidTo = (DateTime)reader["validTo"],
+                        IsActive = (bool)reader["is_Active"],
+                        ImagePath = reader["image_path"].ToString()
+                    });
+                }
+            }
+            return offers;
+        }
+
+        public tbl_special_offers tbl_Special_Offers_ById(int id)
+        {
+            tbl_special_offers offers = null;
+
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT * FROM vendores.tbl_offers WHERE is_Active = 1 AND so_id = @id";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@id", id);
+                conn.Open();
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    new tbl_special_offers
+                    {
+                        SoId = (int)reader["so_id"],
+                        OfferTitle = reader["offer_title"].ToString(),
+                        OfferDesc = reader["offer_desc"].ToString(),
+                        PercentageDisc = (int)reader["percentage_disc"],
+                        ValidFrom = (DateTime)reader["validFrom"],
+                        ValidTo = (DateTime)reader["validTo"],
+                        IsActive = (bool)reader["is_Active"],
+                        ImagePath = reader["image_path"].ToString()
+                    };
+                }
+            }
+            return offers;
+        }
+
+        public void Add_SP_Offer(tbl_special_offers special_Offers)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Update_SP_offer(tbl_special_offers special_offers)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void Delete_SP_offer(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IEnumerable<tbl_pan_details> tbl_pan_details(string term)
+        {
+            throw new NotImplementedException();
         }
     }
 }
