@@ -21,21 +21,29 @@ namespace Foodie.Repositories
         {
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                SqlCommand cmd = new SqlCommand("admins.sp_Add_Admin", conn);
-                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                using (SqlCommand cmd = new SqlCommand("admins.sp_Add_Admin", conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
 
-                cmd.Parameters.AddWithValue("@Full_name", admin.Full_name);
-                cmd.Parameters.AddWithValue("@Password", admin.Password);
-                cmd.Parameters.AddWithValue("@Email", admin.Email);
-                cmd.Parameters.AddWithValue("@Phone", admin.Phone);
-                cmd.Parameters.AddWithValue("@role_id", admin.role_id);
-                cmd.Parameters.AddWithValue("@Image", Image ?? (object)DBNull.Value);
-                cmd.Parameters.AddWithValue("@LastLogin", DateTime.Now);
-                conn.Open();
-                int rowsAffected = cmd.ExecuteNonQuery();
+                    cmd.Parameters.AddWithValue("@Full_name", admin.Full_name);
+                    cmd.Parameters.AddWithValue("@Password", admin.Password);
+                    cmd.Parameters.AddWithValue("@Email", admin.Email);
+                    cmd.Parameters.AddWithValue("@Phone", admin.Phone);
+                    cmd.Parameters.AddWithValue("@role_id", admin.role_id);
+                    cmd.Parameters.AddWithValue("@LastLogin", DateTime.Now);
 
-                conn.Close();
-                return rowsAffected > 0;
+                    // Handle the Image parameter
+                    SqlParameter imageParam = new SqlParameter("@Image", SqlDbType.VarBinary);
+                    if (Image != null)
+                        imageParam.Value = Image;
+                    else
+                        imageParam.Value = DBNull.Value;
+                    cmd.Parameters.Add(imageParam);
+
+                    conn.Open();
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
             }
         }
 
@@ -612,7 +620,6 @@ namespace Foodie.Repositories
             }
         }
 
-
         public DashBoardViewModel GetMonthlySalesData()
         {
             // var salesByMonth = new int[12]; // Index 0 = Jan, 11 = Dec
@@ -878,6 +885,7 @@ ORDER BY [Month];";
                         RestaurantName = reader["restaurant_name"]?.ToString(),
                         RestaurantEmail = reader["restaurant_email"]?.ToString(),
                         RestaurantContact = reader["restaurant_contact"]?.ToString(),
+                        RestaurantStreet = reader["restaurant_street"]?.ToString(),
                         OwnerName = reader["owner_name"]?.ToString(),
                         OwnerContact = reader["owner_contact"]?.ToString(),
                         BankName = reader["bank_name"]?.ToString(),

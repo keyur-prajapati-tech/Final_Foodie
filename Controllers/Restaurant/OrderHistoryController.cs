@@ -46,12 +46,13 @@ namespace Foodie.Controllers.Restaurant
 
         public IActionResult Reviews()
         {
-            return View();
+            var ratings = _restaurantRepository.GetAllRatings();
+            return View(ratings);
         }
 
         public IActionResult OutletInfo()
         {
-            var restaurantId = 1; // Replace with the actual restaurant ID
+            var restaurantId = 2; // Replace with the actual restaurant ID
 
             var outletInfo = _restaurantRepository.getOutletInfo(restaurantId);
 

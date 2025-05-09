@@ -1,6 +1,8 @@
-﻿using Foodie.Models.Restaurant;
+﻿using Foodie.Models.customers;
+using Foodie.Models.Restaurant;
 using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
+using System.Data;
 using System.Security.Cryptography;
 
 
@@ -15,7 +17,6 @@ namespace Foodie.Repositories
         {
             r_id = id;
         }
-
         public static int getRId()
         {
             return r_id;
@@ -258,23 +259,26 @@ namespace Foodie.Repositories
         {
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string qry = "insert into vendores.tbl_gst_details(gst_number,is_Verify,Restaurant_id) values(@number,@verify,@rid)";
+                string qry = "INSERT INTO vendores.tbl_gst_details (gst_number, is_Verify, Restaurant_id) VALUES (@number, @verify, @rid)";
 
-                SqlCommand cmd = new SqlCommand(qry, conn);
+                using (SqlCommand cmd = new SqlCommand(qry, conn))
+                {
+                    // Check if gst_number is null or empty
+                    bool isGstNumberNull = string.IsNullOrWhiteSpace(gst.gst_number);
 
-                cmd.Parameters.AddWithValue("@number", gst.gst_number);
-                cmd.Parameters.AddWithValue("@verify", gst.is_Verify);
-                cmd.Parameters.AddWithValue("@rid", gst.Restaurant_id);
+                    // Add parameters with appropriate null handling
+                    cmd.Parameters.AddWithValue("@number", isGstNumberNull ? (object)DBNull.Value : gst.gst_number);
+                    cmd.Parameters.AddWithValue("@verify", isGstNumberNull ? (object)DBNull.Value : gst.is_Verify);
+                    cmd.Parameters.AddWithValue("@rid", isGstNumberNull ? (object)DBNull.Value : gst.Restaurant_id);
 
-                conn.Open();
-
-                int result = cmd.ExecuteNonQuery();
-
-                conn.Close();
-
-                return result;
+                    conn.Open();
+                    int result = cmd.ExecuteNonQuery();
+                    return result;
+                }
             }
         }
+
+
 
         public int AddFssaiDetails(tbl_fssai_Details fssai, byte[] img)
         {
@@ -587,6 +591,7 @@ namespace Foodie.Repositories
                 return result;
             }
         }
+
         public int getOnline(int restaurant_id)
         {
             using (SqlConnection conn = new SqlConnection(_connectionstring))
@@ -740,6 +745,39 @@ namespace Foodie.Repositories
             }
 
             return outletInfo;
+        }
+
+
+        public List<tbl_ratings> GetAllRatings()
+        {
+            var ratings = new List<tbl_ratings>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlCommand cmd = new SqlCommand("customers.sp_get_all_ratings", conn))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                conn.Open();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        ratings.Add(new tbl_ratings
+                        {
+                            RatingId = (int)reader["rating_id"],
+                            customer_name = reader["customer_name"]?.ToString(),
+                            restaurant_name = reader["restaurant_name"]?.ToString(),
+                            OrderId = reader["order_id"] as int?,
+                            OrderDate = Convert.ToDateTime(reader["order_date"]),
+                            RatingValue = (int)reader["rating"],
+                            discription = reader["discription"]?.ToString(),
+                            image = reader["profilepic"] != DBNull.Value ? (byte[])reader["profilepic"] : null
+                        });
+                    }
+                }
+            }
+
+            return ratings;
         }
     }
 }

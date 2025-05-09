@@ -1,4 +1,5 @@
-﻿using Foodie.Models.Restaurant;
+﻿using Foodie.Models.customers;
+using Foodie.Models.Restaurant;
 using System.Reflection.Metadata;
 
 namespace Foodie.Repositories
@@ -61,6 +62,8 @@ namespace Foodie.Repositories
         public bool isApprove(int restaurant_id);
 
         public OutletInfo getOutletInfo(int restaurant_id);
+
+        public List<tbl_ratings> GetAllRatings();
 
     }
 }
