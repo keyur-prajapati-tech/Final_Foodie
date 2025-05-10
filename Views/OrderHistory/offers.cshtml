@@ -1,91 +1,45 @@
-﻿@{
-    Layout = "~/Views/Shared/_RestaurantLayout.cshtml";
+﻿@model IEnumerable<Foodie.Models.Restaurant.tbl_special_offers>
+@{
+    ViewData["Title"] = "Special Offers";
 }
+<h2>Special Offers</h2>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Offer Cards</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .offer-card {
-            min-width: 180px;
-            background: #f6f7f8;
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            margin-right: 15px;
-            flex-shrink: 0;
-            text-align: center;
+<form method="get" asp-action="offers">
+    <input type="text" name="SearchTerm" placeholder="Search offers..." />
+    <button type="submit">Search</button>
+</form>
+
+<a asp-action="AddOffers" class="btn btn-success my-2">Add New Offer</a>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Discount</th>
+            <th>Valid From</th>
+            <th>Valid To</th>
+            <th>Image</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var offer in Model)
+        {
+            <tr>
+                <td>@offer.OfferTitle</td>
+                <td>@offer.OfferDesc</td>
+                <td>@offer.PercentageDisc %</td>
+                <td>@offer.ValidFrom.ToShortDateString()</td>
+                <td>@offer.ValidTo.ToShortDateString()</td>
+                <td>
+                    <img src="@Url.Content(offer.ImagePath)" width="100" />
+                </td>
+                <td>
+                    <a asp-action="EditOffers" asp-route-id="@offer.SoId" class="btn btn-warning">Edit</a>
+                    <a asp-action="DeleteOffers" asp-route-id="@offer.SoId" class="btn btn-danger" onclick="return confirm('Are you sure?')">Delete</a>
+                </td>
+            </tr>
         }
-
-            .offer-card h5 {
-                font-size: 18px;
-                font-weight: bold;
-                margin-bottom: 5px;
-                color: #ff5722;
-            }
-
-        .offer-sub {
-            font-size: 14px;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .badge-custom {
-            font-size: 12px;
-            padding: 5px 10px;
-            border-radius: 20px;
-            background-color: #ffc107;
-            color: #000;
-        }
-
-        .offer-scroll {
-            display: flex;
-            overflow-x: auto;
-            padding: 10px 0;
-        }
-
-            .offer-scroll::-webkit-scrollbar {
-                display: none;
-            }
-    </style>
-</head>
-<body >
-
-    <div class="container">
-        <h4 class="mb-3">Recommended Offers for You</h4>
-
-        <div class="offer-scroll">
-            <div class="offer-card">
-                <h5>30% OFF</h5>
-                <div class="offer-sub">up to ₹75</div>
-                <span class="badge-custom">New users only</span>
-            </div>
-            <div class="offer-card">
-                <h5>20% OFF</h5>
-                <div class="offer-sub">up to ₹50</div>
-                <span class="badge-custom">New users only</span>
-            </div>
-            <div class="offer-card">
-                <h5>10% OFF</h5>
-                <div class="offer-sub">up to ₹40</div>
-                <span class="badge-custom">Breakfast only</span>
-            </div>
-            <div class="offer-card">
-                <h5>20% OFF</h5>
-                <div class="offer-sub">up to ₹50</div>
-                <span class="badge-custom">Breakfast only</span>
-            </div>
-            <div class="offer-card">
-                <h5>30% OFF</h5>
-                <div class="offer-sub">up to ₹75</div>
-                <span class="badge-custom">New users only</span>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    </tbody>
+</table>

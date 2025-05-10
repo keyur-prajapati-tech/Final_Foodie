@@ -1,0 +1,42 @@
+﻿@model Foodie.Models.Restaurant.tbl_special_offers
+@{
+    ViewData["Title"] = "Edit Offer";
+}
+<h2>Edit Offer</h2>
+
+<form asp-action="EditOffers" enctype="multipart/form-data" method="post">
+    <input type="hidden" asp-for="SoId" />
+    <div class="form-group">
+        <label asp-for="OfferTitle"></label>
+        <input asp-for="OfferTitle" class="form-control" />
+        <span asp-validation-for="OfferTitle" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="OfferDesc"></label>
+        <textarea asp-for="OfferDesc" class="form-control"></textarea>
+        <span asp-validation-for="OfferDesc" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="PercentageDisc"></label>
+        <input asp-for="PercentageDisc" class="form-control" />
+        <span asp-validation-for="PercentageDisc" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ValidFrom"></label>
+        <input asp-for="ValidFrom" type="date" class="form-control" />
+        <span asp-validation-for="ValidFrom" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="ValidTo"></label>
+        <input asp-for="ValidTo" type="date" class="form-control" />
+        <span asp-validation-for="ValidTo" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label>Existing Image</label><br />
+        <img src="@Url.Content(Model.ImagePath)" width="150" /><br />
+        <label asp-for="OfferImage">Change Image</label>
+        <input asp-for="OfferImage" type="file" class="form-control" />
+    </div>
+    <input type="submit" value="Update" class="btn btn-primary" />
+    <a asp-action="offers" class="btn btn-secondary">Cancel</a>
+</form>

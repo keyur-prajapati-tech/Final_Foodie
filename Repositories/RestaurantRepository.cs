@@ -1,4 +1,5 @@
 ﻿using Foodie.Models.Restaurant;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
@@ -747,12 +748,12 @@ namespace Foodie.Repositories
 
 
         //Done By KP
-        public IEnumerable<tbl_special_offers> tbl_Special_Offers()
+        public IEnumerable<tbl_special_offers> Get_Special_Offers()
         {
             var offers = new List<tbl_special_offers>();
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = "SELECT * FROM vendores.tbl_offers WHERE is_Active = 1";
+                string query = "SELECT * FROM vendores.tbl_special_offers WHERE is_Active = 1";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
                 var reader = cmd.ExecuteReader();
@@ -774,7 +775,7 @@ namespace Foodie.Repositories
             return offers;
         }
 
-        public tbl_special_offers tbl_Special_Offers_ById(int id)
+        public tbl_special_offers Get_Special_Offers_ById(int id)
         {
             tbl_special_offers offers = null;
 
@@ -805,22 +806,85 @@ namespace Foodie.Repositories
 
         public void Add_SP_Offer(tbl_special_offers special_Offers)
         {
-            throw new NotImplementedException();
+            using (SqlConnection conn = new SqlConnection(_connectionstring)) 
+            {
+                string query = @"INSERT INTO vendores.tbl_special_offers (so_id,restaurant_id,offer_title,offer_desc,percentage_disc,validFrom,validTo,is_Active,menu_id,image_path) VALUES (@soid,@restaurantid,@percentage,@validfrom,@validto,@isActive,@menuId,@image_path)";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@soid", special_Offers.SoId);
+                cmd.Parameters.AddWithValue("@restaurantid", special_Offers.RestaurantId);
+                cmd.Parameters.AddWithValue("@percentage", special_Offers.PercentageDisc);
+                cmd.Parameters.AddWithValue("@validfrom", special_Offers.ValidFrom);
+                cmd.Parameters.AddWithValue("@validto", special_Offers.ValidTo);
+                cmd.Parameters.AddWithValue("@isActive", special_Offers.IsActive);
+                cmd.Parameters.AddWithValue("@menuId", special_Offers.MenuId);
+                cmd.Parameters.AddWithValue("@image_path", special_Offers.ImagePath);
+
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                conn.Close();
+            }
         }
 
         public void Update_SP_offer(tbl_special_offers special_offers)
         {
-            throw new NotImplementedException();
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "UPDATE vendores.tbl_special_offers SET offer_title = @title, offer_desc = @desc, percentage_disc = @percentage, validFrom = @validFrom, validTo = @validTo, is_Active = @isActive, image_path = @image_path WHERE so_id = @id";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@id", special_offers.SoId);
+                cmd.Parameters.AddWithValue("@title", special_offers.OfferTitle);
+                cmd.Parameters.AddWithValue("@desc", special_offers.OfferDesc);
+                cmd.Parameters.AddWithValue("@percentage", special_offers.PercentageDisc);
+                cmd.Parameters.AddWithValue("@validFrom", special_offers.ValidFrom);
+                cmd.Parameters.AddWithValue("@validTo", special_offers.ValidTo);
+                cmd.Parameters.AddWithValue("@isActive", special_offers.IsActive);
+                cmd.Parameters.AddWithValue("@image_path", special_offers.ImagePath);
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                conn.Close();
+            }
         }
 
         public void Delete_SP_offer(int id)
         {
-            throw new NotImplementedException();
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "DELETE FROM vendores.tbl_special_offers WHERE so_id = @id";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@id", id);
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                conn.Close();
+            }
         }
 
-        public IEnumerable<tbl_pan_details> tbl_pan_details(string term)
+        public IEnumerable<tbl_special_offers> special_offer_search(string term)
         {
-            throw new NotImplementedException();
+            var offer2 = new List<tbl_special_offers>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT * FROM vendores.tbl_special_offers WHERE title LIKE @term";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@term", "%" + term + "%");
+                conn.Open();
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    offer2.Add(new tbl_special_offers
+                    {
+                        SoId = (int)reader["so_id"],
+                        OfferTitle = reader["offer_title"].ToString(),
+                        OfferDesc = reader["offer_desc"].ToString(),
+                        PercentageDisc = (int)reader["percentage_disc"],
+                        ValidFrom = (DateTime)reader["validFrom"],
+                        ValidTo = (DateTime)reader["validTo"],
+                        IsActive = (bool)reader["is_Active"],
+                        ImagePath = reader["image_path"].ToString()
+                    });
+                }
+            }
+            return offer2;
         }
     }
 }
