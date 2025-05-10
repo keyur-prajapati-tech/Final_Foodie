@@ -1,4 +1,5 @@
-﻿using Foodie.Models.customers;
+﻿using Foodie.Models;
+using Foodie.Models.customers;
 using Foodie.Models.Restaurant;
 using Microsoft.Data.SqlClient;
 using System.Collections.Generic;
@@ -748,7 +749,7 @@ namespace Foodie.Repositories
         }
 
 
-        public List<tbl_ratings> GetAllRatings()
+        public List<tbl_ratings> GetAllRatings(int restaurant_id)
         {
             var ratings = new List<tbl_ratings>();
 
@@ -756,6 +757,7 @@ namespace Foodie.Repositories
             using (SqlCommand cmd = new SqlCommand("customers.sp_get_all_ratings", conn))
             {
                 cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@restaurant_id", restaurant_id);
                 conn.Open();
 
                 using (SqlDataReader reader = cmd.ExecuteReader())
@@ -779,5 +781,61 @@ namespace Foodie.Repositories
 
             return ratings;
         }
+
+
+        public IEnumerable<tbl_cust_vendor_complaints> GetComplaintsByRestaurantId(int restaurantId)
+        {
+            var complaints = new List<tbl_cust_vendor_complaints>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_get_complaints_by_restaurant_id", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@restaurant_id", restaurantId);
+
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    complaints.Add(new tbl_cust_vendor_complaints
+                    {
+                        vendor_complaint_id = Convert.ToInt32(reader["vendor_complaint_id"]),
+                        restaurant_id = Convert.ToInt32(reader["restaurant_id"]),
+                        cmp_Descr = reader["cmp_Descr"]?.ToString(),
+                        cmp_Status = Convert.ToBoolean(reader["cmp_Status"]),
+                        ResolutionRemarks = reader["ResolutionRemarks"] == DBNull.Value ? null : reader["ResolutionRemarks"].ToString(),
+                        createdAt = Convert.ToDateTime(reader["createdAt"]),
+                        ResolvedAt = reader["ResolvedAt"] is DBNull ? DateTime.MinValue : Convert.ToDateTime(reader["ResolvedAt"])
+                    });
+                }
+            }
+
+            return complaints;
+        }
+
+        public void updateVencom(tbl_cust_vendor_complaints tbl_Cust_Vendor_Complaints)
+        {
+            using (var conn = new SqlConnection(_connectionstring))
+            {
+                //conn.Open();
+
+                using (var command = new SqlCommand("admins.sp_edit_cust_complaints", conn))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+
+                    // Add parameters
+                    command.Parameters.AddWithValue("@vendor_com_id", tbl_Cust_Vendor_Complaints.vendor_complaint_id);
+                    command.Parameters.AddWithValue("@cmp_status", 1);
+                    command.Parameters.AddWithValue("@restaurant_id", tbl_Cust_Vendor_Complaints.restaurant_id);
+                    command.Parameters.AddWithValue("@resolutionRemarks", tbl_Cust_Vendor_Complaints.ResolutionRemarks);
+                    command.Parameters.AddWithValue("@resolvedAt", DateTime.Now);
+                    // Execute the stored procedure
+                    conn.Open();
+                    command.ExecuteNonQuery();
+                    conn.Close();
+                }
+            }
+        }
+
     }
 }

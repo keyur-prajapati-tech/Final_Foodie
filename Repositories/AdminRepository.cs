@@ -324,15 +324,16 @@ namespace Foodie.Repositories
                 {
                     customer_complaints.Add(new tbl_customer_complaints
                     {
-                        customer_complaint_id = (int)reader["partner_complaint_id"],
-                        customer_name = reader["customer_name"].ToString(),
-                        cmp_Descr = reader["rating"].ToString(),
-                        cmp_Status = (int)reader["cmp_Status"],
-                        Full_name = reader["Full_name"].ToString(),
-                        restaurant_name = reader["restaurant_name"].ToString(),
-                        ResolutionRemarks = reader["ResolutionRemarks"].ToString(),
-                        createdAt = Convert.ToDateTime(reader["createdAt"]),
-                        ResolvedAt = Convert.ToDateTime(reader["ResolvedAt"])
+                        customer_complaint_id = reader["partner_complaint_id"] is DBNull ? 0 : Convert.ToInt32(reader["partner_complaint_id"]),
+                        customer_name = reader["customer_name"] is DBNull ? null : reader["customer_name"].ToString(),
+                        cmp_Descr = reader["rating"] is DBNull ? null : reader["rating"].ToString(),
+                        cmp_Status = reader["cmp_Status"] is DBNull ? 0 : Convert.ToInt32(reader["cmp_Status"]),
+                        Full_name = reader["Full_name"] is DBNull ? null : reader["Full_name"].ToString(),
+                        restaurant_name = reader["restaurant_name"] is DBNull ? null : reader["restaurant_name"].ToString(),
+                        ResolutionRemarks = reader["ResolutionRemarks"] is DBNull ? null : reader["ResolutionRemarks"].ToString(),
+                        createdAt = reader["createdAt"] is DBNull ? DateTime.MinValue : Convert.ToDateTime(reader["createdAt"]),
+                        ResolvedAt = reader["ResolvedAt"] is DBNull ? DateTime.MinValue : Convert.ToDateTime(reader["ResolvedAt"])
+
                     });
                 }
                 conn.Close();

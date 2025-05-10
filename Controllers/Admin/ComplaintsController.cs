@@ -14,6 +14,8 @@ namespace Foodie.Controllers
         {
             _AdminRepository = adminRepository;
         }
+
+
         public IActionResult customerComplaints()
         {
             var vendor = _AdminRepository.GetAllVendorComplaints();

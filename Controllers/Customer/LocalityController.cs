@@ -139,6 +139,7 @@ namespace Foodie.Controllers.Customer
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [HttpPost]
         public IActionResult Login(string email, string password)
         {
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
@@ -146,25 +147,44 @@ namespace Foodie.Controllers.Customer
                 return Json(new { success = false, message = "Email and password are required." });
             }
 
-            var customer = _repository.ValidateCustomerLogin(email.Trim().ToLower(),password.Trim().ToLower());
-
-            if (customer == null || customer.password != password)
+            // Attempt to authenticate as a customer
+            var customer = _repository.ValidateCustomerLogin(email.Trim().ToLower(), password.Trim());
+            if (customer != null)
             {
-                return Json(new { success = false, message = "Invalid email or password." });
+                HttpContext.Session.SetString("UserId", customer.customer_id.ToString());
+                HttpContext.Session.SetString("UserName", customer.customer_name);
+                HttpContext.Session.SetString("UserRole", "customer");
+
+                return Json(new
+                {
+                    success = true,
+                    redirectUrl = Url.Action("Locality", "Locality"),
+                    message = "Login successful.",
+                    userName = customer.customer_name
+                });
             }
 
-            HttpContext.Session.SetString("CustomerEmail", customer.email);
-            HttpContext.Session.SetString("CustomerName", customer.customer_name);
-            HttpContext.Session.SetString("customer_id", customer.customer_id.ToString()); // 💥 This fixes the null session issue
-
-            return Json(new
+            // Attempt to authenticate as a restaurant
+            var restaurant = _repository.ValidateRestaurantLogin(email.Trim().ToLower(), password.Trim());
+            if (restaurant != null)
             {
-                success = true,
-                redirectUrl = Url.Action("Locality", "Locality"),
-                message = "Login successful.",
-                customerName = customer.customer_name
-            });
+                HttpContext.Session.SetString("UserId", restaurant.restaurant_id.ToString());
+                HttpContext.Session.SetString("UserName", restaurant.restaurant_name);
+                HttpContext.Session.SetString("UserRole", "restaurant");
+
+                return Json(new
+                {
+                    success = true,
+                    redirectUrl = Url.Action("reports", "OrderHistory"),
+                    message = "Login successful.",
+                    userName = restaurant.restaurant_name
+                });
+            }
+
+            // Authentication failed
+            return Json(new { success = false, message = "Invalid email or password." });
         }
+
 
         public IActionResult customerLayout()
         {
