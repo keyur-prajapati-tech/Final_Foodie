@@ -77,27 +77,19 @@
 
                         <div class="mb-4 row">
                             <div class="col-md-12">
-                                <label for="cmp_Descr" class="form-label">Description </label>
-                                <input type="text" for="cmp_Descr" id="cmp_Descr1" class="form-control" disabled />
+                                <label asp-for="cmp_Descr" class="form-label">Description </label>
+                                <input type="text" asp-for="cmp_Descr" id="cmp_Descr1" class="form-control" disabled />
                             </div>
 
                         </div>
-
-                        @*  <div class="mb-4 row">
-                                    <div class="col-md-12">
-                                        <label asp-for="tbl_Vendor_Complaint.admin_id" class="form-label">AdminId</label>
-                                        <input type="text" class="form-control" id="admin_id" asp-for="tbl_Vendor_Complaint.admin_id" disabled/>
-
-                                    </div>
-                                </div> *@
 
                         <div class="mb-4 row">
                             <div class="col-md-12">
-                                <label for="ResolutionRemarks" class="form-label">Resolution Remark</label>
-                                <input type="text" for="ResolutionRemarks" id="ResolutionRemarks" class="form-control" />
+                                <label asp-for="ResolutionRemarks" class="form-label">Resolution Remark</label>
+                                <input type="text" asp-for="ResolutionRemarks" id="ResolutionRemarks" class="form-control" />
                             </div>
                         </div>
-                        <input type="hidden" class="form-control"form ="vendor_complaint_id" id="ven_id" />
+                            <input type="hidden" class="form-control" asp-for="vendor_complaint_id" id="ven_id" />
 
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-outline-primary">Update </button>
