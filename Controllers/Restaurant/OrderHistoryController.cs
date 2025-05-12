@@ -2,6 +2,7 @@ using Foodie.Models.customers;
 using Foodie.ViewModels;
 using Foodie.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Foodie.Models.Restaurant;
 
 namespace Foodie.Controllers.Restaurant
 {
@@ -35,7 +36,7 @@ namespace Foodie.Controllers.Restaurant
         [HttpPost]
         public async Task<IActionResult> AddOffer(tbl_special_offers offer, List<IFormFile> image_path)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 string imagePaths = "";
 
