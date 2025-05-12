@@ -1,5 +1,7 @@
-﻿using Foodie.Repositories;
+﻿using System.Data;
+using Foodie.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 
 namespace Foodie.Controllers
 {
@@ -50,6 +52,12 @@ namespace Foodie.Controllers
         public IActionResult AddCusine()
         {
             return View();
+        }
+        [HttpGet]
+        public IActionResult GetPendingRestaurants()
+        {
+            var restaurants = _AdminRepository.GetPendingRestaurant();
+            return Ok(restaurants);
         }
     }
 }

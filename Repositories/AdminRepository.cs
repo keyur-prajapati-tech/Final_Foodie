@@ -1,4 +1,6 @@
-﻿using Foodie.Models;
+﻿using System.Data;
+using System.Numerics;
+using Foodie.Models;
 using Foodie.Models.customers;
 using Foodie.Models.Restaurant;
 using Foodie.ViewModels;
@@ -10,7 +12,7 @@ namespace Foodie.Repositories
     public class AdminRepository : IAdminRepository
     {
         private readonly string _connectionstring;
-        public AdminRepository (IConfiguration configuration)
+        public AdminRepository(IConfiguration configuration)
         {
             _connectionstring = configuration.GetConnectionString("defaultconnection");
         }
@@ -19,21 +21,29 @@ namespace Foodie.Repositories
         {
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                SqlCommand cmd = new SqlCommand("admins.sp_Add_Admin", conn);
-                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                using (SqlCommand cmd = new SqlCommand("admins.sp_Add_Admin", conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
 
-                cmd.Parameters.AddWithValue("@Full_name", admin.Full_name);
-                cmd.Parameters.AddWithValue("@Password", admin.Password);
-                cmd.Parameters.AddWithValue("@Email", admin.Email);
-                cmd.Parameters.AddWithValue("@Phone", admin.Phone);
-                cmd.Parameters.AddWithValue("@role_id", admin.role_id);
-                cmd.Parameters.AddWithValue("@Image", Image ?? (object)DBNull.Value);
-                cmd.Parameters.AddWithValue("@LastLogin", DateTime.Now);
-                conn.Open();
-                int rowsAffected = cmd.ExecuteNonQuery();
+                    cmd.Parameters.AddWithValue("@Full_name", admin.Full_name);
+                    cmd.Parameters.AddWithValue("@Password", admin.Password);
+                    cmd.Parameters.AddWithValue("@Email", admin.Email);
+                    cmd.Parameters.AddWithValue("@Phone", admin.Phone);
+                    cmd.Parameters.AddWithValue("@role_id", admin.role_id);
+                    cmd.Parameters.AddWithValue("@LastLogin", DateTime.Now);
 
-                conn.Close();
-                return rowsAffected > 0;
+                    // Handle the Image parameter
+                    SqlParameter imageParam = new SqlParameter("@Image", SqlDbType.VarBinary);
+                    if (Image != null)
+                        imageParam.Value = Image;
+                    else
+                        imageParam.Value = DBNull.Value;
+                    cmd.Parameters.Add(imageParam);
+
+                    conn.Open();
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
             }
         }
 
@@ -69,8 +79,6 @@ namespace Foodie.Repositories
             return admins;
         }
 
-        
-
         public IEnumerable<tbl_roles> GetRole()
         {
             var Role = new List<tbl_roles>();
@@ -98,17 +106,31 @@ namespace Foodie.Repositories
         {
             using (SqlConnection con = new SqlConnection(_connectionstring))
             {
-                string query = "SELECT COUNT(*) FROM admins.tbl_admin WHERE Email = @Email AND Password = @Password";
+                string query = "SELECT admin_id FROM admins.tbl_admin WHERE Email = @Email AND Password = @Password";
                 SqlCommand cmd = new SqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@Email", Email);
                 cmd.Parameters.AddWithValue("@Password", Password);
 
                 con.Open();
+                object result = cmd.ExecuteScalar();
 
-                int count = (int)cmd.ExecuteScalar(); // Returns the number of matching rows
+                if (result != null)
+                {
+                    int adminId = Convert.ToInt32(result);
+
+                    // Update LastLogin timestamp
+                    string updateQuery = "UPDATE admins.tbl_admin SET LastLogin = @Now WHERE admin_id = @AdminId";
+                    SqlCommand updateCmd = new SqlCommand(updateQuery, con);
+                    updateCmd.Parameters.AddWithValue("@Now", DateTime.Now);
+                    updateCmd.Parameters.AddWithValue("@AdminId", adminId);
+                    updateCmd.ExecuteNonQuery();
+
+                    con.Close();
+                    return true;
+                }
+
                 con.Close();
-
-                return count > 0; // Login successful if count > 0
+                return false;
             }
         }
 
@@ -302,26 +324,27 @@ namespace Foodie.Repositories
                 {
                     customer_complaints.Add(new tbl_customer_complaints
                     {
-                        customer_complaint_id = (int)reader["partner_complaint_id"],
-                        customer_name = reader["customer_name"].ToString(),
-                        cmp_Descr = reader["rating"].ToString(),
-                        cmp_Status = (int)reader["cmp_Status"],
-                        Full_name = reader["Full_name"].ToString(),
-                        restaurant_name = reader["restaurant_name"].ToString(),
-                        ResolutionRemarks = reader["ResolutionRemarks"].ToString(),
-                        createdAt = Convert.ToDateTime(reader["createdAt"]),
-                        ResolvedAt = Convert.ToDateTime(reader["ResolvedAt"])
+                        customer_complaint_id = reader["partner_complaint_id"] is DBNull ? 0 : Convert.ToInt32(reader["partner_complaint_id"]),
+                        customer_name = reader["customer_name"] is DBNull ? null : reader["customer_name"].ToString(),
+                        cmp_Descr = reader["rating"] is DBNull ? null : reader["rating"].ToString(),
+                        cmp_Status = reader["cmp_Status"] is DBNull ? 0 : Convert.ToInt32(reader["cmp_Status"]),
+                        Full_name = reader["Full_name"] is DBNull ? null : reader["Full_name"].ToString(),
+                        restaurant_name = reader["restaurant_name"] is DBNull ? null : reader["restaurant_name"].ToString(),
+                        ResolutionRemarks = reader["ResolutionRemarks"] is DBNull ? null : reader["ResolutionRemarks"].ToString(),
+                        createdAt = reader["createdAt"] is DBNull ? DateTime.MinValue : Convert.ToDateTime(reader["createdAt"]),
+                        ResolvedAt = reader["ResolvedAt"] is DBNull ? DateTime.MinValue : Convert.ToDateTime(reader["ResolvedAt"])
+
                     });
                 }
                 conn.Close();
             }
             return customer_complaints;
         }
-        public void updateVencom(tbl_vendor_complaints tbl_Vendor_Complaints )
+        public void updateVencom(tbl_vendor_complaints tbl_Vendor_Complaints)
         {
             using (var conn = new SqlConnection(_connectionstring))
             {
-               //conn.Open();
+                //conn.Open();
 
                 using (var command = new SqlCommand("admins.sp_edit_vendor_complaints", conn))
                 {
@@ -332,7 +355,7 @@ namespace Foodie.Repositories
                     command.Parameters.AddWithValue("@cmp_status", 1);
                     command.Parameters.AddWithValue("@admin_id", tbl_Vendor_Complaints.admin_id);
                     command.Parameters.AddWithValue("@resolutionRemarks", tbl_Vendor_Complaints.ResolutionRemarks);
-                    command.Parameters.AddWithValue("@resolvedAt",DateTime.Now);
+                    command.Parameters.AddWithValue("@resolvedAt", DateTime.Now);
                     // Execute the stored procedure
                     conn.Open();
                     command.ExecuteNonQuery();
@@ -420,7 +443,7 @@ namespace Foodie.Repositories
                         DOB = reader["DOB"] != DBNull.Value ? Convert.ToDateTime(reader["DOB"]) : DateTime.MinValue,
                         created_at = reader["created_at"] != DBNull.Value ? Convert.ToDateTime(reader["created_at"]) : DateTime.MinValue,
                         updated_at = reader["updated_at"] != DBNull.Value ? Convert.ToDateTime(reader["updated_at"]) : DateTime.MinValue,
-                        
+
                     });
                 }
                 conn.Close();
@@ -439,7 +462,7 @@ namespace Foodie.Repositories
                 int count = (int)cmd.ExecuteScalar();
                 con.Close();
 
-                return count ; 
+                return count;
             }
         }
 
@@ -586,16 +609,21 @@ namespace Foodie.Repositories
                 cmd.CommandType = System.Data.CommandType.StoredProcedure;
                 con.Open();
 
-                decimal count = (decimal)cmd.ExecuteScalar();
+                object result = cmd.ExecuteScalar();
                 con.Close();
-    
-                return count;
+
+                if (result == DBNull.Value || result == null)
+                {
+                    return 0m; // or handle appropriately
+                }
+
+                return Convert.ToDecimal(result);
             }
         }
 
         public DashBoardViewModel GetMonthlySalesData()
         {
-           // var salesByMonth = new int[12]; // Index 0 = Jan, 11 = Dec
+            // var salesByMonth = new int[12]; // Index 0 = Jan, 11 = Dec
 
             string query = @"
         SELECT 
@@ -632,15 +660,15 @@ ORDER BY [Month];";
         public DashBoardViewModel GetYearlyChartData()
         {
             string query = @"
-       SELECT 
-    year(o.order_date) AS [year],
-    SUM(oi.quantity * oi.list_price - (1- discount)) AS TotalAmount
-FROM customers.tbl_orders o
-INNER JOIN customers.tbl_order_items oi ON o.order_id = oi.order_id
-WHERE 
-    o.order_status = 'Delivered'
-GROUP BY year(o.order_date)
-ORDER BY [year];";
+                SELECT 
+            year(o.order_date) AS [year],
+                SUM(oi.quantity * oi.list_price - (1- discount)) AS TotalAmount
+                    FROM customers.tbl_orders o
+                        INNER JOIN customers.tbl_order_items oi ON o.order_id = oi.order_id
+                    WHERE 
+               o.order_status = 'Delivered'
+                GROUP BY year(o.order_date)
+                ORDER BY [year];";
 
             DashBoardViewModel dashBoard = new DashBoardViewModel();
             using (SqlConnection conn = new SqlConnection(_connectionstring))
@@ -670,15 +698,15 @@ ORDER BY [year];";
             {
                 string query = @"
             select co.order_id , customer_name,order_status,restaurant_name,order_date,deliver_dateTime ,coupone_id , menu_name, discount  from 
-customers.tbl_orders co
-inner join customers.tbl_order_items coi
-on co.order_id = coi.order_id
-inner join customers.tbl_customer cc
-on co.customer_id = cc.customer_id
-inner join vendores.tbl_restaurant vr 
-on co.resturant_id = vr.restaurant_id
-inner join vendores.tbl_menu_items vmi
-on coi.menu_id = vmi.menu_id";
+            customers.tbl_orders co
+            inner join customers.tbl_order_items coi
+            on co.order_id = coi.order_id
+            inner join customers.tbl_customer cc
+            on co.customer_id = cc.customer_id
+            inner join vendores.tbl_restaurant vr 
+            on co.resturant_id = vr.restaurant_id
+            inner join vendores.tbl_menu_items vmi
+            on coi.menu_id = vmi.menu_id";
 
                 if (!string.IsNullOrEmpty(status) && status != "All")
                 {
@@ -686,7 +714,7 @@ on coi.menu_id = vmi.menu_id";
                 }
 
                 SqlCommand cmd = new SqlCommand(query, conn);
-                if (!string.IsNullOrEmpty(status) && status != "All")
+                if (!string.IsNullOrEmpty(status) && status != ".0All")
                 {
                     cmd.Parameters.AddWithValue("@status", status);
                 }
@@ -713,5 +741,219 @@ on coi.menu_id = vmi.menu_id";
 
             return orders;
         }
+
+        public tbl_admin GetAdminById(int adminId)
+        {
+            var profile = new tbl_admin();
+
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT Full_name, Email, Phone, IMAGE FROM admins.tbl_admin WHERE admin_id = @admin_id";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@admin_id", adminId);
+                    con.Open();
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            profile.Full_name = reader["Full_name"] != DBNull.Value ? reader["Full_name"].ToString() : string.Empty;
+                            profile.Email = reader["Email"] != DBNull.Value ? reader["Email"].ToString() : string.Empty;
+                            profile.Phone = reader["Phone"] != DBNull.Value ? reader["Phone"].ToString() : string.Empty;
+
+                            if (reader["IMAGE"] != DBNull.Value)
+                            {
+                                profile.IMAGE = (byte[])reader["IMAGE"];
+                            }
+                        }
+                    }
+                }
+            }
+            return profile;
+        }
+
+        public async void UpdateAdmin(tbl_admin admin)
+        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                string query = "UPDATE admins.tbl_admin SET Full_name=@Full_name, Email=@Email, Phone=@Phone, IMAGE=@IMAGE WHERE admin_id=@admin_id";
+
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@Full_name", admin.Full_name);
+                    cmd.Parameters.AddWithValue("@Email", admin.Email);
+                    cmd.Parameters.AddWithValue("@Phone", admin.Phone);
+                    cmd.Parameters.AddWithValue("@IMAGE", (object)admin.IMAGE ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@admin_id", admin.admin_id);
+
+                    await con.OpenAsync();
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
+        public List<tbl_cust_vendor_complaints> GetcustVendorComplaints()
+        {
+            var complaints = new List<tbl_cust_vendor_complaints>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_sel_customer_ven_complaints", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    complaints.Add(new tbl_cust_vendor_complaints
+                    {
+                        vendor_complaint_id = reader["vendor_complaint_id"] != DBNull.Value ? (int)reader["vendor_complaint_id"] : 0,
+                        restaurant_id = reader["restaurant_id"] != DBNull.Value ? (int)reader["restaurant_id"] : 0,
+                        customer_id = reader["customer_id"] != DBNull.Value ? (int)reader["customer_id"] : 0,
+                        cmp_Descr = reader["cmp_Descr"]?.ToString() ?? string.Empty,
+                        cmp_Status = reader["cmp_Status"] != DBNull.Value && (bool)reader["cmp_Status"],
+                        ResolutionRemarks = reader["ResolutionRemarks"]?.ToString() ?? string.Empty,
+                        createdAt = reader["createdAt"] != DBNull.Value ? Convert.ToDateTime(reader["createdAt"]) : DateTime.MinValue,
+                        ResolvedAt = reader["ResolvedAt"] != DBNull.Value ? Convert.ToDateTime(reader["ResolvedAt"]) : DateTime.MinValue
+                    });
+                }
+                conn.Close();
+            }
+
+            return complaints;
+        }
+
+        public List<tbl_cust_partner_complaints> GetcustPartnerComplaints()
+        {
+            var complaints = new List<tbl_cust_partner_complaints>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("admins.sp_sel_customer_par_complaints", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    complaints.Add(new tbl_cust_partner_complaints
+                    {
+                        partner_complaint_id = reader["partner_complaint_id"] != DBNull.Value ? (int)reader["partner_complaint_id"] : 0,
+                        partner_id = reader["partner_id"] != DBNull.Value ? (int)reader["partner_id"] : 0,
+                        customer_id = reader["customer_id"] != DBNull.Value ? (int)reader["customer_id"] : 0,
+                        cmp_Descr = reader["cmp_Descr"]?.ToString() ?? string.Empty,
+                        cmp_Status = reader["cmp_Status"] != DBNull.Value && (bool)reader["cmp_Status"],
+                        ResolutionRemarks = reader["ResolutionRemarks"]?.ToString() ?? string.Empty,
+                        createdAt = reader["createdAt"] != DBNull.Value ? Convert.ToDateTime(reader["createdAt"]) : DateTime.MinValue,
+                        ResolvedAt = reader["ResolvedAt"] != DBNull.Value ? Convert.ToDateTime(reader["ResolvedAt"]) : DateTime.MinValue
+                    });
+                }
+                conn.Close();
+            }
+
+            return complaints;
+        }
+
+        public void UpdateApprovalStatus(int restaurantId, bool isApproved)
+        {
+            using (var con = new SqlConnection(_connectionstring))
+            {
+                var cmd = new SqlCommand("vendores.sp_UpdateVendorApprovalStatus", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.AddWithValue("@restaurant_id", restaurantId);
+                cmd.Parameters.AddWithValue("@isApproved", isApproved);
+                con.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public List<VendoreViewModel> GetVendorsForApproval()
+        {
+            var vendors = new List<VendoreViewModel>();
+            using (var con = new SqlConnection(_connectionstring))
+            {
+                var cmd = new SqlCommand("vendores.sp_GetVendorDetailsForApproval", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                con.Open();
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    vendors.Add(new VendoreViewModel
+                    {
+                        RestaurantId = Convert.ToInt32(reader["restaurant_id"]),
+                        RestaurantName = reader["restaurant_name"]?.ToString(),
+                        RestaurantEmail = reader["restaurant_email"]?.ToString(),
+                        RestaurantContact = reader["restaurant_contact"]?.ToString(),
+                        RestaurantStreet = reader["restaurant_street"]?.ToString(),
+                        OwnerName = reader["owner_name"]?.ToString(),
+                        OwnerContact = reader["owner_contact"]?.ToString(),
+                        BankName = reader["bank_name"]?.ToString(),
+                        IFSCCode = reader["IFSC_code"]?.ToString(),
+                        ACCNo = reader["ACC_No"]?.ToString(),
+                        ACCType = reader["ACC_Type"]?.ToString(),
+                        OwnerEmail = reader["owner_email"]?.ToString(),
+                        GstNumber = reader["gst_number"]?.ToString(),
+                        PanHolderName = reader["pan_holder_name"]?.ToString(),
+                        PanNumber = reader["pan_number"]?.ToString(),
+                        FssaiCerti = reader["fssai_certi"]?.ToString(),
+                        ExpiryDate = reader["Ex_date"] != DBNull.Value ? Convert.ToDateTime(reader["Ex_date"]) : DateTime.MinValue,
+                        RestaurantImage = reader["Restaurant_img"] as byte[],
+                        FssaiIsVerified = Convert.ToBoolean(reader["fssai_isVerify"]),
+                        PanIsVerified = Convert.ToBoolean(reader["pan_isVerify"]),
+                        GstIsVerified = Convert.ToBoolean(reader["gst_isVerify"]),
+                        MenuImage = reader["Restaurant_menu_img"] as byte[],
+                        PanImage = reader["pan_img"] as byte[],
+                        FssaiImage = reader["fssai_img"] as byte[]
+                    });
+                }
+            }
+            return vendors;
+        }
+
+        public bool DeleteVendor(int id)
+        {
+            using (var con = new SqlConnection(_connectionstring))
+            {
+                var cmd = new SqlCommand("vendores.sp_DeleteVendorById", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.AddWithValue("@RestaurantId", id);
+                con.Open();
+                var rows = cmd.ExecuteNonQuery();
+                return rows > 0;
+            }
+        }
+
+        public IEnumerable<tbl_restaurant> GetPendingRestaurant()
+        {
+
+            List<tbl_restaurant> alertList = new List<tbl_restaurant>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                SqlCommand cmd = new SqlCommand("vendores.sp_get_pending_restaurant", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    alertList.Add(new tbl_restaurant
+                    {
+                        restaurant_id = Convert.ToInt32(reader["restaurant_id"]),
+                        restaurant_name = reader["restaurant_name"].ToString(),
+                        restaurant_contact = reader["restaurant_contact"].ToString(),
+                        restaurant_email = reader["restaurant_email"].ToString(),
+                        owner_name = reader["owner_name"].ToString()
+                    }); 
+                }
+            }
+
+            return alertList;
+        }
+
     }
 }

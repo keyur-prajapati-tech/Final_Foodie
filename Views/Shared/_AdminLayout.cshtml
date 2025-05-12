@@ -1,7 +1,4 @@
 ﻿@{
-   // var imageSrc = @Context.Session.GetString("Image");
-}
-@{
     var base64String = Context.Session.GetString("Image");
     var imageSrc = !string.IsNullOrEmpty(base64String) ? $"data:image/jpeg;base64,{base64String}" : "/images/default.png";
 }
@@ -18,6 +15,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <link href="~/css/sidebar.css" rel="stylesheet" />
 </head>
@@ -35,9 +33,9 @@
                     <nav class="navbar navbar-expand-lg navbar-light ">
                         <button class="menu-btn" onclick="toggleSidebar()">&#9776;</button>
                         <div class="sidebar pt-1" id="sidebar">
-                            <ul>
+                            @* <ul>
                                 <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="Admin">Employee</a></li>
-                            </ul>
+                            </ul> *@
                             <button class="close-btn" onclick="toggleSidebar()">&times;</button>
                             <ul>
                                 @switch (@Context.Session.GetString("role"))
@@ -51,9 +49,9 @@
                                         @* <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="Res">Res</a></li> *@
                                         <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="Feedaback">FeedBack</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="customerComplaints">Complaints</a></li>
-                                        <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="promotion">Promotion</a></li>
+                                        //<li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="promotion">Promotion</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="Notification">Notifications</a></li>
-                                        <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="AddCusine">Add Cusine</a></li>
+                                        // <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="AddCusine">Add Cusine</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="Admin">Employee</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="AuditLogs">Audit Logs</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="Login">Log Out</a></li>
@@ -62,7 +60,7 @@
 
                                     case "2":
                                         <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="Restaurant">Restaurant</a></li>
-                                        <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="AddCusine">Add Cusine</a></li>
+                                        // <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="AddCusine">Add Cusine</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="Feedaback">FeedBack</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="customerComplaints">Complaints</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="Login">Log Out</a></li>
@@ -76,25 +74,7 @@
                                         <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="customerComplaints">Complaints</a></li>
                                         <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="Login">Log Out</a></li>
                                         break;
-
-
                                 }
-
-                                @*  <li class="selected"><a asp-controller="order" asp-action="dashboard">&#127860; Home</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="order" asp-action="dashboard"><i class="fa-solid fa-bowl-food me-1"></i>Home</a></li> 
-                                <li class="nav-item"><a class="nav-link" asp-controller="order" asp-action="order"><i class="fa-solid fa-square-list"></i> Orders</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="Restaurant">Restaurant</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="customers">Customers</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="Res">Res</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="Feedaback">FeedBack</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="customerComplaints">Complaints</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="promotion">Promotion</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="Notification">Notifications</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="AddRestaurant" asp-action="AddCusine">Add Cusine</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="Admin">Admin</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="Complaints" asp-action="AuditLogs">Audit Logs</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="Role">Role</a></li>
-                                <li class="nav-item"><a class="nav-link" asp-controller="Login" asp-action="Login">Log Out</a></li>*@
                             </ul>
                         </div>
                         <div class="container-fluid d-lg-flex justify-content-end align-items-end">
@@ -106,16 +86,19 @@
                         <div class="collapse navbar-collapse d-lg-flex justify-content-end align-items-end" id="navbarSupportedContent">
                             <ul class="navbar-nav">
 
+                                <li class="nav-item position-relative">
+                                    <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#notificationModal">
+                                        <i class="fa-solid fa-bell fa-2x"></i>  <!-- Increased size -->
+                                        <span class="position-absolute top-0 start-90 translate-middle badge rounded-pill bg-danger" id="notificationBadge">0</span>
+                                    </a>
+                                </li>
+
+                               
                                 <li class="nav-item ">
-                                    @* <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#notificationModal"> *@
-                                    @*     Show Notification *@
-                                    @* </button> *@
-                                    <a class="nav-link active" data-bs-toggle="modal" data-bs-target="#notificationModal" aria-current="page"><i class="fa-solid fa-bell"></i></a>
+                                    <a href="#" data-bs-toggle="modal" data-bs-target="#profileModal">
+                                        <img src="@imageSrc" height="40px" width="40px" style="border-radius:50%" />
+                                    </a>
                                 </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="#"><i class="fa-solid fa-gear"></i></a>
-                                </li>
-                                <li class="nav-item "> <a href="#"><img src="@imageSrc" height="50px" width="50px" style="border-radius:50%" /></a></li>
                             </ul>
                         </div>
                     </nav>
@@ -165,25 +148,162 @@
         // Listen for window resize event
         window.addEventListener("resize", handleResize);
     </script>
-    <div class="modal fade" id="notificationModal" aria-hidden="true">
+
+    <!-- Notification Modal -->
+<div class="modal fade" id="notificationModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable position-fixed top-0 end-0 m-3">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Notifications</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <!-- Notification items will be injected here -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+    <script>
+                   function loadNotifications() {
+            fetch('/AddRestaurant/GetPendingRestaurants')
+                .then(res => res.json())
+                .then(data => {
+                    const modalBody = document.querySelector('#notificationModal .modal-body');
+                    const badge = document.getElementById('notificationBadge');
+
+                    modalBody.innerHTML = '';
+
+                    if (data.length > 0) {
+                        data.forEach(item => {
+                            const alertDiv = document.createElement('div');
+                            alertDiv.className = 'alert alert-info';
+                            alertDiv.innerHTML = `
+                                <strong>${item.restaurant_name}</strong><br>
+                                Owner: ${item.owner_name}<br>
+                                Email: ${item.restaurant_email}<br>
+                                Contact: ${item.restaurant_contact}<br>
+                                <a href="/VendoreApproval/VendorApproval" class="btn btn-sm btn-primary mt-2">Go to Approve</a>
+                            `;
+                            modalBody.appendChild(alertDiv);
+                        });
+                    } else {
+                        modalBody.innerHTML = '<div class="alert alert-secondary">No pending restaurants.</div>';
+                    }
+                     console.log("Updating badge count:", data.length);
+                    badge.innerText = data.length;
+                })
+                .catch(err => {
+                    console.error('Error loading notifications:', err);
+                });
+        }
+
+
+        // Load notifications on page load
+        document.addEventListener('DOMContentLoaded', loadNotifications);
+
+        // Optional: Reload when modal is opened
+        document.getElementById('notificationModal').addEventListener('show.bs.modal', loadNotifications);
+
+    </script>
+
+
+    <div class="modal fade" id="profileModal" tabindex="-1" aria-labelledby="profileModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
+
                 <div class="modal-header">
-                    <h5 class="modal-title" id="notificationModalLabel">Notification</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <h5 class="modal-title" id="profileModalLabel">Admin Profile</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
+
                 <div class="modal-body">
-                    <!-- Notification Content -->
-                    <div class="alert alert-info" role="alert">
-                        This is a notification message! You can customize this message as needed.
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <form id="profileForm" enctype="multipart/form-data">
+                        <div class="mb-3">
+                            <label for="fullName" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="fullName" name="Full_name" readonly />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="Email" readonly />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone</label>
+                            <input type="text" class="form-control" id="phone" name="Phone" readonly />
+                        </div>
+
+                        <!-- Add this inside the modal body, before the form if needed -->
+                        <div class="mb-3">
+                            <label class="form-label">Current Profile Image</label><br />
+                            <img id="currentProfilePic" src="" class="img-thumbnail" width="150" />
+                            <input type="hidden" id="oldImageData" name="OldImage" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="profileImage" class="form-label">Upload New Image</label>
+                            <input type="file" class="form-control" id="profileImage" name="IMAGE" disabled />
+                        </div>
+
+                        <button type="button" class="btn btn-primary" id="editBtn">Edit</button>
+                        <button type="submit" class="btn btn-success d-none" id="saveBtn">Save</button>
+                    </form>
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        document.getElementById('editBtn').addEventListener('click', function () {
+            document.getElementById('fullName').removeAttribute('readonly');
+            document.getElementById('email').removeAttribute('readonly');
+            document.getElementById('phone').removeAttribute('readonly');
+            document.getElementById('profileImage').removeAttribute('disabled');
+
+            document.getElementById('editBtn').classList.add('d-none');
+            document.getElementById('saveBtn').classList.remove('d-none');
+        });
+
+        document.getElementById('profileForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            var formData = new FormData(this);
+
+            fetch('/Login/UpdateProfile', {
+                method: 'POST',
+                body: formData
+            }).then(res => {
+                if (res.ok) {
+                    alert('Profile updated successfully.');
+                    location.reload();
+                } else {
+                    alert('Failed to update.');
+                }
+            });
+        });
+    </script>
+
+
+    <script>
+        fetch('/Login/GetProfile')
+            .then(response => response.json())
+            .then(data => {
+                $('#fullName').val(data.full_name);
+                $('#email').val(data.email);
+                $('#phone').val(data.phone);
+
+                if (data.profilepic) {
+                    let imageUrl = `data:image/jpeg;base64,${data.profilepic}`;
+                    $('#currentProfilePic').attr('src', imageUrl);
+                    $('#oldImageData').val(data.profilepic); // Store it in hidden input
+                }
+            });
+
+    </script>
 
     <!-- Bootstrap JS and Popper.js -->
     <script src="https://cdn.jsdelivr.net/npm/popperjs/core@2.11.6/dist/umd/popper.min.js"></script>

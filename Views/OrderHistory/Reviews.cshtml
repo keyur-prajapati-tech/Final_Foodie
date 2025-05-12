@@ -1,132 +1,92 @@
 ﻿@{
     Layout = "~/Views/Shared/_RestaurantLayout.cshtml";
 }
-<style>
-    /*Review Section Custome Css*/
-    .review-container {
-        max-width: 800px;
-        margin: 20px auto;
-    }
+@model List<Foodie.Models.customers.tbl_ratings>
 
-    .review-card {
-        border-bottom: 1px solid #ddd;
-        padding: 15px 0;
-    }
+<h2 style="font-family: 'Segoe UI', sans-serif; margin-bottom: 30px; text-align: center;">Ratings</h2>
 
-    .review-header {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-    }
+@if (Model != null && Model.Count > 0)
+{
+    foreach (var item in Model)
+    {
+        <div style="display: flex; background-color: #ffffff; border: 1px solid #ddd; border-radius: 12px; padding: 16px; margin-bottom: 20px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
 
-    .user-info {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    .user-img {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background-color: #ccc;
-    }
-
-    .review-actions {
-        display: flex;
-        gap: 15px;
-        font-size: 14px;
-        color: gray;
-    }
-
-    .btn-follow {
-        border: 1px solid #ff5757;
-        color: #ff5757;
-        padding: 5px 10px;
-        border-radius: 20px;
-        font-size: 14px;
-        background: none;
-        cursor: pointer;
-    }
-
-        .btn-follow:hover {
-            background: #ff5757;
-            color: #fff;
-        }
-
-    .pagination {
-        display: flex;
-        justify-content: center;
-        margin-top: 15px;
-    }
-
-        .pagination .page-item a {
-            color: #ff5757;
-        }
-</style>
-
-<div class="container-fluid">
-
-    <div class="text-center">
-        <h1>Reviews </h1>
-    </div>
-
-
-    <div class="container-fluid ">
-        <h4>McDonald's Reviews</h4>
-
-        <!-- Review 1 -->
-        <div class="review-card card shadow rounded p-3">
-            <div class="review-header" >
-                <div class="user-info">
-                    <div class="user-img"></div>
-                    <div>
-                        <strong>Krish</strong> <br>
-                        <span style="font-size: 12px; color: gray;">0 reviews • 0 Followers</span>
-                    </div>
-                </div>
-                <button class="btn-follow">Follow</button>
+            <!-- Profile Image -->
+            <div style="flex-shrink: 0; margin-right: 16px;">
+                @if (item.image != null)
+                {
+                    <img src="data:image/png;base64,@Convert.ToBase64String(item.image)" width="60" height="60" style="border-radius: 50%; object-fit: cover;" />
+                }
+                else
+                {
+                    <img src="/images/default-avatar.png" width="60" height="60" style="border-radius: 50%; object-fit: cover;" />
+                }
             </div>
-            <p><span class="badge bg-warning text-dark">DELIVERY</span> 2 days ago</p>
-            <p>Free item note added.</p>
-            <div class="review-actions">
-                <span>👍 Helpful</span>
-                <span>💬 Comment</span>
-                <span>🔗 Share</span>
+
+            <!-- Review Content -->
+            <div style="flex-grow: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <strong style="font-size: 1.1em; color: #333;">@item.customer_name</strong>
+                    <span class="relative-time" data-date="@item.OrderDate.ToString("o")" style="font-size: 1.1em; color: #888;"></span>
+                </div>
+
+                <!-- Rating Stars -->
+                <div style="margin: 6px 0;">
+                    <span style="color: #f4b400; font-size: 18px;">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            @Html.Raw(i <= item.RatingValue ? "&#9733;" : "&#9734;")
+                        }
+                    </span>
+                </div>
+
+                <!-- Restaurant Name -->
+                <div style="margin: 4px 0;">
+                    <strong style="color: #666;">Restaurant:</strong> <span style="color: #444;">@item.restaurant_name</span>
+                </div>
+
+                <!-- Description -->
+                @if (!string.IsNullOrWhiteSpace(item.discription))
+                {
+                    <div style="margin-top: 10px; color: #333; font-size: 0.95em; line-height: 1.5;">
+                        "@item.discription"
+                    </div>
+                }
             </div>
         </div>
+    }
+}
+else
+{
+    <p style="text-align:center; color:#999;">No ratings available.</p>
+}
 
-        <!-- Review 2 -->
-        <div class="review-card card shadow rounded p-3 mt-3">
-            <div class="review-header">
-                <div class="user-info">
-                    <div class="user-img"></div>
-                    <div>
-                        <strong>Nisarg Shroff</strong> <br>
-                        <span style="font-size: 12px; color: gray;">0 reviews • 7 Followers</span>
-                    </div>
-                </div>
-                <button class="btn-follow">Follow</button>
-            </div>
-            <p><span class="badge bg-warning text-dark">DELIVERY</span> 3 days ago</p>
-            <p>Received order after one and half hour.</p>
-            <div class="review-actions">
-                <span>👍 Helpful</span>
-                <span>💬 Comment</span>
-                <span>🔗 Share</span>
-            </div>
-        </div>
+<script>
+    function timeAgo(dateString) {
+        const now = new Date();
+        const date = new Date(dateString);
+        const seconds = Math.floor((now - date) / 1000);
 
-        <!-- Pagination -->
-        <nav>
-            <ul class="pagination">
-                <li class="page-item"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item"><a class="page-link" href="#">4</a></li>
-                <li class="page-item"><a class="page-link" href="#">5</a></li>
-            </ul>
-        </nav>
-    </div>
+        if (seconds < 60) return "just now";
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes} min ago`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+        const days = Math.floor(hours / 24);
+        if (days < 7) return `${days} day${days > 1 ? "s" : ""} ago`;
+        const weeks = Math.floor(days / 7);
+        if (weeks < 4) return `${weeks} week${weeks > 1 ? "s" : ""} ago`;
+        const months = Math.floor(days / 30);
+        if (months < 12) return `${months} month${months > 1 ? "s" : ""} ago`;
+        const years = Math.floor(days / 365);
+        return `${years} year${years > 1 ? "s" : ""} ago`;
+    }
 
-</div>
+    document.addEventListener("DOMContentLoaded", function () {
+        const elements = document.querySelectorAll(".relative-time");
+        elements.forEach(el => {
+            const date = el.getAttribute("data-date");
+            el.textContent = timeAgo(date);
+        });
+    });
+</script>

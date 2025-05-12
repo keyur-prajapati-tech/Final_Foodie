@@ -1,4 +1,5 @@
-﻿using Foodie.Models.Restaurant;
+using Foodie.Models.customers;
+using Foodie.ViewModels;
 using Foodie.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -130,18 +131,39 @@ namespace Foodie.Controllers.Restaurant
 
 
         public IActionResult complaint()
-        {
-            return View();
+            {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+            var vendor = _restaurantRepository.GetComplaintsByRestaurantId(restaurantId);
+            //var customer = _AdminRepository.GetAllCustomerComplaints();
+         
+            
+            return View(vendor);
         }
 
+        [HttpPost]
+        public IActionResult EditComplaint(tbl_cust_vendor_complaints tbl)
+        {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+            //var complaint = _AdminRepository.GetvendorcomByID(complaintId);
+            //if (complaint == null)
+            //{
+            //    return NotFound();
+            //}
+            tbl.restaurant_id = restaurantId;
+            _restaurantRepository.updateVencom(tbl);
+            // Return a success response
+            return RedirectToAction("complaint");
+        }
         public IActionResult Reviews()
         {
-            return View();
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+            var ratings = _restaurantRepository.GetAllRatings(restaurantId);
+            return View(ratings);
         }
 
         public IActionResult OutletInfo()
         {
-            var restaurantId = 1; // Replace with the actual restaurant ID
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId")); // Replace with the actual restaurant ID
 
             var outletInfo = _restaurantRepository.getOutletInfo(restaurantId);
 

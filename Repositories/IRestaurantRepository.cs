@@ -1,4 +1,6 @@
-﻿using Foodie.Models.Restaurant;
+﻿using Foodie.Models;
+using Foodie.Models.customers;
+using Foodie.Models.Restaurant;
 using System.Reflection.Metadata;
 
 namespace Foodie.Repositories
@@ -63,6 +65,11 @@ namespace Foodie.Repositories
         public OutletInfo getOutletInfo(int restaurant_id);
 
 
+        public List<tbl_ratings> GetAllRatings(int restaurant_id);
+
+        public IEnumerable<tbl_cust_vendor_complaints> GetComplaintsByRestaurantId(int restaurantId);
+
+        public void updateVencom(tbl_cust_vendor_complaints tbl_Cust_Vendor_Complaints);
         //Offer Section IRepo
         IEnumerable<tbl_special_offers> GetAllOffers();
         void AddOffeer(tbl_special_offers offers);

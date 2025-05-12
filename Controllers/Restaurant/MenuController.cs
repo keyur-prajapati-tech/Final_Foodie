@@ -26,8 +26,9 @@ namespace Foodie.Controllers.Restaurant
 
         [HttpGet]
         [Route("getMenuByRes")]
-        public JsonResult getMenuByRes(int restaurantId)
+        public JsonResult getMenuByRes()
         {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
             var menu = _restaurantRepository.getMenuByRes(restaurantId);
 
             if (menu == null || menu.Count == 0)
@@ -97,6 +98,8 @@ namespace Foodie.Controllers.Restaurant
         [Route("Add")]
         public async Task<IActionResult> AddMenu(tbl_menu_items menu, IFormFile food_img)
         {
+
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
             if (food_img != null && food_img.Length > 0)
             {
                 using (var memoryStream = new MemoryStream())
@@ -113,7 +116,7 @@ namespace Foodie.Controllers.Restaurant
                 menu_descripation = menu.menu_descripation,
                 amount = menu.amount,
                 isAvailable = true,
-                Restaurant_id = 1
+                Restaurant_id = restaurantId
             };
 
             var data = _restaurantRepository.AddMenu(tbl_Menu_Items);

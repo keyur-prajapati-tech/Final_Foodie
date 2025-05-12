@@ -14,6 +14,8 @@ namespace Foodie.Controllers
         {
             _AdminRepository = adminRepository;
         }
+
+
         public IActionResult customerComplaints()
         {
             var vendor = _AdminRepository.GetAllVendorComplaints();
@@ -23,8 +25,10 @@ namespace Foodie.Controllers
             var viewModel = new complaintsViewModel
             {
                 tbl_Vendor_Complaints = vendor,
-               // tbl_customer_complaints = customer,
-                tbl_partner_complaints = delivery
+                // tbl_customer_complaints = customer,
+                tbl_partner_complaints = delivery,
+                tbl_cust_vendor_complaints = _AdminRepository.GetcustVendorComplaints(),
+                tbl_cust_partner_complaints = _AdminRepository.GetcustPartnerComplaints()
             };
 
             return View(viewModel);
@@ -78,7 +82,7 @@ namespace Foodie.Controllers
             {
                 tbl_Vendor_Feedback = vendor,
                 tbl_customer_Feedback = customer,
-                tbl_Delivery_Feedback=delivery
+                tbl_Delivery_Feedback = delivery
             };
 
             return View(viewModel);

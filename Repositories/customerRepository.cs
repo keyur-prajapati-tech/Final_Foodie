@@ -116,36 +116,56 @@ namespace Foodie.Repositories
 
         public tbl_customer ValidateCustomerLogin(string email, string password)
         {
-            tbl_customer customer = null;
-
-            using (SqlConnection con = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = "SELECT * FROM customers.tbl_customer WHERE email = @Email AND password = @Password";
-                SqlCommand cmd = new SqlCommand(query, con);
+                string query = "SELECT customer_id, customer_name, email FROM customers.tbl_customer WHERE email = @Email AND password = @Password";
+                SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@Email", email);
-                cmd.Parameters.AddWithValue("@Password", password); // ⚠️ Consider hashing passwords in production
+                cmd.Parameters.AddWithValue("@Password", password);
 
-                con.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-                if (reader.Read())
+                conn.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
-                    customer = new tbl_customer
+                    if (reader.Read())
                     {
-                        customer_id = Convert.ToInt32(reader["customer_id"]),
-                        email = reader["email"].ToString(),
-                        customer_name = reader["customer_name"].ToString(),
-                        phone = reader["phone"].ToString(),
-                        Gender = reader["Gender"].ToString(),
-                        DOB = Convert.ToDateTime(reader["dob"]),
-                        created_at = Convert.ToDateTime(reader["created_at"]),
-                        updated_at = Convert.ToDateTime(reader["updated_at"]),
-                        password = reader["password"].ToString()
-                    };
+                        return new tbl_customer
+                        {
+                            customer_id = reader.GetInt32(0),
+                            customer_name = reader.GetString(1),
+                            email = reader.GetString(2)
+                        };
+                    }
                 }
             }
-
-            return customer;
+            return null;
         }
+
+        public tbl_restaurant ValidateRestaurantLogin(string email, string password)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT restaurant_id, restaurant_name, restaurant_email FROM vendores.tbl_restaurant WHERE restaurant_email = @Email AND password = @Password";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Email", email);
+                cmd.Parameters.AddWithValue("@Password", password);
+
+                conn.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return new tbl_restaurant
+                        {
+                            restaurant_id = reader.GetInt32(0),
+                            restaurant_name = reader.GetString(1),
+                            restaurant_email = reader.GetString(2)
+                        };
+                    }
+                }
+            }
+            return null;
+        }
+
 
         public void UpdateCustomerProfile(tbl_customer customerinfo, byte[] profilePic)
         {

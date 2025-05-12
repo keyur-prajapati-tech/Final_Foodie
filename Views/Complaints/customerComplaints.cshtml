@@ -5,81 +5,132 @@
 <head>
     <title>@ViewBag.Title</title>
 </head>
-<div class="text-center">
-    <h1>Complaints</h1>
-</div>
 
-<div class="container shadow">
-    <div class="border-2">
-        <div id="div1" class="mt-1 mb-1 pt-3 ps-4 pb-3 shadow">
+
+<div class="container my-5">
+    <div class="text-center mb-4">
+        <h1 class="display-5 fw-bold ">Complaints</h1>
+        
+    </div>
+
+    
+
+    <div class="card border-0 shadow">
+        <div class="card-header bg-light">
+            <div class="class=" d-flex flex-wrap justify-content-center gap-2" id="div1"></div>
         </div>
 
-        <div id="customer" class="table-responsive border-4" style="display:none;">
-            <table class="table table-striped table-bordered">
-                @* <thead>
-                    <tr>
-                        <th scope="col">Customer Complaints Id</th>
-                        <th scope="col">Customer Name</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Admin Name </th>
-                        <th scope="col">Restaurant Name</th>
-                        <th scope="col">Resolution Remarks</th>
-                        <th scope="col">CreatedAt</th>
-                        <th scope="col">ResolvedAt</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var feedback in Model.tbl_customer_complaints)
-                    {
+   
+    <!-- Customer Complaint Section -->
+    <div id="customer" class="card shadow-lg" style="display:none;">
+        <div class="card-header bg-light">
+            <div class="btn-group" role="group">
+                <button class="btn btn-outline-primary" onclick="toggleCustomerComplaint('vendor')">Vendor Complaints</button>
+                <button class="btn btn-outline-secondary" onclick="toggleCustomerComplaint('partner')">Partner Complaints</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <!-- Vendor Table -->
+            <div id="vendorTable" class="table-responsive" style="display: none;">
+                <table class="table table-hover table-bordered align-middle">
+                    <thead class="table-primary">
                         <tr>
-                            <th scope="row">@feedback.customer_complaint_id</th>
-                            <td scope="col">@feedback.customer_name</td>
-                            <td scope="col">@feedback.cmp_Descr</td>
-                            <td scope="col">@feedback.cmp_Status</td>
-                            <td scope="col">@feedback.Full_name</td>
-                            <td scope="col">@feedback.restaurant_name</td>
-                            <td scope="col">@feedback.ResolutionRemarks</td>
-                            <td scope="col">@feedback.createdAt</td>
-                            <td scope="col">@feedback.ResolvedAt</td>
+                            <th>Complaint Id</th>
+                            <th>Vendor Name</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Remarks</th>
+                            <th>Created At</th>
+                            <th>Resolved At</th>
                         </tr>
-                    }
-                </tbody> *@
-            </table>
-        </div>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.tbl_cust_vendor_complaints)
+                        {
+                            <tr>
+                                <td>@item.vendor_complaint_id</td>
+                                <td>@item.restaurant_id</td>
+                                <td>@item.cmp_Descr</td>
+                                <td>@item.cmp_Status</td>
+                                <td>@item.ResolutionRemarks</td>
+                                <td>@item.createdAt</td>
+                                <td>@item.ResolvedAt</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
 
-        <div id="restaurant" class="table-responsive border-4" style="display:none;">
-            <table class="table table-striped table-bordered">
-                <thead>
+            <!-- Partner Table -->
+            <div id="partnerTable" class="table-responsive" style="display: none;">
+                <table class="table table-hover table-bordered align-middle">
+                    <thead class="table-secondary">
+                        <tr>
+                            <th>Complaint Id</th>
+                            <th>Partner Id</th>
+                            <th>Description</th>
+                            <th>Status</th>
+                            <th>Remarks</th>
+                            <th>Created At</th>
+                            <th>Resolved At</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.tbl_cust_partner_complaints)
+                        {
+                            <tr>
+                                <td>@item.partner_complaint_id</td>
+                                <td>@item.partner_id</td>
+                                <td>@item.cmp_Descr</td>
+                                <td>@item.cmp_Status</td>
+                                <td>@item.ResolutionRemarks</td>
+                                <td>@item.createdAt</td>
+                                <td>@item.ResolvedAt</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Restaurant Complaints -->
+    <div id="restaurant" class="card shadow" style="display:none;">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0">Vendor Complaints</h5>
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table table-hover table-bordered align-middle">
+                <thead class="table-light">
                     <tr>
-                        <th scope="col">Vendor Complaints Id</th>
-                        <th scope="col">Vendor Name</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Admin Name </th>
-                        <th scope="col">Resolution Remarks</th>
-                        <th scope="col">CreatedAt</th>
-                        <th scope="col">ResolvedAt</th>
+                        <th>Complaint Id</th>
+                        <th>Vendor Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Admin Name</th>
+                        <th>Remarks</th>
+                        <th>Created At</th>
+                        <th>Resolved At</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var feedback in Model.tbl_Vendor_Complaints)
                     {
                         <tr>
-                            <th scope="row" class="">@feedback.vendor_complaint_id</th>
-                            <td scope="col">@feedback.restaurant_name</td>
-                            <td scope="col">@feedback.cmp_Descr</td>
-                            <td scope="col">@feedback.cmp_Status</td>
-                            <td scope="col">@feedback.Full_name</td>
-                            <td scope="col">@feedback.ResolutionRemarks</td>
-                            <td scope="col">@feedback.createdAt</td>
-                            <td scope="col">@feedback.ResolvedAt</td>
+                            <td>@feedback.vendor_complaint_id</td>
+                            <td>@feedback.restaurant_name</td>
+                            <td>@feedback.cmp_Descr</td>
+                            <td>@feedback.cmp_Status</td>
+                            <td>@feedback.Full_name</td>
+                            <td>@feedback.ResolutionRemarks</td>
+                            <td>@feedback.createdAt</td>
+                            <td>@feedback.ResolvedAt</td>
                             <td>
-                                <button type="button" class="btn btn-outline-dark updatedata" data-bs-toggle="modal" data-bs-target="#updatetable"
+                                <button class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#updatetable"
                                         data-Iid="@feedback.vendor_complaint_id"
                                         data-cmpdesc="@feedback.cmp_Descr"
                                         onclick="FillData(this)">
-
                                     Update
                                 </button>
                             </td>
@@ -88,35 +139,42 @@
                 </tbody>
             </table>
         </div>
+    </div>
 
-        <div id="delivery" class="table-responsive border-4" style="display:none;">
-            <table class="table table-striped table-bordered">
-                <thead>
+    <!-- Delivery Complaints -->
+    <div id="delivery" class="card shadow" style="display:none;">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0">Partner Complaints</h5>
+        </div>
+        <div class="card-body table-responsive">
+            <table class="table table-hover table-bordered align-middle">
+                <thead class="table-light">
                     <tr>
-                        <th scope="col">Partner Complaints Id</th>
-                        <th scope="col">Partner Name</th>
-                        <th scope="col">Description</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Admin Name </th>
-                        <th scope="col">Resolution Remarks</th>
-                        <th scope="col">CreatedAt</th>
-                        <th scope="col">ResolvedAt</th>
+                        <th>Complaint Id</th>
+                        <th>Partner Name</th>
+                        <th>Description</th>
+                        <th>Status</th>
+                        <th>Admin Name</th>
+                        <th>Remarks</th>
+                        <th>Created At</th>
+                        <th>Resolved At</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var feedback in Model.tbl_partner_complaints)
                     {
                         <tr>
-                            <th scope="row" class="">@feedback.partner_complaint_id</th>
-                            <td scope="col">@feedback.partner_id</td>
-                            <td scope="col">@feedback.cmp_Descr</td>
-                            <td scope="col">@feedback.cmp_Status</td>
-                            <td scope="col">@feedback.admin_id</td>
-                            <td scope="col">@feedback.ResolutionRemarks</td>
-                            <td scope="col">@feedback.createdAt</td>
-                            <td scope="col">@feedback.ResolvedAt</td>
+                            <td>@feedback.partner_complaint_id</td>
+                            <td>@feedback.partner_id</td>
+                            <td>@feedback.cmp_Descr</td>
+                            <td>@feedback.cmp_Status</td>
+                            <td>@feedback.admin_id</td>
+                            <td>@feedback.ResolutionRemarks</td>
+                            <td>@feedback.createdAt</td>
+                            <td>@feedback.ResolvedAt</td>
                             <td>
-                                <button type="button" class="btn btn-outline-dark updatedata1" data-bs-toggle="modal" data-bs-target="#updatetable1"
+                                <button class="btn btn-sm btn-outline-dark" data-bs-toggle="modal" data-bs-target="#updatetable1"
                                         data-Iid="@feedback.partner_complaint_id"
                                         data-cmpdesc="@feedback.cmp_Descr"
                                         onclick="FillData1(this)">
@@ -128,6 +186,10 @@
                 </tbody>
             </table>
         </div>
+    </div>
+    </div>
+</div>
+
 
         <script>
             // Function to hide all tables
@@ -181,6 +243,11 @@
                     button.addEventListener("click",handler);
                     document.getElementById("div1").appendChild(button);
               }
+
+                          function toggleCustomerComplaint(type) {
+                document.getElementById("vendorTable").style.display = (type === 'vendor') ? 'block' : 'none';
+                document.getElementById("partnerTable").style.display = (type === 'partner') ? 'block' : 'none';
+            }
 
         </script>
 
@@ -304,3 +371,13 @@
 
     </div>
 </div>
+
+
+
+
+
+
+
+
+
+

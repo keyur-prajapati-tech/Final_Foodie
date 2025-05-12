@@ -4,55 +4,103 @@
 }
 <head>
     <title>@ViewBag.Title</title>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </head>
-<div class="text-center">
-    <h1>Restaurants</h1>
-</div>
 
-<div class="container shadow">
-    <div class="border-2">
-        @* <div class="mt-1 mb-1 pt-3 ps-4 pb-3 shadow">
-            <a asp-controller="AddRestaurant" asp-action="AddRestaurant"><button type="button" class="btn btn-outline-primary">Add</button></a>
-            @*     <button type="button" class="btn btn-outline-primary">Restaurant</button> 
-            @*     <button type="button" class="btn btn-outline-primary">Delivery Boy</button> 
-        </div> *@ 
-        <div class="table-responsive border-4">
-            <table class="table table-striped table-bordered">
-                <thead>
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h1 class="display-5 fw-bold">Restaurants</h1>
+        
+    </div>
 
-                    <tr>
-                        <th scope="col">Restaurant Id</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Phone</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Street</th>
-                        <th scope="col">Pincode</th>
-                        <th scope="col">restaurant approve</th>
-                        <th scope="col">restaurant Online</th>
-                        <th scope="col">establish</th>
-                        <th scope="col">Owner Name</th>
+    <!-- Filter Buttons -->
+   
 
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var feedback in Model)
-                    {
+    <div class="card border-0 shadow">
+
+        <div class="card-header bg-light">
+            <div class="d-flex flex-wrap justify-content-center gap-2">
+                <button class="btn btn-outline-primary mx-2 filter-btn" data-status="All">All</button>
+                <button class="btn btn-outline-success mx-2 filter-btn" data-status="Approved">Approved</button>
+                <button class="btn btn-outline-danger mx-2 filter-btn" data-status="NotApproved">Not Approved</button>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped table-bordered mb-0 text-center align-middle">
+                    <thead class="table-primary">
                         <tr>
-                            <th scope="row">@feedback.restaurant_id</th>
-                            <td scope="col">@feedback.restaurant_name</td>
-                            <td scope="col">@feedback.restaurant_contact</td>
-                            <td scope="col">@feedback.restaurant_email</td>
-                            <td scope="col">@feedback.restaurant_street</td>
-                            <td scope="col">@feedback.restaurant_pincode</td>
-                            <td scope="col">@feedback.restaurant_isApprov</td>
-                            <td scope="col">@feedback.restaurant_isOnline</td>
-                            <td scope="col">@feedback.est_id</td>
-                            <td scope="col">@feedback.owner_name</td>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Street</th>
+                            <th>Pincode</th>
+                            <th>Approved</th>
+                            <th>Online</th>
+                            <th>Establishment</th>
+                            <th>Owner</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
-
+                    </thead>
+                    <tbody id="restaurantTableBody">
+                        @foreach (var restaurant in Model)
+                        {
+                            <tr class="restaurant-row" data-status="@(restaurant.restaurant_isApprov ? "Approved" : "NotApproved")">
+                                <td>@restaurant.restaurant_id</td>
+                                <td>@restaurant.restaurant_name</td>
+                                <td>@restaurant.restaurant_contact</td>
+                                <td>@restaurant.restaurant_email</td>
+                                <td>@restaurant.restaurant_street</td>
+                                <td>@restaurant.restaurant_pincode</td>
+                                <td>
+                                    <span class="badge bg-@(restaurant.restaurant_isApprov ? "success" : "secondary")">
+                                        @(restaurant.restaurant_isApprov ? "Yes" : "No")
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-@(restaurant.restaurant_isOnline ? "success" : "danger")">
+                                        @(restaurant.restaurant_isOnline ? "Online" : "Offline")
+                                    </span>
+                                </td>
+                                <td>@restaurant.est_id</td>
+                                <td>@restaurant.owner_name</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
+
+<script>
+    $(document).ready(function () {
+        // Function to filter the table based on the approval status
+        $(".filter-btn").click(function () {
+            const status = $(this).data("status");
+
+            // Show all restaurants when "All" is selected
+            if (status === "All") {
+                $(".restaurant-row").show();
+            } else {
+                $(".restaurant-row").each(function () {
+                    const rowStatus = $(this).data("status");
+                    if (rowStatus === status) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            }
+
+            // Highlight the active button
+            $(".filter-btn").removeClass("active");
+            $(this).addClass("active");
+        });
+
+        // Trigger the 'All' filter by default
+        $(".filter-btn[data-status='All']").click();
+    });
+</script>
