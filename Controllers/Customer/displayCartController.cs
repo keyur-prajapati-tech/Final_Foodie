@@ -130,5 +130,96 @@ namespace Foodie.Controllers.Customer
             var cities = _repository.GetCitiesByDistrictId(districtId);
             return Json(cities);
         }
+
+        [HttpGet]
+        public IActionResult GetCustomerInfo(int id)
+        {
+            var customer = _repository.GetCustomerNameAndPhone(id);
+
+            if(customer == null)
+            {
+                return NotFound("Customer Not Found");
+            }
+            return View(customer);
+        }
+
+        //Increasing quantity, Decreasing quantity, Removing item, Getting total
+        [HttpPost]
+        public IActionResult IncrementQuantity(int cartItemId,int customerId)
+        {
+            _repository.IncreaseQuantity(cartItemId);
+            var total = _repository.GetCartTotal(customerId);
+            return Json(new { success = true, total });
+        }
+
+        [HttpPost]
+        public IActionResult DecrementQuantity(int cartItemId,int customerId)
+        {
+            _repository.DecreaseQuantity(cartItemId);
+            var total = _repository.GetCartTotal(customerId);
+            return Json(new { success = true, total });
+        }
+
+        [HttpPost]
+        public IActionResult RemoveCartItem(int cartItemId,int customerId)
+        {
+            _repository.RemoveCartItem(cartItemId);
+            var total = _repository.GetCartItems(customerId);
+            return Json(new { success = true, total });
+        }
+
+        public IActionResult GetAllCoupons()
+        {
+            var coupons = _repository.GetAllCoupons();
+            return PartialView("_CouponListPartial", coupons);
+        }
+
+        public IActionResult GetGrandTotalWithCoupon(int customer_id)
+        {
+            decimal grandTotal = _repository.CalculateGrandTotal(customer_id);
+
+            var coupon = _repository.GetAutoApplicableCoupon(grandTotal);
+            decimal discount = coupon != null ? coupon.discount : 0;
+            decimal finalTotal = grandTotal - discount;
+
+            return Json(new 
+            { 
+                success = true,
+                grandTotal,
+                discount,
+                finalTotal,
+                coupone_code = coupon?.coupone_code
+            });
+        }
+
+        [HttpPost]
+        public IActionResult SavePaymentAndPlaceOrder([FromBody] RazorPayViewModel model)
+        {
+            try
+            {
+                int orderId = _repository.PlaceOrder(
+                    model.customer_id,
+                    model.coupone_id,
+                    model.AddressId,
+                    model.PaymentModeId,
+                    model.grandtotal,
+                    model.discount_amount,
+                    model.RazorpayPaymentId,
+                    model.RazorpayOrderId
+                );
+
+                foreach (var item in model.Items)
+                {
+                    _repository.SaveOrderItem(orderId, item.menu_id, item.quantity, item.listprice, item.discount);
+                }
+
+                return Json(new { success = true, orderId });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
+
     }
 }

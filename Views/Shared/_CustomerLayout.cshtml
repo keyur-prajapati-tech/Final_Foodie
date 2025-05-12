@@ -960,51 +960,6 @@
         </div>
     </div>
 
-    <!--Location Wise Place Display Here-->
-    @* <div class="container mt-4">
-        <h2>Popular localities in and around <strong>Surat</strong></h2>
-
-        <div class="localities-grid">
-            <div class="locality-card"> <p>Vesu</p> <span>525 places</span> </div>
-            <div class="locality-card"> <p>Piplod</p> <span>212 places</span> </div>
-            <div class="locality-card"> <p>Adajan Gam</p> <span>375 places</span> </div>
-            <div class="locality-card"> <p>City Light</p> <span>142 places</span> </div>
-            <div class="locality-card"> <p>Athwa</p> <span>140 places</span> </div>
-            <div class="locality-card"> <p>Nanpura</p> <span>58 places</span> </div>
-            <div class="locality-card"> <p>Dumas</p> <span>49 places</span> </div>
-            <div class="locality-card"> <p>Katargam</p> <span>291 places</span> </div>
-
-            <!-- Hidden localities (Initially hidden) -->
-            <div class="locality-card hidden"> <p>Udhna</p> <span>120 places</span> </div>
-            <div class="locality-card hidden"> <p>Rander</p> <span>87 places</span> </div>
-            <div class="locality-card hidden"> <p>Varachha</p> <span>230 places</span> </div>
-            <div class="locality-card hidden"> <p>Parvat Patiya</p> <span>98 places</span> </div>
-        </div>
-
-        <!-- Button for expanding/collapsing -->
-        <div class="toggle-btn">
-            <button id="toggleButton">See more ⬇</button>
-        </div>
-    </div>
-
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const toggleButton = document.getElementById("toggleButton");
-            const hiddenLocalities = document.querySelectorAll(".hidden");
-
-            let isExpanded = false;
-
-            toggleButton.addEventListener("click", function () {
-                hiddenLocalities.forEach(locality => {
-                    locality.style.display = isExpanded ? "none" : "block";
-                });
-
-                isExpanded = !isExpanded;
-                toggleButton.innerHTML = isExpanded ? "See less ⬆" : "See more ⬇";
-            });
-        });
-    </script> *@
-
     <div class="container mt-4">
         @RenderBody()
     </div>

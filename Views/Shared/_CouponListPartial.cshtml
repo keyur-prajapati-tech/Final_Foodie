@@ -1,0 +1,15 @@
+﻿@model List<Foodie.Models.customers.tbl_coupone>
+
+@foreach (var coupon in Model)
+{
+    <div class="card shadow-sm p-3 mb-2 border">
+        <div class="d-flex justify-content-between">
+            <strong>@coupon.coupone_code</strong>
+            <span class="badge bg-success">@coupon.discount % OFF</span>
+        </div>
+        <p class="mb-1">@coupon.description</p>
+        <small class="text-muted">Min Order: ₹@coupon.application_order_amount</small><br />
+        <small class="text-danger">Expires: @coupon.expiry_date.ToString("dd-MMM-yyyy")</small>
+        <button class="btn btn-sm btn-outline-primary mt-2">Apply Coupon</button>
+    </div>
+}

@@ -31,7 +31,8 @@ namespace Foodie.Controllers.Customer
             {
                 menu_name = item.menu_name,
                 menu_descripation = item.menu_descripation,
-                amount = item.amount
+                amount = item.amount,
+                menu_img = Convert.ToBase64String(item.menu_img)
             });
         }
     }

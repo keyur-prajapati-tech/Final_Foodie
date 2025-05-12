@@ -9,6 +9,11 @@
 }
 
 @{
+    var userName = Context.Session.GetString("UserName");
+    var phone = Context.Session.GetString("UserPhone");
+}
+
+@{
     Layout = "~/Views/Shared/_foodieheader.cshtml";
 }
 
@@ -43,6 +48,7 @@
 <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
 <!-- Mapbox JS -->
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script> <!-- Load first -->
 
 
 <div class="container mt-4">
@@ -52,7 +58,7 @@
             <!-- Logged In User -->
             <div class="card p-3 mb-3">
                 <h5>Logged in <span class="text-success">✔</span></h5>
-                <p>Keyur Prajapati | 9725802229</p>
+                <p> Kevin@123 | +91 9745863219</p>
             </div>
 
             <!-- Delivery Address -->
@@ -69,42 +75,67 @@
             <!-- Payment Section -->
             <div class="card p-3">
                 <h3 class="text-uppercase">Payment</h3>
-                <button class="btn btn-primary">Pay Now</button>
+
+                <!--Payment Button Here-->
+                <button id="orderNowBtn" class="btn btn-success btn-lg w-100 mt-3">Order Now</button>
+
             </div>
         </div>
 
         <!-- Right Section (Order Summary) -->
         <div class="col-md-4">
             <div class="card p-3">
-                <h5>Roof 5</h5>
-                <p class="text-muted">Chhindwara Locality</p>
+                <h3>Foodie Tasky Food</h3>
+                <p class="h5">Foodie Tasty - The Commoner's Kitchen'</p>
 
                 <!-- Loop Through Cart Items -->
                 @foreach (var item in Model)
                 {
                     <div class="p-2" style="border: 3px solid #000; border-radius: 5px;margin: 3px 3px;">
                         <div class="menu-item" data-price="@item.amount">
-                            <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)" alt="@item.menu_name" style="width:350px; height:200px; object-fit:cover;" />
+                            <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)" alt="@item.menu_name" style="width:350px; height:200px; object-fit:contain;" />
                             <div>
+                                <input type="hidden" class="cart-item-id" value="@item.cart_item_id" />
+                                <input type="hidden" id="customerId" value="@item.customer_id" />
+
                                 <h4>Food Name : <strong>@item.menu_name</strong></h4>
                                 <h4>Price: <strong> ₹<span class="unit-price">@item.amount</span></strong></h4>
 
-                                <div class="d-flex gap-2 align-items-center" style="border-top: 3px solid #333;">
+                                <div class="d-flex justify-content-between gap-2 align-items-center" style="border-top: 3px solid #333;">
                                     <div class="mt-2">
-                                        <button class="btn btn-outline-secondary qty-minus">-</button>
+                                        <button class="btn btn-outline-danger qty-minus">-</button>
                                         <span class="qty">1</span>
-                                        <button class="btn btn-outline-secondary qty-plus">+</button>
+                                        <button class="btn btn-outline-success qty-plus">+</button>
+                                    </div>
+                                    <div>
+                                        <button id="btn-remove" class="btn btn-outline-danger">REMOVE</button>
                                     </div>
                                 </div>
 
-                                <div class="d-flex justify-content-between" style="margin-top: 2px; border-top: 3px solid #000;">
-                                    <h5>Total Amount :</h5>
+                                <div class="d-flex justify-content-between" style="margin-top: 2px; margin-bottom: 2px; border-top: 3px solid #000;">
+                                    <h5>Total Amount :- </h5>
                                     <span class="item-total text-primary fw-bold ms-3">₹@item.amount</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 }
+
+                <!-- Place Grand Total here -->
+                <div class="d-flex justify-content-between mt-3 p-2" style="border-top: 3px solid #000;">
+                    <h4>Grand Total:</h4>
+                    <h4 class="text-success fw-bold">₹<span id="grand-total">0</span></h4>
+                </div>
+                <div class="d-flex justify-content-between p-2">
+                    <h5>Discount:</h5>
+                    <h5 class="text-danger fw-bold">₹<span id="discount">0</span></h5>
+                </div>
+                <div class="d-flex justify-content-between p-2 border-top border-dark">
+                    <h4>Payable:</h4>
+                    <h4 class="text-primary fw-bold">₹<span id="final-total">0</span></h4>
+                </div>
+
+                <input type="hidden" id="razor-amount" value="0" />
 
 
                 <a asp-controller="Restaurantdeatil" asp-action="Restuarantinfo" class="float-end">Add More Item</a>
@@ -128,7 +159,7 @@
 
                 <hr>
 
-                <!-- Bill Details -->
+                @* <!-- Bill Details -->
                 @{
                     decimal itemTotal = Model.Sum(x => x.amount * x.quantity);
                     decimal deliveryFee = 77;
@@ -150,9 +181,10 @@
                     <span>₹@finalAmount</span>
                 </h5>
 
+
                 <div class="alert alert-success text-center">
                     Savings of ₹@extraDiscount
-                </div>
+                </div> *@
 
                 <div class="alert alert-light">
                     <h6>Review your order and address details to avoid cancellations</h6>
@@ -187,45 +219,12 @@
                 <h5>Available Coupons</h5>
 
                 <!-- Coupon List -->
-                <div class="coupon-list">
-                    <!-- Coupon 1 -->
-                    <div class="card p-3 mb-2">
-                        <strong>STEALDEAL</strong>
-                        <p>Get <b>30% off</b> on orders above ₹149. Max discount: ₹75.</p>
-                        <p>Expiry Date : <strong>03-04-2025</strong></p>
-                        <button class="btn btn-sm btn-outline-primary">Apply Coupon</button>
-                    </div>
-
-                    <!-- Coupon 2 -->
-                    <div class="card p-3 mb-2">
-                        <strong>TRYNEW</strong>
-                        <p>Get <b>20% off</b> on orders above ₹149. Max discount: ₹50.</p>
-                        <p>Expiry Date : <strong>09-04-2025</strong></p>
-                        <button class="btn btn-sm btn-outline-primary">Apply Coupon</button>
-                    </div>
-
-                    <!-- Coupon 3 -->
-                    <div class="card p-3 mb-2">
-                        <strong>APAYFEST</strong>
-                        <p>Get up to <b>₹100 cashback</b> using Amazon Pay Balance. Min order ₹199.</p>
-                        <p>Expiry Date : <strong>10-04-2025</strong></p>
-                        <button class="btn btn-sm btn-outline-primary">Apply Coupon</button>
-                    </div>
-
-                    <!-- Coupon 4 -->
-                    <div class="card p-3 mb-2">
-                        <strong>AXIS30</strong>
-                        <p>Get <b>30% discount</b> using Axis Bank Credit Cards. Min order ₹200.</p>
-                        <p>Expiry Date : <strong>12-04-2025</strong></p>
-                        <button class="btn btn-sm btn-outline-primary">Apply Coupon</button>
-                    </div>
-
-                    <!-- Coupon 5 -->
-                    <div class="card p-3 mb-2">
-                        <strong>HDFC25</strong>
-                        <p>Get <b>30% discount</b> using HDFC Bank Credit Cards. Min order ₹200.</p>
-                        <p>Expiry Date : <strong>05-04-2025</strong></p>
-                        <button class="btn btn-sm btn-outline-primary">Apply Coupon</button>
+                <div class="coupon-list" id="couponListContainer">
+                    <!-- Load coupons here -->
+                    <div id="couponListContainer">
+                        <div class="text-center">
+                            <span class="spinner-border"></span> Loading coupons...
+                        </div>
                     </div>
                 </div>
             </div>
@@ -370,37 +369,129 @@
 
     $(document).ready(function () 
     {
-        function updateTotal(container) {
-            const price = parseFloat(container.attr('data-price'));
-            const qty = parseInt(container.find('.qty').text());
-            const total = price * qty;
-            container.find('.item-total').text('₹' + total.toFixed(2));
+        function calculateTotals() {
+            let grandTotal = 0;
+
+            document.querySelectorAll('.menu-item').forEach(item => {
+                const price = parseFloat(item.dataset.price);
+                const qtyEl = item.querySelector('.qty');
+                const qty = parseInt(qtyEl.textContent);
+                const total = price * qty;
+
+                // Update individual item total
+                const itemTotalEl = item.querySelector('.item-total');
+                itemTotalEl.textContent = '₹' + total.toFixed(2);
+
+                grandTotal += total;
+            });
+
+            // Update grand total
+            document.getElementById('grand-total').textContent = grandTotal.toFixed(2);
+            return grandTotal;
         }
 
-        // On page load: calculate all totals
-        $('.menu-item').each(function () {
-            updateTotal($(this));
-        });
+            document.getElementById("orderNowBtn").onclick = function (e) {
+        const grandTotal = calculateTotals(); // get current total in ₹
+        const grandTotalInPaise = Math.round(grandTotal * 100); // convert ₹ to paise
 
-        // Plus button
-        $('.qty-plus').click(function () {
-            const parent = $(this).closest('.menu-item');
-            const qtySpan = parent.find('.qty');
-            let qty = parseInt(qtySpan.text());
-            qtySpan.text(++qty);
-            updateTotal(parent);
-        });
+        var options = {
+            "key": "rzp_test_uIxZbgotqYKcAK", // Replace with your Razorpay key
+            "amount": grandTotalInPaise, // dynamic amount
+            "currency": "INR",
+            "name": "Foodie Tasty",
+            "description": "Order Payment",
+            "handler": function (response) {
 
-        // Minus button
-        $('.qty-minus').click(function () {
-            const parent = $(this).closest('.menu-item');
-            const qtySpan = parent.find('.qty');
-            let qty = parseInt(qtySpan.text());
-            if (qty > 1) {
-                qtySpan.text(--qty);
-                updateTotal(parent);
+                let payload = {
+                    CustomerId: 1,
+                    AddressId: 1,
+                    PaymentModeId: 1,
+                    CouponId: 1, // dynamically from server
+                    GrandTotal: finalAmount,
+                    DiscountAmount: parseFloat($('#discount').text()),
+                    RazorpayPaymentId: response.razorpay_payment_id,
+                    RazorpayOrderId: response.razorpay_order_id,
+                    RazorpaySignature: response.razorpay_signature,
+
+                    Items: [
+                        // Example format; fill from cart dynamically
+                        { MenuId: 16, Quantity: 2, ListPrice: 150.00, Discount: 10 },
+                        { MenuId: 18, Quantity: 1, ListPrice: 99.00, Discount: 10 }
+                    ]
+                };
+
+                $.ajax({
+                    url: '/displayCart/SavePaymentAndPlaceOrder',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(payload),
+                    success: function (res) {
+                        if (res.success) {
+                            alert("Order placed successfully! Order ID: " + res.orderId);
+                            window.location.href = "/Order/Success?orderId=" + res.orderId;
+                        } else {
+                            alert("Failed to place order.");
+                        }
+                    }
+                });
+                alert("Payment successful! Razorpay Payment ID: " + response.razorpay_payment_id);
+                // You can send this ID to your backend for further verification/logging
+            },
+            "prefill": {
+                "name": "@userName",
+                "email": "customer@example.com",
+                "contact": "@phone"
+            },
+            "theme": {
+                "color": "#3399cc"
             }
+        };
+
+        var rzp = new Razorpay(options);
+        rzp.open();
+        e.preventDefault();
+    }
+
+
+        
+    
+         function updateTotalWithCoupon() {
+            $.ajax({
+                url: '/displayCart/GetGrandTotalWithCoupon',
+                type: 'GET',
+                success: function (res) {
+                    $('#grand-total').text(res.grandTotal.toFixed(2));
+                    $('#discount').text(res.discount.toFixed(2));
+                    $('#final-total').text(res.finalTotal.toFixed(2));
+                    $('#razor-amount').val(res.finalTotal); // Pass to Razorpay
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            updateTotalWithCoupon();
         });
+        // Handle + and - buttons
+        document.querySelectorAll('.qty-plus').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const qtyEl = btn.parentElement.querySelector('.qty');
+                qtyEl.textContent = parseInt(qtyEl.textContent) + 1;
+                calculateTotals();
+            });
+        });
+
+        document.querySelectorAll('.qty-minus').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const qtyEl = btn.parentElement.querySelector('.qty');
+                let newQty = parseInt(qtyEl.textContent) - 1;
+                if (newQty < 1) newQty = 1;
+                qtyEl.textContent = newQty;
+                calculateTotals();
+            });
+        });
+
+        // Initial calculation on page load
+        window.addEventListener('load', calculateTotals);
 
         // Load all states on page load
         $.ajax({
@@ -485,5 +576,10 @@
                 }
             });
         });
+
+        $('#couponModal').on('shown.bs.modal', function () {
+            $('#couponListContainer').load('/displayCart/GetAllCoupons');
+        });
+
     });
 </script>
