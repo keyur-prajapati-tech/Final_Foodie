@@ -62,13 +62,12 @@ namespace Foodie.Repositories
 
         public OutletInfo getOutletInfo(int restaurant_id);
 
-        //Done By KP
-        public IEnumerable<tbl_special_offers> Get_Special_Offers();
-        public tbl_special_offers Get_Special_Offers_ById(int id);
-        public void Add_SP_Offer(tbl_special_offers special_Offers);
-        public void Update_SP_offer(tbl_special_offers special_offers);
-        public void Delete_SP_offer(int id);
-        public IEnumerable<tbl_special_offers> special_offer_search(string term);
 
+        //Offer Section IRepo
+        IEnumerable<tbl_special_offers> GetAllOffers();
+        void AddOffeer(tbl_special_offers offers);
+        tbl_special_offers GetOfferById(int id);
+        void UpdateOffer(tbl_special_offers offer);
+        void DeleteOffer(int id);
     }
 }

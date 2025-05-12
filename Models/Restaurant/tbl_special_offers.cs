@@ -1,42 +1,37 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Http;
 
 namespace Foodie.Models.Restaurant
 {
     public class tbl_special_offers
     {
-        public int SoId { get; set; }
-        public int RestaurantId { get; set; }
+        [Key]
+        public int so_id { get; set; }
 
         [Required]
-        [Display(Name = "Offer Title")]
-        public string OfferTitle { get; set; }
+        public int restaurant_id { get; set; }
 
         [Required]
-        [Display(Name = "Description")]
-        public string OfferDesc { get; set; }
+        public string offer_title { get; set; }
+        
+        public string offer_desc{ get; set; }
 
-        [Required]
-        [Range(1, 100)]
-        [Display(Name = "Discount %")]
-        public int PercentageDisc { get; set; }
 
-        [Required]
-        [Display(Name = "Valid From")]
-        public DateTime ValidFrom { get; set; }
+        public int percentage_disc { get; set; }
 
-        [Required]
-        [Display(Name = "Valid To")]
-        public DateTime ValidTo { get; set; }
+        public DateTime validFrom { get; set; }
 
-        [Display(Name = "Active")]
-        public bool IsActive { get; set; }
+        public DateTime validTo { get; set; }
 
-        public int MenuId { get; set; }
 
-        public string ImagePath { get; set; }
+        public bool is_Active{ get; set; }
+        public int menu_id { get; set; }
+
+
+        public string ImagePath { get; set; } // Comma-separated paths
 
         [NotMapped]
-        public IFormFile OfferImage { get; set; }
+        public List<IFormFile> image_path { get; set; }
     }
 }

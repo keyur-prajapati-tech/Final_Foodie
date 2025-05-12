@@ -24,75 +24,98 @@ namespace Foodie.Controllers.Restaurant
             return View(orderHistory);
         }
 
-        
 
-        public IActionResult offers(string SearchTerm)
+        public IActionResult offers()
         {
-            var offers = string.IsNullOrEmpty(SearchTerm) ? _restaurantRepository.Get_Special_Offers() : _restaurantRepository.special_offer_search(SearchTerm);
+            var offers = _restaurantRepository.GetAllOffers();
             return View(offers);
         }
 
-        public IActionResult AddOffers()
-        {
-            return View();
-        }
-
         [HttpPost]
-        public IActionResult AddOffers(tbl_special_offers offermodel) 
-        { 
-            if(ModelState.IsValid)
-            {
-                if(offermodel.OfferImage != null)
-                {
-                    string fileName = Path.GetFileNameWithoutExtension(offermodel.OfferImage.FileName);
-                    string extension = Path.GetExtension(offermodel.OfferImage.FileName);
-                    fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
-                    offermodel.ImagePath = "~/images/Offers/" + fileName;
-                    fileName = Path.Combine(_env.WebRootPath, "images/Offers", fileName);
-                    using (var fileStream = new FileStream(fileName, FileMode.Create))
-                    {
-                        offermodel.OfferImage.CopyTo(fileStream);
-                    }
-                }
-                _restaurantRepository.Add_SP_Offer(offermodel);
-                return RedirectToAction("offers");
-            }
-            return View(offermodel);
-        }
-
-        public IActionResult EditOffers(int id)
-        {
-            var offer = _restaurantRepository.Get_Special_Offers_ById(id);
-            return View(offer);
-        }
-
-        [HttpPost]
-        public IActionResult EditOffers(tbl_special_offers offermodel)
+        public async Task<IActionResult> AddOffer(tbl_special_offers offer, List<IFormFile> image_path)
         {
             if (ModelState.IsValid)
             {
-                if (offermodel.OfferImage != null)
+                string imagePaths = "";
+
+                if (image_path != null && image_path.Count > 0)
                 {
-                    string fileName = Path.GetFileNameWithoutExtension(offermodel.OfferImage.FileName);
-                    string extension = Path.GetExtension(offermodel.OfferImage.FileName);
-                    fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
-                    offermodel.ImagePath = "~/images/Offers/" + fileName;
-                    fileName = Path.Combine(_env.WebRootPath, "images/Offers", fileName);
-                    using (var fileStream = new FileStream(fileName, FileMode.Create))
+                    foreach (var file in image_path)
                     {
-                        offermodel.OfferImage.CopyTo(fileStream);
+                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                        var filePath = Path.Combine(_env.WebRootPath, "Uploads", fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        imagePaths += "/Uploads/" + fileName + ",";
                     }
+
+                    imagePaths = imagePaths.TrimEnd(',');
+                    offer.ImagePath = imagePaths;
                 }
-                _restaurantRepository.Update_SP_offer(offermodel);
-                return RedirectToAction("offers");
+
+                _restaurantRepository.AddOffeer(offer);
+                return Json(new { success = true });
             }
-            return View(offermodel);
+
+            return Json(new { success = false, message = "Validation failed" });
         }
 
-        public IActionResult DeleteOffers(int id)
+
+        [HttpGet]
+        public IActionResult GetOffer(int id)
         {
-            _restaurantRepository.Delete_SP_offer(id);
-            return RedirectToAction("offers");
+            var offer = _restaurantRepository.GetOfferById(id);
+
+            if(offer == null)
+            {
+                return NotFound();
+            }
+            return Json(offer);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateOffer(tbl_special_offers offer, List<IFormFile> image_path)
+        {
+            if (ModelState.IsValid)
+            {
+                string imagePaths = "";
+
+                if (image_path != null && image_path.Count > 0)
+                {
+                    foreach (var file in image_path)
+                    {
+                        var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                        var filePath = Path.Combine(_env.WebRootPath, "Uploads", fileName);
+
+                        using (var stream = new FileStream(filePath, FileMode.Create))
+                        {
+                            await file.CopyToAsync(stream);
+                        }
+
+                        imagePaths += "/Uploads/" + fileName + ",";
+                    }
+
+                    imagePaths = imagePaths.TrimEnd(',');
+
+                    offer.ImagePath = imagePaths;
+                }
+
+                _restaurantRepository.UpdateOffer(offer);
+                return Json(new { success = true });
+            }
+
+            return Json(new { success = false, message = "Validation Failed" });
+        }
+
+        [HttpPost]
+        public IActionResult deleteOffer(int id)
+        {
+            _restaurantRepository.DeleteOffer(id);
+            return Json(new { success = true });
         }
 
         public IActionResult reports()

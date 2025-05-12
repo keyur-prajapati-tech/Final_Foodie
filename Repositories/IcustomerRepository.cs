@@ -30,7 +30,6 @@ namespace Foodie.Repositories
 
         void AddToCart(tbl_cart_item tbl_Cart_Item);
         tbl_cart GetOrCreateCart(int customerId);
-        //void PlaceOrder(int customerId);
 
         IEnumerable<tbl_state> GetAllStates();
         IEnumerable<tbl_district> GetDistrictByStateId(int stateId);
