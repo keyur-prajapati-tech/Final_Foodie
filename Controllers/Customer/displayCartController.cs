@@ -36,7 +36,7 @@ namespace Foodie.Controllers.Customer
         [HttpGet]
         public IActionResult AddToCartIteminfo()
         {
-            var customerIdString = HttpContext.Session.GetString("customer_id");
+            var customerIdString = HttpContext.Session.GetString("UserId");
 
             if (string.IsNullOrEmpty(customerIdString))
             {
@@ -54,7 +54,7 @@ namespace Foodie.Controllers.Customer
         [HttpPost]
         public IActionResult AddToCartIteminfo(int menuid, int quantity, decimal price)
         {
-            int customerId = Convert.ToInt32(HttpContext.Session.GetString("customer_id"));
+            int customerId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
 
             // Get or create the cart
             var cart = _repository.GetOrCreateCart(customerId);
@@ -91,7 +91,7 @@ namespace Foodie.Controllers.Customer
         {
             try
             {
-                var sessionId = HttpContext.Session.GetString("customer_id");
+                var sessionId = HttpContext.Session.GetString("UserId");
 
                 if (string.IsNullOrEmpty(sessionId))
                 {
