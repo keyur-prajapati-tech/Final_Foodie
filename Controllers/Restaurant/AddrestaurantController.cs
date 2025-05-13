@@ -74,6 +74,7 @@ namespace Foodie.Controllers.Restaurant
                         est_id = 1,
                         owner_id = model.tbl_Owner.owner_id
                     };
+                   
 
                     _repository.AddRestaurant(restaurant);
 
@@ -93,17 +94,6 @@ namespace Foodie.Controllers.Restaurant
         //[Route("MenuItems")]
         public IActionResult MenuItems()
         {
-            //int r_id = RestaurantRepository.getRId();
-
-            //if (r_id != 0)
-            //{
-            //    var model = new RestaurantMenuViewmodel
-            //    {
-            //        tbl_Vendores_Img = _repository.getVendors_img(r_id),
-            //        tbl_Vendor_Availability = _repository.getVendor_Available(r_id)
-            //    };
-            //    return View(model);
-            //}
             return View();
         }
 
@@ -222,7 +212,7 @@ namespace Foodie.Controllers.Restaurant
                 _repository.AddFssaiDetails(fssai, fssaiImg);
                 _repository.AddBankDetails(bank);
 
-                return RedirectToAction("OrderReady", "Restaurant");
+                return RedirectToAction("Locality", "Locality");
             }
             return View(); 
         }

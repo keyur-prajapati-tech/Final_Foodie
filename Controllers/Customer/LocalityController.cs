@@ -125,8 +125,8 @@ namespace Foodie.Controllers.Customer
 
             var nameToStore = existing?.customer_name ?? customer.customer_name ?? "User";
             HttpContext.Session.SetString("CustomerEmail", email);
-            HttpContext.Session.SetString("CustomerName", nameToStore);
-            HttpContext.Session.SetString("customer_id", existing.customer_id.ToString());
+            HttpContext.Session.SetString("UserName", nameToStore);
+            HttpContext.Session.SetString("UserId", existing.customer_id.ToString());
 
             return Json(new
             {
