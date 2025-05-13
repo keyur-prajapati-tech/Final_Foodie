@@ -160,12 +160,13 @@
                                 var imageList = item.ImagePath.Split(',');
                                 foreach (var img in imageList)
                                 {
-                                    <img src="@img" class="img-fluid mb-2" style=" height:150px ; width:150px;"/>
+                                    <img src="@img" class="img-fluid mb-2" style=" height:150px ; width:200px; object-fit: cover; border: 2px solid #000; border-radius: 5px; padding: 5px;"/>
                                 }
                             }
-                            <button class="btn btn-primary btn-sm edit-offer" data-id="@item.so_id">Edit</button>
-                            <button class="btn btn-danger btn-sm delete-offer" data-id="@item.so_id">Delete</button>
-
+                           <div class="d-flex gap-2">
+                                <button class="btn btn-primary btn-sm edit-offer" data-id="@item.so_id">Edit</button>
+                                <button class="btn btn-danger btn-sm delete-offer" data-id="@item.so_id">Delete</button>
+                           </div>
                         </div>
                     </div>
                 </div>
@@ -215,30 +216,40 @@
                 $("#edit_percentage_disc").val(data.percentage_disc);
                 $("#edit_validFrom").val(data.validFrom.split('T')[0]);
                 $("#edit_validTo").val(data.validTo.split('T')[0]);
-                $("#edit_is_Active").val(data.is_Active.toString());
+                $("#edit_is_Active").val(data.is_Active.toString().toLowerCase());
                 $("#editOfferModal").modal("show");
             });
         });
 
+        // Submit Edit Offer Form
         $("#editOfferForm").submit(function (e) {
             e.preventDefault();
+
             var formData = new FormData(this);
+
+            formData.set("is_Active", $("#edit_is_Active").val());
+
             $.ajax({
-                url: '/OrderHistory/UpdateOffer',
                 type: 'POST',
+                url: '/OrderHistory/UpdateOffer',
                 data: formData,
-                contentType: false,
                 processData: false,
+                contentType: false,
                 success: function (res) {
                     if (res.success) {
                         alert("Offer updated successfully!");
+                        $("#editOfferModal").modal('hide');
                         location.reload();
                     } else {
-                        alert(res.message || "Failed to update offer.");
+                        alert("Error: " + res.message);
                     }
+                },
+                error: function () {
+                    alert("Something went wrong during update!");
                 }
             });
         });
+
 
         // Delete Offer
         $(".delete-offer").click(function () {
