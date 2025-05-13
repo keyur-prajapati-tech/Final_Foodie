@@ -4,15 +4,35 @@
 
 @model IEnumerable<Foodie.Models.Restaurant.tbl_special_offers>
 @{
-    Layout = "~/Views/Shared/_RestaurantLayout.cshtml";
+Layout = "~/Views/Shared/_RestaurantLayout.cshtml";
 }
 
 <div class="m-2">
     <h2 style="text-transform:uppercase;text-align:center;">Special Offer</h2>
 </div>
+
+<hr />
+<form method="get" action="@Url.Action("SearchOffers", "OrderHistory")" class="row g-3 mb-4">
+    <div class="col-md-4">
+        <label for="validFrom">Valid From</label>
+        <input type="date" name="validFrom" id="validFrom" class="form-control"
+               value="@Context.Request.Query["validFrom"]" />
+    </div>
+    <div class="col-md-4">
+        <label for="validTo">Valid To</label>
+        <input type="date" name="validTo" id="validTo" class="form-control"
+               value="@Context.Request.Query["validTo"]" />
+    </div>
+    <div class="col-md-4 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary w-100">Filter Offers</button>
+    </div>
+</form>
+<hr />
+
 <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addOfferModal">Add Offer</button>
 
 <!-- Modal -->
+
 <div class="modal fade" id="addOfferModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <form id="offerForm" enctype="multipart/form-data">
@@ -22,50 +42,52 @@
                     <input type="hidden" name="restaurant_id" value="1" />
                     <input type="hidden" name="menu_id" value="16" />
 
-                    <div class="col-md-6">
-                        <label>Offer Title</label>
-                        <input type="text" name="offer_title" class="form-control" required />
-                    </div>
-                    <div class="col-md-6">
-                        <label>Description</label>
-                        <input type="text" name="offer_desc" class="form-control" required />
-                    </div>
-                    <div class="col-md-4">
-                        <label>Discount (%)</label>
-                        <input type="number" name="percentage_disc" class="form-control" required min="1" max="100" />
-                    </div>
-                    <div class="col-md-4">
-                        <label>Valid From</label>
-                        <input type="date" name="validFrom" class="form-control" required />
-                    </div>
-                    <div class="col-md-4">
-                        <label>Valid To</label>
-                        <input type="date" name="validTo" class="form-control" required />
-                    </div>
-                    <div class="col-md-12">
-                        <label>Upload Images</label>
-                        <input type="file" name="image_path" multiple class="form-control" />
-                    </div>
-                    <div class="col-md-12">
-                        <label>Status</label>
-                        <select name="is_Active" class="form-control">
-                            <option value="true">Active</option>
-                            <option value="false">Inactive</option>
-                        </select>
-                    </div>
+```
+                <div class="col-md-6">
+                    <label>Offer Title</label>
+                    <input type="text" name="offer_title" class="form-control" required />
                 </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Add Offer</button>
+                <div class="col-md-6">
+                    <label>Description</label>
+                    <input type="text" name="offer_desc" class="form-control" required />
+                </div>
+                <div class="col-md-4">
+                    <label>Discount (%)</label>
+                    <input type="number" name="percentage_disc" class="form-control" required min="1" max="100" />
+                </div>
+                <div class="col-md-4">
+                    <label>Valid From</label>
+                    <input type="date" name="validFrom" class="form-control" required />
+                </div>
+                <div class="col-md-4">
+                    <label>Valid To</label>
+                    <input type="date" name="validTo" class="form-control" required />
+                </div>
+                <div class="col-md-12">
+                    <label>Upload Images</label>
+                    <input type="file" name="image_path" multiple class="form-control" />
+                </div>
+                <div class="col-md-12">
+                    <label>Status</label>
+                    <select name="is_Active" class="form-control">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
                 </div>
             </div>
-        </form>
-    </div>
+            <div class="modal-footer">
+                <button type="submit" class="btn btn-primary">Add Offer</button>
+            </div>
+        </div>
+    </form>
+</div>
 </div>
 
 <br />
 <hr />
 
 <!-- Edit Offer Modal -->
+
 <div class="modal fade" id="editOfferModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <form id="editOfferForm" enctype="multipart/form-data">
@@ -115,8 +137,8 @@
     </div>
 </div>
 
-
 <!-- Delete Confirmation Modal -->
+
 <div class="modal fade" id="deleteOfferModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -135,9 +157,54 @@
     </div>
 </div>
 
-
 <!-- Display Offers -->
 <div class="row">
+    @if (Model != null)
+    {
+        foreach (var item in Model)
+        {
+            if (item != null)
+            {
+                var isActive = item.is_Active;
+                var cardClass = isActive ? "border-success bg-light" : "border-secondary bg-light text-muted";
+                var statusBadge = isActive
+                ? "<span class='badge bg-success'>Active</span>"
+                : "<span class='badge bg-secondary'>Inactive</span>";
+
+                <div class="col-md-4 mb-3">
+                    <div class="card @cardClass" style="border-width: 2px;">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">@item.offer_title</h5>
+                            @Html.Raw(statusBadge)
+                        </div>
+                        <div class="card-body">
+                            <p><strong>Description:</strong> @item.offer_desc</p>
+                            <p><strong>Discount:</strong> @item.percentage_disc%</p>
+                            <p><strong>Offer StartDate:</strong> @item.validFrom.ToShortDateString()</p>
+                            <p><strong>Offer EndDate:</strong>@item.validTo.ToShortDateString()</p>
+
+                            @if (!string.IsNullOrEmpty(item.ImagePath))
+                            {
+                                var imageList = item.ImagePath.Split(',');
+                                foreach (var img in imageList)
+                                {
+                                    <img src="@img" class="img-fluid mb-2" style="height:150px; width:150px; object-fit:cover; border:2px solid #000; border-radius:5px; padding:5px;" />
+                                }
+                            }
+
+                            <div class="d-flex gap-2 mt-3">
+                                <button class="btn btn-primary btn-sm edit-offer" data-id="@item.so_id">Edit</button>
+                                <button class="btn btn-danger btn-sm delete-offer" data-id="@item.so_id">Delete</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    }
+</div>
+
+@* <div class="row">
     @if (Model != null)
     {
         foreach (var item in Model)
@@ -155,25 +222,28 @@
                             <p><b>Valid:</b> @item.validFrom.ToShortDateString() - @item.validTo.ToShortDateString()</p>
                             <p><b>Status:</b> @(item.is_Active ? "Active" : "Inactive")</p>
 
-                            @if (!string.IsNullOrEmpty(item.ImagePath))
+```
+                        @if (!string.IsNullOrEmpty(item.ImagePath))
+                        {
+                            var imageList = item.ImagePath.Split(',');
+                            foreach (var img in imageList)
                             {
-                                var imageList = item.ImagePath.Split(',');
-                                foreach (var img in imageList)
-                                {
-                                    <img src="@img" class="img-fluid mb-2" style=" height:150px ; width:200px; object-fit: cover; border: 2px solid #000; border-radius: 5px; padding: 5px;"/>
-                                }
+                                <img src="@img" class="img-fluid mb-2" style=" height:150px ; width:200px; object-fit: cover; border: 2px solid #000; border-radius: 5px; padding: 5px;"/>
                             }
-                           <div class="d-flex gap-2">
-                                <button class="btn btn-primary btn-sm edit-offer" data-id="@item.so_id">Edit</button>
-                                <button class="btn btn-danger btn-sm delete-offer" data-id="@item.so_id">Delete</button>
-                           </div>
-                        </div>
+                        }
+                       <div class="d-flex gap-2">
+                            <button class="btn btn-primary btn-sm edit-offer" data-id="@item.so_id">Edit</button>
+                            <button class="btn btn-danger btn-sm delete-offer" data-id="@item.so_id">Delete</button>
+                       </div>
                     </div>
                 </div>
-            }
+            </div>
         }
     }
-</div>
+}
+```
+
+</div> *@
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 

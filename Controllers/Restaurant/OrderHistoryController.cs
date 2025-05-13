@@ -120,6 +120,13 @@ namespace Foodie.Controllers.Restaurant
             return Json(new { success = true });
         }
 
+        [HttpGet]
+        public IActionResult SearchOffers(DateTime? validFrom, DateTime? validTo)
+        {
+            var offers = _restaurantRepository.GetOffersByDateRange(validFrom, validTo);
+            return View("offers", offers);
+        }
+
         public IActionResult reports()
         {
             return View();

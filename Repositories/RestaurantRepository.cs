@@ -1005,5 +1005,40 @@ namespace Foodie.Repositories
             }
         }
 
+        public IEnumerable<tbl_special_offers> GetOffersByDateRange(DateTime? validFrom, DateTime? validTo)
+        {
+            List<tbl_special_offers> offers = new List<tbl_special_offers>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT * FROM vendores.tbl_special_offers WHERE (@validFrom IS NULL OR validFrom >= @validFrom) AND (@validTo IS NULL OR validTo <= @validTo)";
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                cmd.Parameters.AddWithValue("@validFrom", validFrom.HasValue ? (object)validFrom.Value : DBNull.Value);
+                cmd.Parameters.AddWithValue("@validTo", validTo.HasValue ? (object)validTo.Value : DBNull.Value);
+
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+
+                while (rd.Read())
+                {
+                    offers.Add(new tbl_special_offers()
+                    {
+                        so_id = Convert.ToInt32(rd["so_id"]),
+                        restaurant_id = Convert.ToInt32(rd["restaurant_id"]),
+                        offer_title = rd["offer_title"].ToString(),
+                        offer_desc = rd["offer_desc"].ToString(),
+                        percentage_disc = Convert.ToInt32(rd["percentage_disc"]),
+                        validFrom = Convert.ToDateTime(rd["validFrom"]),
+                        validTo = Convert.ToDateTime(rd["validTo"]),
+                        is_Active = Convert.ToBoolean(rd["is_Active"]),
+                        menu_id = Convert.ToInt32(rd["menu_id"]),
+                        ImagePath = rd["image_path"].ToString()
+                    });
+                }
+                conn.Close();
+            }
+            return offers;
+        }
     }
 }
