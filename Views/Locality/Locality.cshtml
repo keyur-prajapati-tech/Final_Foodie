@@ -48,6 +48,68 @@
     }
 </style>
 
+<h2 class="text-center my-4">🔥 Special Offers Just for You</h2>
+
+<div class="container">
+    <div class="row" id="offerContainer">
+        <!-- Offers will be loaded here by AJAX -->
+    </div>
+
+    <div class="text-center mt-4">
+        <button id="loadMoreBtn" class="btn btn-primary">Load More Offers</button>
+    </div>
+</div>
+
+<script>
+    let page = 1;
+
+    function loadOffers() {
+        $.ajax({
+            url: '@Url.Action("GetSpecialOffers", "Customer")',
+            type: 'GET',
+            data: { page: page },
+            success: function (data) {
+                if (data.length === 0) {
+                    $('#loadMoreBtn').hide();
+                    if (page === 1) {
+                        $('#offerContainer').html('<p class="text-center text-danger">No offers found.</p>');
+                    }
+                    return;
+                }
+
+                data.forEach(offer => {
+                    let card = `
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm border-0">
+                            <img src="${offer.ImagePath}" class="card-img-top" style="height: 200px; object-fit: cover;" />
+                            <div class="card-body">
+                                <h5 class="card-title">${offer.OfferTitle}</h5>
+                                <p class="card-text">${offer.OfferDesc}</p>
+                                <p class="text-success fw-bold">${offer.PercentageDisc}% OFF</p>
+                                <p class="text-muted"><small>Valid: ${offer.ValidFrom.split('T')[0]} - ${offer.ValidTo.split('T')[0]}</small></p>
+                            </div>
+                        </div>
+                    </div>`;
+                    $('#offerContainer').append(card);
+                });
+
+                page++;
+            },
+            error: function () {
+                alert("Error loading offers.");
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        loadOffers();
+
+        $('#loadMoreBtn').click(function () {
+            loadOffers();
+        });
+    });
+</script>
+
 <div class="container-fluid mt-4">
     <h2>Popular localities in and around <strong>@ViewBag.DisrictName</strong></h2>
 

@@ -49,5 +49,7 @@ namespace Foodie.Repositories
         int PlaceOrder(int customer_id, int? coupone_id, int address_id, int paymentModeId, decimal totalAmount, decimal discount, string razorpayPaymentId, string razorpayOrderId);
 
         void SaveOrderItem(int orderId, int menuId, int quantity, decimal price, decimal discount);
+
+        IEnumerable<tbl_special_offers> GetAllActiveOffers();
     }
 }

@@ -813,5 +813,36 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 }
             }
         }
+
+        public IEnumerable<tbl_special_offers> GetAllActiveOffers()
+        {
+            List<tbl_special_offers> offers = new List<tbl_special_offers>();
+
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT * FROM vendores.tbl_special_offers WHERE isActive = 1";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+                while (rd.Read())
+                {
+                    offers.Add(new tbl_special_offers
+                    {
+                        so_id = (int)rd["so_id"],
+                        restaurant_id = (int)rd["restaurant_id"],
+                        offer_title = rd["offer_title"].ToString(),
+                        offer_desc = rd["offer_desc"].ToString(),
+                        percentage_disc = Convert.ToInt32(rd["percentage_disc"]),
+                        validFrom = Convert.ToDateTime(rd["validFrom"]),
+                        validTo = Convert.ToDateTime(rd["validTo"]),
+                        is_Active = Convert.ToBoolean(rd["is_Active"]),
+                        menu_id = (int)rd["menu_id"],
+                        ImagePath = rd["ImagePath"].ToString()
+                    });
+                }
+                conn.Close();
+            }
+            return offers;
+        }
     }
 }
