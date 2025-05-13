@@ -440,11 +440,11 @@
                     <li><a asp-area="" asp-controller="DeliverSignup" asp-action="DeliveryRegister">Add Delivery Partner</a></li>
 
                     <!-- Conditional Rendering for Login/Profile button -->
-                    @if (Context.Session.GetString("CustomerName") != null)
+                    @if (Context.Session.GetString("UserName") != null)
                     {
                         <li style="cursor: pointer">
                             <a class="" data-bs-toggle="modal" data-bs-target="#editProfileModal">
-                                👨‍✈️ Profile - @Context.Session.GetString("CustomerName")
+                                👨‍✈️ Profile - @Context.Session.GetString("UserName")
                             </a>
                         </li>
                         <li>

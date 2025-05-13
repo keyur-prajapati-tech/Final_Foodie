@@ -84,19 +84,19 @@
             <form asp-action="Document" asp-controller="DeliverSignup" method="post" enctype="multipart/form-data">
 
                 <label for="ProfilePhoto" class="form-label">Upload Profile Photo</label>
-                <input type="file" class="form-control" id="ProfilePhoto" name="ProfilePhoto" accept="image/*" required>
+                <input type="file" class="form-control" id="ProfilePhoto" name="ProfilePhoto" accept=".jpg,.jpeg,.png" required>
 
                 <label for="AadhaarCard" class="form-label">Upload Aadhaar Card</label>
-                <input type="file" class="form-control" id="AadhaarCard" name="AadhaarCard" accept="image/*,application/pdf" required>
+                <input type="file" class="form-control" id="AadhaarCard" name="AadhaarCard" accept=".jpg,.jpeg,.png" required>
 
                 <label for="PANCard" class="form-label">Upload PAN Card</label>
-                <input type="file" class="form-control" id="PANCard" name="PANCard" accept="image/*,application/pdf" required>
+                <input type="file" class="form-control" id="PANCard" name="PANCard" accept=".jpg,.jpeg,.png" required>
 
                 <label for="DrivingLicense" class="form-label">Upload Driving License</label>
-                <input type="file" class="form-control" id="DrivingLicense" name="DrivingLicense" accept="image/*,application/pdf" required>
+                <input type="file" class="form-control" id="DrivingLicense" name="DrivingLicense" accept=".jpg,.jpeg,.png" required>
 
                 <label for="RCBook" class="form-label">Upload RC Book</label>
-                <input type="file" class="form-control" id="RCBook" name="RCBook" accept="image/*,application/pdf" required>
+                <input type="file" class="form-control" id="RCBook" name="RCBook" accept=".jpg,.jpeg,.png" required>
 
                 <button type="submit" class="btn btn-primary">Submit Documents</button>
             </form>
