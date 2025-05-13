@@ -954,7 +954,12 @@ namespace Foodie.Repositories
         {
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = @"UPDATE vendores.tbl_special_offers SET 
+                string query;
+
+                // If new image is uploaded, include ImagePath update
+                if (!string.IsNullOrEmpty(offer.ImagePath))
+                {
+                    query = @"UPDATE vendores.tbl_special_offers SET 
                         restaurant_id = @restaurant_id,
                         offer_title = @offer_title,
                         offer_desc = @offer_desc,
@@ -964,7 +969,21 @@ namespace Foodie.Repositories
                         is_Active = @is_Active,
                         menu_id = @menu_id,
                         ImagePath = @ImagePath
-                     WHERE so_id = @so_id";
+                      WHERE so_id = @so_id";
+                }
+                else
+                {
+                    query = @"UPDATE vendores.tbl_special_offers SET 
+                        restaurant_id = @restaurant_id,
+                        offer_title = @offer_title,
+                        offer_desc = @offer_desc,
+                        percentage_disc = @percentage_disc,
+                        validFrom = @validFrom,
+                        validTo = @validTo,
+                        is_Active = @is_Active,
+                        menu_id = @menu_id
+                      WHERE so_id = @so_id";
+                }
 
                 SqlCommand cmd = new SqlCommand(query, conn);
 
@@ -977,7 +996,11 @@ namespace Foodie.Repositories
                 cmd.Parameters.AddWithValue("@validTo", offer.validTo);
                 cmd.Parameters.AddWithValue("@is_Active", offer.is_Active);
                 cmd.Parameters.AddWithValue("@menu_id", offer.menu_id);
-                cmd.Parameters.AddWithValue("@ImagePath", offer.ImagePath ?? "");
+
+                if (!string.IsNullOrEmpty(offer.ImagePath))
+                {
+                    cmd.Parameters.AddWithValue("@ImagePath", offer.ImagePath);
+                }
 
                 conn.Open();
                 cmd.ExecuteNonQuery();
