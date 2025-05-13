@@ -62,9 +62,9 @@ namespace Foodie.Repositories
 
         public bool isApprove(int restaurant_id);
 
-        public OutletInfo getOutletInfo(int restaurant_id);
+        public OutletInfo GetOutletInfo(int id);
 
-
+        public void UpdateOutletInfo(OutletInfo model);
         public List<tbl_ratings> GetAllRatings(int restaurant_id);
 
         public IEnumerable<tbl_cust_vendor_complaints> GetComplaintsByRestaurantId(int restaurantId);

@@ -36,9 +36,9 @@
                     </div>
 
                     <div class="d-flex justify-content-between m-3">
-                        <input type="text" asp-for="@Model.PanDetails.pan_number" class="form-control fw-lighter me-4" style="border-radius:10px" placeholder="PAN Number*">
+                        <input type="text" asp-for="@Model.PanDetails.pan_number" required placeholder="PAN Number*" class="form-control fw-lighter me-4" style="border-radius:10px">
 
-                        <input type="text" asp-for="@Model.PanDetails.pan_holder_name" class="form-control fw-lighter " style="border-radius:10px" placeholder="Full name as per PAN*">
+                        <input type="text" asp-for="@Model.PanDetails.pan_holder_name" required class="form-control fw-lighter " style="border-radius:10px" placeholder="Full name as per PAN*">
 
                       
                     </div>
@@ -46,7 +46,7 @@
                     
                     <div class="mb-3">
                         <label for="formFile" class="form-label">Upload Your PAN Image</label>
-                        <input class="form-control" name="pan_img" type="file" id="formFile">
+                        <input class="form-control" name="pan_img" type="file" accept=".jpg,.jpeg,.png" id="formFile">
                     </div>
                 </div>
 
@@ -110,13 +110,13 @@
                     </div>
 
                     <div class="d-flex justify-content-between m-3">
-                        <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" asp-for="@Model.FssaiDetails.fssai_certi" placeholder="Fassai Number*">
+                        <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" required asp-for="@Model.FssaiDetails.fssai_certi" placeholder="Fassai Number*">
 
-                        <input type="date" class="form-control fw-lighter " style="border-radius:10px" asp-for="@Model.FssaiDetails.Ex_Date" placeholder="Expiry Date">
+                        <input type="date" class="form-control fw-lighter " style="border-radius:10px" required asp-for="@Model.FssaiDetails.Ex_Date" placeholder="Expiry Date">
                     </div>
                     <div class="mb-3">
                         <label for="formFile" class="form-label">Upload Your Fassai Image</label>
-                        <input class="form-control" name="fssai_img" type="file" id="formFile">
+                        <input class="form-control" name="fssai_img" accept=".jpg,.jpeg,.png" type="file" id="formFile">
                     </div>
 
 
@@ -133,13 +133,13 @@
 
                     </div>
                     <div class="d-flex justify-content-between m-3">
-                        <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" placeholder="Bank Account Name*" asp-for="@Model.BankDetails.bank_name">
+                        <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" placeholder="Bank Account Name*" required asp-for="@Model.BankDetails.bank_name">
 
-                        <input type="text" class="form-control fw-lighter " style="border-radius:10px" placeholder="Bank Account Number*" asp-for="@Model.BankDetails.ACC_NO">
+                        <input type="text" class="form-control fw-lighter " style="border-radius:10px" placeholder="Bank Account Number*" required asp-for="@Model.BankDetails.ACC_NO">
                     </div>
 
                     <div class="d-flex justify-content-between m-3">
-                        <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" placeholder="Enter IFSC Code*" asp-for="@Model.BankDetails.IFSC_code">
+                        <input type="text" class="form-control fw-lighter me-4" style="border-radius:10px" placeholder="Enter IFSC Code*" required asp-for="@Model.BankDetails.IFSC_code">
 
                         <div class="form-control dropdown">
                             <button class="btn dropdown-toggle w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false">

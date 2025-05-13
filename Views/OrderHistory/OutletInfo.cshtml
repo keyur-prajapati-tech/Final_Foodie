@@ -1,136 +1,153 @@
-﻿@{
+﻿@model Foodie.Models.Restaurant.OutletInfo
+@{
     Layout = "~/Views/Shared/_RestaurantLayout.cshtml";
 }
-@model Foodie.Models.Restaurant.OutletInfo
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Outlet Info - Zomato Style</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-        background-color: #f8f9fa;
-        }
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-        .info-card {
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 25px;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        margin-bottom: 20px;
-        }
+<div class="container py-5">
+    <h2 class="mb-4 text-primary">Outlet Information</h2>
 
-        .info-label {
-        font-weight: 600;
-        color: #555;
-        }
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success shadow-sm">@TempData["Success"]</div>
+    }
 
-        .info-value {
-        color: #222;
-        }
-
-        .section-title {
-        font-weight: bold;
-        font-size: 20px;
-        margin-bottom: 15px;
-        border-bottom: 2px solid #eee;
-        padding-bottom: 5px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container mt-3 mb-5">
-
-        <h2 class="mb-4">Outlet Information</h2>
-
-        <!-- Basic Info -->
-        <div class="info-card">
-            <div class="section-title">Basic Details</div>
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <div class="info-label">Restaurant ID</div>
-                    <div class="info-value">@Model.restaurant_id</div>
+    <div class="card shadow border-0">
+        <div class="card-body">
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h6 class="text-muted">Name</h6>
+                    <p class="fw-bold">@Model.restaurant_name</p>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <div class="info-label">Outlet Name</div>
-                    <div class="info-value">@Model.restaurant_name</div>
-                </div>
-                <div class="col-md-4 mb-3">
-                    <div class="info-label">Cuisine Type</div>
-                    <div class="info-value">North Indian</div>
+                <div class="col-md-6">
+                    <h6 class="text-muted">Email</h6>
+                    <p class="fw-bold">@Model.restaurant_email</p>
                 </div>
             </div>
-        </div>
 
-        <!-- Location Info -->
-        <div class="info-card">
-            <div class="section-title">Location</div>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <div class="info-label">Address</div>
-                    <div class="info-value">@Model.restaurant_address</div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h6 class="text-muted">Phone</h6>
+                    <p class="fw-bold">@Model.restaurant_phone</p>
                 </div>
-
-                <div class="col-md-3 mb-3">
-                    <div class="info-label">Pincode</div>
-                    <div class="info-value">@Model.restaurant_pincode</div>
+                <div class="col-md-6">
+                    <h6 class="text-muted">Street</h6>
+                    <p class="fw-bold">@Model.restaurant_street</p>
                 </div>
             </div>
-        </div>
 
-        <!-- Timing Info -->
-        <div class="info-card">
-            <div class="section-title">Timing</div>
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    <div class="info-label">Opening Time</div>
-                    <div class="info-value">@Model.restaurant_opening_hours</div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <h6 class="text-muted">Pincode</h6>
+                    <p class="fw-bold">@Model.restaurant_pincode</p>
                 </div>
-                <div class="col-md-4 mb-3">
-                    <div class="info-label">Closing Time</div>
-                    <div class="info-value">@Model.restaurant_closing_hours</div>
-                </div>
-                @if(Model.restaurant_isOnline == true)
-                {
-                    <div class="col-md-4 mb-3">
-                        <div class="info-label">Status</div>
-                        <div class="badge bg-success">Online</div>
-                    </div>
-                }
-                else
-                {
-                    <div class="col-md-4 mb-3">
-                        <div class="info-label">Status</div>
-                        <div class="badge bg-danger">Offline</div>
-                    </div>
-                }
-            </div>
-        </div>
-
-        <!-- Contact Info -->
-        <div class="info-card">
-            <div class="section-title">Contact</div>
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <div class="info-label">Phone</div>
-                    <div class="info-value">@Model.restaurant_phone</div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <div class="info-label">Email</div>
-                    <div class="info-value">@Model.restaurant_email</div>
+                <div class="col-md-6">
+                    <h6 class="text-muted">Status</h6>
+                    <p>
+                        @if (Model.restaurant_isOnline)
+                        {
+                            <span class="badge bg-success">Online</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-danger">Offline</span>
+                        }
+                    </p>
                 </div>
             </div>
-        </div>
 
-        <!-- Action Button -->
-        <div class="text-end mt-4">
-            <button class="btn btn-primary">Edit Outlet Info</button>
-        </div>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h6 class="text-muted">Restaurant Image</h6>
+                    @if (Model.restaurant_img != null)
+                    {
+                        <img src="data:image/jpeg;base64,@Convert.ToBase64String(Model.restaurant_img)" class="img-fluid rounded shadow" style="max-height: 200px;" />
+                    }
+                </div>
+                <div class="col-md-6">
+                    <h6 class="text-muted">Menu Image</h6>
+                    @if (Model.restaurant_menu_img != null)
+                    {
+                        <img src="data:image/jpeg;base64,@Convert.ToBase64String(Model.restaurant_menu_img)" class="img-fluid rounded shadow" style="max-height: 200px;" />
+                    }
+                </div>
+            </div>
 
+            <div class="text-end">
+                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#editModal">
+                    <i class="bi bi-pencil-square me-1"></i> Edit
+                </button>
+            </div>
+        </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow">
+            <form asp-action="EditOutletInfo" asp-controller="OrderHistory" method="post" enctype="multipart/form-data">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="editModalLabel">Edit Outlet Info</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+                    @Html.HiddenFor(m => m.restaurant_id)
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label asp-for="restaurant_name" class="form-label">Name</label>
+                            <input asp-for="restaurant_name" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="restaurant_email" class="form-label">Email</label>
+                            <input asp-for="restaurant_email" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="restaurant_phone" class="form-label">Phone</label>
+                            <input asp-for="restaurant_phone" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label asp-for="restaurant_street" class="form-label">Street</label>
+                            <input asp-for="restaurant_street" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="restaurant_pincode" class="form-label">Pincode</label>
+                            <input asp-for="restaurant_pincode" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-check mt-4 pt-2">
+                                <input asp-for="restaurant_isOnline" class="form-check-input" type="checkbox" />
+                                <label class="form-check-label" asp-for="restaurant_isOnline">Is Online</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Restaurant Image</label>
+                            <input type="file" name="NewRestaurantImg" accept=".jpg,.jpeg,.png" class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Menu Image</label>
+                            <input type="file" name="NewRestaurantMenuImg" accept=".jpg,.jpeg,.png" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer bg-light">
+                    <button type="submit" class="btn btn-success">Save Changes</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap Icons CDN for Pencil Icon (optional) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>

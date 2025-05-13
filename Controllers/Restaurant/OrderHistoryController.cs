@@ -156,8 +156,30 @@ namespace Foodie.Controllers.Restaurant
         public IActionResult OutletInfo()
         {
             var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId")); // Replace with the actual restaurant ID
-            var outletInfo = _restaurantRepository.getOutletInfo(restaurantId);
-            return View(outletInfo);
+            var model = _restaurantRepository.GetOutletInfo(restaurantId);
+            return View(model);
         }
+        [HttpPost]
+        public IActionResult EditOutletInfo(OutletInfo model)
+        {
+            if (model.NewRestaurantImg != null)
+            {
+                using var ms = new MemoryStream();
+                model.NewRestaurantImg.CopyTo(ms);
+                model.restaurant_img = ms.ToArray();
+            }
+
+            if (model.NewRestaurantMenuImg != null)
+            {
+                using var ms = new MemoryStream();
+                model.NewRestaurantMenuImg.CopyTo(ms);
+                model.restaurant_menu_img = ms.ToArray();
+            }
+
+            _restaurantRepository.UpdateOutletInfo(model);
+            TempData["Success"] = "Outlet information updated successfully.";
+            return RedirectToAction("OutletInfo", new { id = model.restaurant_id });
+        }
+
     }
 }
