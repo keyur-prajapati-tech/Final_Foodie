@@ -82,7 +82,7 @@ namespace Foodie.Controllers.Restaurant
         [HttpPost]
         public async Task<IActionResult> UpdateOffer(tbl_special_offers offer, List<IFormFile> image_path)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 string imagePaths = "";
 
@@ -135,9 +135,6 @@ namespace Foodie.Controllers.Restaurant
             {
             var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
             var vendor = _restaurantRepository.GetComplaintsByRestaurantId(restaurantId);
-            //var customer = _AdminRepository.GetAllCustomerComplaints();
-         
-            
             return View(vendor);
         }
 
@@ -145,14 +142,8 @@ namespace Foodie.Controllers.Restaurant
         public IActionResult EditComplaint(tbl_cust_vendor_complaints tbl)
         {
             var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
-            //var complaint = _AdminRepository.GetvendorcomByID(complaintId);
-            //if (complaint == null)
-            //{
-            //    return NotFound();
-            //}
             tbl.restaurant_id = restaurantId;
             _restaurantRepository.updateVencom(tbl);
-            // Return a success response
             return RedirectToAction("complaint");
         }
         public IActionResult Reviews()
@@ -165,9 +156,7 @@ namespace Foodie.Controllers.Restaurant
         public IActionResult OutletInfo()
         {
             var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId")); // Replace with the actual restaurant ID
-
             var outletInfo = _restaurantRepository.getOutletInfo(restaurantId);
-
             return View(outletInfo);
         }
     }
