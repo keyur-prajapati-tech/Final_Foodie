@@ -719,38 +719,54 @@ namespace Foodie.Repositories
             return orders;
         }
 
-        public OutletInfo getOutletInfo(int restaurant_id)
+        public OutletInfo GetOutletInfo(int id)
         {
-            OutletInfo outletInfo = null;
+            using var con = new SqlConnection(_connectionstring);
+            using var cmd = new SqlCommand("vendores.usp_GetOutletInfo", con);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@RestaurantId", id);
 
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            con.Open();
+            using var reader = cmd.ExecuteReader();
+            if (reader.Read())
             {
-                string qry = "select vr.restaurant_id,vr.restaurant_name,vr.restaurant_street,vr.restaurant_pincode,vv.open_datetime,vv.close_datetime,vr.restaurant_isOnline,vr.restaurant_contact,vr.restaurant_email\r\nfrom vendores.tbl_restaurant vr\r\ninner join vendores.tbl_vendor_availability vv\r\non vr.restaurant_id = vv.Restaurant_id\r\nwhere vr.restaurant_id = @restaurant_id";
-                SqlCommand cmd = new SqlCommand(qry, conn);
-                cmd.Parameters.AddWithValue("@restaurant_id", restaurant_id);
-                conn.Open();
-                SqlDataReader dr = cmd.ExecuteReader();
-                if (dr.Read())
+                return new OutletInfo
                 {
-                    outletInfo = new OutletInfo()
-                    {
-                        restaurant_id = Convert.ToInt32(dr["restaurant_id"]),
-                        restaurant_name = dr["restaurant_name"].ToString(),
-                        restaurant_address = dr["restaurant_street"].ToString(),
-                        restaurant_pincode = dr["restaurant_pincode"].ToString(),
-                        restaurant_phone = dr["restaurant_contact"].ToString(),
-                        restaurant_email = dr["restaurant_email"].ToString(),
-                        restaurant_opening_hours = dr["open_datetime"].ToString(),
-                        restaurant_closing_hours = dr["close_datetime"].ToString(),
-                        restaurant_isOnline = Convert.ToBoolean(dr["restaurant_isOnline"])
-
-                    };
-                }
-                conn.Close();
+                    restaurant_id = (int)reader["restaurant_id"],
+                    restaurant_name = reader["restaurant_name"].ToString(),
+                    restaurant_street = reader["restaurant_street"].ToString(),
+                    restaurant_pincode = reader["restaurant_pincode"].ToString(),
+                    restaurant_phone = reader["restaurant_contact"].ToString(),
+                    restaurant_email = reader["restaurant_email"].ToString(),
+                    restaurant_isOnline = (bool)reader["restaurant_isOnline"],
+                    restaurant_img = reader["Restaurant_img"] as byte[],
+                    restaurant_menu_img = reader["Restaurant_menu_img"] as byte[]
+                };
             }
-
-            return outletInfo;
+            return null;
         }
+
+        public void UpdateOutletInfo(OutletInfo model)
+        {
+            using var con = new SqlConnection(_connectionstring);
+            using var cmd = new SqlCommand("vendores.usp_UpdateOutletInfo", con);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            cmd.Parameters.AddWithValue("@restaurant_id", model.restaurant_id);
+            cmd.Parameters.AddWithValue("@restaurant_name", model.restaurant_name);
+            cmd.Parameters.AddWithValue("@restaurant_street", model.restaurant_street);
+            cmd.Parameters.AddWithValue("@restaurant_pincode", model.restaurant_pincode);
+            cmd.Parameters.AddWithValue("@restaurant_contact", model.restaurant_phone);
+            cmd.Parameters.AddWithValue("@restaurant_email", model.restaurant_email);
+            cmd.Parameters.AddWithValue("@restaurant_isOnline", model.restaurant_isOnline);
+
+            cmd.Parameters.Add("@Restaurant_img", SqlDbType.VarBinary).Value = (object?)model.restaurant_img ?? DBNull.Value;
+            cmd.Parameters.Add("@Restaurant_menu_img", SqlDbType.VarBinary).Value = (object?)model.restaurant_menu_img ?? DBNull.Value;
+
+            con.Open();
+            cmd.ExecuteNonQuery();
+        }
+
 
 
  public List<tbl_ratings> GetAllRatings(int restaurant_id)
