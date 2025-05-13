@@ -169,7 +169,7 @@ namespace Foodie.Controllers.Restaurant
         [HttpPost]
         public IActionResult EditOutletInfo(OutletInfo model)
         {
-            if (model.NewRestaurantImg != null)
+            if (model.NewRestaurantMenuImg != null)
             {
                 using var ms = new MemoryStream();
                 model.NewRestaurantImg.CopyTo(ms);

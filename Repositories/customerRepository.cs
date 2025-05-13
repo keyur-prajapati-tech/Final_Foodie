@@ -820,12 +820,15 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
 
             using(SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = "SELECT * FROM vendores.tbl_special_offers WHERE isActive = 1";
+                string query = "SELECT * FROM vendores.tbl_special_offers WHERE is_Active = 1";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
                 SqlDataReader rd = cmd.ExecuteReader();
                 while (rd.Read())
                 {
+                    string imageName = rd["image_path"].ToString();
+                    string imagePath = "/Uploads/"+imageName;
+
                     offers.Add(new tbl_special_offers
                     {
                         so_id = (int)rd["so_id"],
@@ -837,7 +840,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                         validTo = Convert.ToDateTime(rd["validTo"]),
                         is_Active = Convert.ToBoolean(rd["is_Active"]),
                         menu_id = (int)rd["menu_id"],
-                        ImagePath = rd["ImagePath"].ToString()
+                        ImagePath = imagePath
                     });
                 }
                 conn.Close();

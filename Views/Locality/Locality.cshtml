@@ -1,74 +1,144 @@
 ﻿@model Foodie.Models.customers.RegisterViewModel
 
-@* @{
-    Layout = "~/Views/shared/_CustomerLayout.cshtml";
-} *@
+@* Optional Layout *@
+@* Layout = "~/Views/Shared/_CustomerLayout.cshtml"; *@
 
 <style>
     .localities-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 15px;
-    margin-top: 15px;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 15px;
+        margin-top: 15px;
     }
 
-    /* Locality Cards */
     .locality-card {
-    background: white;
-    border: 2px solid #000;
-    padding: 15px;
-    border-radius: 5px;
-    box-shadow: 5px 3px 5px rgba(0,0,0,.9);
-    cursor: pointer;
-    transition: 0.3s ease-in-out;
-    text-align: left;
+        background: white;
+        border: 2px solid #000;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 5px 3px 5px rgba(0, 0, 0, .9);
+        cursor: pointer;
+        transition: 0.3s ease-in-out;
+        text-align: left;
     }
 
-    .locality-card:hover {
-    background: #f7f7f7;
-    }
+        .locality-card:hover {
+            background: #f7f7f7;
+        }
 
-    /* Hidden Localities (Initially Hidden) */
     .hidden {
-    display: none;
+        display: none;
     }
 
-    /* Toggle Button */
     .toggle-btn {
-    margin-top: 15px;
+        margin-top: 15px;
     }
 
-    .toggle-btn button {
-    background: none;
-    border: none;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    color: #ff5a5f;
-    }
+        .toggle-btn button {
+            background: none;
+            border: none;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #ff5a5f;
+        }
 </style>
 
-<h2 class="text-center my-4">🔥 Special Offers Just for You</h2>
+<!-- Special Offers Section -->
+<div class="container py-5">
+    <h2 class="text-center mb-4">
+        🔥 <strong>Special Offers Just for You</strong>
+    </h2>
 
-<div class="container">
     <div class="row" id="offerContainer">
         <!-- Offers will be loaded here by AJAX -->
     </div>
 
+    <!-- Loading Spinner -->
+    <div id="loadingSpinner" class="text-center my-3" style="display:none;">
+        <div class="spinner-border text-primary"></div>
+    </div>
+
+    <!-- Load More Button -->
     <div class="text-center mt-4">
         <button id="loadMoreBtn" class="btn btn-primary">Load More Offers</button>
     </div>
 </div>
 
+<!-- Styles -->
+<style>
+    .card {
+        border-radius: 12px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+    .card-img-top {
+        border-top-left-radius: 12px;
+        border-top-right-radius: 12px;
+        height: 180px;
+        object-fit: cover;
+        background-color: #f5f5f5;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+    }
+
+    .card-text {
+        color: #555;
+        font-size: 0.95rem;
+    }
+
+    .text-success {
+        font-size: 1rem;
+    }
+
+    .card-body small {
+        color: #999;
+    }
+
+    .badge-new {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background: red;
+        color: white;
+        font-size: 0.75rem;
+        padding: 3px 7px;
+        border-radius: 5px;
+    }
+</style>
+
+<!-- Script -->
 <script>
     let page = 1;
 
+    function formatDate(dateStr) {
+        const d = new Date(dateStr);
+        if (isNaN(d)) return 'N/A';
+        return d.toLocaleDateString('en-IN', {
+            day: '2-digit',
+            month: 'short',
+            year: 'numeric'
+        });
+    }
+
     function loadOffers() {
+        $('#loadingSpinner').show();
+
         $.ajax({
-            url: '@Url.Action("GetSpecialOffers", "Customer")',
             type: 'GET',
+            url: '/Locality/GetSpecialOffers',
             data: { page: page },
             success: function (data) {
+                $('#loadingSpinner').hide();
+
                 if (data.length === 0) {
                     $('#loadMoreBtn').hide();
                     if (page === 1) {
@@ -78,15 +148,23 @@
                 }
 
                 data.forEach(offer => {
-                    let card = `
-                    <div class="col-md-4 mb-4">
-                        <div class="card shadow-sm border-0">
-                            <img src="${offer.ImagePath}" class="card-img-top" style="height: 200px; object-fit: cover;" />
-                            <div class="card-body">
-                                <h5 class="card-title">${offer.OfferTitle}</h5>
-                                <p class="card-text">${offer.OfferDesc}</p>
-                                <p class="text-success fw-bold">${offer.PercentageDisc}% OFF</p>
-                                <p class="text-muted"><small>Valid: ${offer.ValidFrom.split('T')[0]} - ${offer.ValidTo.split('T')[0]}</small></p>
+                    const isNew = new Date(offer.ValidFrom) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // 7 days recent
+                    const card = `
+                    <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
+                        <div class="card shadow-sm border-0 position-relative h-100">
+                            ${isNew ? `<span class="badge-new">NEW</span>` : ""}
+                            <img src="${offer.ImagePath}" class="card-img-top"
+                                 onerror="this.onerror=null;this.src='/images/default-offer.jpg';" />
+                            <div class="card-body d-flex flex-column justify-content-between">
+                                <div>
+                                    <h5 class="card-title">${offer.offer_title}</h5>
+                                    <p class="card-text">${offer.offer_desc}</p>
+                                </div>
+                                <div>
+                                    <p class="text-success fw-bold mb-1">${offer.percentage_disc}% OFF</p>
+                                    <p class="text-muted"><small>Valid_From: ${formatDate(offer.validFrom)} </p>
+                                    <p class="text-muted"><small>Valid_To: ${formatDate(offer.validTo)} </p>
+                                </div>
                             </div>
                         </div>
                     </div>`;
@@ -96,6 +174,7 @@
                 page++;
             },
             error: function () {
+                $('#loadingSpinner').hide();
                 alert("Error loading offers.");
             }
         });
@@ -115,20 +194,21 @@
 
     <div class="container-fluid mt-4">
         <div class="localities-grid">
-            @{int count = 0;}
+            @{
+                int count = 0;
+            }
             @foreach (var item in Model.Cities)
             {
-                <div class="locality-card @(count >= 8 ? "hidden" : "")"> 
-                    <p>@item.CityName</p> 
-                    <span>525 places</span> 
+                <div class="locality-card @(count >= 8 ? "hidden" : "")">
+                    <p>@item.CityName</p>
+                    <span>525 places</span>
                 </div>
                 count++;
             }
         </div>
 
-        @if(Model.Cities.Count() > 8)
+        @if (Model.Cities.Count() > 8)
         {
-            <!-- Button for expanding/collapsing -->
             <div class="toggle-btn">
                 <button id="toggleButton">See more ⬇</button>
             </div>
@@ -143,7 +223,7 @@
 
         let isExpanded = false;
 
-        toggleButton.addEventListener("click", function () {
+        toggleButton?.addEventListener("click", function () {
             hiddenLocalities.forEach(locality => {
                 locality.style.display = isExpanded ? "none" : "block";
             });
