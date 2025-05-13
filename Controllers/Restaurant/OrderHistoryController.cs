@@ -2,6 +2,7 @@ using Foodie.Models.customers;
 using Foodie.ViewModels;
 using Foodie.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Foodie.Models.Restaurant;
 
 namespace Foodie.Controllers.Restaurant
 {

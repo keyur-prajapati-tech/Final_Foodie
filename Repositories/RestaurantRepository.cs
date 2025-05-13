@@ -859,15 +859,15 @@ namespace Foodie.Repositories
                 {
                     offers.Add(new tbl_special_offers()
                     {
-                        so_id = Convert.ToInt32(rd["so_id"]),
-                        restaurant_id = Convert.ToInt32(rd["restaurant_id"]),
-                        offer_title = rd["offer_title"].ToString(),
-                        offer_desc = rd["offer_desc"].ToString(),
-                        percentage_disc = Convert.ToInt32(rd["percentage_disc"]),
-                        validFrom = Convert.ToDateTime(rd["validFrom"]),
-                        validTo = Convert.ToDateTime(rd["validTo"]),
-                        is_Active = Convert.ToBoolean(rd["is_Active"]),
-                        menu_id = Convert.ToInt32(rd["menu_id"]),
+                        SoId = Convert.ToInt32(rd["so_id"]),
+                        RestaurantId = Convert.ToInt32(rd["restaurant_id"]),
+                        OfferTitle = rd["offer_title"].ToString(),
+                        OfferDesc = rd["offer_desc"].ToString(),
+                        PercentageDisc = Convert.ToInt32(rd["percentage_disc"]),
+                        ValidFrom = Convert.ToDateTime(rd["validFrom"]),
+                        ValidTo = Convert.ToDateTime(rd["validTo"]),
+                        IsActive = Convert.ToBoolean(rd["is_Active"]),
+                        MenuId = Convert.ToInt32(rd["menu_id"]),
                         ImagePath = rd["image_path"].ToString()
                     });
                 }
@@ -884,14 +884,14 @@ namespace Foodie.Repositories
 
                 SqlCommand cmd = new SqlCommand(query, conn);
 
-                cmd.Parameters.AddWithValue("@restaurant_id", offers.restaurant_id);
-                cmd.Parameters.AddWithValue("@offer_title", offers.offer_title);
-                cmd.Parameters.AddWithValue("@offer_desc", offers.offer_desc ?? "");
-                cmd.Parameters.AddWithValue("@percentage_disc", offers.percentage_disc);
-                cmd.Parameters.AddWithValue("@validFrom", offers.validFrom);
-                cmd.Parameters.AddWithValue("@validTo", offers.validTo);
-                cmd.Parameters.AddWithValue("@is_Active", offers.is_Active);
-                cmd.Parameters.AddWithValue("@menu_id", offers.menu_id);
+                cmd.Parameters.AddWithValue("@restaurant_id", offers.RestaurantId);
+                cmd.Parameters.AddWithValue("@offer_title", offers.OfferTitle);
+                cmd.Parameters.AddWithValue("@offer_desc", offers.OfferDesc ?? "");
+                cmd.Parameters.AddWithValue("@percentage_disc", offers.PercentageDisc);
+                cmd.Parameters.AddWithValue("@validFrom", offers.ValidFrom);
+                cmd.Parameters.AddWithValue("@validTo", offers.ValidTo);
+                cmd.Parameters.AddWithValue("@is_Active", offers.IsActive);
+                cmd.Parameters.AddWithValue("@menu_id", offers.MenuId);
                 cmd.Parameters.AddWithValue("@ImagePath", offers.ImagePath ?? "");
 
                 conn.Open();
@@ -917,15 +917,15 @@ namespace Foodie.Repositories
                 {
                     offer = new tbl_special_offers
                     {
-                        so_id = Convert.ToInt32(reader["so_id"]),
-                        restaurant_id = Convert.ToInt32(reader["restaurant_id"]),
-                        offer_title = reader["offer_title"].ToString(),
-                        offer_desc = reader["offer_desc"].ToString(),
-                        percentage_disc = Convert.ToInt32(reader["percentage_disc"]),
-                        validFrom = Convert.ToDateTime(reader["validFrom"]),
-                        validTo = Convert.ToDateTime(reader["validTo"]),
-                        is_Active = Convert.ToBoolean(reader["is_Active"]),
-                        menu_id = Convert.ToInt32(reader["menu_id"]),
+                        SoId = Convert.ToInt32(reader["so_id"]),
+                        RestaurantId = Convert.ToInt32(reader["restaurant_id"]),
+                        OfferTitle = reader["offer_title"].ToString(),
+                        OfferDesc = reader["offer_desc"].ToString(),
+                        PercentageDisc = Convert.ToInt32(reader["percentage_disc"]),
+                        ValidFrom = Convert.ToDateTime(reader["validFrom"]),
+                        ValidTo = Convert.ToDateTime(reader["validTo"]),
+                        IsActive = Convert.ToBoolean(reader["is_Active"]),
+                        MenuId = Convert.ToInt32(reader["menu_id"]),
                         ImagePath = reader["image_path"].ToString()
                     };
                 }
@@ -952,15 +952,15 @@ namespace Foodie.Repositories
 
                 SqlCommand cmd = new SqlCommand(query, conn);
 
-                cmd.Parameters.AddWithValue("@so_id", offer.so_id);
-                cmd.Parameters.AddWithValue("@restaurant_id", offer.restaurant_id);
-                cmd.Parameters.AddWithValue("@offer_title", offer.offer_title);
-                cmd.Parameters.AddWithValue("@offer_desc", offer.offer_desc ?? "");
-                cmd.Parameters.AddWithValue("@percentage_disc", offer.percentage_disc);
-                cmd.Parameters.AddWithValue("@validFrom", offer.validFrom);
-                cmd.Parameters.AddWithValue("@validTo", offer.validTo);
-                cmd.Parameters.AddWithValue("@is_Active", offer.is_Active);
-                cmd.Parameters.AddWithValue("@menu_id", offer.menu_id);
+                cmd.Parameters.AddWithValue("@so_id", offer.SoId);
+                cmd.Parameters.AddWithValue("@restaurant_id", offer.RestaurantId);
+                cmd.Parameters.AddWithValue("@offer_title", offer.OfferTitle);
+                cmd.Parameters.AddWithValue("@offer_desc", offer.OfferDesc ?? "");
+                cmd.Parameters.AddWithValue("@percentage_disc", offer.PercentageDisc);
+                cmd.Parameters.AddWithValue("@validFrom", offer.ValidFrom);
+                cmd.Parameters.AddWithValue("@validTo", offer.ValidTo);
+                cmd.Parameters.AddWithValue("@is_Active", offer.IsActive);
+                cmd.Parameters.AddWithValue("@menu_id", offer.MenuId);
                 cmd.Parameters.AddWithValue("@ImagePath", offer.ImagePath ?? "");
 
                 conn.Open();
