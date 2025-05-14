@@ -7,6 +7,8 @@ using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Net.Mail;
+using System.Net;
 using System.Security.Cryptography;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
@@ -118,8 +120,8 @@ namespace Foodie.Repositories
         {
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = @"INSERT INTO vendores.tbl_restaurant (restaurant_name, restaurant_contact, restaurant_email, restaurant_street, restaurant_pincode, restaurant_lat, restaurant_lag, restaurant_isApprov,restaurant_isOnline,est_id,owner_id) 
-                                 VALUES (@restaurant_name, @restaurant_contact, @restaurant_email, @restaurant_street, @restaurant_pincode, @restaurant_lat, @restaurant_lag, @restaurant_isApprov,@restaurant_isOnline,1,@owner_id);
+                string query = @"INSERT INTO vendores.tbl_restaurant (restaurant_name, restaurant_contact, restaurant_email, restaurant_street, restaurant_pincode, restaurant_lat, restaurant_lag, restaurant_isApprov,restaurant_isOnline,est_id,owner_id,password) 
+                                 VALUES (@restaurant_name, @restaurant_contact, @restaurant_email, @restaurant_street, @restaurant_pincode, @restaurant_lat, @restaurant_lag, @restaurant_isApprov,@restaurant_isOnline,1,@owner_id,@password);
                                     SELECT SCOPE_IDENTITY();";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@restaurant_name", restaurant.restaurant_name);
@@ -131,6 +133,7 @@ namespace Foodie.Repositories
                 cmd.Parameters.AddWithValue("@restaurant_lag", restaurant.restaurant_lag);
                 cmd.Parameters.AddWithValue("@restaurant_isApprov", restaurant.restaurant_isApprov);
                 cmd.Parameters.AddWithValue("@restaurant_isOnline", restaurant.restaurant_isOnline);
+                cmd.Parameters.AddWithValue("@password", restaurant.rest_password);
                 cmd.Parameters.AddWithValue("@owner_id", o_id);
 
                 conn.Open();
@@ -1055,6 +1058,55 @@ namespace Foodie.Repositories
                 conn.Close();
             }
             return offers;
+        }
+
+      
+
+        public void SaveOTP(string email, string otp)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+                string query = "INSERT INTO tbl_email_otp (email, otp_code) VALUES (@Email, @OTP)";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Email", email);
+                cmd.Parameters.AddWithValue("@OTP", otp);
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public bool ValidateOTP(string email, string otp)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+                string query = @"SELECT created_at FROM tbl_email_otp 
+                         WHERE email = @Email AND otp_code = @OTP AND is_verified = 0 
+                         ORDER BY created_at DESC";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Email", email);
+                cmd.Parameters.AddWithValue("@OTP", otp);
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    DateTime createdAt = Convert.ToDateTime(reader["created_at"]);
+                    if ((DateTime.Now - createdAt).TotalSeconds <= 30)
+                    {
+                        reader.Close();
+
+                        string update = "UPDATE tbl_email_otp SET is_verified = 1 WHERE email = @Email AND otp_code = @OTP";
+                        SqlCommand updateCmd = new SqlCommand(update, conn);
+                        updateCmd.Parameters.AddWithValue("@Email", email);
+                        updateCmd.Parameters.AddWithValue("@OTP", otp);
+                        updateCmd.ExecuteNonQuery();
+
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 }

@@ -1,0 +1,43 @@
+﻿@model Foodie.ViewModels.OTPViewModel
+@{
+    ViewBag.Title = "Email OTP Verification";
+    var otpSent = ViewBag.OTPSent ?? false;
+}
+
+<h2>Email OTP Verification</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">@TempData["Message"]</div>
+}
+@if (ViewBag.Error != null)
+{
+    <div class="alert alert-danger">@ViewBag.Error</div>
+}
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-success">@ViewBag.Message</div>
+}
+
+@if (!otpSent)
+{
+    <!-- Send OTP Form -->
+    <form method="post" asp-action="sendemailpage">
+        <label>Email</label>
+        <input type="email" name="Email" class="form-control" required />
+        <button class="btn btn-primary mt-2" type="submit">Send OTP</button>
+    </form>
+}
+else
+{
+    <!-- Verify OTP Form -->
+    <form method="post" asp-action="Verify">
+        <label>Enter OTP</label>
+        <input type="text" name="otp" class="form-control" required />
+        <button class="btn btn-success mt-2" type="submit">Verify</button>
+    </form>
+
+    <form method="get" asp-action="Resend">
+        <button class="btn btn-link mt-2">Resend OTP</button>
+    </form>
+}
