@@ -35,5 +35,23 @@ namespace Foodie.Controllers.Customer
                 menu_img = Convert.ToBase64String(item.menu_img)
             });
         }
+
+        public JsonResult GetMenuItems(int? cuisineId)
+        {
+            var items = _repository.GetMenuItems(cuisineId);
+
+            var result = items.Select(i => new
+            {
+                i.menu_id,
+                i.menu_name,
+                i.cuisine_id,
+                i.menu_descripation,
+                i.amount,
+                i.isAvailable,
+                i.Restaurant_id,
+                imageDataUrl = i.menu_img != null ? $"data:image/png;base64,{Convert.ToBase64String(i.menu_img)}" : null
+            });
+            return Json(result);
+        }
     }
 }

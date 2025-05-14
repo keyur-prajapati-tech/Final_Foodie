@@ -53,5 +53,7 @@ namespace Foodie.Repositories
         IEnumerable<tbl_special_offers> GetAllActiveOffers();
         IEnumerable<tbl_special_offers> GetOffers();
         tbl_special_offers GetOfferById(int offerId);
+
+        IEnumerable<tbl_menu_items> GetMenuItems(int? cuisineId = null);
     }
 }

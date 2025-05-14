@@ -910,5 +910,37 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
 
             return offer;
         }
+
+        public IEnumerable<tbl_menu_items> GetMenuItems(int? cuisineId = null)
+        {
+            var item_list = new List<tbl_menu_items>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT menu_id, menu_name, cuisine_id, menu_img, menu_descripation, amount, isAvailable, Restaurant_id
+                FROM tbl_menu_items
+                WHERE (@cuisine IS NULL OR cuisine_id = @cuisine)";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@cuisine", (object)cuisineId ?? DBNull.Value);
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+                while (rd.Read())
+                {
+                    item_list.Add(new tbl_menu_items
+                    {
+                        menu_id = Convert.ToInt32(rd["menu_id"]),
+                        menu_name = rd["menu_name"].ToString(),
+                        cuisine_id = Convert.ToInt32(rd["cuisine_id"]),
+                        menu_img = rd["menu_img"] as byte[],
+                        menu_descripation = rd["menu_description"].ToString(),
+                        amount = Convert.ToDecimal(rd["amount"]),
+                        isAvailable = (bool)rd["isAvailable"],
+                        Restaurant_id = Convert.ToInt32(rd["Restaurant_id"])
+                    });
+                }
+                conn.Close();
+            }
+            return item_list;
+        }
     }
 }
