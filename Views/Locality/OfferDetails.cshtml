@@ -1,0 +1,22 @@
+﻿@model Foodie.Models.Restaurant.tbl_special_offers
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h3>@Model.offer_title</h3>
+        </div>
+        <div class="card-body">
+            <img src="@Model.image_path" class="img-fluid mb-3" style="max-height: 300px;"
+                 onerror="this.onerror=null;this.src='/images/offer_2.jpg';" />
+
+            <p class="lead">@Model.offer_desc</p>
+
+            <p><strong class="text-success">@Model.percentage_disc% OFF</strong></p>
+            <p>Valid From: @Model.validFrom.ToString("MM/dd/yyyy")</p>
+            <p>Valid To: @Model.validTo.ToString("MM/dd/yyyy")</p>
+        </div>
+        <div class="card-footer">
+            <a href="@Url.Action("Locality", "Locality")" class="btn btn-secondary">Back to Offers</a>
+        </div>
+    </div>
+</div>

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using static Foodie.Models.customers.tbl_coupone;
 using System.Data;
+using System;
 
 namespace Foodie.Repositories
 {
@@ -827,7 +828,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 while (rd.Read())
                 {
                     string imageName = rd["image_path"].ToString();
-                    string imagePath = "/Uploads/"+imageName;
+                    string imagePath = imageName;
 
                     offers.Add(new tbl_special_offers
                     {
@@ -846,6 +847,68 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 conn.Close();
             }
             return offers;
+        }
+
+        public IEnumerable<tbl_special_offers> GetOffers()
+        {
+            var offers = new List<tbl_special_offers>();
+
+            using (var con = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT * FROM vendores.tbl_special_offers";
+                SqlCommand cmd = new SqlCommand(query, con);
+
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    offers.Add(new tbl_special_offers
+                    {
+                        offer_title = reader["offer_title"].ToString(),
+                        offer_desc = reader["offer_desc"].ToString(),
+                        ImagePath = reader["image_path"].ToString(),
+                        percentage_disc = Convert.ToInt32(reader["percentage_disc"]),
+                        validFrom = Convert.ToDateTime(reader["validFrom"]),
+                        validTo = Convert.ToDateTime(reader["validTo"]),
+                        is_Active = Convert.ToBoolean(reader["is_Active"]),
+                        menu_id = (int)reader["menu_id"],
+                    });
+                }
+            }
+
+            return offers;
+        }
+
+        public tbl_special_offers GetOfferById(int offerId)
+        {
+            tbl_special_offers offer = null;
+
+            using (var con = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT * FROM vendores.tbl_special_offers WHERE so_id = @OfferId";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@OfferId", offerId);
+                
+                con.Open();
+
+                var reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    offer = new tbl_special_offers
+                    {
+                        so_id = Convert.ToInt32(reader["so_id"]),
+                        offer_title = reader["offer_title"].ToString(),
+                        offer_desc = reader["offer_desc"].ToString(),
+                        ImagePath = reader["image_path"].ToString(),
+                        percentage_disc = Convert.ToInt32(reader["percentage_disc"]),
+                        validFrom = Convert.ToDateTime(reader["validFrom"]),
+                        validTo = Convert.ToDateTime(reader["validTo"]),
+                        is_Active = Convert.ToBoolean(reader["is_Active"]),
+                        menu_id = (int)reader["menu_id"],
+                    };
+                }
+            }
+
+            return offer;
         }
     }
 }

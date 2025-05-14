@@ -51,5 +51,7 @@ namespace Foodie.Repositories
         void SaveOrderItem(int orderId, int menuId, int quantity, decimal price, decimal discount);
 
         IEnumerable<tbl_special_offers> GetAllActiveOffers();
+        IEnumerable<tbl_special_offers> GetOffers();
+        tbl_special_offers GetOfferById(int offerId);
     }
 }
