@@ -76,5 +76,6 @@ namespace Foodie.Repositories
         tbl_special_offers GetOfferById(int id);
         void UpdateOffer(tbl_special_offers offer);
         void DeleteOffer(int id);
+        IEnumerable<tbl_special_offers> GetOffersByDateRange(DateTime? validFrom,DateTime? validTo);
     }
 }

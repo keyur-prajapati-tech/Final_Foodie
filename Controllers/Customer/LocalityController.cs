@@ -214,5 +214,32 @@ namespace Foodie.Controllers.Customer
             ViewBag.CustomerName = HttpContext.Session.GetString("CustomerName");
             return View();
         }
+
+        public ActionResult specialOffers()
+        {
+            var offers = _repository.GetAllActiveOffers();
+            return View(offers);
+        }
+
+        public JsonResult GetSpecialOffers(int page = 1, int pageSize = 6)
+        {
+            var allOffers = _repository.GetAllActiveOffers();
+            var pagedOffers = allOffers
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .Select(o => new
+                {
+                    o.so_id,
+                    o.offer_title,
+                    o.offer_desc,
+                    o.ImagePath,
+                    o.percentage_disc,
+                    ValidFrom = o.validFrom.ToString("yyyy-MM-dd"),
+                    ValidTo = o.validTo.ToString("yyyy-MM-dd")
+                }).ToList();
+
+            return Json(pagedOffers);
+        }
+
     }
 }
