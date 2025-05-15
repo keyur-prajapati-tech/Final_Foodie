@@ -11,9 +11,8 @@
             public int? OrderId { get; set; }
             public DateTime OrderDate { get; set; }
             public int RatingValue { get; set; }
-
-        public string discription { get; set; }
-        public byte[] image { get; set; }
+            public string discription { get; set; }
+            public byte[] image { get; set; }
 
 
     }

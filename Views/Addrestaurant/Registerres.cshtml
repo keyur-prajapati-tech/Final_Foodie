@@ -41,12 +41,11 @@
                         <br />
                         <span class="fw-lighter">Customer will see this name on Foodie</span>
                     </div>
+                    <div class="d-flex justify-content-between m-3">
+                        <input type="text" required class="form-control fw-lighter me-4" required style="border-radius:10px" asp-for="@Model.tbl_Restaurant.restaurant_name" id="restaurant_name" placeholder="Restaurant name">
 
-                    <div class="m-3">
-                        <input type="text" class="form-control fw-lighter" required style="border-radius:10px"
-                               asp-for="@Model.tbl_Restaurant.restaurant_name" id="rest_name" placeholder="Restaurant Name*">
+                        <input type="password" required class="form-control fw-lighter" required style="border-radius:10px" asp-for="@Model.tbl_Restaurant.rest_password" id="password" placeholder="Password">
                     </div>
-
                 </div>
 
                 <div class="container-fluid shadow mt-3 card bg-white p-3" style="border-radius:25px">

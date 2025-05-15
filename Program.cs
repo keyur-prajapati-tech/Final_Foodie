@@ -1,5 +1,5 @@
 using Foodie.Repositories;
-using Foodie.Repositories;
+
 
 
 namespace Foodie
@@ -9,6 +9,7 @@ namespace Foodie
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+           
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
