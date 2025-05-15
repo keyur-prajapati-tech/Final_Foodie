@@ -19,48 +19,54 @@ namespace Foodie.Controllers.Restaurant
             _repository = repository;
         }
 
-        public IActionResult sendemailpage()
+       
+        [HttpPost]
+        public IActionResult sendemailpage(OTPViewModel model)
         {
-            ViewBag.OTPSent = TempData["OTPSent"] != null;
-            return View();
+            if (string.IsNullOrEmpty(model.Email))
+                return Json(new { success = false, message = "Email is required." });
+
+            string otp = GenerateOTP();
+            HttpContext.Session.SetString("UserEmail", model.Email);
+            _repository.SaveOTP(model.Email, otp);
+            SendEmail(model.Email, otp);
+
+            return Json(new { success = true, message = "OTP sent to your email.", email = model.Email });
         }
 
 
         [HttpPost]
-      
-        public IActionResult sendemailpage(OTPViewModel model)
+        
+        public IActionResult Verify(string otp, string email)
         {
-            string otp = GenerateOTP();
+            if (string.IsNullOrEmpty(email))
+                email = HttpContext.Session.GetString("UserEmail");
 
-            _repository.SaveOTP(model.Email, otp);
-            SendEmail(model.Email, otp);
-
-            TempData["Message"] = "OTP sent to your email.";
-            HttpContext.Session.SetString("UserEmail", model.Email);
-
-            TempData["OTPSent"] = true; // Use TempData instead of ViewBag
-            return RedirectToAction("sendemailpage");
+            if (_repository.ValidateOTP(email, otp))
+            {
+                return Json(new { success = true, message = "OTP verified successfully." ,  redirectUrl = Url.Action("Registerres", "Addrestaurant") });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Invalid or expired OTP." });
+            }
         }
 
-        public ActionResult Verify()
-        {
-            return View();
-        }
+
         private string GenerateOTP()
         {
             return new Random().Next(100000, 999999).ToString();
         }
 
-        [HttpPost]
         private void SendEmail(string toEmail, string otp)
         {
             var fromEmail = "amishaambaliya12203@gmail.com";
-            var fromPassword = "sorgvexrsillzxmj"; // Use App Password if using Gmail
+            var fromPassword = "sorgvexrsillzxmj";
 
             var message = new MailMessage(fromEmail, toEmail)
             {
                 Subject = "Your OTP Code",
-                Body = $"<h3>Your OTP is: {otp}</h3><p>Valid for 1 minutes only.</p>",
+                Body = $"<h3>Your OTP is: {otp}</h3><p>Valid for 1 minute only.</p>",
                 IsBodyHtml = true
             };
 
@@ -69,23 +75,13 @@ namespace Foodie.Controllers.Restaurant
                 Credentials = new NetworkCredential(fromEmail, fromPassword),
                 EnableSsl = true
             };
+
             smtp.Send(message);
         }
 
+
+
        
-
-        [HttpPost]
-        public ActionResult Verify(string otp)
-        {
-            string email = HttpContext.Session.GetString("UserEmail");
-            TempData["Email"] = email;
-
-            if (!_repository.ValidateOTP(email, otp))
-            {
-                ViewBag.Error = "Invalid or expired OTP.";
-            }
-            return RedirectToAction("Registerres", "Addrestaurant");
-        }
         public IActionResult Registerres()
         {
 

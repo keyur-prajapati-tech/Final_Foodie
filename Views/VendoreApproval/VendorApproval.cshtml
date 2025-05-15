@@ -126,10 +126,12 @@
                         <div class="d-flex justify-content-end gap-3 mt-4">
                             <form asp-action="ApproveVendor" method="post">
                                 <input type="hidden" name="id" value="@vendor.RestaurantId" />
+                                <input type="hidden" name="email" value="@vendor.RestaurantEmail" />
                                 <button type="submit" class="btn btn-outline-success px-4">✅ Approve</button>
                             </form>
                             <form asp-action="RejectVendor" method="post" onsubmit="return confirm('Are you sure to reject this vendor?');">
                                 <input type="hidden" name="id" value="@vendor.RestaurantId" />
+                                <input type="hidden" name="email" value="@vendor.RestaurantEmail" />
                                 <button type="submit" class="btn btn-outline-danger px-4">❌ Reject</button>
                             </form>
                         </div>
