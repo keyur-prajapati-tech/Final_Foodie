@@ -36,22 +36,15 @@ namespace Foodie.Controllers.Customer
             });
         }
 
-        public JsonResult GetMenuItems(int? cuisineId)
+        public IActionResult Details(int id,int? cuisineId)
         {
-            var items = _repository.GetMenuItems(cuisineId);
+            var model = _repository.GetRestaurantMenu(id, cuisineId);
+            return View(model);
+        }
 
-            var result = items.Select(i => new
-            {
-                i.menu_id,
-                i.menu_name,
-                i.cuisine_id,
-                i.menu_descripation,
-                i.amount,
-                i.isAvailable,
-                i.Restaurant_id,
-                imageDataUrl = i.menu_img != null ? $"data:image/png;base64,{Convert.ToBase64String(i.menu_img)}" : null
-            });
-            return Json(result);
+        public FileContentResult ShowImage(byte[] imageBytes)
+        {
+            return File(imageBytes, "image/jpeg");
         }
     }
 }

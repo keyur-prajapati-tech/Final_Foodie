@@ -1,4 +1,5 @@
-﻿using Foodie.Models.customers;
+﻿using Foodie.Models.Admin;
+using Foodie.Models.customers;
 using Foodie.Models.Restaurant;
 using static Foodie.Models.customers.tbl_coupone;
 
@@ -54,6 +55,10 @@ namespace Foodie.Repositories
         IEnumerable<tbl_special_offers> GetOffers();
         tbl_special_offers GetOfferById(int offerId);
 
-        IEnumerable<tbl_menu_items> GetMenuItems(int? cuisineId = null);
+        RestaurantMenuViewModel GetRestaurantMenu(int restaurantId,int? cuisineId = null);
+        List<tbl_cuisine_master> GetCuisinesByRestaurantId(int restaurantId);
+
+        //demo to display all restaurant info
+        List<RestaurantCardViewModel> getAppovedOnlineRestaurants();
     }
 }

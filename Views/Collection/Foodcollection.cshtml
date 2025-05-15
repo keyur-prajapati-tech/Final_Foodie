@@ -1,4 +1,6 @@
-﻿@{
+﻿@model List<Foodie.Models.customers.RestaurantCardViewModel>
+
+@{
     Layout = "~/Views/Shared/_foodieheader.cshtml";
 }
 
@@ -229,7 +231,37 @@
     </div>
 
     <!-- Restaurants Grid -->
+    <!-- Dynamic Restaurant Cards -->
     <div class="container mt-4">
+        <div class="row">
+            @foreach (var restaurant in Model)
+            {
+                <div class="col-md-3 mb-4">
+                    <div class="card shadow">
+                        <a asp-controller="Restaurantdeatil" asp-action="Restuarantinfo" asp-route-id="@restaurant.restaurant_id" style="text-decoration: none; color: inherit;">
+                            @if (restaurant.restaurantImage != null)
+                            {
+                                var base64 = Convert.ToBase64String(restaurant.restaurantImage);
+                                var imgSrc = $"data:image/jpeg;base64,{base64}";
+                                <img src="@imgSrc" class="card-img-top" alt="Restaurant Image" />
+                            }
+                            else
+                            {
+                                <img src="~/images/default.jpg" class="card-img-top" alt="Default Image" />
+                            }
+
+                            <div class="card-body">
+                                <h5 class="card-title">@restaurant.restaurant_name</h5>
+                                <span class="rating green">★★★★★★</span>
+                                <p class="card-text">@restaurant.full_address</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+    @* <div class="container mt-4">
         <div class="row">
             <!-- Restaurant Card 1 -->
             <div class="col-md-3">
@@ -329,7 +361,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> *@
 
 
     <div class="container">

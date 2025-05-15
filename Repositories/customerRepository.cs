@@ -5,6 +5,7 @@ using Microsoft.Data.SqlClient;
 using static Foodie.Models.customers.tbl_coupone;
 using System.Data;
 using System;
+using Foodie.Models.Admin;
 
 namespace Foodie.Repositories
 {
@@ -911,36 +912,136 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
             return offer;
         }
 
-        public IEnumerable<tbl_menu_items> GetMenuItems(int? cuisineId = null)
+        public List<tbl_cuisine_master> GetCuisinesByRestaurantId(int restaurantId)
         {
-            var item_list = new List<tbl_menu_items>();
+            var cuisines = new List<tbl_cuisine_master>();
 
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = @"SELECT menu_id, menu_name, cuisine_id, menu_img, menu_descripation, amount, isAvailable, Restaurant_id
-                FROM tbl_menu_items
-                WHERE (@cuisine IS NULL OR cuisine_id = @cuisine)";
+                string query = @"SELECT cm.cuisine_id, cm.cuisine_name 
+                                FROM admins.tbl_cuisine_master cm
+                                INNER JOIN vendores.tbl_cuisine c ON cm.cuisine_id = c.cuisine_id
+                                 WHERE c.Restaurnat_id = @restaurantId";
                 SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@cuisine", (object)cuisineId ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@restaurantId", restaurantId);
+
                 conn.Open();
                 SqlDataReader rd = cmd.ExecuteReader();
                 while (rd.Read())
                 {
-                    item_list.Add(new tbl_menu_items
+                    cuisines.Add(new tbl_cuisine_master
                     {
-                        menu_id = Convert.ToInt32(rd["menu_id"]),
-                        menu_name = rd["menu_name"].ToString(),
                         cuisine_id = Convert.ToInt32(rd["cuisine_id"]),
-                        menu_img = rd["menu_img"] as byte[],
-                        menu_descripation = rd["menu_description"].ToString(),
-                        amount = Convert.ToDecimal(rd["amount"]),
-                        isAvailable = (bool)rd["isAvailable"],
-                        Restaurant_id = Convert.ToInt32(rd["Restaurant_id"])
+                        cuisine_name = rd["cuisine_name"].ToString()
                     });
                 }
                 conn.Close();
             }
-            return item_list;
+            return cuisines;
+        }
+
+        public RestaurantMenuViewModel GetRestaurantMenu(int restaurantId, int? cuisineId)
+        {
+            var model = new RestaurantMenuViewModel();
+            model.restauranr_id = restaurantId;
+            model.Cuisines = new List<tbl_cuisine_master>();
+            model.MenuItems = new List<MenuItemViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+
+                // Get Restaurant Name
+                using (SqlCommand cmd = new SqlCommand("SELECT restaurant_name FROM vendedores.tbl_restaurant WHERE restaurant_id = @id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", restaurantId);
+                    model.restaurant_name = cmd.ExecuteScalar()?.ToString();
+                }
+
+                // Get All Cuisines for the restaurant
+                using (SqlCommand cmd = new SqlCommand("SELECT c.cuisine_id, cm.cuisine_name FROM vendedores.tbl_cuisine c JOIN admins.tbl_cuisine_master cm ON c.cuisine_id = cm.cuisine_id WHERE c.Restaurant_id = @id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", restaurantId);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            model.Cuisines.Add(new tbl_cuisine_master
+                            {
+                                cuisine_id = Convert.ToInt32(reader["cuisine_id"]),
+                                cuisine_name = reader["cuisine_name"].ToString()
+                            });
+                        }
+                    }
+                }
+
+                // Get Menu Items based on selected cuisine
+                string menuQuery = @"SELECT menu_id, menu_name, menu_img, menu_description, amount, cuisine_id 
+                                 FROM vendedores.tbl_menu_items 
+                                 WHERE Restaurant_id = @id";
+
+                if (cuisineId.HasValue)
+                {
+                    menuQuery += " AND cuisine_id = @cuisineId";
+                }
+
+                using (SqlCommand cmd = new SqlCommand(menuQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", restaurantId);
+                    if (cuisineId.HasValue)
+                        cmd.Parameters.AddWithValue("@cuisineId", cuisineId.Value);
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            model.MenuItems.Add(new MenuItemViewModel
+                            {
+                                MenuId = Convert.ToInt32(reader["menu_id"]),
+                                MenuName = reader["menu_name"].ToString(),
+                                MenuImg = reader["menu_img"] as byte[],
+                                MenuDescription = reader["menu_description"].ToString(),
+                                Amount = Convert.ToDecimal(reader["amount"]),
+                                cuisine_id = Convert.ToInt32(reader["cuisine_id"])
+                            });
+                        }
+                    }
+                }
+
+                model.SelectedCuisineId = cuisineId;
+            }
+
+            return model;
+        }
+
+        public List<RestaurantCardViewModel> getAppovedOnlineRestaurants()
+        {
+            List<RestaurantCardViewModel> restaurantList = new List<RestaurantCardViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT  rs.restaurant_id,
+                                rs.restaurant_name,
+                                rs.restaurant_street + ', ' + rs.restaurant_pincode AS full_address,
+                                vi.Restaurant_img FROM vendores.tbl_restaurant rs
+                                INNER JOIN vendores.tbl_vendores_img vi ON rs.restaurant_id = vi.Restaurant_id";
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    restaurantList.Add(new RestaurantCardViewModel
+                    {
+                        restaurant_id = Convert.ToInt32(reader["restaurant_id"]),
+                        restaurant_name = reader["restaurant_name"].ToString(),
+                        full_address = reader["full_address"].ToString(),
+                        restaurantImage = (byte[])reader["Restaurant_img"]
+                    });
+                }
+            }
+            return restaurantList;
         }
     }
 }
