@@ -18,7 +18,8 @@ namespace Foodie.Controllers.Customer
         [Route("FoodCollection")]
         public IActionResult Foodcollection()
         {
-            return View();  
+            var model = _repository.getAppovedOnlineRestaurants();
+            return View(model);  
         }
 
         [Route("Delivery")]
