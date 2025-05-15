@@ -21,22 +21,27 @@ namespace Foodie.Controllers.Restaurant
 
         public IActionResult sendemailpage()
         {
+            ViewBag.OTPSent = TempData["OTPSent"] != null;
             return View();
         }
 
+
         [HttpPost]
+      
         public IActionResult sendemailpage(OTPViewModel model)
         {
             string otp = GenerateOTP();
 
-            ViewBag.OTPSent = otp;
             _repository.SaveOTP(model.Email, otp);
             SendEmail(model.Email, otp);
 
             TempData["Message"] = "OTP sent to your email.";
-            TempData["Email"] = model.Email;
+            HttpContext.Session.SetString("UserEmail", model.Email);
+
+            TempData["OTPSent"] = true; // Use TempData instead of ViewBag
             return RedirectToAction("sendemailpage");
         }
+
         public ActionResult Verify()
         {
             return View();
@@ -72,18 +77,14 @@ namespace Foodie.Controllers.Restaurant
         [HttpPost]
         public ActionResult Verify(string otp)
         {
-            string email = TempData["Email"]?.ToString();
+            string email = HttpContext.Session.GetString("UserEmail");
             TempData["Email"] = email;
 
-            if (_repository.ValidateOTP(email, otp))
-            {
-                ViewBag.Message = "OTP verified successfully.";
-            }
-            else
+            if (!_repository.ValidateOTP(email, otp))
             {
                 ViewBag.Error = "Invalid or expired OTP.";
             }
-            return View();
+            return RedirectToAction("Registerres", "Addrestaurant");
         }
         public IActionResult Registerres()
         {
@@ -128,13 +129,13 @@ namespace Foodie.Controllers.Restaurant
                     };
 
                     int ownerid = _repository.AddOwner(owner);
-
+                    string email = HttpContext.Session.GetString("UserEmail");
                     var restaurant = new tbl_restaurant
                     {
                         restaurant_name = model.tbl_Restaurant.restaurant_name,
                         rest_password = model.tbl_Restaurant.rest_password,
                         restaurant_contact = model.tbl_Owner.owner_contact,
-                        restaurant_email = model.tbl_Owner.owner_email,
+                        restaurant_email = email,
                         restaurant_street = model.tbl_Restaurant.restaurant_street,
                         restaurant_pincode = model.tbl_Restaurant.restaurant_pincode,
                         restaurant_lat = model.tbl_Restaurant.restaurant_lat,
