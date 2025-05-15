@@ -215,6 +215,22 @@ namespace Foodie.Controllers.Customer
             return View();
         }
 
+        public IActionResult GetAllOffers()
+        {
+            var offers = _repository.GetOffers();
+            return View(offers);
+        }
+
+        public IActionResult OfferDetails(int offerId)
+        {
+            var offer = _repository.GetOfferById(offerId);
+            if (offer == null)
+            {
+                return NotFound();
+            }
+            return RedirectToAction("offer","Locality");
+        }
+
         public ActionResult specialOffers()
         {
             var offers = _repository.GetAllActiveOffers();

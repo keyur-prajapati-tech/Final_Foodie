@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using static Foodie.Models.customers.tbl_coupone;
 using System.Data;
+using System;
 
 namespace Foodie.Repositories
 {
@@ -827,7 +828,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 while (rd.Read())
                 {
                     string imageName = rd["image_path"].ToString();
-                    string imagePath = "/Uploads/"+imageName;
+                    string imagePath = imageName;
 
                     offers.Add(new tbl_special_offers
                     {
@@ -846,6 +847,100 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 conn.Close();
             }
             return offers;
+        }
+
+        public IEnumerable<tbl_special_offers> GetOffers()
+        {
+            var offers = new List<tbl_special_offers>();
+
+            using (var con = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT * FROM vendores.tbl_special_offers";
+                SqlCommand cmd = new SqlCommand(query, con);
+
+                var reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    offers.Add(new tbl_special_offers
+                    {
+                        offer_title = reader["offer_title"].ToString(),
+                        offer_desc = reader["offer_desc"].ToString(),
+                        ImagePath = reader["image_path"].ToString(),
+                        percentage_disc = Convert.ToInt32(reader["percentage_disc"]),
+                        validFrom = Convert.ToDateTime(reader["validFrom"]),
+                        validTo = Convert.ToDateTime(reader["validTo"]),
+                        is_Active = Convert.ToBoolean(reader["is_Active"]),
+                        menu_id = (int)reader["menu_id"],
+                    });
+                }
+            }
+
+            return offers;
+        }
+
+        public tbl_special_offers GetOfferById(int offerId)
+        {
+            tbl_special_offers offer = null;
+
+            using (var con = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT * FROM vendores.tbl_special_offers WHERE so_id = @OfferId";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@OfferId", offerId);
+                
+                con.Open();
+
+                var reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    offer = new tbl_special_offers
+                    {
+                        so_id = Convert.ToInt32(reader["so_id"]),
+                        offer_title = reader["offer_title"].ToString(),
+                        offer_desc = reader["offer_desc"].ToString(),
+                        ImagePath = reader["image_path"].ToString(),
+                        percentage_disc = Convert.ToInt32(reader["percentage_disc"]),
+                        validFrom = Convert.ToDateTime(reader["validFrom"]),
+                        validTo = Convert.ToDateTime(reader["validTo"]),
+                        is_Active = Convert.ToBoolean(reader["is_Active"]),
+                        menu_id = (int)reader["menu_id"],
+                    };
+                }
+            }
+
+            return offer;
+        }
+
+        public IEnumerable<tbl_menu_items> GetMenuItems(int? cuisineId = null)
+        {
+            var item_list = new List<tbl_menu_items>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT menu_id, menu_name, cuisine_id, menu_img, menu_descripation, amount, isAvailable, Restaurant_id
+                FROM tbl_menu_items
+                WHERE (@cuisine IS NULL OR cuisine_id = @cuisine)";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@cuisine", (object)cuisineId ?? DBNull.Value);
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+                while (rd.Read())
+                {
+                    item_list.Add(new tbl_menu_items
+                    {
+                        menu_id = Convert.ToInt32(rd["menu_id"]),
+                        menu_name = rd["menu_name"].ToString(),
+                        cuisine_id = Convert.ToInt32(rd["cuisine_id"]),
+                        menu_img = rd["menu_img"] as byte[],
+                        menu_descripation = rd["menu_description"].ToString(),
+                        amount = Convert.ToDecimal(rd["amount"]),
+                        isAvailable = (bool)rd["isAvailable"],
+                        Restaurant_id = Convert.ToInt32(rd["Restaurant_id"])
+                    });
+                }
+                conn.Close();
+            }
+            return item_list;
         }
     }
 }

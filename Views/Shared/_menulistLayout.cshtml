@@ -1306,6 +1306,10 @@
                 </div>
             </div>
 
+            <hr/>
+
+            <div id="menuContainer" class="d-flex flex-wrap"></div>
+
             <script>
                 function filterImages(category) {
                     let images = document.querySelectorAll(".gallery img");
@@ -1325,6 +1329,29 @@
                     // Add active class to clicked button
                     event.target.classList.add("active");
                 }
+
+                function loadMenu(cuisineId) {
+                    $.getJSON('/Menu/GetMenuItems', { cuisineId: cuisineId }, function (data) {
+                        $('#menuContainer').empty();
+                        if (data.length === 0) {
+                            $('#menuContainer').append('<p>No items found.</p>');
+                        } else {
+                            $.each(data, function (i, item) {
+                                $('#menuContainer').append(`
+                                    <div class="card menu-card">
+                                        <img src="${item.imageDataUrl}" class="card-img-top menu-img" alt="${item.menu_name}">
+                                        <div class="card-body">
+                                            <h5 class="card-title">${item.menu_name}</h5>
+                                            <p class="card-text">${item.menu_descripation}</p>
+                                            <p><strong>₹${item.amount}</strong></p>
+                                        </div>
+                                    </div>
+                                `);
+                            });
+                        }
+                    });
+                }
+
             </script>
 
             <div class="related-section">
