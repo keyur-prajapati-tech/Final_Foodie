@@ -1092,7 +1092,7 @@ namespace Foodie.Repositories
                 if (reader.Read())
                 {
                     DateTime createdAt = Convert.ToDateTime(reader["created_at"]);
-                    if ((DateTime.Now - createdAt).TotalSeconds <= 30)
+                    if ((DateTime.Now - createdAt).TotalSeconds <= 120)
                     {
                         reader.Close();
 
