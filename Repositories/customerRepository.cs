@@ -1043,5 +1043,114 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
             }
             return restaurantList;
         }
+
+        public RestaurantMenuViewModel getRestaurantDetails(int restaurantId)
+        {
+            RestaurantMenuViewModel restaurant = null;
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT rs.restaurant_id, rs.restaurant_name, cm.cuisine_name,
+                                   rs.restaurant_street + ' ' + rs.restaurant_pincode AS address,
+                                   rs.restaurant_contact,
+                                   FORMAT(va.open_DATETIME, 'hh\\:mm tt') AS open_time,
+                                   FORMAT(va.close_DATETIME, 'hh\\:mm tt') AS close_time,
+                                   vi.Restaurant_img,
+                                   vi.Restaurant_menu_img
+                            FROM vendores.tbl_restaurant rs
+                            INNER JOIN vendores.tbl_cuisine vc ON vc.Restaurnat_id = rs.restaurant_id
+                            INNER JOIN admins.tbl_cuisine_master cm ON cm.cuisine_id = vc.cuisine_id
+                            INNER JOIN vendores.tbl_vendor_availability va ON va.Restaurant_id = rs.restaurant_id
+                            INNER JOIN vendores.tbl_vendores_img vi ON vi.Restaurant_id = rs.restaurant_id
+                            WHERE rs.restaurant_id = @RestaurantId";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@RestaurantId", restaurantId);
+
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+
+                if (rd.Read())
+                {
+                    restaurant = new RestaurantMenuViewModel
+                    {
+                        restauranr_id = Convert.ToInt32(rd["restaurant_id"]),
+                        restaurant_name = rd["restaurant_name"].ToString(),
+                        cuisine_name = rd["cuisine_name"].ToString(),
+                        restaurant_street = rd["restaurant_street"].ToString(),
+                        restaurant_pincode = rd["restaurant_pincode"].ToString(),
+                        restaurant_contact = rd["restaurant_contact"].ToString(),
+                        open_DATETIME = rd["open_DATETIME"].ToString(),
+                        close_DATETIME = rd["close_DATETIME"].ToString(),
+                        Restaurant_images = (byte[])rd["Restaurant_images"],
+                        Menu_Image = (byte[])rd["Menu_Image"]
+                    };
+                }
+                conn.Close();
+            }
+            return restaurant;
+        }
+
+        public IEnumerable<tbl_menu_items> GetAllPhotos()
+        {
+            List<tbl_menu_items> photos = new List<tbl_menu_items>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT * FROM vendors.tbl_menu_items";
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    photos.Add(new tbl_menu_items
+                    {
+                        menu_id = Convert.ToInt32(reader["menu_id"]),
+                        menu_name = reader["menu_name"].ToString(),
+                        menu_img = (byte[])reader["menu_img"],
+                        menu_descripation = reader["menu_descripation"].ToString(),
+                        amount = Convert.ToDecimal(reader["amount"]),
+                        isAvailable = Convert.ToBoolean(reader["isAvalable"]),
+                        Restaurant_id = Convert.ToInt32(reader["Restaurant_id"])
+                    });
+                }
+                conn.Close();
+            }
+            return photos;
+        }
+
+        public IEnumerable<tbl_menu_items> GetMenuItemsByRestaurant(int restaurantId)
+        {
+            List<tbl_menu_items> menuItems = new List<tbl_menu_items>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT * FROM vendores.tbl_menu_items WHERE Restaurant_id = @Restaurant_id";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Restaurant_id", restaurantId);
+
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    menuItems.Add(new tbl_menu_items
+                    {
+                        menu_id = Convert.ToInt32(reader["menu_id"]),
+                        menu_name = reader["menu_name"].ToString(),
+                        menu_img = reader["menu_img"] as byte[],
+                        menu_descripation = reader["menu_descripation"].ToString(),
+                        amount = Convert.ToDecimal(reader["amount"]),
+                        isAvailable = Convert.ToBoolean(reader["isAvalable"]),
+                        Restaurant_id = Convert.ToInt32(reader["Restaurant_id"])
+                    });
+                }
+
+                conn.Close();
+            }
+
+            return menuItems;
+        }
     }
 }

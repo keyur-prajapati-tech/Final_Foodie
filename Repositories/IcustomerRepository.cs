@@ -21,6 +21,8 @@ namespace Foodie.Repositories
         tbl_customer ValidateCustomerLogin(string email, string password);
         public tbl_restaurant ValidateRestaurantLogin(string email, string password);
         List<tbl_menu_items> GetAllMenuItems();
+        IEnumerable<tbl_menu_items> GetMenuItemsByRestaurant(int restaurantId);
+
 
 
         List<CartItemViewModel> GetCartItems(int customerId);
@@ -60,5 +62,7 @@ namespace Foodie.Repositories
 
         //demo to display all restaurant info
         List<RestaurantCardViewModel> getAppovedOnlineRestaurants();
+        //display top content in restaurant details
+        RestaurantMenuViewModel getRestaurantDetails(int restaurantId);
     }
 }
