@@ -19,7 +19,7 @@ namespace Foodie.Controllers.Restaurant
 
         public IActionResult OrdHistory()
         {
-            var restaurantId = 1; // Replace with the actual restaurant ID
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId")); ; // Replace with the actual restaurant ID
 
             var orderHistory = _restaurantRepository.tbl_Orders_History(restaurantId);
 
@@ -169,7 +169,7 @@ namespace Foodie.Controllers.Restaurant
         [HttpPost]
         public IActionResult EditOutletInfo(OutletInfo model)
         {
-            if (model.NewRestaurantMenuImg != null)
+            if (model.NewRestaurantImg != null)
             {
                 using var ms = new MemoryStream();
                 model.NewRestaurantImg.CopyTo(ms);

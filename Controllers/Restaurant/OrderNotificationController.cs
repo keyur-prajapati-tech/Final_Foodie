@@ -72,7 +72,7 @@ namespace Foodie.Controllers.Restaurant
         [Route("isOnline")]
         public JsonResult isOnline(int status)
         {
-            var restaurantId = 1;
+            var restaurantId  = Convert.ToInt32(HttpContext.Session.GetString("UserId")); ;
 
             if (status == 1)
             {
