@@ -9,7 +9,7 @@
             public int? RestaurantId { get; set; }
             public string restaurant_name { get; set; }
             public int? OrderId { get; set; }
-            public DateTime OrderDate { get; set; }
+            public DateTime craetedAt { get; set; }
             public int RatingValue { get; set; }
             public string discription { get; set; }
             public byte[] image { get; set; }

@@ -19,7 +19,7 @@ namespace Foodie.Controllers.Restaurant
 
         public IActionResult OrdHistory()
         {
-            var restaurantId = 1; // Replace with the actual restaurant ID
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId")); ; // Replace with the actual restaurant ID
 
             var orderHistory = _restaurantRepository.tbl_Orders_History(restaurantId);
 
@@ -134,10 +134,31 @@ namespace Foodie.Controllers.Restaurant
 
         public IActionResult payouts()
         {
-            return View();
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId")); // Or wherever you're storing it
+            var viewModel = _restaurantRepository.GetBankDetailsByRestaurantId(restaurantId);
+
+            if (viewModel == null || viewModel.BankDetails == null)
+            {
+                // Optional: handle empty state (no bank details found)
+                ViewBag.Message = "No bank details found.";
+            }
+
+            return View(viewModel);
         }
-
-
+        [HttpGet]
+        public IActionResult GetBadOrderStats()
+        {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+            var stats = _restaurantRepository.GetWeeklyOrderStatsAsync(restaurantId);
+            return Json(stats);
+        }
+        [HttpGet]
+        public  IActionResult GetWeeklyRatings()
+        {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+            var data =  _restaurantRepository.GetWeeklyCustomerRatings(restaurantId);
+            return Json(data);
+        }
         public IActionResult complaint()
             {
             var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
@@ -169,7 +190,7 @@ namespace Foodie.Controllers.Restaurant
         [HttpPost]
         public IActionResult EditOutletInfo(OutletInfo model)
         {
-            if (model.NewRestaurantMenuImg != null)
+            if (model.NewRestaurantImg != null)
             {
                 using var ms = new MemoryStream();
                 model.NewRestaurantImg.CopyTo(ms);
