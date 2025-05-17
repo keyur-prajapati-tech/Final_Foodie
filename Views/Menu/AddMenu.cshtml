@@ -11,6 +11,13 @@
     <title>Food Menu</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .food-img {
+            object-fit: cover;
+            border-radius: 10px;
+        }
+    </style>
+
 </head>
 <body>
     <hr />
@@ -213,20 +220,24 @@
                             $.each(menu, function (i, order)
                             {
                             html += `
-                            <div class="d-flex align-items-center p-3">
-                                    <img src="data:image/png;base64, ${order.menu_img}" height="60px" class="rounded me-3" ">
+                                    <div class="d-flex align-items-center p-3">
+            <img src="data:image/png;base64, ${order.menu_img}"
+                 width="120"
+                 height="80"
+                 class="rounded me-3 food-img"
+                 alt="Menu Image" />
 
-                            <div class="w-50 d-flex flex-column align-items-center">
-                                <h3 class="m-0 fw-bolder">${order.menu_name}</h3>
-                                <p class="m-0 fw-light">${order.amount} | Customisable</p>
-                           
-                            </div>
+            <div class="w-50 d-flex flex-column align-items-center">
+                <h3 class="m-0 fw-bolder">${order.menu_name}</h3>
+                <p class="m-0 fw-light">${order.amount} | Customisable</p>
+            </div>
 
-                            <div class="container-fluid d-flex justify-content-end align-items-end ">
-                                <button type="submit" data-menuid="${order.menu_id}" id="item-delete" class="btn btn-outline-danger m-3 w-25">Delete</button>
-                                <button type="submit" data-menuid="${order.menu_id}" id="item-update" class="btn btn-outline-info m-3 w-25">Update</button>
-                            </div>
-                        </div>
+            <div class="container-fluid d-flex justify-content-end align-items-end">
+                <button type="submit" data-menuid="${order.menu_id}" id="item-delete" class="btn btn-outline-danger m-3 w-25">Delete</button>
+                <button type="submit" data-menuid="${order.menu_id}" id="item-update" class="btn btn-outline-info m-3 w-25">Update</button>
+            </div>
+        </div>
+
                         <hr />`;
 
                             });

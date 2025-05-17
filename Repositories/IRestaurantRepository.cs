@@ -1,6 +1,7 @@
 ﻿using Foodie.Models;
 using Foodie.Models.customers;
 using Foodie.Models.Restaurant;
+using Foodie.ViewModels;
 using System.Reflection.Metadata;
 
 namespace Foodie.Repositories
@@ -80,6 +81,12 @@ namespace Foodie.Repositories
 
         bool ValidateOTP(string email, string otp);
         void SaveOTP(string email, string otp);
-        
+
+
+        public PayoutsDetailsViewModel GetBankDetailsByRestaurantId(int restaurantId);
+
+
+        public List<OrderViewModel> GetWeeklyOrderStatsAsync(int restaurantid);
+        public List<OrderViewModel> GetWeeklyCustomerRatings(int restaurantid);
     }
 }

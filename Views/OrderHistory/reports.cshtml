@@ -51,7 +51,7 @@
                 <h4>📊 Customer Experience</h4>
                 <div class="row">
                     <div class="col-md-6">
-                        <canvas id="lineChart"></canvas>
+                        <canvas id="ratingsChart" height="100"></canvas>
                     </div>
                     <div class="col-md-6">
                         <table class="table">
@@ -113,10 +113,7 @@
                         </div>
                     </div>
                 </div>
-                <select class="form-select d-inline-block w-auto">
-                    <option>Ghar Ka Zaika</option>
-                    <option>Outlet 2</option>
-                </select>
+                
             </div>
         </div>
 
@@ -132,38 +129,19 @@
             <!-- Line Chart -->
             <div class="col-md-6">
                 <div class="card p-3">
-                    <h6>Bad Orders Overview</h6>
-                    <canvas id="multiLineChart"></canvas>
+                    <h6 class="card-title">Bad Orders Overview</h6>
+                    <canvas id="badOrdersChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        document.getElementById("downloadBtn").addEventListener("click", function () {
+           document.getElementById("downloadBtn").addEventListener("click", function () {
             document.getElementById("popup").style.display = "block";
-
-            
             setTimeout(() => {
                 document.getElementById("popup").style.display = "none";
             }, 5000);
-        });
-
-        const ctx = document.getElementById('lineChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                datasets: [{
-                    label: 'Customer Ratings',
-                    data: [3.5, 4.0, 4.2, 3.9],
-                    borderColor: '#007bff',
-                    fill: false
-                }]
-            },
-            options: {
-                responsive: true,
-            }
         });
 
 
@@ -185,33 +163,107 @@
                 }]
             }
         });
+        
+    </script>
+    <script>
+        // Bad Orders Chart AJAX
+        $(document).ready(function () {
+            $.ajax({
+                url: '/OrderHistory/GetBadOrderStats',
+                method: 'GET',
+                success: function (data) {
+                    const labels = data.map(x => x.weekLabel);
+                    const badOrders = data.map(x => x.badOrders);
+                    const delayedOrders = data.map(x => x.delayedOrders);
+                    const completedOrders = data.map(x => x.completedOrders);
 
-        // Multi Line Chart
-        new Chart(document.getElementById('multiLineChart'), {
-            type: 'line',
-            data: {
-                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
-                datasets: [
-                    {
-                        label: 'Bad Orders',
-                        data: [12, 15, 8, 20],
-                        borderColor: 'red',
-                        fill: false
-                    },
-                    {
-                        label: 'Delayed Orders',
-                        data: [5, 7, 4, 6],
-                        borderColor: 'orange',
-                        fill: false
-                    },
-                    {
-                        label: 'Rejected Orders',
-                        data: [1, 3, 0, 2],
-                        borderColor: 'purple',
-                        fill: false
-                    }
-                ]
-            }
+                    const ctx = document.getElementById('badOrdersChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: 'Rejected Orders',
+                                    data: badOrders,
+                                    borderColor: 'red',
+                                    borderWidth: 2,
+                                    fill: false
+                                },
+                                {
+                                    label: 'Delayed Orders',
+                                    data: delayedOrders,
+                                    borderColor: 'orange',
+                                    borderWidth: 2,
+                                    fill: false
+                                },
+                                {
+                                    label: 'Completed Orders',
+                                    data: completedOrders,
+                                    borderColor: 'purple',
+                                    borderWidth: 2,
+                                    fill: false
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                }
+                            }
+                        }
+                    });
+                }
+            });
+
+            // ✅ Ratings Chart AJAX
+            $.ajax({
+                url: '/OrderHistory/GetWeeklyRatings',
+                method: 'GET',
+                success: function (data) {
+                    const labels = data.map(x => x.weekLabel);
+                    const ratings = data.map(x => x.averageRating);
+
+                    const ctx = document.getElementById('ratingsChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Customer Ratings',
+                                data: ratings,
+                                borderColor: '#007bff',
+                                backgroundColor: 'transparent',
+                                borderWidth: 3,
+                                pointRadius: 5,
+                                pointBackgroundColor: '#007bff',
+                                fill: false
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    min: 0.0,
+                                    max: 5.0,
+                                    title: {
+                                        display: true,
+                                        text: 'Average Rating'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    position: 'top'
+                                }
+                            }
+                        }
+                    });
+                }
+            });
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -134,10 +134,31 @@ namespace Foodie.Controllers.Restaurant
 
         public IActionResult payouts()
         {
-            return View();
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId")); // Or wherever you're storing it
+            var viewModel = _restaurantRepository.GetBankDetailsByRestaurantId(restaurantId);
+
+            if (viewModel == null || viewModel.BankDetails == null)
+            {
+                // Optional: handle empty state (no bank details found)
+                ViewBag.Message = "No bank details found.";
+            }
+
+            return View(viewModel);
         }
-
-
+        [HttpGet]
+        public IActionResult GetBadOrderStats()
+        {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+            var stats = _restaurantRepository.GetWeeklyOrderStatsAsync(restaurantId);
+            return Json(stats);
+        }
+        [HttpGet]
+        public  IActionResult GetWeeklyRatings()
+        {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+            var data =  _restaurantRepository.GetWeeklyCustomerRatings(restaurantId);
+            return Json(data);
+        }
         public IActionResult complaint()
             {
             var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
