@@ -1152,5 +1152,10 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
 
             return menuItems;
         }
+
+        //public RestaurantDetailsViewModel getRestaurantDetailsByresId(int restaurantId)
+        //{
+        //    throw new NotImplementedException();
+        //}
     }
 }

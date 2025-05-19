@@ -63,6 +63,6 @@ namespace Foodie.Repositories
         //demo to display all restaurant info
         List<RestaurantCardViewModel> getAppovedOnlineRestaurants();
         //display top content in restaurant details
-        RestaurantMenuViewModel getRestaurantDetails(int restaurantId);
+        //RestaurantDetailsViewModel getRestaurantDetailsByresId(int restaurantId);
     }
 }
