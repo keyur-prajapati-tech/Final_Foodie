@@ -2,7 +2,7 @@
 
 @{
     Layout = "~/Views/Shared/_foodieheader.cshtml";
-    var imageBase64 = Model.MenuImg != null ? Convert.ToBase64String(Model.MenuImg) : "";
+    //var imageBase64 = Model.MenuImg != null ? Convert.ToBase64String(Model.MenuImg) : "";
 }
 
 <!DOCTYPE html>
@@ -233,25 +233,6 @@
     </style>
 </head>
 <body>
-
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-md-4">
-                @if (!string.IsNullOrEmpty(imageBase64))
-                {
-                    <img src="data:image/png;base64,@imageBase64" class="img-fluid rounded" />
-                }
-            </div>
-            <div class="col-md-8">
-                <h2>@Model.MenuName</h2>
-                <p><strong>Description:</strong> @Model.MenuDescription</p>
-                <p><strong>Price:</strong> ₹@Model.Amount</p>
-                @* <p><strong>Restaurant ID:</strong> @Model.Restaurant_id</p> *@
-                <p><strong>Cuisine ID:</strong> @Model.cuisine_id</p>
-            </div>
-        </div>
-    </div>
-
     <!-- Filter Section -->
     <div class="container mt-4">
         <div class="filters">

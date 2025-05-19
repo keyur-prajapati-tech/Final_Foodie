@@ -1,4 +1,6 @@
-﻿namespace Foodie.Models.Restaurant
+﻿using Foodie.Models.customers;
+
+namespace Foodie.Models.Restaurant
 {
     public class RestaurantInfo
     {
