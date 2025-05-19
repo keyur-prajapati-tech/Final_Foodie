@@ -1,7 +1,7 @@
 ﻿@{
     Layout = "~/Views/Shared/_RestaurantLayout.cshtml";
 }
-
+@model Foodie.ViewModels.PayoutsDetailsViewModel;
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -167,12 +167,21 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <div class="mt-4">
             <h5>🏦 Bank Account Info</h5>
-            <ul class="list-group">
-                <li class="list-group-item">Account Holder: <strong>Ghar Ka Zayka</strong></li>
-                <li class="list-group-item">Account Number: <strong>XXXX-XXXX-7890</strong></li>
-                <li class="list-group-item">Bank Name: <strong>HDFC Bank</strong></li>
-                <li class="list-group-item">IFSC Code: <strong>HDFC0001234</strong></li>
-            </ul>
+         
+                @if (Model != null)
+                {
+                    <ul class="list-group">
+                        <li class="list-group-item">Bank Name: <strong>@Model.BankDetails.bank_name</strong></li>
+                        <li class="list-group-item">Account Number: <strong>@Model.BankDetails.ACC_NO</strong></li>
+                        <li class="list-group-item">IFSC Code: <strong>@Model.BankDetails.IFSC_code</strong></li>
+                        <li class="list-group-item">Account Type: <strong>@Model.BankDetails.ACC_Type</strong></li>
+                    </ul>
+                }
+                else
+                {
+                    <div class="alert alert-warning">Bank details not found.</div>
+                }
+            
         </div>
 
 

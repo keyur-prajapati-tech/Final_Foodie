@@ -73,7 +73,8 @@ namespace Foodie.Controllers.Restaurant
 
         [HttpPost]
         [Route("UpdateMenu")]
-        public async Task<IActionResult> UpdateMenu(tbl_menu_items menu, IFormFile food_img)
+        
+        public async Task<IActionResult> UpdateMenu(tbl_menu_items menu, IFormFile food_img, string OldImage)
         {
             if (food_img != null && food_img.Length > 0)
             {
@@ -83,16 +84,16 @@ namespace Foodie.Controllers.Restaurant
                     menu.menu_img = memoryStream.ToArray();
                 }
             }
+            else if (!string.IsNullOrEmpty(OldImage))
+            {
+                // Use the old image from base64 string
+                menu.menu_img = Convert.FromBase64String(OldImage);
+            }
+
             var result = _restaurantRepository.UpdateMenu(menu);
-            if (result > 0)
-            {
-                return RedirectToAction("Add");          
-            }
-            else
-            {
-                return RedirectToAction("Add");
-            }
+            return RedirectToAction("Add");
         }
+
 
         [HttpPost]
         [Route("Add")]

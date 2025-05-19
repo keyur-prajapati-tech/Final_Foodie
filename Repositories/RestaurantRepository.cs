@@ -11,6 +11,7 @@ using System.Net.Mail;
 using System.Net;
 using System.Security.Cryptography;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using Foodie.ViewModels;
 
 
 namespace Foodie.Repositories
@@ -793,7 +794,7 @@ namespace Foodie.Repositories
                             customer_name = reader["customer_name"]?.ToString(),
                             restaurant_name = reader["restaurant_name"]?.ToString(),
                             OrderId = reader["order_id"] as int?,
-                            OrderDate = Convert.ToDateTime(reader["order_date"]),
+                            craetedAt = Convert.ToDateTime(reader["created_at"]),
                             RatingValue = (int)reader["rating"],
                             discription = reader["discription"]?.ToString(),
                             image = reader["profilepic"] != DBNull.Value ? (byte[])reader["profilepic"] : null
@@ -1107,6 +1108,95 @@ namespace Foodie.Repositories
                 }
             }
             return false;
+        }
+        public PayoutsDetailsViewModel GetBankDetailsByRestaurantId(int restaurantId)
+        {
+            PayoutsDetailsViewModel details = new PayoutsDetailsViewModel();
+
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            using (SqlCommand cmd = new SqlCommand("vendores.sp_GetBankDetailsByRestaurantId", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Restaurant_id", restaurantId);
+
+                con.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    details.BankDetails = new tbl_bank_details
+                    {
+                        bank_id = reader["bank_id"] != DBNull.Value ? Convert.ToInt32(reader["bank_id"]) : 0,
+                        bank_name = reader["bank_name"] != DBNull.Value ? reader["bank_name"].ToString() : string.Empty,
+                        IFSC_code = reader["IFSC_code"] != DBNull.Value ? reader["IFSC_code"].ToString() : string.Empty,
+                        ACC_NO = reader["ACC_No"] != DBNull.Value ? reader["ACC_No"].ToString() : string.Empty,
+                        ACC_Type = reader["ACC_Type"] != DBNull.Value ? reader["ACC_Type"].ToString() : string.Empty,
+                        Restaurant_id = reader["Restaurant_id"] != DBNull.Value ? Convert.ToInt32(reader["Restaurant_id"]) : 0
+                    };
+                }
+            }
+
+            return details;
+        }
+
+
+        public List<OrderViewModel> GetWeeklyOrderStatsAsync(int restaurantid)
+        {
+            var result = new List<OrderViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                using (SqlCommand cmd = new SqlCommand("customers.sp_GetWeeklyOrderStats", conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@restaurantid", restaurantid);
+                    conn.Open();
+                    using (SqlDataReader reader =  cmd.ExecuteReader())
+                    {
+                        while ( reader.Read())
+                        {
+                            var stat = new OrderViewModel
+                            {
+                                WeekNumber = reader.GetInt32("WeekNumber"),
+                                WeekLabel = reader.GetString("WeekLabel"),
+                                BadOrders = reader.GetInt32("BadOrders"),
+                                DelayedOrders = reader.GetInt32("DelayedOrders"),
+                                CompletedOrders = reader.GetInt32("CompleteOrders")
+                            };
+                            result.Add(stat);
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        public List<OrderViewModel> GetWeeklyCustomerRatings(int restaurantid)
+        {
+            var result = new List<OrderViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlCommand cmd = new SqlCommand("sp_GetWeeklyCustomerRatings", conn))
+            {
+
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@restaurantid", restaurantid);
+                 conn.Open();
+                using (var reader =  cmd.ExecuteReader())
+                {
+                    while ( reader.Read())
+                    {
+                        result.Add(new OrderViewModel
+                        {
+                            WeekNumber = reader.GetInt32(reader.GetOrdinal("WeekNumber")),
+                            WeekLabel = reader.GetString(reader.GetOrdinal("WeekLabel")),
+                            AverageRating = reader.GetDecimal(reader.GetOrdinal("AverageRating"))
+                        });
+                    }
+                }
+            }
+
+            return result;
         }
     }
 }
