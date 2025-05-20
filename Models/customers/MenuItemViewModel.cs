@@ -11,6 +11,9 @@
 
         public int cuisine_id { get; set; }
 
+        public int RestaurantId { get; set; }
+        public bool IsAvalable { get; set; }
+
         public string MenuImageBase64 { get; set; }
     }
 }

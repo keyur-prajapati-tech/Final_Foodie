@@ -1159,7 +1159,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
 
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = @"SELECT TOP 10 menu_name, menu_img FROM vendores.tbl_menu_items WHERE isAvalable = 1";
+                string query = @"SELECT TOP 10 menu_id,menu_name, menu_img FROM vendores.tbl_menu_items WHERE isAvalable = 1";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 conn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
@@ -1178,6 +1178,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                     }
                     menuItems.Add(new MenuItemViewModel
                     {
+                        MenuId = Convert.ToInt32(reader["menu_id"]),
                         MenuName = reader["menu_name"].ToString(),
                         MenuImageBase64 = base64Image
                     });
@@ -1187,36 +1188,39 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
             return menuItems;
         }
 
-        public tbl_menu_items GetInspireMenuItemById(int id)
+        public MenuItemViewModel GetInspireMenuItemById(int menuid)
         {
-            tbl_menu_items MenuItems = null;
+            MenuItemViewModel menuItem = null;
 
-            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = @"SELECT * FROM vendores.tbl_menu_items WHERE menu_id = @id";
+                string query = @"SELECT * FROM vendores.tbl_menu_items WHERE menu_id = @menuId";
                 SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@menuId", menuid);
 
-                cmd.Parameters.AddWithValue("@id", id);
                 conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-
-                if (reader.Read())
+                SqlDataReader rd = cmd.ExecuteReader();
+                if (rd.Read())
                 {
-                    MenuItems = new tbl_menu_items
+                    string menuName = rd["menu_name"].ToString();
+                    string base64Image = string.Empty;
+                    if (rd["menu_img"] != DBNull.Value)
                     {
-                        menu_id = Convert.ToInt32(reader["menu_id"]),
-                        menu_name = reader["menu_name"].ToString(),
-                        cuisine_id = Convert.ToInt32(reader["cuisine_id"]),
-                        menu_img = (byte[])reader["menu_img"],
-                        menu_descripation = reader["menu_descripation"].ToString(),
-                        amount = Convert.ToDecimal(reader["amount"]),
-                        isAvailable = Convert.ToBoolean(reader["isAvalable"]),
-                        Restaurant_id = Convert.ToInt32(reader["Restaurant_id"])
+                        byte[] imgBytes = (byte[])rd["menu_img"];
+                        base64Image = Convert.ToBase64String(imgBytes);
+                    }
+                    menuItem = new MenuItemViewModel
+                    {
+                        MenuId = Convert.ToInt32(rd["menu_id"]),
+                        MenuName = menuName,
+                        MenuImageBase64 = base64Image,
+                        Amount = Convert.ToDecimal(rd["amount"]),
+                        MenuDescription = rd["menu_descripation"].ToString()
                     };
                 }
                 conn.Close();
             }
-            return MenuItems;
+            return menuItem;
         }
     }
 }

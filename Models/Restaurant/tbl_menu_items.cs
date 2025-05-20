@@ -10,6 +10,8 @@
         public decimal amount { get; set; }
         public bool isAvailable { get; set; }
         public int Restaurant_id { get; set; }
-       
+
+        // For displaying in view
+        public string MenuImageBase64 => Convert.ToBase64String(menu_img);
     }
 }

@@ -66,6 +66,6 @@ namespace Foodie.Repositories
         //RestaurantDetailsViewModel getRestaurantDetailsByresId(int restaurantId);
 
         List<MenuItemViewModel> GetInspirationItems();
-        tbl_menu_items GetInspireMenuItemById(int id);
+        MenuItemViewModel GetInspireMenuItemById(int menuid);
     }
 }
