@@ -54,6 +54,35 @@ namespace Foodie.Controllers
             return View();
         }
         [HttpGet]
+        public JsonResult GetCuisines()
+        {
+            return Json(_AdminRepository.GetAllCuisines());
+        }
+
+        [HttpPost]
+        public JsonResult AddCuisine(string cuisineName)
+        {
+            if (string.IsNullOrWhiteSpace(cuisineName))
+                return Json(new { success = false });
+
+            int id = _AdminRepository.AddCuisine(cuisineName);
+            return Json(new { success = true, id });
+        }
+
+        [HttpPost]
+        public JsonResult UpdateCuisine(int id, string cuisineName)
+        {
+            _AdminRepository.UpdateCuisine(id, cuisineName);
+            return Json(new { success = true });
+        }
+
+        [HttpPost]
+        public JsonResult DeleteCuisine(int id)
+        {
+            _AdminRepository.DeleteCuisine(id);
+            return Json(new { success = true });
+        }
+        [HttpGet]
         public IActionResult GetPendingRestaurants()
         {
             var restaurants = _AdminRepository.GetPendingRestaurant();
