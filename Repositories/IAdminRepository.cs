@@ -1,4 +1,5 @@
 ﻿using Foodie.Models;
+using Foodie.Models.Admin;
 using Foodie.Models.customers;
 using Foodie.Models.Restaurant;
 using Foodie.ViewModels;
@@ -81,5 +82,18 @@ namespace Foodie.Repositories
 
 
         public IEnumerable<tbl_restaurant> GetPendingRestaurant();
+
+
+
+
+
+
+
+
+
+        public int AddCuisine(string cuisineName);
+        public List<tbl_cuisine_master> GetAllCuisines();
+        public void UpdateCuisine(int id, string name);
+        public void DeleteCuisine(int id);
     }
 }

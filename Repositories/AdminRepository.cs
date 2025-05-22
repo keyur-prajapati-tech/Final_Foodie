@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Numerics;
 using Foodie.Models;
+using Foodie.Models.Admin;
 using Foodie.Models.customers;
 using Foodie.Models.Restaurant;
 using Foodie.ViewModels;
@@ -956,5 +957,67 @@ ORDER BY [Month];";
             return alertList;
         }
 
+
+
+
+        public int AddCuisine(string cuisineName)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlCommand cmd = new SqlCommand("admins.sp_AddCuisine", conn))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@CuisineName", cuisineName);
+                conn.Open();
+                return Convert.ToInt32(cmd.ExecuteScalar());
+            }
+        }
+
+        public List<tbl_cuisine_master> GetAllCuisines()
+        {
+            var list = new List<tbl_cuisine_master>();
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlCommand cmd = new SqlCommand("admins.sp_GetAllCuisines", conn))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                conn.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        list.Add(new tbl_cuisine_master
+                        {
+                            cuisine_id = (int)reader["cuisine_id"],
+                            cuisine_name = reader["cuisine_name"].ToString()
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public void UpdateCuisine(int id, string name)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlCommand cmd = new SqlCommand("admins.sp_UpdateCuisine", conn))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@CuisineId", id);
+                cmd.Parameters.AddWithValue("@CuisineName", name);
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void DeleteCuisine(int id)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlCommand cmd = new SqlCommand("admins.sp_DeleteCuisine", conn))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@CuisineId", id);
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
     }
 }
