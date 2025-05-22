@@ -6,5 +6,6 @@
         public int quantity { get; set; }
         public decimal listprice { get; set; }
         public decimal discount { get; set; }
+        public DateTime EstimatedTime { get; set; }
     }
 }

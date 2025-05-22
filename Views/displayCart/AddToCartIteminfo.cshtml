@@ -77,7 +77,11 @@
                 <h3 class="text-uppercase">Payment</h3>
 
                 <!--Payment Button Here-->
-                <button id="orderNowBtn" class="btn btn-success btn-lg w-100 mt-3">Order Now</button>
+                <button id="orderNowBtn" class="btn btn-outline-success btn-md w-100 mt-3">Pay Now</button>
+                
+                <br/>
+
+                <a class="btn btn-outline-info">Order details</a>
 
             </div>
         </div>
@@ -389,71 +393,6 @@
             document.getElementById('grand-total').textContent = grandTotal.toFixed(2);
             return grandTotal;
         }
-
-            document.getElementById("orderNowBtn").onclick = function (e) {
-        const grandTotal = calculateTotals(); // get current total in ₹
-        const grandTotalInPaise = Math.round(grandTotal * 100); // convert ₹ to paise
-
-        var options = {
-            "key": "rzp_test_uIxZbgotqYKcAK", // Replace with your Razorpay key
-            "amount": grandTotalInPaise, // dynamic amount
-            "currency": "INR",
-            "name": "Foodie Tasty",
-            "description": "Order Payment",
-            "handler": function (response) {
-
-                let payload = {
-                    CustomerId: 1,
-                    AddressId: 1,
-                    PaymentModeId: 1,
-                    CouponId: 1, // dynamically from server
-                    GrandTotal: finalAmount,
-                    DiscountAmount: parseFloat($('#discount').text()),
-                    RazorpayPaymentId: response.razorpay_payment_id,
-                    RazorpayOrderId: response.razorpay_order_id,
-                    RazorpaySignature: response.razorpay_signature,
-
-                    Items: [
-                        // Example format; fill from cart dynamically
-                        { MenuId: 16, Quantity: 2, ListPrice: 150.00, Discount: 10 },
-                        { MenuId: 18, Quantity: 1, ListPrice: 99.00, Discount: 10 }
-                    ]
-                };
-
-                $.ajax({
-                    url: '/displayCart/SavePaymentAndPlaceOrder',
-                    method: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(payload),
-                    success: function (res) {
-                        if (res.success) {
-                            alert("Order placed successfully! Order ID: " + res.orderId);
-                            window.location.href = "/Order/Success?orderId=" + res.orderId;
-                        } else {
-                            alert("Failed to place order.");
-                        }
-                    }
-                });
-                alert("Payment successful! Razorpay Payment ID: " + response.razorpay_payment_id);
-                // You can send this ID to your backend for further verification/logging
-            },
-            "prefill": {
-                "name": "@userName",
-                "email": "customer@example.com",
-                "contact": "@phone"
-            },
-            "theme": {
-                "color": "#3399cc"
-            }
-        };
-
-        var rzp = new Razorpay(options);
-        rzp.open();
-        e.preventDefault();
-    }
-
-
-        
     
          function updateTotalWithCoupon() {
             $.ajax({
@@ -579,6 +518,52 @@
 
         $('#couponModal').on('shown.bs.modal', function () {
             $('#couponListContainer').load('/displayCart/GetAllCoupons');
+        });
+
+        // Razorpay payment
+        $('#orderNowBtn').click(function () {
+            const grandTotal = calculateTotals(); // get current total in ₹
+            const grandTotalInPaise = Math.round(grandTotal * 100); // convert ₹ to paise
+
+            var orderModel = {
+                customerId: 1,
+                couponId: 1,
+                addressId: 1,
+                paymentModeId: 1,
+                totalAmount: 600,
+                discount: 0.10,
+                restaurantId: 1,
+                razorpayPaymentId: '',  // to be filled later
+                razorpayOrderId: '',    // to be filled later
+                items: [
+                    { menuId: 16, quantity: 2, listPrice: 150, discount: 0.10, estimatedTime: "2025-04-24T13:00:00" },
+                    { menuId: 18, quantity: 1, listPrice: 110, discount: 0.20, estimatedTime: "2025-04-29T13:00:00" }
+                ]
+            };
+
+            var options = {
+                "key": "rzp_test_uIxZbgotqYKcAK",
+                "amount": grandTotalInPaise,
+                "currency": "INR",
+                "name": "Food Order",
+                "description": "Test Transaction",
+                "handler": function (response) {
+                    orderModel.razorpayPaymentId = response.razorpay_payment_id;
+                    orderModel.razorpayOrderId = response.razorpay_order_id;
+
+                    $.ajax({
+                        url: '/displayCart/SavePaymentAndPlaceOrder',
+                        type: 'POST',
+                        data: JSON.stringify(orderModel),
+                        contentType: 'application/json',
+                        success: function (data) {
+                            alert("Order Placed! Order ID: " + data.orderId);
+                        }
+                    });
+                }
+            };
+            var rzp = new Razorpay(options);
+            rzp.open();
         });
 
     });

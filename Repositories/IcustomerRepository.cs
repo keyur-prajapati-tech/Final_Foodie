@@ -1,4 +1,5 @@
-﻿using Foodie.Models.Admin;
+﻿using Foodie.Models;
+using Foodie.Models.Admin;
 using Foodie.Models.customers;
 using Foodie.Models.Restaurant;
 using static Foodie.Models.customers.tbl_coupone;
@@ -49,10 +50,6 @@ namespace Foodie.Repositories
 
         decimal CalculateGrandTotal(int customer_id);
 
-        int PlaceOrder(int customer_id, int? coupone_id, int address_id, int paymentModeId, decimal totalAmount, decimal discount, string razorpayPaymentId, string razorpayOrderId);
-
-        void SaveOrderItem(int orderId, int menuId, int quantity, decimal price, decimal discount);
-
         IEnumerable<tbl_special_offers> GetAllActiveOffers();
         IEnumerable<tbl_special_offers> GetOffers();
         tbl_special_offers GetOfferById(int offerId);
@@ -67,5 +64,12 @@ namespace Foodie.Repositories
 
         List<MenuItemViewModel> GetInspirationItems();
         MenuItemViewModel GetInspireMenuItemById(int menuid);
+        List<AvailableDishViewModel> GetDeliveryFoods(int menuId);
+
+        int PlaceOrder(RazorPayViewModel model);
+
+        void SaveOrderItem(int orderId, OrderItemModel item);
+
+        tbl_orders CreateOrder(int customer_id, decimal grand_total, string razorpayOrderId, List<tbl_order_items> items, int addressId);
     }
 }

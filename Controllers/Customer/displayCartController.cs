@@ -195,30 +195,17 @@ namespace Foodie.Controllers.Customer
         [HttpPost]
         public IActionResult SavePaymentAndPlaceOrder([FromBody] RazorPayViewModel model)
         {
-            try
-            {
-                int orderId = _repository.PlaceOrder(
-                    model.customer_id,
-                    model.coupone_id,
-                    model.AddressId,
-                    model.PaymentModeId,
-                    model.grandtotal,
-                    model.discount_amount,
-                    model.RazorpayPaymentId,
-                    model.RazorpayOrderId
-                );
+            if (!ModelState.IsValid)
+                return BadRequest("Invalid data");
 
-                foreach (var item in model.Items)
-                {
-                    _repository.SaveOrderItem(orderId, item.menu_id, item.quantity, item.listprice, item.discount);
-                }
+            int orderId = _repository.PlaceOrder(model);
 
-                return Json(new { success = true, orderId });
-            }
-            catch (Exception ex)
+            foreach (var item in model.Items)
             {
-                return Json(new { success = false, message = ex.Message });
+                _repository.SaveOrderItem(orderId, item);
             }
+
+            return Json(new { success = true, orderId = orderId });
         }
 
     }

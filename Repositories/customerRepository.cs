@@ -6,6 +6,7 @@ using static Foodie.Models.customers.tbl_coupone;
 using System.Data;
 using System;
 using Foodie.Models.Admin;
+using Foodie.Models;
 
 namespace Foodie.Repositories
 {
@@ -767,54 +768,54 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
             return total;
         }
 
-        public int PlaceOrder(int customer_id, int? coupone_id, int address_id, int paymentModeId, decimal totalAmount, decimal discount, string razorpayPaymentId, string razorpayOrderId)
-        {
-            int orderId = 0;
+        //public int PlaceOrder(int customer_id, int? coupone_id, int address_id, int paymentModeId, decimal totalAmount, decimal discount, string razorpayPaymentId, string razorpayOrderId)
+        //{
+        //    int orderId = 0;
 
-            using (SqlConnection conn = new SqlConnection(_connectionstring))
-            {
-                string query = @"INSERT INTO customers.tbl_orders 
-                            (customer_id, order_date, order_status, coupone_id, deliver_dateTime, food_status, 
-                             Payment_mode_id, addressid, resturant_id, razorpay_payment_id, razorpay_order_id)
-                             OUTPUT INSERTED.order_id
-                             VALUES (@customerId, GETDATE(), 'Pending', @couponeId, DATEADD(HOUR, 1, GETDATE()), 'Processing', 
-                                     @paymentModeId, @addressId, 1, @razorpayPaymentId, @razorpayOrderId)";
-                using (SqlCommand cmd = new SqlCommand(query, conn))
-                {
-                    cmd.Parameters.AddWithValue("@customerId", customer_id);
-                    cmd.Parameters.AddWithValue("@couponId", coupone_id ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@paymentModeId", paymentModeId);
-                    cmd.Parameters.AddWithValue("@addressId", address_id);
-                    cmd.Parameters.AddWithValue("@razorpayPaymentId", razorpayPaymentId ?? (object)DBNull.Value);
-                    cmd.Parameters.AddWithValue("@razorpayOrderId", razorpayOrderId ?? (object)DBNull.Value);
+        //    using (SqlConnection conn = new SqlConnection(_connectionstring))
+        //    {
+        //        string query = @"INSERT INTO customers.tbl_orders 
+        //                    (customer_id, order_date, order_status, coupone_id, deliver_dateTime, food_status, 
+        //                     Payment_mode_id, addressid, resturant_id, razorpay_payment_id, razorpay_order_id)
+        //                     OUTPUT INSERTED.order_id
+        //                     VALUES (@customerId, GETDATE(), 'Pending', @couponeId, DATEADD(HOUR, 1, GETDATE()), 'Processing', 
+        //                             @paymentModeId, @addressId, 1, @razorpayPaymentId, @razorpayOrderId)";
+        //        using (SqlCommand cmd = new SqlCommand(query, conn))
+        //        {
+        //            cmd.Parameters.AddWithValue("@customerId", customer_id);
+        //            cmd.Parameters.AddWithValue("@couponId", coupone_id ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@paymentModeId", paymentModeId);
+        //            cmd.Parameters.AddWithValue("@addressId", address_id);
+        //            cmd.Parameters.AddWithValue("@razorpayPaymentId", razorpayPaymentId ?? (object)DBNull.Value);
+        //            cmd.Parameters.AddWithValue("@razorpayOrderId", razorpayOrderId ?? (object)DBNull.Value);
 
-                    conn.Open();
-                    orderId = (int)cmd.ExecuteScalar();
-                }
-            }
-            return orderId;
-        }
+        //            conn.Open();
+        //            orderId = (int)cmd.ExecuteScalar();
+        //        }
+        //    }
+        //    return orderId;
+        //}
 
-        public void SaveOrderItem(int orderId, int menuId, int quantity, decimal price, decimal discount)
-        {
-            using (SqlConnection con = new SqlConnection(_connectionstring))
-            {
-                string query = @"INSERT INTO customers.tbl_order_items (order_id, menu_id, quantity, list_price, discount, estimated_DATETIME)
-                             VALUES (@orderId, @menuId, @quantity, @price, @discount, DATEADD(HOUR, 1, GETDATE()))";
+        //public void SaveOrderItem(int orderId, int menuId, int quantity, decimal price, decimal discount)
+        //{
+        //    using (SqlConnection con = new SqlConnection(_connectionstring))
+        //    {
+        //        string query = @"INSERT INTO customers.tbl_order_items (order_id, menu_id, quantity, list_price, discount, estimated_DATETIME)
+        //                     VALUES (@orderId, @menuId, @quantity, @price, @discount, DATEADD(HOUR, 1, GETDATE()))";
 
-                using (SqlCommand cmd = new SqlCommand(query, con))
-                {
-                    cmd.Parameters.AddWithValue("@orderId", orderId);
-                    cmd.Parameters.AddWithValue("@menuId", menuId);
-                    cmd.Parameters.AddWithValue("@quantity", quantity);
-                    cmd.Parameters.AddWithValue("@price", price);
-                    cmd.Parameters.AddWithValue("@discount", discount);
+        //        using (SqlCommand cmd = new SqlCommand(query, con))
+        //        {
+        //            cmd.Parameters.AddWithValue("@orderId", orderId);
+        //            cmd.Parameters.AddWithValue("@menuId", menuId);
+        //            cmd.Parameters.AddWithValue("@quantity", quantity);
+        //            cmd.Parameters.AddWithValue("@price", price);
+        //            cmd.Parameters.AddWithValue("@discount", discount);
 
-                    con.Open();
-                    cmd.ExecuteNonQuery();
-                }
-            }
-        }
+        //            con.Open();
+        //            cmd.ExecuteNonQuery();
+        //        }
+        //    }
+        //}
 
         public IEnumerable<tbl_special_offers> GetAllActiveOffers()
         {
@@ -1221,6 +1222,135 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 conn.Close();
             }
             return menuItem;
+        }
+
+        public List<AvailableDishViewModel> GetDeliveryFoods(int menuId)
+        {
+            List<AvailableDishViewModel> list = new List<AvailableDishViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT 
+                                mi.menu_id,
+                                vi.Restaurant_menu_img,
+                                rs.restaurant_name,
+                                cm.cuisine_name,
+                                mi.amount,
+                                mi.isAvalable
+                            FROM vendores.tbl_menu_items mi
+                            INNER JOIN vendores.tbl_restaurant rs ON mi.Restaurant_id = rs.restaurant_id
+                            INNER JOIN vendores.tbl_vendores_img vi ON rs.restaurant_id = vi.Restaurant_id
+                            INNER JOIN vendores.tbl_cuisine tc ON rs.restaurant_id = tc.Restaurnat_id
+                            INNER JOIN admins.tbl_cuisine_master cm ON tc.cuisine_id = cm.cuisine_id
+                            WHERE mi.menu_id = @menuId AND mi.isAvalable = 1";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@menuId", menuId);
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    list.Add(new AvailableDishViewModel
+                    {
+                        MenuId = Convert.ToInt32(reader["menu_id"]),
+                        MenuName = reader["menu_name"].ToString(),
+                        Menudescription = reader["menu_description"].ToString(),
+                        Amount = Convert.ToDecimal(reader[""]),
+                        IsAvailable = Convert.ToBoolean(reader["isAvailable"])
+                    });
+                }
+            }
+            return list;
+        }
+
+        public int PlaceOrder(RazorPayViewModel model)
+        {
+            int orderId;
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand("INSERT INTO customers.tbl_orders (customer_id, order_date, order_status, coupone_id, deliver_dateTime, food_status, Payment_mode_id, addressid, resturant_id) " +
+                    "OUTPUT INSERTED.order_id VALUES (@customer_id, GETDATE(), 'Pending', @coupone_id, GETDATE(), 'Processing', @paymentModeId, @addressid, @restaurantId)", conn);
+
+                cmd.Parameters.AddWithValue("@customer_id", model.customer_id);
+                cmd.Parameters.AddWithValue("@coupone_id", (object?)model.coupone_id ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@paymentModeId", model.PaymentModeId);
+                cmd.Parameters.AddWithValue("@addressid", model.AddressId);
+                cmd.Parameters.AddWithValue("@restaurantId", model.restaurant_id);
+
+                orderId = (int)cmd.ExecuteScalar();
+            }
+
+            return orderId;
+        }
+
+        public void SaveOrderItem(int orderId, OrderItemModel item)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand("INSERT INTO customers.tbl_order_items (order_id, menu_id, quantity, list_price, discount, estimated_DATETIME) " +
+                    "VALUES (@order_id, @menu_id, @quantity, @list_price, @discount, @estimated_DATETIME)", conn);
+
+                cmd.Parameters.AddWithValue("@order_id", orderId);
+                cmd.Parameters.AddWithValue("@menu_id", item.menu_id);
+                cmd.Parameters.AddWithValue("@quantity", item.quantity);
+                cmd.Parameters.AddWithValue("@list_price", item.listprice);
+                cmd.Parameters.AddWithValue("@discount", item.discount);
+                cmd.Parameters.AddWithValue("@estimated_DATETIME", item.EstimatedTime);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public tbl_orders CreateOrder(int customer_id, decimal grand_total, string razorpayOrderId, List<tbl_order_items> items, int addressId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+
+                SqlTransaction transaction = conn.BeginTransaction();
+
+                try
+                {
+                    string query = @"INSERT INTO customers.tbl_orders (customer_id, order_date, order_status, grand_total, razorpay_order_id, addressid) 
+                                    OUTPUT INSERTED.order_id 
+                                    VALUES (@customer_id, GETDATE(), 'Pending', @grand_total, @razorpayOrderId, @addressId)";
+                    SqlCommand cmd = new SqlCommand(query, conn, transaction);
+                    cmd.Parameters.AddWithValue("@customer_id", customer_id);
+                    cmd.Parameters.AddWithValue("@grand_total", grand_total);
+                    cmd.Parameters.AddWithValue("@razorpayOrderId", razorpayOrderId);
+                    cmd.Parameters.AddWithValue("@addressId", addressId);
+                    int orderId = (int)cmd.ExecuteScalar();
+
+                    foreach (var item in items)
+                    {
+                        string itemQuery = "INSERT INTO customers.tbl_order_items (order_id, menu_id, quantity, list_price, discount, estimated_DATETIME) values (@order_id, @menu_id, @quantity, @list_price, @discount, @estimated_DATETIME)";
+                        var itemCmd = new SqlCommand(itemQuery, conn, transaction);
+                        itemCmd.Parameters.AddWithValue("@order_id", orderId);
+                        itemCmd.Parameters.AddWithValue("@menu_id", item.menu_id);
+                        itemCmd.Parameters.AddWithValue("@quantity", item.quantity);
+                        itemCmd.Parameters.AddWithValue("@list_price", item.list_price);
+                        itemCmd.Parameters.AddWithValue("@discount", item.discount);
+                        itemCmd.Parameters.AddWithValue("@estimated_DATETIME", DateTime.Now.AddHours(1));
+
+                        itemCmd.ExecuteNonQuery();
+                    }
+                    transaction.Commit();
+                    return new tbl_orders
+                    {
+                        order_id = orderId,
+                        customer_id = customer_id,
+                        grand_total = grand_total,
+                        razorpay_order_id = razorpayOrderId,
+                        order_status = "pending"
+                    };
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+                    throw;
+                }
+            }
         }
     }
 }

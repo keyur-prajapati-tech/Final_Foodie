@@ -297,7 +297,7 @@
         <div class="owl-carousel owl-theme">
             @foreach(var item in menuItems)
             {
-                <a asp-controller="DeliveryItem" asp-action="AllDeliveryFood"
+                <a asp-controller="DeliveryItem" asp-action="AllDeliveryFood" asp-route-id="@item.MenuId"
                    style="text-decoration: none; color: inherit; display: block;">
                     <div class="item text-center mx-3" style="cursor: pointer;">
                         <img src="data:image/jpeg;base64,@item.MenuImageBase64" class="rounded-circle"
