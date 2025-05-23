@@ -1,16 +1,8 @@
 
-using Foodie.Models;
 using Foodie.Models.customers;
 using Foodie.Models.Restaurant;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Data.SqlClient;
-using System;
-using System.Collections.Generic;
 using System.Data;
-using System.Net.Mail;
-using System.Net;
-using System.Security.Cryptography;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using Foodie.ViewModels;
 
 
@@ -286,8 +278,6 @@ namespace Foodie.Repositories
                 }
             }
         }
-
-
 
         public int AddFssaiDetails(tbl_fssai_Details fssai, byte[] img)
         {
@@ -773,8 +763,8 @@ namespace Foodie.Repositories
 
 
 
- public List<tbl_ratings> GetAllRatings(int restaurant_id)
-        {
+        public List<tbl_ratings> GetAllRatings(int restaurant_id)
+            {
             var ratings = new List<tbl_ratings>();
 
             using (SqlConnection conn = new SqlConnection(_connectionstring))
@@ -1060,8 +1050,6 @@ namespace Foodie.Repositories
             }
             return offers;
         }
-
-      
 
         public void SaveOTP(string email, string otp)
         {

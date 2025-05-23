@@ -10,20 +10,19 @@
             public string order_status { get; set; }
             public DateTime OrderDate { get; set; }
             public DateTime? DeliveryTime { get; set; }
-
             public string Menu { get; set; }
-        //public decimal Amount { get; set; }
+            //public decimal Amount { get; set; }
             public int coupone_id { get; set; }
-
             public decimal discount { get; set; }
-
-
-        public int WeekNumber { get; set; }
-        public string WeekLabel { get; set; }
+            public decimal TotalAmount { get; set; }
+            public DateTime? StartDate { get; set; }
+            public DateTime? EndDate { get; set; }
+            public int WeekNumber { get; set; }
+            public string WeekLabel { get; set; }
             public int BadOrders { get; set; }
             public int DelayedOrders { get; set; }
             public int CompletedOrders { get; set; }
-        public decimal AverageRating { get; set; }
+            public decimal AverageRating { get; set; }
 
         //public string PaymentMethod { get; set; }
         //public string PreparationTimeFormatted { get; set; }

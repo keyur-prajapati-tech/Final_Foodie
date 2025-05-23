@@ -1,4 +1,6 @@
-﻿namespace Foodie.Models.Restaurant
+﻿using Foodie.ViewModels;
+
+namespace Foodie.Models.Restaurant
 {
     public class ordersViewMdel
     {
@@ -11,5 +13,7 @@
 
         public string customer_name { get; set; }
         public List<orderNotiViewModel> Dishes { get; set; }
+
+        
     }
 }

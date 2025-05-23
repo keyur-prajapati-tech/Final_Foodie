@@ -1,0 +1,147 @@
+﻿@model Foodie.ViewModels.order
+@{
+    Layout = "_AdminLayout";
+}
+<form method="get" class="row mb-4" id="filterForm">
+    <div class="col-md-3">
+        <label>From Date</label>
+        <input type="date" name="fromDate" class="form-control"
+               value="@Model.StartDate?.ToString("yyyy-MM-dd")" />
+    </div>
+    <div class="col-md-3">
+        <label>To Date</label>
+        <input type="date" name="toDate" class="form-control"
+               value="@Model.EndDate?.ToString("yyyy-MM-dd")" />
+    </div>
+    <div class="col-md-3">
+        <label>Status</label>
+        <select name="orderStatus" class="form-select">
+            <option value="" selected="@(string.IsNullOrEmpty(Model.OrderStatus) ? "selected" : null)">All Status</option>
+
+            <option value="delivered" selected="@(Model.OrderStatus == "delivered" ? "selected" : null)">Delivered</option>
+            <option value="Pending" selected="@(Model.OrderStatus == "Pending" ? "selected" : null)">Pending</option>
+            <option value="Cancelled" selected="@(Model.OrderStatus == "Cancelled" ? "selected" : null)">Cancelled</option>
+            <option value="Accepted" selected="@(Model.OrderStatus == "Accepted" ? "selected" : null)">Accepted</option>
+        </select>
+    </div>
+    <div class="col-md-3 d-flex align-items-end">
+        <button type="submit" class="btn btn-primary">Filter</button>
+    </div>
+</form>
+
+<div class="mb-3 text-right">
+    <button id="btnExportExcel" class="btn btn-success">
+        <i class="fas fa-file-excel mr-1"></i> Export to Excel
+    </button>
+    <button id="btnExportPDF" class="btn btn-danger">
+        <i class="fas fa-file-pdf mr-1"></i> Export to PDF
+    </button>
+</div>
+
+@if (Model.Reports.Any())
+{
+    <table class="table table-bordered table-hover table-striped bg-white rounded shadow-sm">
+        <thead class="table-light">
+            <tr>
+                <th>Order ID</th>
+                <th>Order Date</th>
+                <th>Status</th>
+                <th>Total Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in Model.Reports)
+            {
+                <tr>
+                    <td>@order.OrderId</td>
+                    <td>@order.OrderDate.ToString("dd-MM-yyyy")</td>
+                    <td>
+                        <span class="badge bg-info text-dark">@order.order_status</span>
+                    </td>
+                    <td>₹@order.TotalAmount.ToString("N2")</td>
+                </tr>
+            }
+
+            @if (!string.IsNullOrEmpty(Model.OrderStatus))
+            {
+                <tr class="bg-warning text-dark fw-bold">
+                    <td colspan="3" class="text-end">Grand Total:</td>
+                    <td>₹@Model.Reports.Sum(o => o.TotalAmount).ToString("N2")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+
+}
+else
+{
+    <div class="alert alert-warning">No orders found for selected filter.</div>
+}
+
+<script>
+    // Filter by status and date range
+    document.getElementById('statusFilter').addEventListener('change', function () {
+        filterOrders();
+    });
+
+    document.getElementById('dateFilter').addEventListener('change', function () {
+        filterOrders();
+    });
+
+    function filterOrders() {
+        const status = document.getElementById('statusFilter').value;
+        const dateRange = document.getElementById('dateFilter').value;
+
+        const orders = document.querySelectorAll('.card');
+
+        orders.forEach(function (order) {
+            const orderStatus = order.querySelector('.badge').textContent.trim();
+            const orderDate = new Date(order.querySelector('.card-header span').textContent.trim());
+
+            let showOrder = true;
+
+            // Filter by status
+            if (status && orderStatus !== status) {
+                showOrder = false;
+            }
+
+            // Filter by date range (30 days, 6 months, 1 year)
+            if (showOrder && dateRange) {
+                const currentDate = new Date();
+                const dateThreshold = new Date(currentDate.setDate(currentDate.getDate() - dateRange));
+
+                if (orderDate < dateThreshold) {
+                    showOrder = false;
+                }
+            }
+
+            // Show or hide the order card
+            if (showOrder) {
+                order.style.display = 'block';
+            } else {
+                order.style.display = 'none';
+            }
+        });
+    }
+</script>
+
+<script>
+    $('#btnExportExcel').click(function () {
+        const fromDate = $('input[name="fromDate"]').val();
+        const toDate = $('input[name="toDate"]').val();
+        const orderStatus = $('select[name="orderStatus"]').val();
+
+        const url = `@Url.Action("ExportToExcel", "ManageOrder")?fromDate=${fromDate}&toDate=${toDate}&orderStatus=${orderStatus}`;
+        window.location.href = url;
+    });
+
+    $('#btnExportPDF').click(function () {
+         const fromDate = $('input[name="fromDate"]').val();
+        const toDate = $('input[name="toDate"]').val();
+        const orderStatus = $('select[name="orderStatus"]').val();
+
+        const url = `@Url.Action("ExportToPDF", "ManageOrder")?fromDate=${fromDate}&toDate=${toDate}&orderStatus=${orderStatus}`;
+        window.location.href = url;
+    });
+</script>
