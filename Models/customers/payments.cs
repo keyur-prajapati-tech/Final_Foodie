@@ -2,6 +2,7 @@
 {
     public class payments
     {
+        //payments table
         public int payment_id { get; set; }
         public int order_id { get; set; }
         public int razorepay_payment_id { get; set; }

@@ -70,6 +70,8 @@ namespace Foodie.Repositories
 
         void SaveOrderItem(int orderId, OrderItemModel item);
 
-        tbl_orders CreateOrder(int customer_id, decimal grand_total, string razorpayOrderId, List<tbl_order_items> items, int addressId);
+        tbl_orders CreateOrder(int customerId, decimal grandTotal, string razorpayOrderId, List<tbl_order_items> items, int addressId);
+        void UpdateOrderStatus(string razorpayOrderId, string status);
+        void SavePayment(string razorpayOrderId, string razorpayPaymentId, decimal amount, string status);
     }
 }

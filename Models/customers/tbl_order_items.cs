@@ -2,6 +2,7 @@
 {
     public class tbl_order_items
     {
+        //order items table
         public int order_item_id { get; set; }
         public int order_id { get; set; }
         public int menu_id { get; set; }

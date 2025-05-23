@@ -1,37 +1,24 @@
-﻿using Foodie.Models.customers;
+﻿using Foodie.Models;
+using Foodie.Models.customers;
 using Foodie.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Razorpay.Api;
 
 namespace Foodie.Controllers.Customer
 {
     public class displayCartController : Controller
     {
         private readonly IcustomerRepository _repository;
+        private readonly string _razorpaykey;
+        private readonly string _razorpaysecret;
 
         public displayCartController(IcustomerRepository repository)
         {
             _repository = repository;
+            _razorpaykey = "rzp_test_uIxZbgotqYKcAK";
+            _razorpaysecret = "ZFN5H6NDvYchs04zgctFnWT3";
         }
-
-        //[HttpGet]
-        //public IActionResult MenuItemDetails(int menuId)
-        //{
-        //    var item = _repository.GetMenuItem(menuId);
-        //    if(item == null)
-        //    {
-        //        return NotFound();
-        //    }
-        //    return PartialView("_MenuItemModalPartial",item);
-        //}
-
-        //public IActionResult AddToCartIteminfo()
-        //{
-        //     int customerId = Convert.ToInt32(HttpContext.Session.GetString("customer_id"));
-
-        //     var cartItems = _repository.GetCartItems(customerId);
-        //     return View(cartItems);
-        //}
 
         [HttpGet]
         public IActionResult AddToCartIteminfo()
@@ -71,19 +58,6 @@ namespace Foodie.Controllers.Customer
             return View("AddToCartIteminfo");
         }
 
-        //public IActionResult MyCart()
-        //{
-        //    int customerId = int.Parse(HttpContext.Session.GetString("customer_id"));
-        //    var cartItems = _repository.GetCartItems(customerId);
-        //    if (cartItems != null && cartItems.Count > 0)
-        //    {
-        //        return View(cartItems);
-        //    }
-        //    else
-        //    {
-        //        return View("EmptyCart");
-        //    }
-        //}
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -136,7 +110,7 @@ namespace Foodie.Controllers.Customer
         {
             var customer = _repository.GetCustomerNameAndPhone(id);
 
-            if(customer == null)
+            if (customer == null)
             {
                 return NotFound("Customer Not Found");
             }
@@ -145,7 +119,7 @@ namespace Foodie.Controllers.Customer
 
         //Increasing quantity, Decreasing quantity, Removing item, Getting total
         [HttpPost]
-        public IActionResult IncrementQuantity(int cartItemId,int customerId)
+        public IActionResult IncrementQuantity(int cartItemId, int customerId)
         {
             _repository.IncreaseQuantity(cartItemId);
             var total = _repository.GetCartTotal(customerId);
@@ -153,7 +127,7 @@ namespace Foodie.Controllers.Customer
         }
 
         [HttpPost]
-        public IActionResult DecrementQuantity(int cartItemId,int customerId)
+        public IActionResult DecrementQuantity(int cartItemId, int customerId)
         {
             _repository.DecreaseQuantity(cartItemId);
             var total = _repository.GetCartTotal(customerId);
@@ -161,7 +135,7 @@ namespace Foodie.Controllers.Customer
         }
 
         [HttpPost]
-        public IActionResult RemoveCartItem(int cartItemId,int customerId)
+        public IActionResult RemoveCartItem(int cartItemId, int customerId)
         {
             _repository.RemoveCartItem(cartItemId);
             var total = _repository.GetCartItems(customerId);
@@ -182,8 +156,8 @@ namespace Foodie.Controllers.Customer
             decimal discount = coupon != null ? coupon.discount : 0;
             decimal finalTotal = grandTotal - discount;
 
-            return Json(new 
-            { 
+            return Json(new
+            {
                 success = true,
                 grandTotal,
                 discount,
@@ -208,5 +182,78 @@ namespace Foodie.Controllers.Customer
             return Json(new { success = true, orderId = orderId });
         }
 
+        [HttpPost]
+        public IActionResult InitiateOrder([FromBody] PaymentInitiateModel model)
+        {
+            int customerId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+
+            try
+            {
+                var client = new RazorpayClient(_razorpaykey, _razorpaysecret);
+                var options = new Dictionary<string, object>
+                {
+                    { "amount", model.amount * 100 }, // Amount in paise
+                    { "currency", "INR" }
+                };
+                var order = client.Order.Create(options);
+                string razorpayOrderId = order["id"].ToString();
+
+                var orderItems = new List<tbl_order_items>();
+                foreach (var item in model.OrderItems)
+                {
+                    orderItems.Add(new tbl_order_items
+                    {
+                        menu_id = item.menu_id,
+                        quantity = item.quantity,
+                        list_price = item.listprice,
+                        discount = item.discount
+                    });
+                }
+
+                var createdOrder = _repository.CreateOrder(customerId, model.amount, razorpayOrderId, orderItems, model.address_id);
+
+                return Json(new { orderId = razorpayOrderId });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult Success([FromBody] PaymentSuccessModel model)
+        {
+            try
+            {
+                var generatedSignature = GenerateSignature(model.razorpay_order_id, model.razorpay_payment_id, _razorpaysecret);
+
+                if (generatedSignature == model.razorpay_signature)
+                {
+                    _repository.SavePayment(model.razorpay_order_id, model.razorpay_payment_id, model.amount, "Paid");
+                    _repository.UpdateOrderStatus(model.razorpay_order_id, "Paid");
+
+                    return Json(new { success = true });
+                }
+
+                return Json(new { success = false, message = "Payment verification failed" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message });
+            }
+        }
+
+        private string GenerateSignature(string orderId, string paymentId, string secret)
+        {
+            var encoding = new System.Text.UTF8Encoding();
+            byte[] keyBytes = encoding.GetBytes(secret);
+            byte[] textBytes = encoding.GetBytes($"{orderId}|{paymentId}");
+
+            using (var hmac = new System.Security.Cryptography.HMACSHA256(keyBytes))
+            {
+                byte[] hashBytes = hmac.ComputeHash(textBytes);
+                return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+            }
+        }
     }
 }

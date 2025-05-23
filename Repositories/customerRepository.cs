@@ -1301,55 +1301,86 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 cmd.ExecuteNonQuery();
             }
         }
-
-        public tbl_orders CreateOrder(int customer_id, decimal grand_total, string razorpayOrderId, List<tbl_order_items> items, int addressId)
+        public tbl_orders CreateOrder(int customerId, decimal grandTotal, string razorpayOrderId, List<tbl_order_items> items, int addressId)
         {
-            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            using (var connection = new SqlConnection(_connectionstring))
             {
-                conn.Open();
-
-                SqlTransaction transaction = conn.BeginTransaction();
+                connection.Open();
+                var transaction = connection.BeginTransaction();
 
                 try
                 {
-                    string query = @"INSERT INTO customers.tbl_orders (customer_id, order_date, order_status, grand_total, razorpay_order_id, addressid) 
-                                    OUTPUT INSERTED.order_id 
-                                    VALUES (@customer_id, GETDATE(), 'Pending', @grand_total, @razorpayOrderId, @addressId)";
-                    SqlCommand cmd = new SqlCommand(query, conn, transaction);
-                    cmd.Parameters.AddWithValue("@customer_id", customer_id);
-                    cmd.Parameters.AddWithValue("@grand_total", grand_total);
-                    cmd.Parameters.AddWithValue("@razorpayOrderId", razorpayOrderId);
-                    cmd.Parameters.AddWithValue("@addressId", addressId);
-                    int orderId = (int)cmd.ExecuteScalar();
+                    var orderQuery = @"INSERT INTO customers.tbl_orders (customer_id, order_date, order_status, grand_total, razorpay_order_id, address_id)
+                                       OUTPUT INSERTED.Id
+                                       VALUES (@CustomerId, GETDATE(), 'Pending', @GrandTotal, @RazorpayOrderId, @AddressId)";
+                    var orderCmd = new SqlCommand(orderQuery, connection, transaction);
+                    orderCmd.Parameters.AddWithValue("@CustomerId", customerId);
+                    orderCmd.Parameters.AddWithValue("@GrandTotal", grandTotal);
+                    orderCmd.Parameters.AddWithValue("@RazorpayOrderId", razorpayOrderId);
+                    orderCmd.Parameters.AddWithValue("@AddressId", addressId);
+                    var orderId = (int)orderCmd.ExecuteScalar();
 
                     foreach (var item in items)
                     {
-                        string itemQuery = "INSERT INTO customers.tbl_order_items (order_id, menu_id, quantity, list_price, discount, estimated_DATETIME) values (@order_id, @menu_id, @quantity, @list_price, @discount, @estimated_DATETIME)";
-                        var itemCmd = new SqlCommand(itemQuery, conn, transaction);
-                        itemCmd.Parameters.AddWithValue("@order_id", orderId);
-                        itemCmd.Parameters.AddWithValue("@menu_id", item.menu_id);
-                        itemCmd.Parameters.AddWithValue("@quantity", item.quantity);
-                        itemCmd.Parameters.AddWithValue("@list_price", item.list_price);
-                        itemCmd.Parameters.AddWithValue("@discount", item.discount);
-                        itemCmd.Parameters.AddWithValue("@estimated_DATETIME", DateTime.Now.AddHours(1));
-
+                        var itemQuery = @"INSERT INTO OrderItems (OrderId, MenuId, Quantity, ListPrice, Discount, EstimatedTime)
+                                          VALUES (@OrderId, @MenuId, @Quantity, @ListPrice, @Discount, @EstimatedTime)";
+                        var itemCmd = new SqlCommand(itemQuery, connection, transaction);
+                        itemCmd.Parameters.AddWithValue("@OrderId", orderId);
+                        itemCmd.Parameters.AddWithValue("@MenuId", item.menu_id);
+                        itemCmd.Parameters.AddWithValue("@Quantity", item.quantity);
+                        itemCmd.Parameters.AddWithValue("@ListPrice", item.list_price);
+                        itemCmd.Parameters.AddWithValue("@Discount", item.discount);
+                        itemCmd.Parameters.AddWithValue("@EstimatedTime", DateTime.Now.AddHours(1));
                         itemCmd.ExecuteNonQuery();
                     }
                     transaction.Commit();
+
                     return new tbl_orders
                     {
                         order_id = orderId,
-                        customer_id = customer_id,
-                        grand_total = grand_total,
+                        customer_id = customerId,
+                        grand_total = grandTotal,
                         razorpay_order_id = razorpayOrderId,
-                        order_status = "pending"
+                        order_status = "Pending",
+                        address_id = addressId,
+                        OrderItems = items
                     };
                 }
-                catch (Exception ex)
+                catch
                 {
                     transaction.Rollback();
                     throw;
                 }
+            }
+        }
+
+        public void UpdateOrderStatus(string razorpayOrderId, string status)
+        {
+            using (var conn = new SqlConnection(_connectionstring))
+            {
+                var query = "UPDATE customers.tbl_orders SET order_status = @OrderStatus WHERE RazorpayOrderId = @RazorpayOrderId";
+                var cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@RazorpayOrderId", razorpayOrderId);
+                cmd.Parameters.AddWithValue("@OrderStatus", status);
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        public void SavePayment(string razorpayOrderId, string razorpayPaymentId, decimal amount, string status)
+        {
+            using (var conn = new SqlConnection(_connectionstring))
+            {
+                var query = @"INSERT INTO payments (order_id, razorpay_payment_id, amount, payment_status, payment_date)
+                              SELECT Id, @RazorpayPaymentId, @Amount, @Status, GETDATE()
+                              FROM Orders WHERE RazorpayOrderId = @RazorpayOrderId";
+                var cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@RazorpayOrderId", razorpayOrderId);
+                cmd.Parameters.AddWithValue("@RazorpayPaymentId", razorpayPaymentId);
+                cmd.Parameters.AddWithValue("@Amount", amount);
+                cmd.Parameters.AddWithValue("@Status", status);
+                conn.Open();
+                cmd.ExecuteNonQuery();
             }
         }
     }
