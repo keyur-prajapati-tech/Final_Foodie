@@ -1310,7 +1310,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
 
                 try
                 {
-                    var orderQuery = @"INSERT INTO customers.tbl_orders (customer_id, order_date, order_status, grand_total, razorpay_order_id, address_id)
+                    var orderQuery = @"INSERT INTO customers.tbl_orders (customer_id, order_date, order_status, grand_total, razorpay_order_id, addressid)
                                        OUTPUT INSERTED.Id
                                        VALUES (@CustomerId, GETDATE(), 'Pending', @GrandTotal, @RazorpayOrderId, @AddressId)";
                     var orderCmd = new SqlCommand(orderQuery, connection, transaction);
@@ -1322,10 +1322,10 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
 
                     foreach (var item in items)
                     {
-                        var itemQuery = @"INSERT INTO OrderItems (OrderId, MenuId, Quantity, ListPrice, Discount, EstimatedTime)
+                        var itemQuery = @"INSERT INTO customers.tbl_order_items (order_id, menu_id, quantity, list_price, discount, estimated_DATETIME)
                                           VALUES (@OrderId, @MenuId, @Quantity, @ListPrice, @Discount, @EstimatedTime)";
                         var itemCmd = new SqlCommand(itemQuery, connection, transaction);
-                        itemCmd.Parameters.AddWithValue("@OrderId", orderId);
+                        itemCmd.Parameters.AddWithValue("@OrderId", item.order_id);
                         itemCmd.Parameters.AddWithValue("@MenuId", item.menu_id);
                         itemCmd.Parameters.AddWithValue("@Quantity", item.quantity);
                         itemCmd.Parameters.AddWithValue("@ListPrice", item.list_price);
@@ -1342,7 +1342,6 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                         grand_total = grandTotal,
                         razorpay_order_id = razorpayOrderId,
                         order_status = "Pending",
-                        address_id = addressId,
                         OrderItems = items
                     };
                 }

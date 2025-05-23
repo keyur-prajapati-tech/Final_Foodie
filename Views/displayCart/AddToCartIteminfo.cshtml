@@ -37,6 +37,40 @@
         font-size: 14px;
         padding: 5px 10px;
     }
+
+    <style >
+    /* Add these new styles */
+    #minimumAmountWarning {
+        color: #dc3545;
+        font-size: 0.9rem;
+        margin-top: 5px;
+        display: none;
+    }
+
+    .cart-summary.low-amount {
+        border-left: 4px solid #ffc107;
+        background-color: #fff8e1;
+    }
+
+    #orderNowBtn:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    .btn-secondary[title]:hover:after {
+        content: attr(title);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #333;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 4px;
+        white-space: nowrap;
+        font-size: 12px;
+    }
+</style>
 </style>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -133,9 +167,15 @@
                     <h5>Discount:</h5>
                     <h5 class="text-danger fw-bold">₹<span id="discount">0</span></h5>
                 </div>
+
                 <div class="d-flex justify-content-between p-2 border-top border-dark">
                     <h4>Payable:</h4>
                     <h4 class="text-primary fw-bold">₹<span id="final-total">0</span></h4>
+                </div>
+
+                <!-- Add this new warning message -->
+                <div id="minimumAmountWarning" class="payment-error text-danger text-center mt-2">
+                    <i class="fas fa-exclamation-circle"></i> Minimum order amount is ₹1. Please add more items.
                 </div>
 
                 <input type="hidden" id="razor-amount" value="0" />
@@ -260,6 +300,7 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     // Global variables
     let selectedAddressId = null;
@@ -305,6 +346,7 @@
         // Calculate totals on page load
         calculateTotals();
         updateTotalWithCoupon();
+        updateCartUI();
 
         // Address selection
         $(document).on('change', '.address-radio', function() {
@@ -315,7 +357,12 @@
         // Payment button click
         $(document).on('click', '#orderNowBtn', function() {
             if (!selectedAddressId) {
-                alert("Please select a delivery address.");
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Address Required',
+                    text: 'Please select a delivery address.',
+                    confirmButtonColor: '#3085d6',
+                });
                 return;
             }
             makePayment(selectedAddressId);
@@ -330,6 +377,7 @@
             qtyEl.text(newQty);
             calculateTotals();
             updateCartItemQuantity(cartItemId, newQty);
+            updateCartUI();
         });
 
         $(document).on('click', '.qty-minus', function() {
@@ -341,12 +389,14 @@
             qtyEl.text(newQty);
             calculateTotals();
             updateCartItemQuantity(cartItemId, newQty);
+            updateCartUI();
         });
 
         // Remove item
         $(document).on('click', '.btn-remove', function() {
             const cartItemId = $(this).closest('.cart-item').data('cart-item-id');
             removeCartItem(cartItemId);
+            updateCartUI();
         });
 
         // Load states
@@ -411,15 +461,30 @@
                 data: $.param(formData),
                 success: function(response) {
                     if (response.success) {
-                        alert(response.message);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Address Saved',
+                            text: response.message,
+                            confirmButtonColor: '#3085d6',
+                        });
                         $('#addressModal').modal('hide');
                         form.trigger('reset');
                     } else {
-                        alert("Error: " + response.message);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message,
+                            confirmButtonColor: '#3085d6',
+                        });
                     }
                 },
                 error: function() {
-                    alert("Something went wrong while saving address.");
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong while saving address.',
+                        confirmButtonColor: '#3085d6',
+                    });
                 }
             });
         });
@@ -429,6 +494,30 @@
             $('#couponListContainer').load('/displayCart/GetAllCoupons');
         });
     });
+
+    // Update cart UI based on total
+    function updateCartUI() {
+        const grandTotal = parseFloat($('#final-total').text()) || 0;
+        const $warning = $('#minimumAmountWarning');
+        const $summary = $('.card.p-3'); // Target the order summary card
+        const $payBtn = $('#orderNowBtn');
+
+        if (grandTotal < 1) {
+            $warning.show();
+            $summary.addClass('low-amount');
+            $payBtn.prop('disabled', true)
+                   .removeClass('btn-outline-success')
+                   .addClass('btn-secondary')
+                   .attr('title', 'Minimum order amount is ₹1');
+        } else {
+            $warning.hide();
+            $summary.removeClass('low-amount');
+            $payBtn.prop('disabled', false)
+                   .addClass('btn-outline-success')
+                   .removeClass('btn-secondary')
+                   .removeAttr('title');
+        }
+    }
 
     // Calculate totals function
     function calculateTotals() {
@@ -444,6 +533,9 @@
         });
 
         $('#grand-total').text(grandTotal.toFixed(2));
+        $('#final-total').text(grandTotal.toFixed(2));
+        $('#razor-amount').val(grandTotal.toFixed(2));
+
         return grandTotal;
     }
 
@@ -458,7 +550,12 @@
             },
             success: function(response) {
                 if (!response.success) {
-                    alert('Failed to update quantity');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to update quantity',
+                        confirmButtonColor: '#3085d6',
+                    });
                 }
             }
         });
@@ -466,21 +563,37 @@
 
     // Remove cart item
     function removeCartItem(cartItemId) {
-        if (confirm('Are you sure you want to remove this item?')) {
-            $.ajax({
-                url: '/displayCart/RemoveCartItem',
-                method: 'POST',
-                data: { cartItemId: cartItemId },
-                success: function(response) {
-                    if (response.success) {
-                        $('.cart-item[data-cart-item-id="' + cartItemId + '"]').closest('.p-2').remove();
-                        calculateTotals();
-                    } else {
-                        alert('Failed to remove item');
+        Swal.fire({
+            title: 'Remove Item',
+            text: 'Are you sure you want to remove this item?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, remove it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/displayCart/RemoveCartItem',
+                    method: 'POST',
+                    data: { cartItemId: cartItemId },
+                    success: function(response) {
+                        if (response.success) {
+                            $('.cart-item[data-cart-item-id="' + cartItemId + '"]').closest('.p-2').remove();
+                            calculateTotals();
+                            updateCartUI();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Failed to remove item',
+                                confirmButtonColor: '#3085d6',
+                            });
+                        }
                     }
-                }
-            });
-        }
+                });
+            }
+        });
     }
 
     // Update total with coupon
@@ -493,6 +606,7 @@
                 $('#discount').text(res.discount.toFixed(2));
                 $('#final-total').text(res.finalTotal.toFixed(2));
                 $('#razor-amount').val(res.finalTotal);
+                updateCartUI();
             }
         });
     }
@@ -502,88 +616,151 @@
         const grandTotal = parseFloat($('#final-total').text());
         const customerId = $('#customerId').val();
 
-        if (!customerId) {
-            alert('Customer information not found. Please login again.');
+        // Show loading state
+        const $payBtn = $('#orderNowBtn');
+        $payBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Processing...');
+
+        // Validate minimum amount
+        if (grandTotal < 1) {
+            $payBtn.prop('disabled', false).text('Pay Now');
+            Swal.fire({
+                icon: 'error',
+                title: 'Minimum Order Amount',
+                text: 'Order amount must be at least ₹1. Please add more items to your cart.',
+                confirmButtonColor: '#3085d6',
+            });
             return;
         }
 
         const orderItems = [];
         $('.cart-item').each(function() {
-            const menu_id = $(this).data('menu_id');
+            const menu_id = $(this).data('product-id');
             const quantity = parseInt($(this).find('.qty').text());
-            const price = parseFloat($(this).data('amount'));
+            const price = parseFloat($(this).data('price'));
 
             orderItems.push({
-                MenuId: menu_id,
-                Quantity: quantity,
-                Price: amount
+                menu_id: menu_id,
+                quantity: quantity,
+                listprice: price,
+                discount: 0
             });
         });
 
         fetch('/displayCart/InitiateOrder', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+            },
             body: JSON.stringify({
-                Amount: grandTotal,
-                orderItems: orderItems,
-                AddressId: addressId,
+                amount: grandTotal,
+                OrderItems: orderItems,
+                address_id: addressId,
                 CustomerId: customerId
             })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
         .then(data => {
-            if (data.orderId) {
-                const options = {
-                    "key": "rzp_test_uIxZbgotqYKcAK",
-                    "amount": grandTotal * 100,
-                    "currency": "INR",
-                    "name": "Foodie Order",
-                    "description": "Tasty Food Order Payment",
-                    "order_id": data.orderId,
-                    "handler": function(response) {
-                        const paymentData = {
-                            razorpay_payment_id: response.razorpay_payment_id,
-                            razorpay_order_id: response.razorpay_order_id,
-                            razorpay_signature: response.razorpay_signature,
-                            amount: grandTotal,
-                            addressId: addressId,
-                            customerId: customerId
-                        };
+            $payBtn.prop('disabled', false).text('Pay Now');
 
-                        fetch('/displayCart/Success', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(paymentData)
-                        })
-                        .then(res => res.json())
-                        .then(response => {
-                            if (response.success) {
-                                window.location.href = '/displayCart/ThankYou';
-                            } else {
-                                alert('Payment verification failed');
-                            }
-                        });
-                    },
-                    "prefill": {
-                        "name": "@userName",
-                        "email": "",
-                        "contact": "@phone"
-                    },
-                    "theme": {
-                        "color": "#3399cc"
-                    }
-                };
-
-                const rzp1 = new Razorpay(options);
-                rzp1.open();
-                console.log(grandTotal);
-            } else {
-                alert('Error creating Razorpay order: ' + (data.error || 'Unknown error'));
+            if (data.minimumAmountError) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Order Too Small',
+                    text: data.message,
+                    confirmButtonColor: '#3085d6',
+                });
+                return;
             }
+
+            if (!data.success) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Payment Error',
+                    text: data.message || 'Failed to initiate payment',
+                    confirmButtonColor: '#3085d6',
+                });
+                return;
+            }
+
+            const options = {
+                key: "rzp_test_uIxZbgotqYKcAK",
+                amount: data.amount,
+                currency: "INR",
+                name: "Foodie Order",
+                description: "Order Payment",
+                order_id: data.orderId,
+                handler: function(response) {
+                    verifyPayment(response, grandTotal, addressId, customerId);
+                },
+                prefill: {
+                    name: "@userName",
+                    contact: "@phone",
+                    email: ""
+                },
+                theme: {
+                    color: "#3399cc"
+                },
+                modal: {
+                    ondismiss: function() {
+                        $payBtn.prop('disabled', false).text('Pay Now');
+                    }
+                }
+            };
+
+            const rzp1 = new Razorpay(options);
+            rzp1.open();
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('An error occurred while processing your payment.');
+            $payBtn.prop('disabled', false).text('Pay Now');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred. Please try again.',
+                confirmButtonColor: '#3085d6',
+            });
+        });
+    }
+
+    function verifyPayment(response, amount, addressId, customerId) {
+        fetch('/displayCart/Success', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+            },
+            body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                amount: amount,
+                addressId: addressId,
+                customerId: customerId
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Payment Successful',
+                    text: 'Your order has been placed successfully!',
+                    confirmButtonColor: '#3085d6',
+                }).then(() => {
+                    window.location.href = '/displayCart/ThankYou';
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Payment Verification Failed',
+                    text: data.message || 'Could not verify your payment',
+                    confirmButtonColor: '#3085d6',
+                });
+            }
         });
     }
 </script>
