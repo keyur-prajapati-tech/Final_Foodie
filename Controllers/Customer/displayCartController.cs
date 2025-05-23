@@ -117,31 +117,6 @@ namespace Foodie.Controllers.Customer
             return View(customer);
         }
 
-        //Increasing quantity, Decreasing quantity, Removing item, Getting total
-        [HttpPost]
-        public IActionResult IncrementQuantity(int cartItemId, int customerId)
-        {
-            _repository.IncreaseQuantity(cartItemId);
-            var total = _repository.GetCartTotal(customerId);
-            return Json(new { success = true, total });
-        }
-
-        [HttpPost]
-        public IActionResult DecrementQuantity(int cartItemId, int customerId)
-        {
-            _repository.DecreaseQuantity(cartItemId);
-            var total = _repository.GetCartTotal(customerId);
-            return Json(new { success = true, total });
-        }
-
-        [HttpPost]
-        public IActionResult RemoveCartItem(int cartItemId, int customerId)
-        {
-            _repository.RemoveCartItem(cartItemId);
-            var total = _repository.GetCartItems(customerId);
-            return Json(new { success = true, total });
-        }
-
         public IActionResult GetAllCoupons()
         {
             var coupons = _repository.GetAllCoupons();
@@ -182,19 +157,72 @@ namespace Foodie.Controllers.Customer
             return Json(new { success = true, orderId = orderId });
         }
 
+        //[HttpPost]
+        //public IActionResult InitiateOrder([FromBody] PaymentInitiateModel model)
+        //{
+        //    int customerId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+
+        //    try
+        //    {
+        //        var client = new RazorpayClient(_razorpaykey, _razorpaysecret);
+        //        var options = new Dictionary<string, object>
+        //        {
+        //            { "amount", model.amount * 100 }, // Amount in paise
+        //            { "currency", "INR" }
+        //        };
+        //        var order = client.Order.Create(options);
+        //        string razorpayOrderId = order["id"].ToString();
+
+        //        var orderItems = new List<tbl_order_items>();
+        //        foreach (var item in model.OrderItems)
+        //        {
+        //            orderItems.Add(new tbl_order_items
+        //            {
+        //                menu_id = item.menu_id,
+        //                quantity = item.quantity,
+        //                list_price = item.listprice,
+        //                discount = item.discount
+        //            });
+        //        }
+
+        //        var createdOrder = _repository.CreateOrder(customerId, model.amount, razorpayOrderId, orderItems, model.address_id);
+
+        //        return Json(new { orderId = razorpayOrderId });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Json(new { error = ex.Message });
+        //    }
+        //}
         [HttpPost]
         public IActionResult InitiateOrder([FromBody] PaymentInitiateModel model)
         {
+            // Validate minimum amount (₹1)
+            if (model.amount < 1)
+            {
+                return Json(new { error = "Order amount must be at least ₹1. Please add more items to your cart." });
+            }
+
             int customerId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
 
             try
             {
                 var client = new RazorpayClient(_razorpaykey, _razorpaysecret);
+
+                // Convert to paise and ensure it's an integer
+                int amountInPaise = (int)(model.amount * 100);
+
+                // Generate a short receipt ID (under 40 chars)
+                string receiptId = "FT" + DateTime.Now.ToString("yyyyMMddHHmmssfff").Substring(0, 14);
+
                 var options = new Dictionary<string, object>
-                {
-                    { "amount", model.amount * 100 }, // Amount in paise
-                    { "currency", "INR" }
-                };
+        {
+            { "amount", amountInPaise }, // Use the converted paise value
+            { "currency", "INR" },
+            { "receipt", receiptId }, // Add receipt ID
+            { "payment_capture", 1 } // Auto-capture payment
+        };
+
                 var order = client.Order.Create(options);
                 string razorpayOrderId = order["id"].ToString();
 
@@ -206,17 +234,31 @@ namespace Foodie.Controllers.Customer
                         menu_id = item.menu_id,
                         quantity = item.quantity,
                         list_price = item.listprice,
-                        discount = item.discount
+                        discount = item.discount,
+                        estimated_time = DateTime.Now
                     });
                 }
 
-                var createdOrder = _repository.CreateOrder(customerId, model.amount, razorpayOrderId, orderItems, model.address_id);
+                var createdOrder = _repository.CreateOrder(
+                    customerId,
+                    model.amount,
+                    razorpayOrderId,
+                    orderItems,
+                    model.address_id
+                );
 
-                return Json(new { orderId = razorpayOrderId });
+                return Json(new
+                {
+                    orderId = razorpayOrderId,
+                    amount = amountInPaise,
+                    receipt = receiptId
+                });
             }
             catch (Exception ex)
             {
-                return Json(new { error = ex.Message });
+                // Log the error
+                ex.Message.ToString();
+                return Json(new { error = "An error occurred while processing your payment. Please try again." });
             }
         }
 
@@ -255,5 +297,51 @@ namespace Foodie.Controllers.Customer
                 return BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
             }
         }
+
+        //Increasing quantity, Decreasing quantity, Removing item, Getting total
+        [HttpPost]
+        public IActionResult IncrementQuantity(int cartItemId, int customerId)
+        {
+            _repository.IncreaseQuantity(cartItemId);
+            var total = _repository.GetCartTotal(customerId);
+            return Json(new { success = true, total });
+        }
+
+        [HttpPost]
+        public IActionResult DecrementQuantity(int cartItemId, int customerId)
+        {
+            _repository.DecreaseQuantity(cartItemId);
+            var total = _repository.GetCartTotal(customerId);
+            return Json(new { success = true, total });
+        }
+
+        [HttpPost]
+        public IActionResult RemoveCartItem(int cartItemId, int customerId)
+        {
+            _repository.RemoveCartItem(cartItemId);
+            var total = _repository.GetCartItems(customerId);
+            return Json(new { success = true, total });
+        }
+
+        [HttpPost]
+        public IActionResult UpdateCartItemQuantity(int cartItemId, int quantity)
+        {
+            if (cartItemId <= 0 || quantity <= 0)
+            {
+                return BadRequest("Invalid input");
+            }
+
+            bool updated = _repository.UpdateCartItemQuantity(cartItemId, quantity);
+
+            if (updated)
+            {
+                return Ok(new { success = true, message = "Quantity updated" });
+            }
+            else
+            {
+                return NotFound(new { success = false, message = "Cart item not found" });
+            }
+        }
+
     }
 }

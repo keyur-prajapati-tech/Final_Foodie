@@ -73,5 +73,9 @@ namespace Foodie.Repositories
         tbl_orders CreateOrder(int customerId, decimal grandTotal, string razorpayOrderId, List<tbl_order_items> items, int addressId);
         void UpdateOrderStatus(string razorpayOrderId, string status);
         void SavePayment(string razorpayOrderId, string razorpayPaymentId, decimal amount, string status);
+
+        //update quantity
+        bool UpdateCartItemQuantity(int cartItemId, int newQuantity);
+        tbl_cart_item GetCartItemById(int cartItemId);
     }
 }

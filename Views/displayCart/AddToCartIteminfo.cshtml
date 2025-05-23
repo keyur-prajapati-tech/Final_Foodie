@@ -509,14 +509,14 @@
 
         const orderItems = [];
         $('.cart-item').each(function() {
-            const productId = $(this).data('product-id');
+            const menu_id = $(this).data('menu_id');
             const quantity = parseInt($(this).find('.qty').text());
-            const price = parseFloat($(this).data('price'));
+            const price = parseFloat($(this).data('amount'));
 
             orderItems.push({
-                ProductId: productId,
+                MenuId: menu_id,
                 Quantity: quantity,
-                Price: price
+                Price: amount
             });
         });
 

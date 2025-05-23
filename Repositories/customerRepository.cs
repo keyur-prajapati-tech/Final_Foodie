@@ -1383,5 +1383,48 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 cmd.ExecuteNonQuery();
             }
         }
+
+        public bool UpdateCartItemQuantity(int cartItemId, int newQuantity)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string sql = "UPDATE customers.tbl_cart_item SET quantity = @Quantity WHERE cart_item_id = @CartItemId";
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@Quantity", newQuantity);
+                cmd.Parameters.AddWithValue("@CartItemId", cartItemId);
+
+                conn.Open();
+                int rowsAffected = cmd.ExecuteNonQuery();
+                return rowsAffected > 0;
+            }
+        }
+
+        public tbl_cart_item GetCartItemById(int cartItemId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string sql = "SELECT * FROM customers.tbl_cart_item WHERE cart_item_id = @CartItemId";
+                SqlCommand cmd = new SqlCommand(sql, conn);
+                cmd.Parameters.AddWithValue("@CartItemId", cartItemId);
+
+                conn.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return new tbl_cart_item
+                        {
+                            cart_item_id = Convert.ToInt32(reader["cart_item_id"]),
+                            cart_id = Convert.ToInt32(reader["cart_id"]),
+                            menu_id = Convert.ToInt32(reader["menu_id"]),
+                            quantity = Convert.ToInt32(reader["quantity"]),
+                            price = Convert.ToDecimal(reader["price"]),
+                            coupone_id = Convert.ToInt32(reader["coupone_id"])
+                        };
+                    }
+                }
+            }
+            return null;
+        }
     }
 }
