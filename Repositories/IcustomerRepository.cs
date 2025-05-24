@@ -1,4 +1,5 @@
-﻿using Foodie.Models.Admin;
+﻿using Foodie.Models;
+using Foodie.Models.Admin;
 using Foodie.Models.customers;
 using Foodie.Models.Restaurant;
 using static Foodie.Models.customers.tbl_coupone;
@@ -21,6 +22,8 @@ namespace Foodie.Repositories
         tbl_customer ValidateCustomerLogin(string email, string password);
         public tbl_restaurant ValidateRestaurantLogin(string email, string password);
         List<tbl_menu_items> GetAllMenuItems();
+        IEnumerable<tbl_menu_items> GetMenuItemsByRestaurant(int restaurantId);
+
 
 
         List<CartItemViewModel> GetCartItems(int customerId);
@@ -47,10 +50,6 @@ namespace Foodie.Repositories
 
         decimal CalculateGrandTotal(int customer_id);
 
-        int PlaceOrder(int customer_id, int? coupone_id, int address_id, int paymentModeId, decimal totalAmount, decimal discount, string razorpayPaymentId, string razorpayOrderId);
-
-        void SaveOrderItem(int orderId, int menuId, int quantity, decimal price, decimal discount);
-
         IEnumerable<tbl_special_offers> GetAllActiveOffers();
         IEnumerable<tbl_special_offers> GetOffers();
         tbl_special_offers GetOfferById(int offerId);
@@ -60,5 +59,23 @@ namespace Foodie.Repositories
 
         //demo to display all restaurant info
         List<RestaurantCardViewModel> getAppovedOnlineRestaurants();
+        //display top content in restaurant details
+        //RestaurantDetailsViewModel getRestaurantDetailsByresId(int restaurantId);
+
+        List<MenuItemViewModel> GetInspirationItems();
+        MenuItemViewModel GetInspireMenuItemById(int menuid);
+        List<AvailableDishViewModel> GetDeliveryFoods(int menuId);
+
+        int PlaceOrder(RazorPayViewModel model);
+
+        void SaveOrderItem(int orderId, OrderItemModel item);
+
+        tbl_orders CreateOrder(int customerId, decimal grandTotal, string razorpayOrderId, List<tbl_order_items> items, int addressId);
+        void UpdateOrderStatus(string razorpayOrderId, string status);
+        void SavePayment(string razorpayOrderId, string razorpayPaymentId, decimal amount, string status);
+
+        //update quantity
+        bool UpdateCartItemQuantity(int cartItemId, int newQuantity);
+        tbl_cart_item GetCartItemById(int cartItemId);
     }
 }

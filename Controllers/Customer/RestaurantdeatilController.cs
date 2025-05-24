@@ -12,9 +12,9 @@ namespace Foodie.Controllers.Customer
             _repository = repository;
         }
 
-        public IActionResult Restuarantinfo()
+        public IActionResult Restuarantinfo(int id)
         {
-            var items = _repository.GetAllMenuItems();
+            var items = _repository.GetMenuItemsByRestaurant(id);
             return View(items);
         }
 

@@ -1,4 +1,7 @@
 ﻿@model List<Foodie.Models.Restaurant.tbl_menu_items>
+@{
+    var itemlist = Model.ToList();
+}
 
 <!DOCTYPE html>
 <html>
@@ -8,482 +11,482 @@
 
     <style>
         .container {
-            max-width: 1100px;
+        max-width: 1100px;
         }
 
         .logo img {
-            width: 350%;
-            height: 50%;
+        width: 350%;
+        height: 50%;
         }
 
         .search-bar input {
-            width: 350px;
-            border-radius: 5px;
-            padding: 8px;
+        width: 350px;
+        border-radius: 5px;
+        padding: 8px;
         }
 
         .auth-links a {
-            text-decoration: none;
-            color: black;
-            font-weight: bold;
+        text-decoration: none;
+        color: black;
+        font-weight: bold;
         }
 
         .tabs {
-            display: flex;
-            gap: 20px;
+        display: flex;
+        gap: 20px;
         }
 
         .tab {
-            text-decoration: none;
-            color: black;
-            font-size: 18px;
-            font-weight: bold;
-            padding-bottom: 5px;
-            border-bottom: 2px solid transparent;
+        text-decoration: none;
+        color: black;
+        font-size: 18px;
+        font-weight: bold;
+        padding-bottom: 5px;
+        border-bottom: 2px solid transparent;
         }
 
-            .tab.active {
-                color: red;
-                border-bottom: 2px solid red;
-            }
+        .tab.active {
+        color: red;
+        border-bottom: 2px solid red;
+        }
 
         .filters {
-            margin-top: 10px;
+        margin-top: 10px;
         }
 
         .btn {
-            border-radius: 5px;
-            padding: 8px 12px;
+        border-radius: 5px;
+        padding: 8px 12px;
         }
 
         .footer {
-            background-color: #f8f8f8;
-            padding: 40px 0;
-            font-size: 14px;
-            color: #555;
+        background-color: #f8f8f8;
+        padding: 40px 0;
+        font-size: 14px;
+        color: #555;
         }
 
         .footer-logo {
-            width: 150px;
-            height: 60px;
-            margin-bottom: 20px;
+        width: 150px;
+        height: 60px;
+        margin-bottom: 20px;
         }
 
         .footer h6 {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #333;
+        font-weight: bold;
+        margin-bottom: 10px;
+        color: #333;
         }
 
         .footer ul {
-            list-style: none;
-            padding: 0;
+        list-style: none;
+        padding: 0;
         }
 
-            .footer ul li {
-                margin-bottom: 8px;
-            }
+        .footer ul li {
+        margin-bottom: 8px;
+        }
 
-                .footer ul li a {
-                    text-decoration: none;
-                    color: #555;
-                }
+        .footer ul li a {
+        text-decoration: none;
+        color: #555;
+        }
 
-                    .footer ul li a:hover {
-                        color: red;
-                    }
+        .footer ul li a:hover {
+        color: red;
+        }
 
         .social-icons a {
-            font-size: 20px;
-            margin: 0 10px;
-            color: #555;
+        font-size: 20px;
+        margin: 0 10px;
+        color: #555;
         }
 
-            .social-icons a:hover {
-                color: red;
-            }
+        .social-icons a:hover {
+        color: red;
+        }
 
         .app-links img {
-            width: 120px;
-            margin: 5px;
+        width: 120px;
+        margin: 5px;
         }
 
         .footer-dropdown {
-            padding: 5px 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            margin: 5px;
-            background: white;
-            cursor: pointer;
+        padding: 5px 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin: 5px;
+        background: white;
+        cursor: pointer;
         }
 
         .footer-text {
-            font-size: 12px;
-            color: #777;
+        font-size: 12px;
+        color: #777;
         }
 
-            .footer-text a {
-                color: #555;
-            }
+        .footer-text a {
+        color: #555;
+        }
 
-                .footer-text a:hover {
-                    color: red;
-                }
+        .footer-text a:hover {
+        color: red;
+        }
 
 
         .menu-sidebar {
-            position: sticky;
-            top: 0;
-            height: 100vh;
-            overflow-y: auto;
-            border-right: 1px solid #ddd;
-            background-color: #fff;
-            padding-top: 20px;
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+        border-right: 1px solid #ddd;
+        background-color: #fff;
+        padding-top: 20px;
         }
 
-            .menu-sidebar a {
-                text-decoration: none;
-                color: #333;
-                display: block;
-                padding: 10px 15px;
-                border-radius: 5px;
-            }
+        .menu-sidebar a {
+        text-decoration: none;
+        color: #333;
+        display: block;
+        padding: 10px 15px;
+        border-radius: 5px;
+        }
 
-                .menu-sidebar a.active,
-                .menu-sidebar a:hover {
-                    background-color: #ffebeb;
-                    font-weight: bold;
-                    color: #d32f2f;
-                }
+        .menu-sidebar a.active,
+        .menu-sidebar a:hover {
+        background-color: #ffebeb;
+        font-weight: bold;
+        color: #d32f2f;
+        }
 
         .menu-content {
-            padding: 20px;
+        padding: 20px;
         }
 
         .menu-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
         }
 
-            .menu-item img {
-                width: 100px;
-                height: 100px;
-                object-fit: cover;
-                border-radius: 10px;
-                margin-right: 15px;
-            }
+        .menu-item img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 10px;
+        margin-right: 15px;
+        }
 
         .nav-tabs {
-            border-bottom: 2px solid #eee;
+        border-bottom: 2px solid #eee;
         }
 
-            /* Active Tab */
-            .nav-tabs .nav-link {
-                color: #555;
-                font-size: 16px;
-                padding: 10px 20px;
-            }
+        /* Active Tab */
+        .nav-tabs .nav-link {
+        color: #555;
+        font-size: 16px;
+        padding: 10px 20px;
+        }
 
-                /* Active Tab Highlight */
-                .nav-tabs .nav-link.active {
-                    font-weight: bold;
-                    color: #d32f2f;
-                    border-bottom: 3px solid #d32f2f;
-                }
+        /* Active Tab Highlight */
+        .nav-tabs .nav-link.active {
+        font-weight: bold;
+        color: #d32f2f;
+        border-bottom: 3px solid #d32f2f;
+        }
 
         /* Sticky Navbar */
         .sticky-navbar {
-            position: sticky;
-            top: 0;
-            background-color: #fff;
-            z-index: 1000;
+        position: sticky;
+        top: 0;
+        background-color: #fff;
+        z-index: 1000;
         }
 
         /*Review Section Custome Css*/
         .review-container {
-            max-width: 800px;
-            margin: 20px auto;
+        max-width: 800px;
+        margin: 20px auto;
         }
 
         .review-card {
-            border-bottom: 1px solid #ddd;
-            padding: 15px 0;
+        border-bottom: 1px solid #ddd;
+        padding: 15px 0;
         }
 
         .review-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
         }
 
         .user-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
         }
 
         .user-img {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #ccc;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #ccc;
         }
 
         .review-actions {
-            display: flex;
-            gap: 15px;
-            font-size: 14px;
-            color: gray;
+        display: flex;
+        gap: 15px;
+        font-size: 14px;
+        color: gray;
         }
 
         .btn-follow {
-            border: 1px solid #ff5757;
-            color: #ff5757;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 14px;
-            background: none;
-            cursor: pointer;
+        border: 1px solid #ff5757;
+        color: #ff5757;
+        padding: 5px 10px;
+        border-radius: 20px;
+        font-size: 14px;
+        background: none;
+        cursor: pointer;
         }
 
-            .btn-follow:hover {
-                background: #ff5757;
-                color: #fff;
-            }
+        .btn-follow:hover {
+        background: #ff5757;
+        color: #fff;
+        }
 
         .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 15px;
+        display: flex;
+        justify-content: center;
+        margin-top: 15px;
         }
 
-            .pagination .page-item a {
-                color: #ff5757;
-            }
+        .pagination .page-item a {
+        color: #ff5757;
+        }
 
         /*gallery section custome css*/
         .filter-buttons {
-            margin-bottom: 20px;
+        margin-bottom: 20px;
         }
 
-            .filter-buttons button {
-                border: none;
-                padding: 8px 15px;
-                margin-right: 5px;
-                border-radius: 20px;
-                font-size: 14px;
-                cursor: pointer;
-            }
+        .filter-buttons button {
+        border: none;
+        padding: 8px 15px;
+        margin-right: 5px;
+        border-radius: 20px;
+        font-size: 14px;
+        cursor: pointer;
+        }
 
-            .filter-buttons .active {
-                background-color: #ff5757;
-                color: white;
-            }
+        .filter-buttons .active {
+        background-color: #ff5757;
+        color: white;
+        }
 
         .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 10px;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 10px;
         }
 
-            .gallery img {
-                width: 100%;
-                height: 150px;
-                object-fit: cover;
-                border-radius: 5px;
-                transition: transform 0.3s ease-in-out;
-            }
+        .gallery img {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 5px;
+        transition: transform 0.3s ease-in-out;
+        }
 
-                .gallery img:hover {
-                    transform: scale(1.05);
-                }
+        .gallery img:hover {
+        transform: scale(1.05);
+        }
 
         .related-section {
-            max-width: 1500px;
-            margin: auto;
+        max-width: 1500px;
+        margin: auto;
         }
 
         .section-title {
-            font-size: 14px;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin: 15px 0 5px;
+        font-size: 14px;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin: 15px 0 5px;
         }
 
         .related-links {
-            font-size: 14px;
-            color: #777;
-            line-height: 1.6;
+        font-size: 14px;
+        color: #777;
+        line-height: 1.6;
         }
 
-            .related-links a {
-                color: #777;
-                text-decoration: none;
-                margin-right: 5px;
-            }
+        .related-links a {
+        color: #777;
+        text-decoration: none;
+        margin-right: 5px;
+        }
 
-                .related-links a:hover {
-                    text-decoration: underline;
-                }
+        .related-links a:hover {
+        text-decoration: underline;
+        }
 
         /*Menu Section customer css*/
         .menu-header {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 15px;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 15px;
         }
 
         .menu-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
         }
 
         .menu-image img {
-            width: 150px;
-            border-radius: 10px;
+        width: 150px;
+        border-radius: 10px;
         }
 
         .menu-details {
-            font-size: 14px;
-            color: #666;
+        font-size: 14px;
+        color: #666;
         }
 
         .related-section {
-            margin-top: 20px;
+        margin-top: 20px;
         }
 
         .section-title {
-            font-size: 14px;
-            font-weight: bold;
-            text-transform: uppercase;
-            margin: 15px 0 5px;
+        font-size: 14px;
+        font-weight: bold;
+        text-transform: uppercase;
+        margin: 15px 0 5px;
         }
 
         .related-links {
-            font-size: 14px;
-            color: #777;
-            line-height: 1.6;
+        font-size: 14px;
+        color: #777;
+        line-height: 1.6;
         }
 
-            .related-links a {
-                color: #777;
-                text-decoration: none;
-                margin-right: 5px;
-            }
+        .related-links a {
+        color: #777;
+        text-decoration: none;
+        margin-right: 5px;
+        }
 
-                .related-links a:hover {
-                    text-decoration: underline;
-                }
+        .related-links a:hover {
+        text-decoration: underline;
+        }
 
         /*--------------------------------------overview section css----------------------------------------------*/
         /* Restaurant Details Section */
         h1 {
-            font-size: 28px;
-            margin-bottom: 5px;
+        font-size: 28px;
+        margin-bottom: 5px;
         }
 
         .restaurant-type, .restaurant-location {
-            font-size: 16px;
-            color: #666;
+        font-size: 16px;
+        color: #666;
         }
 
         /* Info Line */
         .restaurant-info {
-            font-size: 14px;
-            margin: 10px 0;
-            color: #444;
+        font-size: 14px;
+        margin: 10px 0;
+        color: #444;
         }
 
         .status {
-            color: #ff5733;
-            font-weight: bold;
+        color: #ff5733;
+        font-weight: bold;
         }
 
         .price {
-            font-weight: bold;
+        font-weight: bold;
         }
 
         .contact a {
-            text-decoration: none;
-            color: #007bff;
-            font-weight: bold;
+        text-decoration: none;
+        color: #007bff;
+        font-weight: bold;
         }
 
         /* Buttons */
         .buttons {
-            margin-top: 10px;
+        margin-top: 10px;
         }
 
         .btn {
-            background: none;
-            border: 1px solid #ddd;
-            padding: 8px 15px;
-            margin-right: 10px;
-            border-radius: 5px;
-            cursor: pointer;
+        background: none;
+        border: 1px solid #ddd;
+        padding: 8px 15px;
+        margin-right: 10px;
+        border-radius: 5px;
+        cursor: pointer;
         }
 
-            .btn:hover {
-                background: #f7f7f7;
-            }
+        .btn:hover {
+        background: #f7f7f7;
+        }
 
         /* Ratings */
         .ratings {
-            display: flex;
-            margin-top: 15px;
+        display: flex;
+        margin-top: 15px;
         }
 
         .rating-box {
-            background: #f2f2f2;
-            padding: 10px;
-            margin-right: 10px;
-            border-radius: 5px;
-            text-align: center;
+        background: #f2f2f2;
+        padding: 10px;
+        margin-right: 10px;
+        border-radius: 5px;
+        text-align: center;
         }
 
         .rating-value {
-            font-size: 20px;
-            font-weight: bold;
-            color: #28a745;
+        font-size: 20px;
+        font-weight: bold;
+        color: #28a745;
         }
 
         /* Gallery */
         .gallery {
-            display: flex;
-            margin-top: 20px;
+        display: flex;
+        margin-top: 20px;
         }
 
         .main-image img {
-            width: 100%;
-            height: auto;
-            border-radius: 8px;
+        width: 100%;
+        height: auto;
+        border-radius: 8px;
         }
 
         .side-images {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 5px;
-            margin-left: 10px;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 5px;
+        margin-left: 10px;
         }
 
-            .side-images img {
-                width: 100px;
-                height: 100px;
-                object-fit: cover;
-                border-radius: 5px;
-            }
+        .side-images img {
+        width: 100px;
+        height: 100px;
+        object-fit: cover;
+        border-radius: 5px;
+        }
 
         .gallery-overlay {
-            background: rgba(0, 0, 0, 0.5);
-            color: white;
-            text-align: center;
-            font-size: 14px;
-            padding: 20px;
-            border-radius: 5px;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        text-align: center;
+        font-size: 14px;
+        padding: 20px;
+        border-radius: 5px;
         }
 
 
@@ -491,346 +494,346 @@
 
         /* Layout */
         .res-container {
-            display: flex;
-            width: 100%;
-            margin: auto;
-            gap: 20px;
+        display: flex;
+        width: 100%;
+        margin: auto;
+        gap: 20px;
         }
 
         /* Left Content */
         .left-content {
-            width: 65%;
+        width: 65%;
         }
 
         /* Tabs */
         .tabs {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
         }
 
-            .tabs a {
-                text-decoration: none;
-                color: #666;
-                font-weight: bold;
-            }
+        .tabs a {
+        text-decoration: none;
+        color: #666;
+        font-weight: bold;
+        }
 
-            .tabs .active {
-                color: red;
-                border-bottom: 2px solid red;
-            }
+        .tabs .active {
+        color: red;
+        border-bottom: 2px solid red;
+        }
 
         /* Menu Section */
         .menu-section {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .cuisines {
-            margin-top: 10px;
+        margin-top: 10px;
         }
 
         .tag {
-            display: inline-block;
-            background: #f7c744;
-            padding: 5px 10px;
-            margin-right: 5px;
-            border-radius: 5px;
-            font-size: 14px;
+        display: inline-block;
+        background: #f7c744;
+        padding: 5px 10px;
+        margin-right: 5px;
+        border-radius: 5px;
+        font-size: 14px;
         }
 
         .menu-card {
-            margin-top: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        margin-top: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
         }
 
-            .menu-card img {
-                width: 100px;
-                height: 100px;
-                border-radius: 8px;
-            }
+        .menu-card img {
+        width: 100px;
+        height: 100px;
+        border-radius: 8px;
+        }
 
         /* Cost & More Info */
         .average-cost, .more-info {
-            background: white;
-            padding: 20px;
-            margin-top: 15px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background: white;
+        padding: 20px;
+        margin-top: 15px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         /* Right Content (Fixed Location Box) */
         .right-content {
-            width: 30%;
-            position: relative;
+        width: 30%;
+        position: relative;
         }
 
         .location-box {
-            position: sticky;
-            top: 20px; /* Keeps it fixed when scrolling */
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
+        position: sticky;
+        top: 20px; /* Keeps it fixed when scrolling */
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
         }
 
-            .location-box iframe {
-                border-radius: 5px;
-            }
+        .location-box iframe {
+        border-radius: 5px;
+        }
 
         .copy-btn, .direction-btn {
-            display: block;
-            width: 100%;
-            margin: 5px 0;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+        display: block;
+        width: 100%;
+        margin: 5px 0;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
         }
 
         .copy-btn {
-            background: #ddd;
+        background: #ddd;
         }
 
         .direction-btn {
-            background: red;
-            color: white;
+        background: red;
+        color: white;
         }
 
         /* Similar Restaurants */
         .similar-restaurants h2, .featured-section h2 {
-            font-size: 20px;
-            margin: 10px auto;
+        font-size: 20px;
+        margin: 10px auto;
         }
 
         .restaurant-carousel {
-            display: flex;
-            gap: 10px;
-            overflow-x: auto; /* Allows horizontal scrolling */
-            padding-bottom: 10px;
+        display: flex;
+        gap: 10px;
+        overflow-x: auto; /* Allows horizontal scrolling */
+        padding-bottom: 10px;
         }
 
         .restaurant-card {
-            width: 300px;
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
+        width: 300px;
+        background: white;
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
         }
 
-            .restaurant-card img {
-                width: 100%;
-                height: 120px;
-                border-radius: 8px;
-            }
+        .restaurant-card img {
+        width: 100%;
+        height: 120px;
+        border-radius: 8px;
+        }
 
         .rating {
-            font-size: 14px;
-            font-weight: bold;
-            color: green;
+        font-size: 14px;
+        font-weight: bold;
+        color: green;
         }
 
         /* Featured Section */
         .featured-card {
-            display: flex;
-            gap: 10px;
-            background: white;
-            padding: 10px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            align-items: center;
+        display: flex;
+        gap: 10px;
+        background: white;
+        padding: 10px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        align-items: center;
         }
 
-            .featured-card img {
-                width: 80px;
-                height: 80px;
-                border-radius: 8px;
-            }
+        .featured-card img {
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+        }
 
         .featured-text h3 {
-            margin: 0;
-            font-size: 16px;
+        margin: 0;
+        font-size: 16px;
         }
 
         .featured-text p {
-            color: red;
-            font-weight: bold;
+        color: red;
+        font-weight: bold;
         }
 
         /* Help Section */
         .help-section {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
         }
 
-            .help-section h2 {
-                font-size: 16px;
-                letter-spacing: 2px;
-                font-weight: bold;
-                text-transform: uppercase;
-                color: black;
-                margin-bottom: 15px;
-            }
+        .help-section h2 {
+        font-size: 16px;
+        letter-spacing: 2px;
+        font-weight: bold;
+        text-transform: uppercase;
+        color: black;
+        margin-bottom: 15px;
+        }
 
         .help-box {
-            padding: 10px 0;
+        padding: 10px 0;
         }
 
-            .help-box h3 {
-                font-size: 18px;
-                font-weight: bold;
-                color: black;
-            }
+        .help-box h3 {
+        font-size: 18px;
+        font-weight: bold;
+        color: black;
+        }
 
-            .help-box p {
-                color: gray;
-                font-size: 14px;
-                margin-bottom: 5px;
-            }
+        .help-box p {
+        color: gray;
+        font-size: 14px;
+        margin-bottom: 5px;
+        }
 
         .report-link, .claim-link {
-            color: red;
-            font-weight: bold;
-            text-decoration: none;
-            font-size: 14px;
+        color: red;
+        font-weight: bold;
+        text-decoration: none;
+        font-size: 14px;
         }
 
-            .report-link:hover, .claim-link:hover {
-                text-decoration: underline;
-            }
+        .report-link:hover, .claim-link:hover {
+        text-decoration: underline;
+        }
 
         hr {
-            border: none;
-            height: 1px;
-            background: lightgray;
-            margin: 10px 0;
+        border: none;
+        height: 1px;
+        background: lightgray;
+        margin: 10px 0;
         }
 
 
         /* Styling for the review pills */
         .review-pill {
-            display: inline-block;
-            padding: 10px 15px;
-            border: 1px solid #000;
-            border-radius: 5px;
-            font-size: 16px;
-            margin: 8px;
-            color: #333;
-            background-color: #fff;
-            cursor: pointer;
-            transition: 0.3s;
+        display: inline-block;
+        padding: 10px 15px;
+        border: 1px solid #000;
+        border-radius: 5px;
+        font-size: 16px;
+        margin: 8px;
+        color: #333;
+        background-color: #fff;
+        cursor: pointer;
+        transition: 0.3s;
         }
 
-            /* Hover Effect */
-            .review-pill:hover {
-                background-color: #f8f8f8;
-                border-color: #ccc;
-            }
+        /* Hover Effect */
+        .review-pill:hover {
+        background-color: #f8f8f8;
+        border-color: #ccc;
+        }
 
         /* Center Align */
         .review-container {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
         }
 
         /*------------------------Review Section---------------------------------*/
         .reviews-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 15px;
         }
 
         .filter-dropdown {
-            font-size: 14px;
-            color: #777;
-            cursor: pointer;
+        font-size: 14px;
+        color: #777;
+        cursor: pointer;
         }
 
         .review-card {
-            display: flex;
-            align-items: flex-start;
-            border-bottom: 1px solid #ddd;
-            padding: 15px 0;
+        display: flex;
+        align-items: flex-start;
+        border-bottom: 1px solid #ddd;
+        padding: 15px 0;
         }
 
         .profile-pic {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background-color: #ccc;
-            margin-right: 10px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background-color: #ccc;
+        margin-right: 10px;
         }
 
         .review-content {
-            flex-grow: 1;
+        flex-grow: 1;
         }
 
         .reviewer-name {
-            font-weight: bold;
-            font-size: 16px;
+        font-weight: bold;
+        font-size: 16px;
         }
 
         .review-meta {
-            font-size: 12px;
-            color: #777;
-            margin-top: 3px;
+        font-size: 12px;
+        color: #777;
+        margin-top: 3px;
         }
 
         .delivery-badge {
-            display: inline-block;
-            padding: 2px 6px;
-            font-size: 12px;
-            font-weight: bold;
-            border-radius: 3px;
-            color: white;
-            background-color: #ff5722;
-            margin-right: 5px;
+        display: inline-block;
+        padding: 2px 6px;
+        font-size: 12px;
+        font-weight: bold;
+        border-radius: 3px;
+        color: white;
+        background-color: #ff5722;
+        margin-right: 5px;
         }
 
         .review-text {
-            margin-top: 5px;
-            font-size: 14px;
-            color: #444;
+        margin-top: 5px;
+        font-size: 14px;
+        color: #444;
         }
 
         .review-actions {
-            margin-top: 8px;
-            font-size: 12px;
-            color: #777;
+        margin-top: 8px;
+        font-size: 12px;
+        color: #777;
         }
 
-            .review-actions span {
-                margin-right: 15px;
-                cursor: pointer;
-            }
+        .review-actions span {
+        margin-right: 15px;
+        cursor: pointer;
+        }
 
         .follow-btn {
-            border: 1px solid #ff5722;
-            color: #ff5722;
-            background: transparent;
-            padding: 5px 10px;
-            font-size: 12px;
-            border-radius: 5px;
-            cursor: pointer;
+        border: 1px solid #ff5722;
+        color: #ff5722;
+        background: transparent;
+        padding: 5px 10px;
+        font-size: 12px;
+        border-radius: 5px;
+        cursor: pointer;
         }
 
-            .follow-btn:hover {
-                background: #ff5722;
-                color: white;
-            }
+        .follow-btn:hover {
+        background: #ff5722;
+        color: white;
+        }
     </style>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
@@ -897,39 +900,39 @@
 
     <script>
         $(document).ready(function () {
-            $(".owl-carousel").owlCarousel({
-                loop: true,
-                margin: 15,
-                nav: true,
-                autoplay: true,
-                autoplayTimeout: 3000,
-                autoplayHoverPause: true,
-                responsive: {
-                    0: { items: 2 },
-                    600: { items: 4 },
-                    1000: { items: 6 }
-                },
-                navText: ["<i class='fas fa-chevron-left'></i>", "<i class='fas fa-chevron-right'></i>"]
-            });
+        $(".owl-carousel").owlCarousel({
+        loop: true,
+        margin: 15,
+        nav: true,
+        autoplay: true,
+        autoplayTimeout: 3000,
+        autoplayHoverPause: true,
+        responsive: {
+        0: { items: 2 },
+        600: { items: 4 },
+        1000: { items: 6 }
+        },
+        navText: ["<i class='fas fa-chevron-left'></i>", "<i class='fas fa-chevron-right'></i>"]
+        });
         });
 
         $(document).ready(function () {
-                $(".view-item").click(function () {
-                    var id = $(this).data("id");
-                    console.log("Clicked ID:", id); // Debug log
-                    $.ajax({
-                        url: '/Restaurantdeatil/GetItemInfo/' + id,
-                        type: 'GET',
-                        success: function (data) {
-                            $('#modalContent').html(data);
-                            $('#itemModal').modal('show');
-                        }
-                        error: function (err) {
-                            console.log("Error loading item info", err);
-                        }
-                    });
-                });
-            });
+        $(".view-item").click(function () {
+        var id = $(this).data("id");
+        console.log("Clicked ID:", id); // Debug log
+        $.ajax({
+        url: '/Restaurantdeatil/GetItemInfo/' + id,
+        type: 'GET',
+        success: function (data) {
+        $('#modalContent').html(data);
+        $('#itemModal').modal('show');
+        }
+        error: function (err) {
+        console.log("Error loading item info", err);
+        }
+        });
+        });
+        });
     </script>
     <div>
         @RenderBody()
@@ -1135,38 +1138,49 @@
                     <!-- Right Content Section -->
                     <main class="col-md-6 col-lg-12 menu-content">
 
-                        <!-- Menu Item 1 -->
-                        @foreach (var item in Model)
+                        @if (!itemlist.Any())
                         {
-                            <div class="menu-item" style="border: 3px solid #000;border-radius: 5px;padding: 5px;">
-                                <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)"
+                            <div class="no-data-box">
+                                <i class="bi bi-exclamation-circle"></i>
+                                <h3>No menu items found for this restaurant.</h3>
+                                <p>Please check back later or choose another restaurant.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- Menu Item 1 -->
+                            @foreach (var item in Model)
+                            {
+                                <div class="menu-item" style="border: 3px solid #000;border-radius: 5px;padding: 5px;">
+                                    <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)"
                                          id="itemImage" alt="@item.menu_name" style="width:150px; height:130px; object-fit:cover;border: 3px solid #000;margin-top:-60px;" />
-                                <div>
-                                    <h2>@item.menu_name</h2>
-                                    <p>@item.menu_descripation</p>
-                                    <p>₹@item.amount</p>
-                                    <a href="#">Read More</a>
-                                    <hr />
                                     <div>
-                                        <button class="btn btn-outline-info" onclick="loadItemInfo(@item.menu_id)">Item Info</button>
+                                        <h2>@item.menu_name</h2>
+                                        <p>@item.menu_descripation</p>
+                                        <p>₹@item.amount</p>
+                                        <a href="#">Read More</a>
+                                        <hr />
+                                        <div>
+                                            <button class="btn btn-outline-info" onclick="loadItemInfo(@item.menu_id)">Item Info</button>
 
-                                        <!-- Using Button for Add to Cart -->
-                                        <button type="button" class="btn btn-outline-danger add-to-cart" data-id="@item.menu_id" data-quantity="1" data-price="@item.amount">
-                                            ADD
-                                        </button>
+                                            <!-- Using Button for Add to Cart -->
+                                            <button type="button" class="btn btn-outline-danger add-to-cart" data-id="@item.menu_id" data-quantity="1" data-price="@item.amount">
+                                                ADD
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Modal Container -->
+                            <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content" id="modalContent">
+                                        <!-- AJAX loaded content will appear here -->
                                     </div>
                                 </div>
                             </div>
                         }
-
-                        <!-- Modal Container -->
-                        <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content" id="modalContent">
-                                    <!-- AJAX loaded content will appear here -->
-                                </div>
-                            </div>
-                        </div>
                     </main>
 
                 </div>

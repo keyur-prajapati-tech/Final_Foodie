@@ -1,5 +1,8 @@
-﻿@{
+﻿@model Foodie.Models.customers.MenuItemViewModel
+
+@{
     Layout = "~/Views/Shared/_foodieheader.cshtml";
+    var imageBase64 = Model.MenuImg != null ? Convert.ToBase64String(Model.MenuImg) : "";
 }
 
 <!DOCTYPE html>
@@ -230,7 +233,6 @@
     </style>
 </head>
 <body>
-
     <!-- Filter Section -->
     <div class="container mt-4">
         <div class="filters">
