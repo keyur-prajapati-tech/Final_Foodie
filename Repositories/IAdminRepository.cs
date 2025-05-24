@@ -95,5 +95,7 @@ namespace Foodie.Repositories
         public List<tbl_cuisine_master> GetAllCuisines();
         public void UpdateCuisine(int id, string name);
         public void DeleteCuisine(int id);
+
+        public List<OrderViewModel> GetFilteredOrders(DateTime? fromDate, DateTime? toDate, string orderStatus);
     }
 }

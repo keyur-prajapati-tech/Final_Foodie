@@ -24,9 +24,8 @@ namespace Foodie.Controllers.Restaurant
         [Route("OrderReady")]
         public IActionResult OrderReady()
         {
-
-            var orders = _repository.tbl_Orders_Notifis_Accepted(1);
-
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId")); ;
+            var orders = _repository.tbl_Orders_Notifis_Accepted(restaurantId);
             return View(orders);
         }
 
@@ -45,16 +44,13 @@ namespace Foodie.Controllers.Restaurant
             {
                 return Json(new { success = false, message = "No new orders found." });
             }
-
             return Json(orders);
-
         }
 
         [HttpPost]
         [Route("acceptOrder")]
         public IActionResult acceptOrder(int order_id, string food_status)
         {
-
             var result = _repository.AcceptOrder(order_id, food_status);
             if (result > 0)
             {
@@ -64,15 +60,13 @@ namespace Foodie.Controllers.Restaurant
             {
                 return Json(new { success = false, message = "Failed to accept order." });
             }
-
         }
-
 
         [HttpPost]
         [Route("isOnline")]
         public JsonResult isOnline(int status)
         {
-            var restaurantId  = Convert.ToInt32(HttpContext.Session.GetString("UserId")); ;
+            var restaurantId  = Convert.ToInt32(HttpContext.Session.GetString("UserId")); 
 
             if (status == 1)
             {
@@ -88,30 +82,21 @@ namespace Foodie.Controllers.Restaurant
                 return Json(new { success = true, message = "Restaurant is online." });
 
             }
-
         }
-
-
 
         [HttpGet]
         [Route("getOnline")]
         public JsonResult getOnline(int restaurantId)
         {
             var data = _repository.getOnline(restaurantId);
-
             return Json(data);
-
         }
 
         [HttpGet]
         [Route("isApproved")]
         public JsonResult isApproved(int restaurantId)
-
         {
             var data = _repository.isApprove(restaurantId);
-
-
-
             return Json(data);
         }
 
@@ -130,8 +115,6 @@ namespace Foodie.Controllers.Restaurant
             }
 
         }
-
-
         //[HttpGet]
         //[Route("getOrderReady")]
         //public JsonResult getOrderReady(int restaurantId)

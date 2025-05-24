@@ -1019,5 +1019,47 @@ ORDER BY [Month];";
                 cmd.ExecuteNonQuery();
             }
         }
+
+        public List<OrderViewModel> GetFilteredOrders(DateTime? fromDate, DateTime? toDate, string orderStatus)
+        {
+            List<OrderViewModel> orders = new List<OrderViewModel>();
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand(@"
+     SELECT o.order_id, o.order_date, o.order_status,
+                       SUM(oi.list_price * oi.quantity - oi.discount) AS TotalAmount
+                FROM customers.tbl_orders o
+                JOIN customers.tbl_order_items oi ON o.order_id = oi.order_id
+                WHERE (@startDate IS NULL OR o.order_date >= @startDate)
+                  AND (@endDate IS NULL OR o.order_date <= @endDate)
+                  AND (@status IS NULL OR o.order_status = @status)
+                GROUP BY o.order_id, o.order_date, o.order_status", conn);
+
+                cmd.Parameters.AddWithValue("@startDate", (object)fromDate ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@endDate", (object)toDate ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@status", string.IsNullOrEmpty(orderStatus) ? DBNull.Value : (object)orderStatus);
+
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    orders.Add(new OrderViewModel
+                    {
+                        OrderId = reader["order_id"] != DBNull.Value ? Convert.ToInt32(reader["order_id"]) : 0,
+                       // UserId = reader["user_id"] != DBNull.Value ? Convert.ToInt32(reader["user_id"]) : 0,
+                        OrderDate = reader["order_date"] != DBNull.Value ? Convert.ToDateTime(reader["order_date"]) : DateTime.MinValue,
+                        order_status = reader["order_status"] != DBNull.Value ? reader["order_status"].ToString() : string.Empty,
+                        //RazorpayOrderId = reader["RazorPayOrderId"] != DBNull.Value ? reader["RazorPayOrderId"].ToString() : string.Empty,
+                        TotalAmount = reader["TotalAmount"] != DBNull.Value ? Convert.ToDecimal(reader["TotalAmount"]) : 0,
+                        //require_date = reader["require_date"] != DBNull.Value ? (DateTime?)reader["require_date"] : null,
+                        // Uncomment and apply same logic for below fields if needed:
+                        // OrderStatus = reader["order_status"] != DBNull.Value ? reader["order_status"].ToString() : string.Empty,
+                        // CancelReason = reader["cancelreason"] != DBNull.Value ? reader["cancelreason"].ToString() : string.Empty,
+                        //PaymentId = reader["PaymentId"] != DBNull.Value ? reader["PaymentId"].ToString() : string.Empty
+                    });
+                }
+            }
+            return orders;
+        }
     }
 }
