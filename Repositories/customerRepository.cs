@@ -1357,7 +1357,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
         {
             using (var conn = new SqlConnection(_connectionstring))
             {
-                var query = "UPDATE customers.tbl_orders SET order_status = @OrderStatus WHERE RazorpayOrderId = @RazorpayOrderId";
+                var query = "UPDATE customers.tbl_orders SET order_status = @OrderStatus WHERE razorpay_order_id = @RazorpayOrderId";
                 var cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@RazorpayOrderId", razorpayOrderId);
                 cmd.Parameters.AddWithValue("@OrderStatus", status);
@@ -1370,9 +1370,9 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
         {
             using (var conn = new SqlConnection(_connectionstring))
             {
-                var query = @"INSERT INTO payments (order_id, razorpay_payment_id, amount, payment_status, payment_date)
-                              SELECT Id, @RazorpayPaymentId, @Amount, @Status, GETDATE()
-                              FROM Orders WHERE RazorpayOrderId = @RazorpayOrderId";
+                var query = @"INSERT INTO customers.payments (order_id, razorpay_payment_id, amount, payment_status, payment_date)
+                              SELECT order_id, @RazorpayPaymentId, @Amount, @Status, GETDATE()
+                              FROM customers.tbl_orders WHERE razorpay_order_id = @RazorpayOrderId";
                 var cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@RazorpayOrderId", razorpayOrderId);
                 cmd.Parameters.AddWithValue("@RazorpayPaymentId", razorpayPaymentId);
