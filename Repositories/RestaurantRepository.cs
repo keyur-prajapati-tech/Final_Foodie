@@ -1186,5 +1186,33 @@ namespace Foodie.Repositories
 
             return result;
         }
+
+        public List<reports> GetPerformanceMetrics()
+        {
+            var metrics = new List<reports>();
+
+            using (var conn = new SqlConnection(_connectionstring))
+            {
+                using (var cmd = new SqlCommand("customers.sp_GetRestaurantPerformanceMetrics", conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    conn.Open();
+
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            metrics.Add(new reports
+                            {
+                                Metric = reader["Metric"].ToString(),
+                                Value = Convert.ToDecimal(reader["Value"])
+                            });
+                        }
+                    }
+                }
+            }
+
+            return metrics;
+        }
     }
 }

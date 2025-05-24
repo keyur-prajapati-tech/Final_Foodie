@@ -61,5 +61,6 @@ namespace Foodie.Repositories
         public PayoutsDetailsViewModel GetBankDetailsByRestaurantId(int restaurantId);
         public List<OrderViewModel> GetWeeklyOrderStatsAsync(int restaurantid);
         public List<OrderViewModel> GetWeeklyCustomerRatings(int restaurantid);
+        List<reports> GetPerformanceMetrics();
     }
 }
