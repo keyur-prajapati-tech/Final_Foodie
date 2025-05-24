@@ -12,6 +12,7 @@ namespace Foodie.Controllers.Customer
         private readonly IcustomerRepository _repository;
         private readonly string _razorpaykey;
         private readonly string _razorpaysecret;
+        private readonly ILogger<displayCartController> _logger;
 
         public displayCartController(IcustomerRepository repository)
         {
@@ -194,71 +195,144 @@ namespace Foodie.Controllers.Customer
         //        return Json(new { error = ex.Message });
         //    }
         //}
+
         [HttpPost]
         public IActionResult InitiateOrder([FromBody] PaymentInitiateModel model)
         {
             // Validate minimum amount (₹1)
             if (model.amount < 1)
             {
-                return Json(new { error = "Order amount must be at least ₹1. Please add more items to your cart." });
+                return Json(new
+                {
+                    success = false,
+                    message = "Order amount must be at least ₹1. Please add more items to your cart."
+                });
             }
-
-            int customerId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
 
             try
             {
+                int customerId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+
+                // 1. Initialize Razorpay client
                 var client = new RazorpayClient(_razorpaykey, _razorpaysecret);
 
-                // Convert to paise and ensure it's an integer
+                // 2. Prepare order options
                 int amountInPaise = (int)(model.amount * 100);
-
-                // Generate a short receipt ID (under 40 chars)
-                string receiptId = "FT" + DateTime.Now.ToString("yyyyMMddHHmmssfff").Substring(0, 14);
+                string receiptId = $"ORD{DateTime.Now:yyyyMMddHHmmss}";
 
                 var options = new Dictionary<string, object>
         {
-            { "amount", amountInPaise }, // Use the converted paise value
+            { "amount", amountInPaise },
             { "currency", "INR" },
-            { "receipt", receiptId }, // Add receipt ID
-            { "payment_capture", 1 } // Auto-capture payment
+            { "receipt", receiptId },
+            { "payment_capture", 1 }
         };
 
-                var order = client.Order.Create(options);
-                string razorpayOrderId = order["id"].ToString();
-
-                var orderItems = new List<tbl_order_items>();
-                foreach (var item in model.OrderItems)
+                // 3. Create Razorpay order with proper error handling
+                Razorpay.Api.Order razorpayOrder;
+                try
                 {
-                    orderItems.Add(new tbl_order_items
+                    razorpayOrder = client.Order.Create(options);
+
+                    // Validate the response
+                    if (razorpayOrder == null || razorpayOrder.Attributes == null)
                     {
-                        menu_id = item.menu_id,
-                        quantity = item.quantity,
-                        list_price = item.listprice,
-                        discount = item.discount,
-                        estimated_time = DateTime.Now
+                        throw new Exception("Invalid response from Razorpay");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Razorpay order creation failed");
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Payment gateway error. Please try again."
                     });
                 }
 
-                var createdOrder = _repository.CreateOrder(
-                    customerId,
-                    model.amount,
-                    razorpayOrderId,
-                    orderItems,
-                    model.address_id
-                );
-
-                return Json(new
+                // 4. Safely get the order ID
+                string razorpayOrderId;
+                try
                 {
-                    orderId = razorpayOrderId,
-                    amount = amountInPaise,
-                    receipt = receiptId
-                });
+                    razorpayOrderId = razorpayOrder.Attributes["id"].ToString();
+                    if (string.IsNullOrEmpty(razorpayOrderId))
+                    {
+                        throw new Exception("Empty Razorpay order ID received");
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to get Razorpay order ID");
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Failed to process payment. Please try again."
+                    });
+                }
+
+                // 5. Prepare order items
+                var orderItems = new List<tbl_order_items>();
+                try
+                {
+                    foreach (var item in model.OrderItems)
+                    {
+                        orderItems.Add(new tbl_order_items
+                        {
+                            menu_id = item.menu_id,
+                            quantity = item.quantity,
+                            list_price = item.listprice,
+                            discount = item.discount,
+                            estimated_time = DateTime.Now.AddHours(1) // More realistic estimate
+                        });
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Invalid order items");
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Invalid items in cart. Please refresh and try again."
+                    });
+                }
+
+                // 6. Create order in database
+                try
+                {
+                    var createdOrder = _repository.CreateOrder(
+                        customerId,
+                        model.amount,
+                        razorpayOrderId,
+                        orderItems,
+                        model.address_id
+                    );
+
+                    return Json(new
+                    {
+                        success = true,
+                        orderId = razorpayOrderId,
+                        amount = amountInPaise,
+                        receipt = receiptId
+                    });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex,"Database order creation failed");
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Failed to save order. Please contact support."
+                    });
+                }
             }
             catch (Exception ex)
             {
-                // Log the error
-                ex.Message.ToString();
-                return Json(new { error = "An error occurred while processing your payment. Please try again." });
+                _logger.LogError(ex, "Order initiation failed");
+                return Json(new
+                {
+                    success = false,
+                    message = "An unexpected error occurred. Please try again later."
+                });
             }
         }
 

@@ -1311,7 +1311,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 try
                 {
                     var orderQuery = @"INSERT INTO customers.tbl_orders (customer_id, order_date, order_status, grand_total, razorpay_order_id, addressid)
-                                       OUTPUT INSERTED.Id
+                                       OUTPUT INSERTED.order_id
                                        VALUES (@CustomerId, GETDATE(), 'Pending', @GrandTotal, @RazorpayOrderId, @AddressId)";
                     var orderCmd = new SqlCommand(orderQuery, connection, transaction);
                     orderCmd.Parameters.AddWithValue("@CustomerId", customerId);
