@@ -1,0 +1,15 @@
+﻿@model IEnumerable<Foodie.Models.customers.MenuItemViewModel>
+
+<h2>Menu Items</h2>
+
+@foreach (var item in Model)
+{
+    <p>ID: @item.MenuId, Name: @item.MenuName</p>
+
+    <a asp-controller="DeliveryItem" asp-action="AllDeliveryFood" asp-route-itemid="@item.MenuId">
+        <div class="item text-center mx-3">
+            <img src="data:image/jpeg;base64,@item.MenuImageBase64" class="rounded-circle" style="width: 170px; height: 150px;" />
+            <div class="category-title item-name" title="@item.MenuName"><strong>@item.MenuName</strong></div>
+        </div>
+    </a>
+}

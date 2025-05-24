@@ -38,18 +38,46 @@
         padding: 5px 10px;
     }
 
-</style>
+    <style >
+    /* Add these new styles */
+    #minimumAmountWarning {
+        color: #dc3545;
+        font-size: 0.9rem;
+        margin-top: 5px;
+        display: none;
+    }
 
+    .cart-summary.low-amount {
+        border-left: 4px solid #ffc107;
+        background-color: #fff8e1;
+    }
+
+    #orderNowBtn:disabled {
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    .btn-secondary[title]:hover:after {
+        content: attr(title);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #333;
+        color: #fff;
+        padding: 5px 10px;
+        border-radius: 4px;
+        white-space: nowrap;
+        font-size: 12px;
+    }
+</style>
+</style>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
-<!-- Mapbox CSS -->
 <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
-<!-- Mapbox JS -->
 <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script> <!-- Load first -->
-
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <div class="container mt-4">
     <div class="row">
@@ -58,15 +86,13 @@
             <!-- Logged In User -->
             <div class="card p-3 mb-3">
                 <h5>Logged in <span class="text-success">✔</span></h5>
-                <p> Kevin@123 | +91 9745863219</p>
+                <p> @userName | @phone</p>
             </div>
 
             <!-- Delivery Address -->
             <div class="card p-3 mb-3">
                 <h5>Add a delivery address</h5>
                 <p>You seem to be in the new location</p>
-
-                <!-- Add Address Button -->
                 <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#addressModal">
                     Add New Address
                 </button>
@@ -75,10 +101,19 @@
             <!-- Payment Section -->
             <div class="card p-3">
                 <h3 class="text-uppercase">Payment</h3>
+                <h4>Select Delivery Address</h4>
+                <div class="form-check">
+                    <input type="radio" name="address" class="form-check-input address-radio" value="1" data-address-id="1">
+                    <label class="form-check-label">123 Main Street, City A</label>
+                </div>
+                <div class="form-check">
+                    <input type="radio" name="address" class="form-check-input address-radio" value="2" data-address-id="2">
+                    <label class="form-check-label">456 Market Road, City B</label>
+                </div>
 
-                <!--Payment Button Here-->
-                <button id="orderNowBtn" class="btn btn-success btn-lg w-100 mt-3">Order Now</button>
-
+                <button id="orderNowBtn" class="btn btn-outline-success btn-md w-100 mt-3">Pay Now</button>
+                <br />
+                <a class="btn btn-outline-info">Order details</a>
             </div>
         </div>
 
@@ -88,12 +123,15 @@
                 <h3>Foodie Tasky Food</h3>
                 <p class="h5">Foodie Tasty - The Commoner's Kitchen'</p>
 
-                <!-- Loop Through Cart Items -->
                 @foreach (var item in Model)
                 {
                     <div class="p-2" style="border: 3px solid #000; border-radius: 5px;margin: 3px 3px;">
-                        <div class="menu-item" data-price="@item.amount">
+                        <div class="menu-item cart-item border p-2" data-product-id="@item.menu_id"
+                             data-cart-item-id="@item.cart_item_id"
+                             data-price="@item.amount">
+
                             <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)" alt="@item.menu_name" style="width:350px; height:200px; object-fit:contain;" />
+
                             <div>
                                 <input type="hidden" class="cart-item-id" value="@item.cart_item_id" />
                                 <input type="hidden" id="customerId" value="@item.customer_id" />
@@ -108,7 +146,7 @@
                                         <button class="btn btn-outline-success qty-plus">+</button>
                                     </div>
                                     <div>
-                                        <button id="btn-remove" class="btn btn-outline-danger">REMOVE</button>
+                                        <button class="btn btn-outline-danger btn-remove">REMOVE</button>
                                     </div>
                                 </div>
 
@@ -121,7 +159,6 @@
                     </div>
                 }
 
-                <!-- Place Grand Total here -->
                 <div class="d-flex justify-content-between mt-3 p-2" style="border-top: 3px solid #000;">
                     <h4>Grand Total:</h4>
                     <h4 class="text-success fw-bold">₹<span id="grand-total">0</span></h4>
@@ -130,62 +167,31 @@
                     <h5>Discount:</h5>
                     <h5 class="text-danger fw-bold">₹<span id="discount">0</span></h5>
                 </div>
+
                 <div class="d-flex justify-content-between p-2 border-top border-dark">
                     <h4>Payable:</h4>
                     <h4 class="text-primary fw-bold">₹<span id="final-total">0</span></h4>
                 </div>
 
+                <!-- Add this new warning message -->
+                <div id="minimumAmountWarning" class="payment-error text-danger text-center mt-2">
+                    <i class="fas fa-exclamation-circle"></i> Minimum order amount is ₹1. Please add more items.
+                </div>
+
                 <input type="hidden" id="razor-amount" value="0" />
 
-
                 <a asp-controller="Restaurantdeatil" asp-action="Restuarantinfo" class="float-end">Add More Item</a>
-
                 <hr>
-
-                <!-- No Contact Delivery -->
                 <div class="form-check">
                     <input type="checkbox" class="form-check-input" id="noContactDelivery">
                     <label class="form-check-label" for="noContactDelivery">
                         Opt-in for No-contact Delivery
                     </label>
                 </div>
-
                 <hr>
-
-                <!-- Apply Coupon -->
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#couponModal">
                     Apply Coupon
                 </button>
-
-                <hr>
-
-                @* <!-- Bill Details -->
-                @{
-                    decimal itemTotal = Model.Sum(x => x.amount * x.quantity);
-                    decimal deliveryFee = 77;
-                    decimal extraDiscount = 20;
-                    decimal finalAmount = itemTotal + deliveryFee - extraDiscount;
-                }
-
-                <h6>Bill Details</h6>
-                <p>Item Total: ₹@itemTotal</p>
-                <p>Delivery Fee: ₹@deliveryFee</p>
-                <p>Extra discount: -₹@extraDiscount</p>
-
-                <a href="#" class="text-danger">Add Tip</a>
-
-                <hr>
-
-                <h5 class="d-flex justify-content-between">
-                    <span>To Pay</span>
-                    <span>₹@finalAmount</span>
-                </h5>
-
-
-                <div class="alert alert-success text-center">
-                    Savings of ₹@extraDiscount
-                </div> *@
-
                 <div class="alert alert-light">
                     <h6>Review your order and address details to avoid cancellations</h6>
                     <p>Note: This order is non-refundable if cancelled.</p>
@@ -200,27 +206,18 @@
 <div class="modal fade" id="couponModal" tabindex="-1" aria-labelledby="couponModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <!-- Modal Header -->
             <div class="modal-header">
                 <h5 class="modal-title" id="couponModalLabel">Available Coupons</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-
-            <!-- Modal Body -->
             <div class="modal-body">
-                <!-- Coupon Input Box -->
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" placeholder="Enter coupon code">
                     <button class="btn btn-warning">Apply</button>
                 </div>
-
                 <hr>
-
                 <h5>Available Coupons</h5>
-
-                <!-- Coupon List -->
                 <div class="coupon-list" id="couponListContainer">
-                    <!-- Load coupons here -->
                     <div id="couponListContainer">
                         <div class="text-center">
                             <span class="spinner-border"></span> Loading coupons...
@@ -241,40 +238,34 @@
                     <h5 class="modal-title">Save delivery address</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-
                 <div class="modal-body">
                     <div id="map" style="width: 100%; height: 300px; border-radius: 10px; margin-bottom: 15px;"></div>
                     <input type="hidden" name="latitude" id="latitude" />
                     <input type="hidden" name="longitude" id="longitude" />
                     <input type="hidden" name="address" id="address" />
 
-
                     <div class="mb-3">
                         <label class="form-label">Country</label>
                         <input type="text" name="CountryName" class="form-control" value="India" />
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">State</label>
                         <select name="StateId" id="state" class="form-control">
                             <option value="">-- Select State --</option>
                         </select>
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">District</label>
                         <select name="DistrictId" id="district" class="form-control">
                             <option value="">-- Select District --</option>
                         </select>
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">City</label>
                         <select name="CityId" id="city" class="form-control">
                             <option value="">-- Select City --</option>
                         </select>
                     </div>
-
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Door</label>
@@ -285,27 +276,22 @@
                             <input type="text" id="area" name="area" class="form-control" />
                         </div>
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">Landmark</label>
                         <input type="text" id="landmark" name="landmark" class="form-control" />
                     </div>
-
                     <div class="mb-3">
                         <label class="form-label">Address Type</label><br />
                         <div class="btn-group" role="group">
                             <input type="radio" class="btn-check" name="addresses_type" id="home" value="home" checked />
                             <label class="btn btn-outline-primary" for="home">🏠 Home</label>
-
                             <input type="radio" class="btn-check" name="addresses_type" id="work" value="work" />
                             <label class="btn btn-outline-primary" for="work">💼 Work</label>
-
                             <input type="radio" class="btn-check" name="addresses_type" id="other" value="other" />
                             <label class="btn btn-outline-primary" for="other">📍 Other</label>
                         </div>
                     </div>
                 </div>
-
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary w-100">SAVE ADDRESS & PROCEED</button>
                 </div>
@@ -314,272 +300,467 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    mapboxgl.accessToken = 'pk.eyJ1IjoicmlzaGk4MTAyIiwiYSI6ImNtOTFpbXpjeDAxZGwybHNjdjljdnlpZ2UifQ.lwfPOwA0QilljmyDYiUV6A'; // Replace with your token
-
+    // Global variables
+    let selectedAddressId = null;
     let map;
     let marker;
 
-    $('#addressModal').on('shown.bs.modal', function () 
-    {
-        if (!map) 
-        {
-            map = new mapboxgl.Map(
-                {
+    // Initialize map when modal is shown
+    $('#addressModal').on('shown.bs.modal', function() {
+        if (!map) {
+            map = new mapboxgl.Map({
                 container: 'map',
                 style: 'mapbox://styles/mapbox/streets-v11',
-                center: [72.8311, 21.1702], // Default: Surat
+                center: [72.8311, 21.1702],
                 zoom: 10
             });
 
-            // Add zoom and rotation controls
             map.addControl(new mapboxgl.NavigationControl());
 
-            // Click to drop pin
-            map.on('click', function (e) {
+            map.on('click', function(e) {
                 const lng = e.lngLat.lng;
                 const lat = e.lngLat.lat;
 
-                // Set hidden inputs
                 $('#latitude').val(lat);
                 $('#longitude').val(lng);
 
-                // If marker exists, remove it
                 if (marker) marker.remove();
 
-                // Add new marker
                 marker = new mapboxgl.Marker({ draggable: true })
                     .setLngLat([lng, lat])
                     .addTo(map);
 
-                // On drag end, update lat/lng
-                marker.on('dragend', function () 
-                {
-
+                marker.on('dragend', function() {
                     const lngLat = marker.getLngLat();
                     $('#latitude').val(lngLat.lat);
                     $('#longitude').val(lngLat.lng);
                 });
-                console.log(lng);
-                console.log(lat);
             });
         }
     });
 
+    // Document ready function
+    $(document).ready(function() {
+        // Calculate totals on page load
+        calculateTotals();
+        updateTotalWithCoupon();
+        updateCartUI();
 
-    $(document).ready(function () 
-    {
-        function calculateTotals() {
-            let grandTotal = 0;
+        // Address selection
+        $(document).on('change', '.address-radio', function() {
+            selectedAddressId = $(this).data('address-id');
+            console.log("Selected Address ID:", selectedAddressId);
+        });
 
-            document.querySelectorAll('.menu-item').forEach(item => {
-                const price = parseFloat(item.dataset.price);
-                const qtyEl = item.querySelector('.qty');
-                const qty = parseInt(qtyEl.textContent);
-                const total = price * qty;
-
-                // Update individual item total
-                const itemTotalEl = item.querySelector('.item-total');
-                itemTotalEl.textContent = '₹' + total.toFixed(2);
-
-                grandTotal += total;
-            });
-
-            // Update grand total
-            document.getElementById('grand-total').textContent = grandTotal.toFixed(2);
-            return grandTotal;
-        }
-
-            document.getElementById("orderNowBtn").onclick = function (e) {
-        const grandTotal = calculateTotals(); // get current total in ₹
-        const grandTotalInPaise = Math.round(grandTotal * 100); // convert ₹ to paise
-
-        var options = {
-            "key": "rzp_test_uIxZbgotqYKcAK", // Replace with your Razorpay key
-            "amount": grandTotalInPaise, // dynamic amount
-            "currency": "INR",
-            "name": "Foodie Tasty",
-            "description": "Order Payment",
-            "handler": function (response) {
-
-                let payload = {
-                    CustomerId: 1,
-                    AddressId: 1,
-                    PaymentModeId: 1,
-                    CouponId: 1, // dynamically from server
-                    GrandTotal: finalAmount,
-                    DiscountAmount: parseFloat($('#discount').text()),
-                    RazorpayPaymentId: response.razorpay_payment_id,
-                    RazorpayOrderId: response.razorpay_order_id,
-                    RazorpaySignature: response.razorpay_signature,
-
-                    Items: [
-                        // Example format; fill from cart dynamically
-                        { MenuId: 16, Quantity: 2, ListPrice: 150.00, Discount: 10 },
-                        { MenuId: 18, Quantity: 1, ListPrice: 99.00, Discount: 10 }
-                    ]
-                };
-
-                $.ajax({
-                    url: '/displayCart/SavePaymentAndPlaceOrder',
-                    method: 'POST',
-                    contentType: 'application/json',
-                    data: JSON.stringify(payload),
-                    success: function (res) {
-                        if (res.success) {
-                            alert("Order placed successfully! Order ID: " + res.orderId);
-                            window.location.href = "/Order/Success?orderId=" + res.orderId;
-                        } else {
-                            alert("Failed to place order.");
-                        }
-                    }
+        // Payment button click
+        $(document).on('click', '#orderNowBtn', function() {
+            if (!selectedAddressId) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Address Required',
+                    text: 'Please select a delivery address.',
+                    confirmButtonColor: '#3085d6',
                 });
-                alert("Payment successful! Razorpay Payment ID: " + response.razorpay_payment_id);
-                // You can send this ID to your backend for further verification/logging
-            },
-            "prefill": {
-                "name": "@userName",
-                "email": "customer@example.com",
-                "contact": "@phone"
-            },
-            "theme": {
-                "color": "#3399cc"
+                return;
             }
-        };
-
-        var rzp = new Razorpay(options);
-        rzp.open();
-        e.preventDefault();
-    }
-
-
-        
-    
-         function updateTotalWithCoupon() {
-            $.ajax({
-                url: '/displayCart/GetGrandTotalWithCoupon',
-                type: 'GET',
-                success: function (res) {
-                    $('#grand-total').text(res.grandTotal.toFixed(2));
-                    $('#discount').text(res.discount.toFixed(2));
-                    $('#final-total').text(res.finalTotal.toFixed(2));
-                    $('#razor-amount').val(res.finalTotal); // Pass to Razorpay
-                }
-            });
-        }
-
-        $(document).ready(function () {
-            updateTotalWithCoupon();
-        });
-        // Handle + and - buttons
-        document.querySelectorAll('.qty-plus').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const qtyEl = btn.parentElement.querySelector('.qty');
-                qtyEl.textContent = parseInt(qtyEl.textContent) + 1;
-                calculateTotals();
-            });
+            makePayment(selectedAddressId);
         });
 
-        document.querySelectorAll('.qty-minus').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const qtyEl = btn.parentElement.querySelector('.qty');
-                let newQty = parseInt(qtyEl.textContent) - 1;
-                if (newQty < 1) newQty = 1;
-                qtyEl.textContent = newQty;
-                calculateTotals();
-            });
+        // Quantity controls
+        $(document).on('click', '.qty-plus', function() {
+            const qtyEl = $(this).siblings('.qty');
+            const cartItemId = $(this).closest('.cart-item').data('cart-item-id');
+            const newQty = parseInt(qtyEl.text()) + 1;
+
+            qtyEl.text(newQty);
+            calculateTotals();
+            updateCartItemQuantity(cartItemId, newQty);
+            updateCartUI();
         });
 
-        // Initial calculation on page load
-        window.addEventListener('load', calculateTotals);
+        $(document).on('click', '.qty-minus', function() {
+            const qtyEl = $(this).siblings('.qty');
+            const cartItemId = $(this).closest('.cart-item').data('cart-item-id');
+            let newQty = parseInt(qtyEl.text()) - 1;
+            if (newQty < 1) newQty = 1;
 
-        // Load all states on page load
+            qtyEl.text(newQty);
+            calculateTotals();
+            updateCartItemQuantity(cartItemId, newQty);
+            updateCartUI();
+        });
+
+        // Remove item
+        $(document).on('click', '.btn-remove', function() {
+            const cartItemId = $(this).closest('.cart-item').data('cart-item-id');
+            removeCartItem(cartItemId);
+            updateCartUI();
+        });
+
+        // Load states
         $.ajax({
             url: '/displayCart/GetAllStates',
             type: 'GET',
-            success: function (states) {
+            success: function(states) {
                 $('#state').empty().append('<option value="">-- Select State --</option>');
-                $.each(states, function (i, state) {
+                $.each(states, function(i, state) {
                     $('#state').append(`<option value="${state.stateId}">${state.stateName}</option>`);
-                    console.log(state);
                 });
             }
         });
 
         // State → District
-        $('#state').change(function () {
+        $('#state').change(function() {
             const stateId = $(this).val();
             $.ajax({
                 url: '/displayCart/GetDistricts',
                 type: 'GET',
                 data: { stateId: stateId },
-                success: function (districts) {
+                success: function(districts) {
                     $('#district').empty().append('<option value="">-- Select District --</option>');
-                    $.each(districts, function (i, district) {
+                    $.each(districts, function(i, district) {
                         $('#district').append(`<option value="${district.districtId}">${district.disrictName}</option>`);
-                        console.log(district);
                     });
                 }
             });
         });
 
         // District → City
-        $('#district').change(function () {
+        $('#district').change(function() {
             const districtId = $(this).val();
             $.ajax({
                 url: '/displayCart/GetCities',
                 type: 'GET',
                 data: { districtId: districtId },
-                success: function (cities) {
+                success: function(cities) {
                     $('#city').empty().append('<option value="">-- Select City --</option>');
-                    $.each(cities, function (i, city) {
+                    $.each(cities, function(i, city) {
                         $('#city').append(`<option value="${city.cityId}">${city.cityName}</option>`);
-                        console.log(city);
                     });
                 }
             });
         });
 
-        $('#addressForm').on('submit', function (e) {
+        // Address form submission
+        $('#addressForm').on('submit', function(e) {
             e.preventDefault();
+            const form = $(this);
+            const formData = form.serializeArray();
 
-            var form = $(this);
-            var formData = form.serializeArray(); // get the form data as array
-
-            // Manually add values that are NOT in the form or dynamically added
             formData.push(
                 { name: "latitude", value: $('#latitude').val() },
                 { name: "longitude", value: $('#longitude').val() },
                 { name: "address", value: $('#address').val() }
             );
 
-            console.log(document.querySelector('#latitude').value);
-            console.log(document.querySelector('#longitude').value);
-            console.log(document.querySelector('#address').value);
-
-
             $.ajax({
                 type: "POST",
                 url: form.attr('action'),
-                data: $.param(formData), // serialize again after pushing
-                success: function (response) {
+                data: $.param(formData),
+                success: function(response) {
                     if (response.success) {
-                        alert(response.message);
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Address Saved',
+                            text: response.message,
+                            confirmButtonColor: '#3085d6',
+                        });
                         $('#addressModal').modal('hide');
                         form.trigger('reset');
                     } else {
-                        alert("Error: " + response.message);
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: response.message,
+                            confirmButtonColor: '#3085d6',
+                        });
                     }
                 },
-                error: function () {
-                    alert("Something went wrong while saving address.");
+                error: function() {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Something went wrong while saving address.',
+                        confirmButtonColor: '#3085d6',
+                    });
                 }
             });
         });
 
-        $('#couponModal').on('shown.bs.modal', function () {
+        // Coupon modal
+        $('#couponModal').on('shown.bs.modal', function() {
             $('#couponListContainer').load('/displayCart/GetAllCoupons');
         });
-
     });
+
+    // Update cart UI based on total
+    function updateCartUI() {
+        const grandTotal = parseFloat($('#final-total').text()) || 0;
+        const $warning = $('#minimumAmountWarning');
+        const $summary = $('.card.p-3'); // Target the order summary card
+        const $payBtn = $('#orderNowBtn');
+
+        if (grandTotal < 1) {
+            $warning.show();
+            $summary.addClass('low-amount');
+            $payBtn.prop('disabled', true)
+                   .removeClass('btn-outline-success')
+                   .addClass('btn-secondary')
+                   .attr('title', 'Minimum order amount is ₹1');
+        } else {
+            $warning.hide();
+            $summary.removeClass('low-amount');
+            $payBtn.prop('disabled', false)
+                   .addClass('btn-outline-success')
+                   .removeClass('btn-secondary')
+                   .removeAttr('title');
+        }
+    }
+
+    // Calculate totals function
+    function calculateTotals() {
+        let grandTotal = 0;
+
+        $('.menu-item').each(function() {
+            const price = parseFloat($(this).data('price'));
+            const qty = parseInt($(this).find('.qty').text());
+            const total = price * qty;
+
+            $(this).find('.item-total').text('₹' + total.toFixed(2));
+            grandTotal += total;
+        });
+
+        $('#grand-total').text(grandTotal.toFixed(2));
+        $('#final-total').text(grandTotal.toFixed(2));
+        $('#razor-amount').val(grandTotal.toFixed(2));
+
+        return grandTotal;
+    }
+
+    // Update cart item quantity
+    function updateCartItemQuantity(cartItemId, quantity) {
+        $.ajax({
+            url: '/displayCart/UpdateCartItemQuantity',
+            method: 'POST',
+            data: {
+                cartItemId: cartItemId,
+                quantity: quantity
+            },
+            success: function(response) {
+                if (!response.success) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to update quantity',
+                        confirmButtonColor: '#3085d6',
+                    });
+                }
+            }
+        });
+    }
+
+    // Remove cart item
+    function removeCartItem(cartItemId) {
+        Swal.fire({
+            title: 'Remove Item',
+            text: 'Are you sure you want to remove this item?',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, remove it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: '/displayCart/RemoveCartItem',
+                    method: 'POST',
+                    data: { cartItemId: cartItemId },
+                    success: function(response) {
+                        if (response.success) {
+                            $('.cart-item[data-cart-item-id="' + cartItemId + '"]').closest('.p-2').remove();
+                            calculateTotals();
+                            updateCartUI();
+                        } else {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Failed to remove item',
+                                confirmButtonColor: '#3085d6',
+                            });
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    // Update total with coupon
+    function updateTotalWithCoupon() {
+        $.ajax({
+            url: '/displayCart/GetGrandTotalWithCoupon',
+            type: 'GET',
+            success: function(res) {
+                $('#grand-total').text(res.grandTotal.toFixed(2));
+                $('#discount').text(res.discount.toFixed(2));
+                $('#final-total').text(res.finalTotal.toFixed(2));
+                $('#razor-amount').val(res.finalTotal);
+                updateCartUI();
+            }
+        });
+    }
+
+    // Make payment function
+    function makePayment(addressId) {
+        const grandTotal = parseFloat($('#final-total').text());
+        const customerId = $('#customerId').val();
+
+        // Show loading state
+        const $payBtn = $('#orderNowBtn');
+        $payBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Processing...');
+
+        // Validate minimum amount
+        if (grandTotal < 1) {
+            $payBtn.prop('disabled', false).text('Pay Now');
+            Swal.fire({
+                icon: 'error',
+                title: 'Minimum Order Amount',
+                text: 'Order amount must be at least ₹1. Please add more items to your cart.',
+                confirmButtonColor: '#3085d6',
+            });
+            return;
+        }
+
+        const orderItems = [];
+        $('.cart-item').each(function() {
+            const menu_id = $(this).data('product-id');
+            const quantity = parseInt($(this).find('.qty').text());
+            const price = parseFloat($(this).data('price'));
+
+            orderItems.push({
+                menu_id: menu_id,
+                quantity: quantity,
+                listprice: price,
+                discount: 0
+            });
+        });
+
+        fetch('/displayCart/InitiateOrder', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+            },
+            body: JSON.stringify({
+                amount: grandTotal,
+                OrderItems: orderItems,
+                address_id: addressId,
+                CustomerId: customerId
+            })
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => {
+            $payBtn.prop('disabled', false).text('Pay Now');
+
+            if (data.minimumAmountError) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Order Too Small',
+                    text: data.message,
+                    confirmButtonColor: '#3085d6',
+                });
+                return;
+            }
+
+            if (!data.success) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Payment Error',
+                    text: data.message || 'Failed to initiate payment',
+                    confirmButtonColor: '#3085d6',
+                });
+                return;
+            }
+
+            const options = {
+                key: "rzp_test_uIxZbgotqYKcAK",
+                amount: data.amount,
+                currency: "INR",
+                name: "Foodie Order",
+                description: "Order Payment",
+                order_id: data.orderId,
+                handler: function(response) {
+                    verifyPayment(response, grandTotal, addressId, customerId);
+                },
+                prefill: {
+                    name: "@userName",
+                    contact: "@phone",
+                    email: ""
+                },
+                theme: {
+                    color: "#3399cc"
+                },
+                modal: {
+                    ondismiss: function() {
+                        $payBtn.prop('disabled', false).text('Pay Now');
+                    }
+                }
+            };
+
+            const rzp1 = new Razorpay(options);
+            rzp1.open();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            $payBtn.prop('disabled', false).text('Pay Now');
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'An error occurred. Please try again.',
+                confirmButtonColor: '#3085d6',
+            });
+        });
+    }
+
+    function verifyPayment(response, amount, addressId, customerId) {
+        fetch('/displayCart/Success', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+            },
+            body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                amount: amount,
+                addressId: addressId,
+                customerId: customerId
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Payment Successful',
+                    text: 'Your order has been placed successfully!',
+                    confirmButtonColor: '#3085d6',
+                }).then(() => {
+                    window.location.href = '/displayCart/ThankYou';
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Payment Verification Failed',
+                    text: data.message || 'Could not verify your payment',
+                    confirmButtonColor: '#3085d6',
+                });
+            }
+        });
+    }
 </script>

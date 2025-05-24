@@ -2,7 +2,8 @@
 
 @{
     Layout = "~/Views/Shared/_foodieheader.cshtml";
-    ViewData["Food_name"] = "Gujrati Dishes";
+
+    var menuItems = ViewBag.MenuItems as List<Foodie.Models.customers.MenuItemViewModel>;
 }
 
 <hr />
@@ -26,367 +27,292 @@
 
     <style>
         .carousel-container {
-            position: relative;
-            max-width: 90%;
-            margin: auto;
-            overflow: hidden;
-            background-color: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
+        position: relative;
+        max-width: 90%;
+        margin: auto;
+        overflow: hidden;
+        background-color: #f8f9fa;
+        padding: 20px;
+        border-radius: 10px;
         }
 
         .carousel-wrapper {
-            display: flex;
-            gap: 15px;
-            overflow-x: auto;
-            scroll-behavior: smooth;
-            white-space: nowrap;
-            padding: 10px;
+        display: flex;
+        gap: 15px;
+        overflow-x: auto;
+        scroll-behavior: smooth;
+        white-space: nowrap;
+        padding: 10px;
         }
 
-            .carousel-wrapper::-webkit-scrollbar {
-                display: none; /* Hide scrollbar */
-            }
+        .carousel-wrapper::-webkit-scrollbar {
+        display: none; /* Hide scrollbar */
+        }
 
         .carousel-item {
-            flex: 0 0 auto;
-            width: 120px;
-            text-align: center;
+        flex: 0 0 auto;
+        width: 120px;
+        text-align: center;
         }
 
-            .carousel-item img {
-                width: 100px;
-                height: 100px;
-                border-radius: 50%;
-                object-fit: cover;
-                border: 3px solid #ddd;
-            }
+        .carousel-item img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #ddd;
+        }
 
         .carousel-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: white;
-            border: none;
-            cursor: pointer;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 20px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-            z-index: 10;
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: white;
+        border: none;
+        cursor: pointer;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        font-size: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        z-index: 10;
         }
 
         .left-btn {
-            left: 5px;
+        left: 5px;
         }
 
         .right-btn {
-            right: 5px;
+        right: 5px;
         }
 
 
         .category-container {
-            max-width: 95%;
-            margin: auto;
-            padding: 20px 0;
-            text-align: center;
+        max-width: 95%;
+        margin: auto;
+        padding: 20px 0;
+        text-align: center;
         }
 
         .brand-container {
-            max-width: 95%;
-            margin: auto;
-            padding: 20px 0;
-            text-align: center;
+        max-width: 95%;
+        margin: auto;
+        padding: 20px 0;
+        text-align: center;
         }
 
         .owl-carousel .item {
-            text-align: center;
-            margin: 5px 30px;
+        text-align: center;
+        margin: 5px 30px;
         }
 
         .category-img {
-            width: 90%;
-            height: 200px;
-            object-fit: cover;
-            display: block;
-            margin: auto;
-            border: 3px solid #fff;
-            border-radius: 30%;
-            margin: 5px 5px;
+        width: 90%;
+        height: 200px;
+        object-fit: cover;
+        display: block;
+        margin: auto;
+        border: 3px solid #fff;
+        border-radius: 30%;
+        margin: 5px 5px;
         }
 
         .category-title {
-            font-size: 16px;
-            font-weight: 800;
-            margin-top: 10px;
+        font-size: 16px;
+        font-weight: 800;
+        margin-top: 10px;
         }
 
         .owl-nav {
-            position: absolute;
-            top: 35%;
-            width: 100%;
-            display: flex;
-            justify-content: space-between;
-            transform: translateY(-50%);
+        position: absolute;
+        top: 35%;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        transform: translateY(-50%);
         }
 
         .owl-prev, .owl-next {
-            background: #fff !important;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        background: #fff !important;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
 
-            .owl-prev:hover, .owl-next:hover {
-                background: #f1f1f1 !important;
-            }
+        .owl-prev:hover, .owl-next:hover {
+        background: #f1f1f1 !important;
+        }
 
-            .owl-prev i, .owl-next i {
-                font-size: 20px;
-                color: black;
-            }
+        .owl-prev i, .owl-next i {
+        font-size: 20px;
+        color: black;
+        }
 
 
         .brand-carousel .item {
-            text-align: center;
-            padding: 10px;
+        text-align: center;
+        padding: 10px;
         }
 
-            .brand-carousel .item img {
-                width: 150px;
-                height: 150px;
-                border-radius: 50%;
-                object-fit: contain;
-                border: 3px solid #ddd;
-                box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-                margin-left: 50px;
-            }
+        .brand-carousel .item img {
+        width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        object-fit: contain;
+        border: 3px solid #ddd;
+        box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+        margin-left: 50px;
+        }
 
-            .brand-carousel .item p {
-                font-size: 16px;
-                font-weight: 600;
-                margin-top: 10px;
-                color: #333;
-            }
+        .brand-carousel .item p {
+        font-size: 16px;
+        font-weight: 600;
+        margin-top: 10px;
+        color: #333;
+        }
 
-            .brand-carousel .item span {
-                font-size: 14px;
-                color: #777;
-            }
+        .brand-carousel .item span {
+        font-size: 14px;
+        color: #777;
+        }
 
 
 
         /* Restaurant card design */
         .restaurant-card {
-            background: #fff;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s ease-in-out;
-            margin: 7px auto;
+        background: #fff;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease-in-out;
+        margin: 7px auto;
         }
 
-            .restaurant-card:hover {
-                transform: scale(1.03);
-            }
+        .restaurant-card:hover {
+        transform: scale(1.03);
+        }
 
         /* Image container with badges */
         .image-container {
-            position: relative;
-            width: 100%;
+        position: relative;
+        width: 100%;
         }
 
-            .image-container img {
-                width: 100%;
-                height: 200px;
-                object-fit: cover;
-            }
+        .image-container img {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        }
 
         .badge {
-            position: absolute;
-            font-size: 12px;
-            padding: 5px 10px;
-            border-radius: 5px;
-            font-weight: bold;
+        position: absolute;
+        font-size: 12px;
+        padding: 5px 10px;
+        border-radius: 5px;
+        font-weight: bold;
         }
 
         .promoted {
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.6);
-            color: #fff;
+        top: 10px;
+        left: 10px;
+        background: rgba(0, 0, 0, 0.6);
+        color: #fff;
         }
 
         .discount {
-            bottom: 10px;
-            left: 10px;
-            background: #007bff;
-            color: #fff;
+        bottom: 10px;
+        left: 10px;
+        background: #007bff;
+        color: #fff;
         }
 
         /* Restaurant details */
         .restaurant-details {
-            padding: 15px;
+        padding: 15px;
         }
 
-            .restaurant-details h5 {
-                font-size: 18px;
-                font-weight: bold;
-                margin-bottom: 5px;
-            }
+        .restaurant-details h5 {
+        font-size: 18px;
+        font-weight: bold;
+        margin-bottom: 5px;
+        }
 
         .cuisine {
-            font-size: 14px;
-            color: #666;
+        font-size: 14px;
+        color: #666;
         }
 
         .price {
-            font-size: 14px;
-            color: #555;
+        font-size: 14px;
+        color: #555;
         }
 
         .rating {
-            background: #28a745;
-            color: #fff;
-            padding: 5px 8px;
-            font-size: 14px;
-            border-radius: 5px;
+        background: #28a745;
+        color: #fff;
+        padding: 5px 8px;
+        font-size: 14px;
+        border-radius: 5px;
         }
 
-            .rating.low {
-                background: #dc3545;
-            }
+        .rating.low {
+        background: #dc3545;
+        }
 
         /* Delivery time */
         .delivery-time {
-            font-size: 14px;
-            color: #777;
-            margin-top: 5px;
+        font-size: 14px;
+        color: #777;
+        margin-top: 5px;
         }
 
 
 
         h2 {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 15px;
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 15px;
         }
 
         .accordion-button {
-            font-weight: bold;
+        font-weight: bold;
         }
 
         .accordion-item {
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 10px;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
-    @* <hr/>
-    <div>
-        Your Info : @TempData["DisplayHome"]
-    </div>
-    <hr/> *@
+
     <div class="category-container" style="background-color:lavender;border-radius:5px;">
         <h3 class="fw-bold m-3">Inspiration for your first order</h3>
 
         <div class="owl-carousel owl-theme">
-            <div class="item">
-                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
-                    <img src="https://www.delmonte.com/sites/default/files/MushroomPepPizza_0076.jpg" class="category-img" alt="Pizza">
-                    <p class="category-title">Pizza</p>
+            @foreach(var item in menuItems)
+            {
+                <a asp-controller="DeliveryItem" asp-action="AllDeliveryFood" asp-route-id="@item.MenuId"
+                   style="text-decoration: none; color: inherit; display: block;">
+                    <div class="item text-center mx-3" style="cursor: pointer;">
+                        <img src="data:image/jpeg;base64,@item.MenuImageBase64" class="rounded-circle"
+                             style="width: 170px; height: 160px; margin-left: 36px;" />
+                        <div class="category-title item-name" title="@item.MenuName">
+                            <strong>@item.MenuName</strong>
+                        </div>
+                    </div>
                 </a>
-            </div>
-            <div class="item">
-                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
-                <img src="https://www.thecookierookie.com/wp-content/uploads/2023/04/featured-stovetop-burgers-recipe.jpg" class="category-img" alt="Burger">
-                <p class="category-title">Burger</p>
-                </a>
-            </div>
-            <div class="item">
-                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
-                <img src="https://b.zmtcdn.com/data/pictures/chains/0/3800020/0dc49b7e184f6f658510dbfa9bf256fc_featured_v2.jpg" class="category-img" alt="Chinese">
-                <p class="category-title">Chinese</p>
-                </a>
-            </div>
-            <div class="item">
-                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
-                <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRWWK-M-Ed6uRvFF8HRoqDfNIFMC-sKe7fvhA&s" class="category-img" alt="North Indian">
-                <p class="category-title">North Indian</p>
-                </a>
-            </div>
-            <div class="item">
-                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
-                <img src="https://static.toiimg.com/thumb/53098310.cms?imgsize=579584&width=800&height=800" class="category-img" alt="Biryani">
-                <p class="category-title">Biryani</p>
-                </a>
-            </div>
-            <div class="item">
-                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
-                <img src="https://s.lightorangebean.com/media/20240914144947/Thai-Veggie-Spring-Rolls_done.png" class="category-img" alt="Rolls">
-                <p class="category-title">Rolls</p>
-                </a>
-            </div>
-            <div class="item">
-                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
-                <img src="https://birthdaycake24com.wordpress.com/wp-content/uploads/2020/04/chocolate-heart-birthday-cake-with-name-edit-1.jpg?w=750" class="category-img" alt="Cake">
-                <p class="category-title">Cake</p>
-                </a>
-            </div>
-            <div class="item">
-                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
-                <img src="https://www.thespruceeats.com/thmb/UnVh_-znw7ikMUciZIx5sNqBtTU=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/steamed-momos-wontons-1957616-hero-01-1c59e22bad0347daa8f0dfe12894bc3c.jpg" class="category-img" alt="Momo">
-                <p class="category-title">Momo</p>
-                </a>
-            </div>
-            <div class="item">
-                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
-                <img src="https://images.jdmagicbox.com/quickquotes/listicle/crop_1713353493584_ky6vh_1375x648.jpg" class="category-img" alt="South IndianSouth Indian">
-                <p class="category-title">South Indian</p>
-                </a>
-            </div>
-            <div class="item">
-                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
-                <img src="https://www.cookingcarnival.com/wp-content/uploads/2017/07/Pav-bhaji-5.jpg" class="category-img" alt="Pav Bhaji">
-                <p class="category-title">Pav Bhaji</p>
-                </a>
-            </div>
-            <div class="item">
-                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
-                <img src="https://www.foodandwine.com/thmb/IuZPWAXBp4YaT9hn1YLHhuijT3k=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/FAW-recipes-big-italian-salad-hero-83e6ea846722478f8feb1eea33158b00.jpg" class="category-img" alt="Salad">
-                <p class="category-title">Salad</p>
-                </a>
-            </div>
-            <div class="item">
-                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
-                <img src="https://images.getrecipekit.com/20221130023757-untitled-design-12-3.png?aspect_ratio=16:9&quality=90&" class="category-img" alt="Noodles">
-                <p class="category-title">Noodles</p>
-                </a>
-            </div>
-            <div class="item">
-                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
-                <img src="https://www.whiskaffair.com/wp-content/uploads/2020/06/Lachha-Paratha-2-3.jpg" class="category-img" alt="Paratha">
-                <p class="category-title">Paratha</p>
-                </a>
-            </div>
-            <div class="item">
-                <a asp-area="" asp-controller="DeliveryItem" asp-action="AllDeliveryFood">
-                <img src="https://i.ytimg.com/vi/wAv-mFU7eus/hq720.jpg?sqp=-oaymwEhCK4FEIIDSFryq4qpAxMIARUAAAAAGAElAADIQj0AgKJD&rs=AOn4CLD4QzhyIzsn3bEMvu2NXaXRKS7qgg" class="category-img" alt="Chole Bhature">
-                <p class="category-title">Chole Bhature</p>
-                </a>
-            </div>
+            }
         </div>
     </div>
 
-    <div class="brand-container">
-        <h3 class="fw-bold m-3" style="text-align: center;">Top brands for you</h3>
+    <div class="brand-container" style="margin-top:5px;">
+        <h3 class="fw-bold mt-2 mb-3" style="text-align: center;text-transform: uppercase">Top brands for you</h3>
 
         @if (Model.Count() > 1)
         {
@@ -395,7 +321,7 @@
                 {
                     <div class="item text-center">
                         <a asp-controller="TBrands" asp-action="Brands">
-                            <img src="data:image/png;base64,@Convert.ToBase64String(item.Restaurant_img)" alt="@item.Restaurant_name" style="width:150px; height:100px; object-fit:cover;" />
+                            <img src="data:image/png;base64,@Convert.ToBase64String(item.Restaurant_img)" class="rounded" alt="@item.Restaurant_name" style="width: 200px; height: 150px; margin-left: 3px;" />
                         </a>
                         <p class="mt-2">@item.Restaurant_name</p>
                         <span>@item.DayOfWeek days open</span>
@@ -412,6 +338,10 @@
                 <p class="mt-2">@Model.First().Restaurant_name</p>
                 <span>@Model.First().DayOfWeek days open</span>
             </div>
+        }
+        else
+        {
+            <p class="text-muted text-center">No brands available.</p>
         }
     </div>
 
@@ -673,6 +603,22 @@
                 },
                 navText: ["<i class='fas fa-chevron-left'></i>", "<i class='fas fa-chevron-right'></i>"]
             });
+        });
+
+        function truncateText(selector, maxLength = 20) {
+            const items = document.querySelectorAll(selector);
+            items.forEach(item => {
+                const text = item.textContent.trim();
+                if (text.length > maxLength) {
+                    item.title = text; // show full text on hover
+                    item.textContent = text.substring(0, maxLength) + "...";
+                }
+            });
+        }
+
+        // Wait until DOM is ready (especially for Owl Carousel)
+        document.addEventListener("DOMContentLoaded", function () {
+            truncateText(".item-name", 20); // Change 20 if needed
         });
 
     </script>

@@ -2,6 +2,12 @@
     Layout = "~/Views/Shared/_foodieheader.cshtml";
 }
 
+@model IEnumerable<Foodie.Models.Restaurant.tbl_menu_items>
+@{
+    var menuList = Model.ToList();
+    var mainImage = menuList.FirstOrDefault();
+}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -183,6 +189,77 @@
             background-color: #fff;
             z-index: 1000;
         }
+
+
+        .gallery-wrapper {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            margin: 20px auto;
+            max-width: 1500px;
+            padding: 1px;
+        }
+
+        .main-image {
+            flex: 3;
+        }
+
+            .main-image img {
+                width: 100%;
+                height: 100%;
+                max-height: 500px;
+                object-fit: cover;
+                border-radius: 12px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            }
+
+        .thumbnails {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .thumbnail-card {
+            position: relative;
+            text-align: center;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+            .thumbnail-card img {
+                width: 100%;
+                height: 100px;
+                object-fit: cover;
+                border-radius: 8px;
+                border: 1px solid #ddd;
+                transition: transform 0.3s ease;
+            }
+
+                .thumbnail-card img:hover {
+                    transform: scale(1.03);
+                    border-color: #0d6efd;
+                }
+
+        .no-data-box {
+            margin: 60px auto;
+            padding: 40px;
+            text-align: center;
+            border: 2px dashed #ccc;
+            border-radius: 12px;
+            max-width: 700px;
+            background-color: #f9f9f9;
+        }
+
+            .no-data-box h3 {
+                color: #666;
+            }
+
+            .no-data-box i {
+                font-size: 48px;
+                color: #ccc;
+                margin-bottom: 20px;
+            }
     </style>
 </head>
 <body>
@@ -214,16 +291,53 @@
         </div>
 
         <!-- Food Gallery -->
-        <div class="gallery">
-            <div class="main-image">
-                <img src="https://source.unsplash.com/900x500/?burger,fastfood" alt="Restaurant Food">
+        @if (!menuList.Any())
+        {
+            <div class="no-data-box">
+                <i class="bi bi-exclamation-circle"></i>
+                <h3>No menu items found for this restaurant.</h3>
+                <p>Please check back later or choose another restaurant.</p>
             </div>
-            <div class="thumbnails">
-                <img src="https://source.unsplash.com/150x150/?burger" alt="Food 1">
-                <img src="https://source.unsplash.com/150x150/?sandwich" alt="Food 2">
-                <div class="view-gallery">View Gallery</div>
+        }
+        else
+        {
+            <div class="gallery-wrapper">
+                <div class="main-image">
+                    <img src="data:image/png;base64,@Convert.ToBase64String(mainImage.menu_img)" alt="Main Menu Image" />
+                </div>
+
+                <div class="thumbnails" id="thumbnailGallery">
+                    @for (int i = 0; i < menuList.Count; i++)
+                    {
+                        var item = menuList[i];
+                        var hiddenClass = i >= 4 ? "hidden" : "";
+                        <div class="thumbnail-card @hiddenClass">
+                            <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)" alt="@item.menu_name" title="@item.menu_name" />
+                            <div>@item.menu_name</div>
+                        </div>
+                    }
+                </div>
+                @if (menuList.Count > 4)
+                {
+                    <div class="text-center">
+                        <button id="viewMoreBtn" class="btn btn-primary btn-view-more">View More</button>
+                    </div>
+                }
             </div>
-        </div>
+        }
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const viewMoreBtn = document.getElementById("viewMoreBtn");
+                if (viewMoreBtn) {
+                    viewMoreBtn.addEventListener("click", function () {
+                        const hiddenCards = document.querySelectorAll(".thumbnail-card.hidden");
+                        hiddenCards.forEach(card => card.classList.remove("hidden"));
+                        viewMoreBtn.style.display = "none";
+                    });
+                }
+            });
+        </script>
 
         <!-- Menu Section -->
         @{
