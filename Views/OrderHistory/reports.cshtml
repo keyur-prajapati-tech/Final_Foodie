@@ -54,34 +54,16 @@
                         <canvas id="ratingsChart" height="100"></canvas>
                     </div>
                     <div class="col-md-6">
-                        <table class="table">
-                            <thead>
+                        <table class="table table-bordered table-striped" id="performanceTable">
+                            <thead class="table-light">
                                 <tr>
                                     <th>Metric</th>
                                     <th>%</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr>
-                                    <td>Rejected Orders</td>
-                                    <td>0%</td>
-                                </tr>
-                                <tr>
-                                    <td>Delayed Orders</td>
-                                    <td>7.1%</td>
-                                </tr>
-                                <tr>
-                                    <td>Poor Rated Orders</td>
-                                    <td>0%</td>
-                                </tr>
-                                <tr>
-                                    <td>Complaints</td>
-                                    <td>0%</td>
-                                </tr>
-                                <tr>
-                                    <td>Online %</td>
-                                    <td>94.68%</td>
-                                </tr>
+
+
                             </tbody>
                         </table>
                     </div>
@@ -164,6 +146,33 @@
             }
         });
         
+    </script>
+    <script>
+        $(function () {
+           $.ajax({
+            url: '@Url.Action("GetPerformanceMetrics", "OrderHistory")',
+            method: 'GET',
+            success: function(data) {
+                if (typeof data === "string") {
+                    data = JSON.parse(data);
+                }
+                const tbody = $('#performanceTable tbody');
+                tbody.empty();
+                if (Array.isArray(data)) {
+                    $.each(data, function(index, item) {
+                        tbody.append(`<tr><td>${item.Metric ?? item.metric}</td><td>${item.Value ?? item.value}%</td></tr>`);
+                    });
+                } else {
+                    console.warn("Data is not an array:", data);
+                }
+            },
+            error: function(xhr, status, error) {
+                alert('Failed to load performance metrics.');
+            }
+        });
+
+
+        });
     </script>
     <script>
         // Bad Orders Chart AJAX

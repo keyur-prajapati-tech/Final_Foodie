@@ -166,6 +166,13 @@ namespace Foodie.Controllers.Restaurant
             return View(vendor);
         }
 
+        [HttpGet]
+        public IActionResult GetPerformanceMetrics()
+        {
+            var result = _restaurantRepository.GetPerformanceMetrics();
+            return Json(result);
+        }
+
         [HttpPost]
         public IActionResult EditComplaint(tbl_cust_vendor_complaints tbl)
         {
