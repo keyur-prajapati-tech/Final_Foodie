@@ -304,6 +304,7 @@ namespace Foodie.Controllers.Customer
                         model.amount,
                         razorpayOrderId,
                         orderItems,
+                        model.res_id,
                         model.address_id
                     );
 
@@ -345,7 +346,7 @@ namespace Foodie.Controllers.Customer
 
                 if (generatedSignature == model.razorpay_signature)
                 {
-                    _repository.SavePayment(model.razorpay_order_id, model.razorpay_payment_id, model.amount, "Paid");
+                    _repository.SavePayment(model.razorpay_order_id, model.razorpay_payment_id, model.amount, "Pending");
                     _repository.UpdateOrderStatus(model.razorpay_order_id, "Paid");
 
                     return Json(new { success = true });

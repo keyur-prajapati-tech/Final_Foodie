@@ -944,7 +944,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
         public RestaurantMenuViewModel GetRestaurantMenu(int restaurantId, int? cuisineId)
         {
             var model = new RestaurantMenuViewModel();
-            model.restauranr_id = restaurantId;
+            model.restaurant_id = restaurantId;
             model.Cuisines = new List<tbl_cuisine_master>();
             model.MenuItems = new List<MenuItemViewModel>();
 
@@ -1074,7 +1074,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 {
                     restaurant = new RestaurantMenuViewModel
                     {
-                        restauranr_id = Convert.ToInt32(rd["restaurant_id"]),
+                        restaurant_id = Convert.ToInt32(rd["restaurant_id"]),
                         restaurant_name = rd["restaurant_name"].ToString(),
                         cuisine_name = rd["cuisine_name"].ToString(),
                         restaurant_street = rd["restaurant_street"].ToString(),
@@ -1230,34 +1230,48 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
 
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = @"SELECT 
-                                mi.menu_id,
-                                vi.Restaurant_menu_img,
-                                rs.restaurant_name,
-                                cm.cuisine_name,
-                                mi.amount,
-                                mi.isAvalable
-                            FROM vendores.tbl_menu_items mi
-                            INNER JOIN vendores.tbl_restaurant rs ON mi.Restaurant_id = rs.restaurant_id
-                            INNER JOIN vendores.tbl_vendores_img vi ON rs.restaurant_id = vi.Restaurant_id
-                            INNER JOIN vendores.tbl_cuisine tc ON rs.restaurant_id = tc.Restaurnat_id
-                            INNER JOIN admins.tbl_cuisine_master cm ON tc.cuisine_id = cm.cuisine_id
-                            WHERE mi.menu_id = @menuId AND mi.isAvalable = 1";
+                string query = @"SELECT  mi.menu_id,
+                vi.Restaurant_menu_img,
+                rs.restaurant_name,
+                cm.cuisine_name,
+                mi.amount,
+                mi.isAvalable,
+                mi.menu_name,
+                mi.menu_descripation
+            FROM vendores.tbl_restaurant as rs
+            INNER JOIN vendores.tbl_vendores_img vi ON rs.restaurant_id = vi.Restaurant_id
+            INNER JOIN vendores.tbl_cuisine tc ON rs.restaurant_id = tc.Restaurnat_id
+            INNER JOIN admins.tbl_cuisine_master cm ON tc.cuisine_id = cm.cuisine_id
+            INNER JOIN vendores.tbl_menu_items mi ON mi.Restaurant_id = rs.restaurant_id
+            WHERE mi.isAvalable = 1 AND mi.menu_id = @menuId";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@menuId", menuId);
                 conn.Open();
+
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
+                    string base64Image = string.Empty;
+
+                    if(reader["Restaurant_menu_img"] != DBNull.Value)
+                    {
+                        byte[] imgBytes = (byte[])reader["Restaurant_menu_img"];
+                        base64Image = Convert.ToBase64String(imgBytes);
+                    }
+
                     list.Add(new AvailableDishViewModel
                     {
                         MenuId = Convert.ToInt32(reader["menu_id"]),
+                        RestaurantImagebase64 = base64Image,
+                        RestaurantName = reader["restaurant_name"].ToString(),
+                        CuisineName = reader["cuisine_name"].ToString(),
+                        Amount = Convert.ToDecimal(reader["amount"]),
+                        IsAvailable = Convert.ToBoolean(reader["isAvalable"]),
                         MenuName = reader["menu_name"].ToString(),
-                        Menudescription = reader["menu_description"].ToString(),
-                        Amount = Convert.ToDecimal(reader[""]),
-                        IsAvailable = Convert.ToBoolean(reader["isAvailable"])
+                        Menudescription = reader["menu_descripation"].ToString()
                     });
                 }
+                conn.Close();
             }
             return list;
         }
@@ -1301,7 +1315,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 cmd.ExecuteNonQuery();
             }
         }
-        public tbl_orders CreateOrder(int customerId, decimal grandTotal, string razorpayOrderId, List<tbl_order_items> items, int addressId)
+        public tbl_orders CreateOrder(int customerId, decimal grandTotal, string razorpayOrderId, List<tbl_order_items> items, int addressId,int res_id)
         {
             using (var connection = new SqlConnection(_connectionstring))
             {
@@ -1310,13 +1324,14 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
 
                 try
                 {
-                    var orderQuery = @"INSERT INTO customers.tbl_orders (customer_id, order_date, order_status, grand_total, razorpay_order_id, addressid)
+                    var orderQuery = @"INSERT INTO customers.tbl_orders (customer_id, order_date, order_status, grand_total, razorpay_order_id, resturant_id, addressid)
                                        OUTPUT INSERTED.order_id
-                                       VALUES (@CustomerId, GETDATE(), 'Pending', @GrandTotal, @RazorpayOrderId, @AddressId)";
+                                       VALUES (@CustomerId, GETDATE(), 'Pending', @GrandTotal, @RazorpayOrderId, @restaurantId, @AddressId)";
                     var orderCmd = new SqlCommand(orderQuery, connection, transaction);
                     orderCmd.Parameters.AddWithValue("@CustomerId", customerId);
                     orderCmd.Parameters.AddWithValue("@GrandTotal", grandTotal);
                     orderCmd.Parameters.AddWithValue("@RazorpayOrderId", razorpayOrderId);
+                    orderCmd.Parameters.AddWithValue("@restaurantId", res_id);
                     orderCmd.Parameters.AddWithValue("@AddressId", addressId);
                     var orderId = (int)orderCmd.ExecuteScalar();
 
@@ -1325,7 +1340,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                         var itemQuery = @"INSERT INTO customers.tbl_order_items (order_id, menu_id, quantity, list_price, discount, estimated_DATETIME)
                                           VALUES (@OrderId, @MenuId, @Quantity, @ListPrice, @Discount, @EstimatedTime)";
                         var itemCmd = new SqlCommand(itemQuery, connection, transaction);
-                        itemCmd.Parameters.AddWithValue("@OrderId", item.order_id);
+                        itemCmd.Parameters.AddWithValue("@OrderId", orderId);
                         itemCmd.Parameters.AddWithValue("@MenuId", item.menu_id);
                         itemCmd.Parameters.AddWithValue("@Quantity", item.quantity);
                         itemCmd.Parameters.AddWithValue("@ListPrice", item.list_price);
