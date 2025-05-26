@@ -1440,5 +1440,84 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
             }
             return null;
         }
+
+        public CustomerFeedbackViewModel GetCustomerFeedbacks(int pageNumber, int pageSize, string sortField, string sortDirection)
+        {
+            var feedbacks = new List<tbl_customer_feedback>();
+
+            int totalCount = 0;
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+
+                var valiSortFields = new[] { "feedback_id", "customer_id", "order_id", "rating", "comment", "created_at" };
+
+                sortField = valiSortFields.Contains(sortField) ? sortField : "created_at";
+                sortDirection = sortDirection.ToLower() == "asc" ? "ASC" : "DESC";
+
+                // Get paginated data
+                string query = $@"SELECT cust_feedback_id, cust_feedback_id, restaurant_id, rating, feedback_description, createdAt
+                FROM admins.tbl_customer_feedback
+                ORDER BY {sortField} {sortDirection}
+                OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Offset", (pageNumber - 1) * pageSize);
+                cmd.Parameters.AddWithValue("@PageSize", pageSize);
+
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    feedbacks.Add(new tbl_customer_feedback
+                    {
+                        cust_feedback_id = Convert.ToInt32(reader["cust_feedback_id"]),
+                        restaurant_id = Convert.ToInt32(reader["restaurant_id"]),
+                        rating = Convert.ToInt32(reader["rating"]),
+                        feedback_description = reader["feedback_description"].ToString(),
+                        createdAt = Convert.ToDateTime(reader["createdAt"])
+                    });
+                }
+            }
+
+            return new CustomerFeedbackViewModel
+            {
+                RecentFeedbacks = feedbacks,
+                TotalPages = totalCount,
+                CurrentPage = pageNumber,
+                PageSize = pageSize,
+                SortField = sortField,
+                SortDirection = sortDirection
+            };
+        }
+
+        public int GetTotalFeedbackCountAsync()
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT COUNT(*) FROM admins.tbl_customer_feedback";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+                int count = (int)cmd.ExecuteScalar();
+                conn.Close();
+                return count;
+            }
+        }
+
+        public void InsertFeedback(tbl_customer_feedback feedback)
+        {
+            using(SqlConnection con = new SqlConnection(_connectionstring))
+        {
+                SqlCommand cmd = new SqlCommand("INSERT INTO admins.tbl_customer_feedback (customer_id, restaurant_id, rating, feedback_description,createdAt) VALUES (@CustomerId, @RestaurantId, @Rating, @Description,@createdAt)", con);
+                cmd.Parameters.AddWithValue("@CustomerId", feedback.customer_id);
+                cmd.Parameters.AddWithValue("@RestaurantId", feedback.restaurant_id);
+                cmd.Parameters.AddWithValue("@Rating", feedback.rating);
+                cmd.Parameters.AddWithValue("@Description", feedback.feedback_description);
+                cmd.Parameters.AddWithValue("@createdAt", DateTime.Now);
+                con.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
     }
 }

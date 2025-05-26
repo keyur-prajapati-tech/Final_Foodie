@@ -1,4 +1,5 @@
-﻿using Foodie.Models.customers;
+﻿using Foodie.Models;
+using Foodie.Models.customers;
 using Foodie.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -9,6 +10,7 @@ namespace Foodie.Controllers.Customer
     public class LocalityController : Controller
     {
         private readonly IcustomerRepository _repository;
+        private const int DefaultPageSize = 5;
 
         public LocalityController(IcustomerRepository repository)
         {
@@ -257,5 +259,32 @@ namespace Foodie.Controllers.Customer
             return Json(pagedOffers);
         }
 
+        public async Task<IActionResult> GetNotifications(int? page, int? pageSize, string sortField, string sortDirection)
+        {
+            int currentPage = page ?? 1;
+            int size = pageSize ?? DefaultPageSize;
+
+            var model = _repository.GetCustomerFeedbacks(
+                currentPage,
+                size,
+                sortField,
+                sortDirection ?? "desc");
+
+            return PartialView("_NotificationsPartial", model);
+        }
+
+        [HttpPost]
+        public JsonResult AjaxCreate(tbl_customer_feedback feedback)
+        {
+            try
+            {
+                _repository.InsertFeedback(feedback);
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = ex.Message });
+            }
+        }
     }
 }

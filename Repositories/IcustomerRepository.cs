@@ -77,5 +77,10 @@ namespace Foodie.Repositories
         //update quantity
         bool UpdateCartItemQuantity(int cartItemId, int newQuantity);
         tbl_cart_item GetCartItemById(int cartItemId);
+
+        //Customer Feedback IRepository
+        CustomerFeedbackViewModel GetCustomerFeedbacks(int pageNumber, int pageSize, string sortField, string sortDirection);
+        int GetTotalFeedbackCountAsync();
+        void InsertFeedback(tbl_customer_feedback feedback);
     }
 }

@@ -1,8 +1,9 @@
-﻿@{
+﻿@model IEnumerable<Foodie.Models.Restaurant.tbl_menu_items>
+
+@{
     Layout = "~/Views/Shared/_foodieheader.cshtml";
 }
 
-@model IEnumerable<Foodie.Models.Restaurant.tbl_menu_items>
 @{
     var menuList = Model.ToList();
     var mainImage = menuList.FirstOrDefault();
