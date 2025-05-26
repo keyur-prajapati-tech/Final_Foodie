@@ -7,7 +7,7 @@ namespace Foodie.Models.customers
     {
         public tbl_restaurant Restaurant { get; set; }
         public List<tbl_menu_items> Menu_Items { get; set; }
-        public int restauranr_id { get; set; }
+        public int restaurant_id { get; set; }
         public string restaurant_name { get; set; }
 
         public List<tbl_cuisine_master> Cuisines { get; set; }
@@ -23,5 +23,10 @@ namespace Foodie.Models.customers
         public string close_DATETIME { get; set; }
         public byte[] Restaurant_images { get; set; }
         public byte[] Menu_Image { get; set; }
+
+        public string openTime { get; set; }
+        public string closeTime { get; set; }
+        public string RestaurantImageBase64 { get; set; }
+        public List<AvailableDishViewModel> AvailableMenuItems { get; set; }
     }
 }

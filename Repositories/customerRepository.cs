@@ -944,7 +944,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
         public RestaurantMenuViewModel GetRestaurantMenu(int restaurantId, int? cuisineId)
         {
             var model = new RestaurantMenuViewModel();
-            model.restauranr_id = restaurantId;
+            model.restaurant_id = restaurantId;
             model.Cuisines = new List<tbl_cuisine_master>();
             model.MenuItems = new List<MenuItemViewModel>();
 
@@ -1074,7 +1074,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 {
                     restaurant = new RestaurantMenuViewModel
                     {
-                        restauranr_id = Convert.ToInt32(rd["restaurant_id"]),
+                        restaurant_id = Convert.ToInt32(rd["restaurant_id"]),
                         restaurant_name = rd["restaurant_name"].ToString(),
                         cuisine_name = rd["cuisine_name"].ToString(),
                         restaurant_street = rd["restaurant_street"].ToString(),
@@ -1230,34 +1230,48 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
 
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = @"SELECT 
-                                mi.menu_id,
-                                vi.Restaurant_menu_img,
-                                rs.restaurant_name,
-                                cm.cuisine_name,
-                                mi.amount,
-                                mi.isAvalable
-                            FROM vendores.tbl_menu_items mi
-                            INNER JOIN vendores.tbl_restaurant rs ON mi.Restaurant_id = rs.restaurant_id
-                            INNER JOIN vendores.tbl_vendores_img vi ON rs.restaurant_id = vi.Restaurant_id
-                            INNER JOIN vendores.tbl_cuisine tc ON rs.restaurant_id = tc.Restaurnat_id
-                            INNER JOIN admins.tbl_cuisine_master cm ON tc.cuisine_id = cm.cuisine_id
-                            WHERE mi.menu_id = @menuId AND mi.isAvalable = 1";
+                string query = @"SELECT  mi.menu_id,
+                vi.Restaurant_menu_img,
+                rs.restaurant_name,
+                cm.cuisine_name,
+                mi.amount,
+                mi.isAvalable,
+                mi.menu_name,
+                mi.menu_descripation
+            FROM vendores.tbl_restaurant as rs
+            INNER JOIN vendores.tbl_vendores_img vi ON rs.restaurant_id = vi.Restaurant_id
+            INNER JOIN vendores.tbl_cuisine tc ON rs.restaurant_id = tc.Restaurnat_id
+            INNER JOIN admins.tbl_cuisine_master cm ON tc.cuisine_id = cm.cuisine_id
+            INNER JOIN vendores.tbl_menu_items mi ON mi.Restaurant_id = rs.restaurant_id
+            WHERE mi.isAvalable = 1 AND mi.menu_id = @menuId";
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@menuId", menuId);
                 conn.Open();
+
                 SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
+                    string base64Image = string.Empty;
+
+                    if(reader["Restaurant_menu_img"] != DBNull.Value)
+                    {
+                        byte[] imgBytes = (byte[])reader["Restaurant_menu_img"];
+                        base64Image = Convert.ToBase64String(imgBytes);
+                    }
+
                     list.Add(new AvailableDishViewModel
                     {
                         MenuId = Convert.ToInt32(reader["menu_id"]),
+                        RestaurantImagebase64 = base64Image,
+                        RestaurantName = reader["restaurant_name"].ToString(),
+                        CuisineName = reader["cuisine_name"].ToString(),
+                        Amount = Convert.ToDecimal(reader["amount"]),
+                        IsAvailable = Convert.ToBoolean(reader["isAvalable"]),
                         MenuName = reader["menu_name"].ToString(),
-                        Menudescription = reader["menu_description"].ToString(),
-                        Amount = Convert.ToDecimal(reader[""]),
-                        IsAvailable = Convert.ToBoolean(reader["isAvailable"])
+                        Menudescription = reader["menu_descripation"].ToString()
                     });
                 }
+                conn.Close();
             }
             return list;
         }
@@ -1301,7 +1315,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 cmd.ExecuteNonQuery();
             }
         }
-        public tbl_orders CreateOrder(int customerId, decimal grandTotal, string razorpayOrderId, List<tbl_order_items> items, int addressId)
+        public tbl_orders CreateOrder(int customerId, decimal grandTotal, string razorpayOrderId, List<tbl_order_items> items, int addressId,int res_id)
         {
             using (var connection = new SqlConnection(_connectionstring))
             {
@@ -1310,13 +1324,14 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
 
                 try
                 {
-                    var orderQuery = @"INSERT INTO customers.tbl_orders (customer_id, order_date, order_status, grand_total, razorpay_order_id, addressid)
-                                       OUTPUT INSERTED.Id
-                                       VALUES (@CustomerId, GETDATE(), 'Pending', @GrandTotal, @RazorpayOrderId, @AddressId)";
+                    var orderQuery = @"INSERT INTO customers.tbl_orders (customer_id, order_date, order_status, grand_total, razorpay_order_id, resturant_id, addressid)
+                                       OUTPUT INSERTED.order_id
+                                       VALUES (@CustomerId, GETDATE(), 'Pending', @GrandTotal, @RazorpayOrderId, @restaurantId, @AddressId)";
                     var orderCmd = new SqlCommand(orderQuery, connection, transaction);
                     orderCmd.Parameters.AddWithValue("@CustomerId", customerId);
                     orderCmd.Parameters.AddWithValue("@GrandTotal", grandTotal);
                     orderCmd.Parameters.AddWithValue("@RazorpayOrderId", razorpayOrderId);
+                    orderCmd.Parameters.AddWithValue("@restaurantId", res_id);
                     orderCmd.Parameters.AddWithValue("@AddressId", addressId);
                     var orderId = (int)orderCmd.ExecuteScalar();
 
@@ -1325,7 +1340,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                         var itemQuery = @"INSERT INTO customers.tbl_order_items (order_id, menu_id, quantity, list_price, discount, estimated_DATETIME)
                                           VALUES (@OrderId, @MenuId, @Quantity, @ListPrice, @Discount, @EstimatedTime)";
                         var itemCmd = new SqlCommand(itemQuery, connection, transaction);
-                        itemCmd.Parameters.AddWithValue("@OrderId", item.order_id);
+                        itemCmd.Parameters.AddWithValue("@OrderId", orderId);
                         itemCmd.Parameters.AddWithValue("@MenuId", item.menu_id);
                         itemCmd.Parameters.AddWithValue("@Quantity", item.quantity);
                         itemCmd.Parameters.AddWithValue("@ListPrice", item.list_price);
@@ -1357,7 +1372,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
         {
             using (var conn = new SqlConnection(_connectionstring))
             {
-                var query = "UPDATE customers.tbl_orders SET order_status = @OrderStatus WHERE RazorpayOrderId = @RazorpayOrderId";
+                var query = "UPDATE customers.tbl_orders SET order_status = @OrderStatus WHERE razorpay_order_id = @RazorpayOrderId";
                 var cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@RazorpayOrderId", razorpayOrderId);
                 cmd.Parameters.AddWithValue("@OrderStatus", status);
@@ -1370,9 +1385,9 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
         {
             using (var conn = new SqlConnection(_connectionstring))
             {
-                var query = @"INSERT INTO payments (order_id, razorpay_payment_id, amount, payment_status, payment_date)
-                              SELECT Id, @RazorpayPaymentId, @Amount, @Status, GETDATE()
-                              FROM Orders WHERE RazorpayOrderId = @RazorpayOrderId";
+                var query = @"INSERT INTO customers.payments (order_id, razorpay_payment_id, amount, payment_status, payment_date)
+                              SELECT order_id, @RazorpayPaymentId, @Amount, @Status, GETDATE()
+                              FROM customers.tbl_orders WHERE razorpay_order_id = @RazorpayOrderId";
                 var cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@RazorpayOrderId", razorpayOrderId);
                 cmd.Parameters.AddWithValue("@RazorpayPaymentId", razorpayPaymentId);
@@ -1424,6 +1439,85 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 }
             }
             return null;
+        }
+
+        public CustomerFeedbackViewModel GetCustomerFeedbacks(int pageNumber, int pageSize, string sortField, string sortDirection)
+        {
+            var feedbacks = new List<tbl_customer_feedback>();
+
+            int totalCount = 0;
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+
+                var valiSortFields = new[] { "feedback_id", "customer_id", "order_id", "rating", "comment", "created_at" };
+
+                sortField = valiSortFields.Contains(sortField) ? sortField : "created_at";
+                sortDirection = sortDirection.ToLower() == "asc" ? "ASC" : "DESC";
+
+                // Get paginated data
+                string query = $@"SELECT cust_feedback_id, cust_feedback_id, restaurant_id, rating, feedback_description, createdAt
+                FROM admins.tbl_customer_feedback
+                ORDER BY {sortField} {sortDirection}
+                OFFSET @Offset ROWS FETCH NEXT @PageSize ROWS ONLY";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Offset", (pageNumber - 1) * pageSize);
+                cmd.Parameters.AddWithValue("@PageSize", pageSize);
+
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    feedbacks.Add(new tbl_customer_feedback
+                    {
+                        cust_feedback_id = Convert.ToInt32(reader["cust_feedback_id"]),
+                        restaurant_id = Convert.ToInt32(reader["restaurant_id"]),
+                        rating = Convert.ToInt32(reader["rating"]),
+                        feedback_description = reader["feedback_description"].ToString(),
+                        createdAt = Convert.ToDateTime(reader["createdAt"])
+                    });
+                }
+            }
+
+            return new CustomerFeedbackViewModel
+            {
+                RecentFeedbacks = feedbacks,
+                TotalPages = totalCount,
+                CurrentPage = pageNumber,
+                PageSize = pageSize,
+                SortField = sortField,
+                SortDirection = sortDirection
+            };
+        }
+
+        public int GetTotalFeedbackCountAsync()
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT COUNT(*) FROM admins.tbl_customer_feedback";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+                int count = (int)cmd.ExecuteScalar();
+                conn.Close();
+                return count;
+            }
+        }
+
+        public void InsertFeedback(tbl_customer_feedback feedback)
+        {
+            using(SqlConnection con = new SqlConnection(_connectionstring))
+        {
+                SqlCommand cmd = new SqlCommand("INSERT INTO admins.tbl_customer_feedback (customer_id, restaurant_id, rating, feedback_description,createdAt) VALUES (@CustomerId, @RestaurantId, @Rating, @Description,@createdAt)", con);
+                cmd.Parameters.AddWithValue("@CustomerId", feedback.customer_id);
+                cmd.Parameters.AddWithValue("@RestaurantId", feedback.restaurant_id);
+                cmd.Parameters.AddWithValue("@Rating", feedback.rating);
+                cmd.Parameters.AddWithValue("@Description", feedback.feedback_description);
+                cmd.Parameters.AddWithValue("@createdAt", DateTime.Now);
+                con.Open();
+                cmd.ExecuteNonQuery();
+            }
         }
     }
 }
