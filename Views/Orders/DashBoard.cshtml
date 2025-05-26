@@ -2,7 +2,7 @@
     Layout = "_AdminLayout";
 }
 @model Foodie.ViewModels.DashBoardViewModel;
-
+ 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -110,12 +110,28 @@
                 <div class="col-md-6">
                     <div class="card shadow-sm p-3 h-100">
                         <h5 class="text-center text-primary mb-3">Monthly Sales</h5>
+                        <!-- Filter Dropdown -->
+                        <select id="monthlyFilter" class="form-select mb-2">
+                            <option value="ThisYear">This Year</option>
+                            <option value="LastYear">Last Year</option>
+                            <option value="Custom">Custom</option>
+                        </select>
+                        <!-- Download Button -->
+                        <button id="downloadMonthly" class="btn btn-sm btn-primary mb-2">Download Chart</button>
                         <canvas id="myChart" style="height: 200px; width: 100%;"></canvas>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="card shadow-sm p-3 h-100">
                         <h5 class="text-center text-primary mb-3">Yearly Sales</h5>
+                        <!-- Filter Dropdown -->
+                        <select id="yearlyFilter" class="form-select mb-2">
+                            <option value="ThisYear">This Year</option>
+                            <option value="LastYear">Last Year</option>
+                            <option value="Custom">Custom</option>
+                        </select>
+                        <!-- Download Button -->
+                        <button id="downloadYearly" class="btn btn-sm btn-primary mb-2">Download Chart</button>
                         <canvas id="lineChart" style="height: 200px; width: 100%;"></canvas>
                     </div>
                 </div>
@@ -125,9 +141,38 @@
         </div>
 
         <script>
+            let monthlyChart, yearlyChart;
+
             $(document).ready(function () {
+                fetchMonthlyData($('#monthlyFilter').val());
+                fetchYearlyData($('#yearlyFilter').val());
+
+                $('#monthlyFilter').change(function () {
+                    fetchMonthlyData($(this).val());
+                });
+
+                $('#yearlyFilter').change(function () {
+                    fetchYearlyData($(this).val());
+                });
+
+                $('#downloadMonthly').click(function () {
+                    const link = document.createElement('a');
+                    link.href = monthlyChart.toBase64Image();
+                    link.download = 'monthly_sales_chart.png';
+                    link.click();
+                });
+
+                $('#downloadYearly').click(function () {
+                    const link = document.createElement('a');
+                    link.href = yearlyChart.toBase64Image();
+                    link.download = 'yearly_sales_chart.png';
+                    link.click();
+                });
+            });
+
+            function fetchMonthlyData(filter) {
                 $.ajax({
-                    url: '/Orders/GetMonthlySalesData',
+                    url: `/Orders/GetMonthlySalesData?filter=${filter}`,
                     type: 'GET',
                     success: function (data) {
                         renderBarChart(data);
@@ -136,9 +181,11 @@
                         console.error('Failed to fetch monthly sales data.');
                     }
                 });
+            }
 
+            function fetchYearlyData(filter) {
                 $.ajax({
-                    url: '/Orders/GetYearlySalesData',
+                    url: `/Orders/GetYearlySalesData?filter=${filter}`,
                     type: 'GET',
                     success: function (data) {
                         renderLineChart(data);
@@ -147,11 +194,14 @@
                         console.error('Failed to fetch yearly sales data.');
                     }
                 });
-            });
+            }
 
             function renderBarChart(data) {
                 const ctx = document.getElementById('myChart').getContext('2d');
-                new Chart(ctx, {
+                if (monthlyChart) {
+                    monthlyChart.destroy();
+                }
+                monthlyChart = new Chart(ctx, {
                     type: 'bar',
                     data: {
                         labels: data.labels,
@@ -171,7 +221,10 @@
 
             function renderLineChart(data) {
                 const ctx = document.getElementById('lineChart').getContext('2d');
-                new Chart(ctx, {
+                if (yearlyChart) {
+                    yearlyChart.destroy();
+                }
+                yearlyChart = new Chart(ctx, {
                     type: 'line',
                     data: {
                         labels: data.labels,
