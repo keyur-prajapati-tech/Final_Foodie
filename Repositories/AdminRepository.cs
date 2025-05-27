@@ -622,75 +622,6 @@ namespace Foodie.Repositories
             }
         }
 
-        public DashBoardViewModel GetMonthlySalesData()
-        {
-            // var salesByMonth = new int[12]; // Index 0 = Jan, 11 = Dec
-
-            string query = @"
-        SELECT 
-    MONTH(o.order_date) AS [Month],
-    SUM(oi.quantity * oi.list_price - (1- discount)) AS TotalAmount
-FROM customers.tbl_orders o
-INNER JOIN customers.tbl_order_items oi ON o.order_id = oi.order_id
-WHERE 
-    YEAR(o.order_date) = YEAR(GETDATE()) AND 
-    o.order_status = 'Delivered'
-GROUP BY MONTH(o.order_date)
-ORDER BY [Month];";
-
-            DashBoardViewModel dashBoard = new DashBoardViewModel();
-            using (SqlConnection conn = new SqlConnection(_connectionstring))
-            {
-                SqlCommand cmd = new SqlCommand(query, conn);
-                conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    dashBoard.Month.Add(Convert.ToInt32(reader["Month"]));
-                    dashBoard.MonthlySalesdata.Add(Convert.ToInt32(reader["TotalAmount"]));
-
-                }
-
-                conn.Close();
-            }
-
-            return dashBoard;
-        }
-
-        public DashBoardViewModel GetYearlyChartData()
-        {
-            string query = @"
-                SELECT 
-            year(o.order_date) AS [year],
-                SUM(oi.quantity * oi.list_price - (1- discount)) AS TotalAmount
-                    FROM customers.tbl_orders o
-                        INNER JOIN customers.tbl_order_items oi ON o.order_id = oi.order_id
-                    WHERE 
-               o.order_status = 'Delivered'
-                GROUP BY year(o.order_date)
-                ORDER BY [year];";
-
-            DashBoardViewModel dashBoard = new DashBoardViewModel();
-            using (SqlConnection conn = new SqlConnection(_connectionstring))
-            {
-                SqlCommand cmd = new SqlCommand(query, conn);
-                conn.Open();
-                SqlDataReader reader = cmd.ExecuteReader();
-
-                while (reader.Read())
-                {
-                    dashBoard.Year.Add(Convert.ToInt32(reader["year"]));
-                    dashBoard.YearlySalesdata.Add(Convert.ToInt32(reader["TotalAmount"]));
-
-                }
-
-                conn.Close();
-            }
-
-            return dashBoard;
-        }
-
         public List<OrderViewModel> GetAllOrders(string status)
         {
             var orders = new List<OrderViewModel>();
@@ -1027,8 +958,8 @@ ORDER BY [Month];";
             {
                 conn.Open();
                 SqlCommand cmd = new SqlCommand(@"
-     SELECT o.order_id, o.order_date, o.order_status,
-                       SUM(oi.list_price * oi.quantity - oi.discount) AS TotalAmount
+                   SELECT o.order_id, o.order_date, o.order_status,
+                   SUM(oi.list_price * oi.quantity - oi.discount) AS TotalAmount
                 FROM customers.tbl_orders o
                 JOIN customers.tbl_order_items oi ON o.order_id = oi.order_id
                 WHERE (@startDate IS NULL OR o.order_date >= @startDate)
@@ -1060,6 +991,60 @@ ORDER BY [Month];";
                 }
             }
             return orders;
+        }
+        public List<DashBoardViewModel> GetWeeklySales(int year, int month)
+        {
+            var sales = new List<DashBoardViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlCommand cmd = new SqlCommand("[customers].[GetWeeklySales]", conn))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Year", year);
+                cmd.Parameters.AddWithValue("@Month", month);
+
+                conn.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        sales.Add(new DashBoardViewModel
+                        {
+                            WeekNumber = reader.GetInt32(0),
+                            TotalAmount = reader.GetDecimal(1)
+                        });
+                    }
+                }
+            }
+
+            return sales;
+        }
+
+        public List<DashBoardViewModel> GetYearlySales(int year)
+        {
+            var sales = new List<DashBoardViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlCommand cmd = new SqlCommand("[customers].[GetYearlySales]", conn))
+            {
+                cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Year", year);
+
+                conn.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        sales.Add(new DashBoardViewModel
+                        {
+                            SalesMonth = reader.GetInt32(0),
+                            TotalSales = reader.GetDecimal(1)
+                        });
+                    }
+                }
+            }
+
+            return sales;
         }
     }
 }

@@ -1,5 +1,8 @@
-﻿using Foodie.Repositories;
+﻿using DocumentFormat.OpenXml.Bibliography;
+using Foodie.Repositories;
 using Foodie.ViewModels;
+using iTextSharp.text;
+using iTextSharp.text.pdf;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.InteropServices;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -53,52 +56,138 @@ namespace Foodie.Controllers
             return View(vm);
         }
         [HttpGet]
-        public IActionResult GetMonthlySalesData()
+        public IActionResult GetWeeklySales(int year, int month)
         {
-            var salesData = _AdminRepository.GetMonthlySalesData(); // List<int>
-
-            var result = new
-            {
-                labels = salesData.Month,
-                datasets = new[]
-                {
-                    new
-                    {
-                     
-                         label = "Monthly Sales",
-                                data =  salesData.MonthlySalesdata,
-                                backgroundColor = "#000957",
-                                borderColor =  "#8697C4",
-                                borderWidth = 2
-
-                    }
-                }
-            };
-            return Json(result);
+            var sales = _AdminRepository.GetWeeklySales(year, month);
+            return Json(sales);
         }
-        public IActionResult GetYearlySalesData()
+        [HttpGet]
+        public FileResult DownloadReport(int year, int month)
         {
-            var salesData = _AdminRepository.GetYearlyChartData(); // List<int>
+            var sales = _AdminRepository.GetWeeklySales(year, month);
 
-            var result = new
+            using (var ms = new MemoryStream())
             {
-                labels = salesData.Year,
-                datasets = new[]
+                Document doc = new Document(PageSize.A4, 25, 25, 30, 30); // Page size and margins
+                PdfWriter.GetInstance(doc, ms);
+                doc.Open();
+
+                // Fonts
+                var titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 16, BaseColor.BLACK);
+                var headerFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.WHITE);
+                var cellFont = FontFactory.GetFont(FontFactory.HELVETICA, 10, BaseColor.BLACK);
+
+                // Add Title
+                Paragraph title = new Paragraph($"📊 Sales Report for {System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month)} {year}", titleFont)
                 {
-                    new
+                    Alignment = Element.ALIGN_CENTER,
+                    SpacingAfter = 20
+                };
+                doc.Add(title);
+
+                // Create table with 3 columns
+                PdfPTable table = new PdfPTable(2)
+                {
+                    WidthPercentage = 100,
+                    SpacingBefore = 10f,
+                    SpacingAfter = 10f
+                };
+                table.SetWidths(new float[] { 1f, 2f });
+
+                // Table Header with Background Color
+                PdfPCell cell1 = new PdfPCell(new Phrase("Week Number", headerFont))
+                {
+                    BackgroundColor = new BaseColor(0, 120, 215), // Blue header
+                    HorizontalAlignment = Element.ALIGN_CENTER,
+                    Padding = 5
+                };
+                PdfPCell cell2 = new PdfPCell(new Phrase("Total Amount", headerFont))
+                {
+                    BackgroundColor = new BaseColor(0, 120, 215),
+                    HorizontalAlignment = Element.ALIGN_CENTER,
+                    Padding = 5
+                };
+                table.AddCell(cell1);
+                table.AddCell(cell2);
+
+                // Add Rows
+                foreach (var item in sales)
+                {
+                    PdfPCell weekCell = new PdfPCell(new Phrase(item.WeekNumber.ToString(), cellFont))
                     {
-
-                         label = "Monthly Sales",
-                                data =  salesData.YearlySalesdata,
-                                backgroundColor = "#000957",
-                                borderColor =  "#8697C4",
-                                borderWidth = 2
-
-                    }
+                        HorizontalAlignment = Element.ALIGN_CENTER,
+                        Padding = 5
+                    };
+                    PdfPCell amountCell = new PdfPCell(new Phrase(item.TotalAmount.ToString("C"), cellFont))
+                    {
+                        HorizontalAlignment = Element.ALIGN_RIGHT,
+                        Padding = 5
+                    };
+                    table.AddCell(weekCell);
+                    table.AddCell(amountCell);
                 }
-            };
-            return Json(result);
+
+                doc.Add(table);
+
+                // Footer Note
+                Paragraph footer = new Paragraph($"Generated on {DateTime.Now:dd MMM yyyy}", FontFactory.GetFont(FontFactory.HELVETICA_OBLIQUE, 9, BaseColor.GRAY))
+                {
+                    Alignment = Element.ALIGN_RIGHT,
+                    SpacingBefore = 20
+                };
+                doc.Add(footer);
+
+                doc.Close();
+
+                return File(ms.ToArray(), "application/pdf", $"SalesReport_{year}_{month}.pdf");
+            }
         }
+
+        [HttpGet]
+        public IActionResult GetYearlySales(int year)
+        {
+            var sales = _AdminRepository.GetYearlySales(year);
+            return Json(sales);
+        }
+
+        [HttpGet]
+        public FileResult DownloadYearlyReport(int year)
+        {
+            var sales = _AdminRepository.GetYearlySales(year);
+
+            using (var ms = new MemoryStream())
+            {
+                Document doc = new Document(PageSize.A4, 25, 25, 30, 30);
+                PdfWriter.GetInstance(doc, ms);
+                doc.Open();
+
+                var titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 16);
+                var headerFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.WHITE);
+                var cellFont = FontFactory.GetFont(FontFactory.HELVETICA, 10);
+
+                doc.Add(new Paragraph($"📈 Yearly Sales Report for {year}", titleFont) { Alignment = Element.ALIGN_CENTER, SpacingAfter = 20 });
+
+                PdfPTable table = new PdfPTable(2) { WidthPercentage = 100 };
+                table.SetWidths(new float[] { 1f, 2f });
+
+                table.AddCell(new PdfPCell(new Phrase("Month", headerFont)) { BackgroundColor = new BaseColor(0, 120, 215), Padding = 5 });
+                table.AddCell(new PdfPCell(new Phrase("Total Amount", headerFont)) { BackgroundColor = new BaseColor(0, 120, 215), Padding = 5 });
+
+                foreach (var item in sales)
+                {
+                    string monthName = System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(item.SalesMonth);
+                    table.AddCell(new PdfPCell(new Phrase(monthName, cellFont)) { Padding = 5 });
+                    table.AddCell(new PdfPCell(new Phrase(item.TotalSales.ToString("C"), cellFont)) { Padding = 5, HorizontalAlignment = Element.ALIGN_RIGHT });
+                }
+
+                doc.Add(table);
+                doc.Add(new Paragraph($"Generated on {DateTime.Now:dd MMM yyyy}", FontFactory.GetFont(FontFactory.HELVETICA_OBLIQUE, 9)) { Alignment = Element.ALIGN_RIGHT });
+
+                doc.Close();
+                return File(ms.ToArray(), "application/pdf", $"YearlySalesReport_{year}.pdf");
+            }
+        }
+       
     }
 
 }

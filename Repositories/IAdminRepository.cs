@@ -63,10 +63,12 @@ namespace Foodie.Repositories
         int GetOpenRestaurants();
         int GetClosedRestaurants();
 
-        DashBoardViewModel GetMonthlySalesData();
-        DashBoardViewModel GetYearlyChartData();
+      
 
 
+
+        List<DashBoardViewModel> GetWeeklySales(int year, int month);
+        List<DashBoardViewModel> GetYearlySales(int year);
         //orders
 
         List<OrderViewModel> GetAllOrders(string status);
@@ -97,5 +99,7 @@ namespace Foodie.Repositories
         public void DeleteCuisine(int id);
 
         public List<OrderViewModel> GetFilteredOrders(DateTime? fromDate, DateTime? toDate, string orderStatus);
+
+
     }
 }
