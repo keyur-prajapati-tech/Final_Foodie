@@ -82,5 +82,6 @@ namespace Foodie.Repositories
         CustomerFeedbackViewModel GetCustomerFeedbacks(int pageNumber, int pageSize, string sortField, string sortDirection);
         int GetTotalFeedbackCountAsync();
         void InsertFeedback(tbl_customer_feedback feedback);
+        List<tbl_restaurant> GetApprovedRestaurants();
     }
 }

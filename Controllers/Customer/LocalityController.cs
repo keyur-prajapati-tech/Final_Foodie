@@ -32,6 +32,7 @@ namespace Foodie.Controllers.Customer
         {
             var cities = _repository.GetCitiesByDistrictName(DisrictName);
             var email = HttpContext.Session.GetString("CustomerEmail");
+            var name = HttpContext.Session.GetString("CustomerName");
             var customer = _repository.GetTbl_Customer(email);
 
             string districtName = DisrictName;
@@ -277,7 +278,7 @@ namespace Foodie.Controllers.Customer
         public JsonResult AjaxCreate(tbl_customer_feedback feedback)
         {
             try
-            {
+            { 
                 _repository.InsertFeedback(feedback);
                 return Json(new { success = true });
             }
@@ -285,6 +286,13 @@ namespace Foodie.Controllers.Customer
             {
                 return Json(new { success = false, message = ex.Message });
             }
+        }
+
+        [HttpGet]
+        public JsonResult GetApprovedRestaurants()
+        {
+            var restaurants = _repository.GetApprovedRestaurants();
+            return Json(restaurants);
         }
     }
 }

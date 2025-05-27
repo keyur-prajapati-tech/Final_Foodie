@@ -49,13 +49,18 @@ namespace Foodie.Repositories
         public List<tbl_ratings> GetAllRatings(int restaurant_id);
         public IEnumerable<tbl_cust_vendor_complaints> GetComplaintsByRestaurantId(int restaurantId);
         public void updateVencom(tbl_cust_vendor_complaints tbl_Cust_Vendor_Complaints);
+        
         //Offer Section IRepo
         IEnumerable<tbl_special_offers> GetAllOffers();
         void AddOffeer(tbl_special_offers offers);
         tbl_special_offers GetOfferById(int id);
         void UpdateOffer(tbl_special_offers offer);
         void DeleteOffer(int id);
-        IEnumerable<tbl_special_offers> GetOffersByDateRange(DateTime? validFrom,DateTime? validTo);
+        IEnumerable<tbl_special_offers> GetOffersByDateRange(DateTime? validFrom, DateTime? validTo);
+        IEnumerable<tbl_special_offers> GetOffersByStatus(bool isActive);
+        IEnumerable<tbl_special_offers> GetOffersByDateAndStatus(DateTime? validFrom, DateTime? validTo, bool? isActive);
+
+
         bool ValidateOTP(string email, string otp);
         void SaveOTP(string email, string otp);
         public PayoutsDetailsViewModel GetBankDetailsByRestaurantId(int restaurantId);
