@@ -8,41 +8,132 @@
     <title>Cuisine Management</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    @* <link href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/all.min.css" rel="stylesheet" /> *@
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f4f6f8;
+            font-family: 'Poppins', sans-serif;
+            color: #333;
+        }
+
+        .container {
+            padding: 2rem;
+            max-width: 1200px;
+        }
+
+        h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #6a11cb, #2575fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-main1 {
+            background-color: #6a11cb;
+            border: none;
+            border-radius: 50px;
+            color: #fff;
+            padding: 0.5rem 1.2rem;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+            .btn-main1:hover {
+                background-color: #2575fc;
+            }
+
+        .table-container {
+            background-color: #fff;
+            padding: 1rem;
+            border-radius: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .table thead {
+            background-color: #6a11cb;
+            color: #fff;
+        }
+
+        .btn-edit {
+            background-color: #20c997;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 0.4rem 0.8rem;
+        }
+
+            .btn-edit:hover {
+                background-color: #17a2b8;
+            }
+
+        .btn-delete {
+            background-color: #ff4d4f;
+            color: #fff;
+            border: none;
+            border-radius: 50px;
+            padding: 0.4rem 0.8rem;
+        }
+
+            .btn-delete:hover {
+                background-color: #d9363e;
+            }
+
+        .modal-header1 {
+            background-color: #6a11cb;
+            color: #fff;
+            border-top-left-radius: 1rem;
+            border-top-right-radius: 1rem;
+        }
+
+        .btn-close {
+            background: none;
+            border: none;
+        }
+
+        
+
+    </style>
 </head>
 <body>
-    <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h2>Cuisine Management</h2>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addModal">Add Cuisine</button>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2><i class="fa-solid fa-utensils"></i> Cuisine Management</h2>
+            <button class="btn btn-main1" data-bs-toggle="modal" data-bs-target="#addModal"><i class="fa-solid fa-plus"></i> Add Cuisine</button>
         </div>
 
-        <table class="table table-bordered text-center align-middle" id="cuisineTable">
-            <thead class="table-dark">
-                <tr>
-                    <th>ID</th>
-                    <th>Cuisine Name</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <!-- AJAX will populate this -->
-            </tbody>
-        </table>
+        <div class="table-container">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover text-center align-middle" id="cuisineTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cuisine Name</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Data will populate here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <!-- Add Modal -->
     <div class="modal fade" id="addModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog">
             <form id="addForm" class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add Cuisine</h5>
+                <div class="modal-header1">
+                    <h5 class="modal-title">Add New Cuisine</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="text" class="form-control" id="addCuisineName" placeholder="Enter cuisine name" required />
+                    <input type="text" class="form-control" id="addCuisineName" placeholder="Cuisine name" required />
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary">Save</button>
+                    <button type="submit" class="btn btn-main">Save</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </form>
@@ -62,17 +153,15 @@
                     <input type="text" class="form-control" id="editCuisineName" required />
                 </div>
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">Update</button>
+                    <button type="submit" class="btn btn-main">Update</button>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Scripts -->
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
     <script>
         $(document).ready(function () {
             loadCuisines();
@@ -87,8 +176,8 @@
                                 <td>${item.cuisine_id}</td>
                                 <td>${item.cuisine_name}</td>
                                 <td>
-                                    <button class="btn btn-sm btn-warning editBtn" data-id="${item.cuisine_id}" data-name="${item.cuisine_name}">Edit</button>
-                                    <button class="btn btn-sm btn-danger deleteBtn" data-id="${item.cuisine_id}">Delete</button>
+                                    <button class="btn btn-edit btn-sm editBtn" data-id="${item.cuisine_id}" data-name="${item.cuisine_name}"><i class="fa-solid fa-pen"></i></button>
+                                    <button class="btn btn-delete btn-sm deleteBtn" data-id="${item.cuisine_id}"><i class="fa-solid fa-trash"></i></button>
                                 </td>
                             </tr>
                         `);
@@ -96,74 +185,55 @@
                 });
             }
 
-            // $('#addForm').submit(function (e) {
-            //     e.preventDefault();
-            //     const name = $('#addCuisineName').val().trim();
-            //     if (name === '') return alert('Enter a cuisine name');
-
-            //     $.post('@Url.Action("AddCuisine", "AddRestaurant")', { cuisineName: name }, function (res) {
-            //         if (res.success) {
-            //             $('#addModal').modal('hide');
-            //             $('#addCuisineName').val('');
-            //             loadCuisines();
-            //         } else {
-            //             alert('Error adding cuisine.');
-            //         }
-            //     });
-            // });
-                    $('#addForm').submit(function (e) {
-            e.preventDefault();
-            const name = $('#addCuisineName').val().trim();
-            if (name === '') return alert('Enter a cuisine name');
-
-            $.post('@Url.Action("AddCuisine", "AddRestaurant")', { cuisineName: name }, function (res) {
-                if (res.success) {
-                    // Hide the modal
-                    const addModalEl = document.getElementById('addModal');
-                    const modalInstance = bootstrap.Modal.getInstance(addModalEl);
-                    modalInstance.hide();
-
-                    // Clear the input field
-                    $('#addCuisineName').val('');
-
-                    // Reload the entire page
-                    location.reload();
-                } else {
-                    alert(res.message || 'Error adding cuisine.');
-                }
+            // Add form
+            $('#addForm').submit(function (e) {
+                e.preventDefault();
+                const name = $('#addCuisineName').val().trim();
+                if (name === '') return alert('Enter a cuisine name');
+                $.post('@Url.Action("AddCuisine", "AddRestaurant")', { cuisineName: name }, function (res) {
+                    if (res.success) {
+                        bootstrap.Modal.getInstance(document.getElementById('addModal')).hide();
+                        $('#addCuisineName').val('');
+                        loadCuisines();
+                        alert('Cuisine added!');
+                    } else {
+                        alert(res.message || 'Error adding cuisine.');
+                    }
+                });
             });
-        });
 
+            // Edit button
             $(document).on('click', '.editBtn', function () {
-                const id = $(this).data('id');
-                const name = $(this).data('name');
-                $('#editCuisineId').val(id);
-                $('#editCuisineName').val(name);
+                $('#editCuisineId').val($(this).data('id'));
+                $('#editCuisineName').val($(this).data('name'));
                 $('#editModal').modal('show');
             });
 
+            // Edit form
             $('#editForm').submit(function (e) {
                 e.preventDefault();
                 const id = $('#editCuisineId').val();
                 const name = $('#editCuisineName').val().trim();
                 if (name === '') return alert('Enter a cuisine name');
-
-                $.post('@Url.Action("UpdateCuisine", "AddRestaurant")', { id: id, cuisineName: name }, function (res) {
+                $.post('@Url.Action("UpdateCuisine", "AddRestaurant")', { id, cuisineName: name }, function (res) {
                     if (res.success) {
                         $('#editModal').modal('hide');
                         loadCuisines();
+                        alert('Cuisine updated!');
                     } else {
                         alert('Error updating cuisine.');
                     }
                 });
             });
 
+            // Delete button
             $(document).on('click', '.deleteBtn', function () {
                 const id = $(this).data('id');
                 if (confirm('Are you sure you want to delete this cuisine?')) {
-                    $.post('@Url.Action("DeleteCuisine", "AddRestaurant")', { id: id }, function (res) {
+                    $.post('@Url.Action("DeleteCuisine", "AddRestaurant")', { id }, function (res) {
                         if (res.success) {
                             loadCuisines();
+                            alert('Cuisine deleted!');
                         } else {
                             alert('Error deleting cuisine.');
                         }
