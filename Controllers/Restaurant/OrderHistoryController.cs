@@ -3,6 +3,8 @@ using Foodie.ViewModels;
 using Foodie.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Foodie.Models.Restaurant;
+using iTextSharp.text.pdf;
+using iTextSharp.text;
 
 namespace Foodie.Controllers.Restaurant
 {
@@ -19,7 +21,7 @@ namespace Foodie.Controllers.Restaurant
 
         public IActionResult OrdHistory()
         {
-            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId")); ; // Replace with the actual restaurant ID
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));  // Replace with the actual restaurant ID
 
             var orderHistory = _restaurantRepository.tbl_Orders_History(restaurantId);
 
@@ -145,6 +147,47 @@ namespace Foodie.Controllers.Restaurant
 
             return View(viewModel);
         }
+
+        [HttpGet]
+        public IActionResult GetWeeklySales(int year, int month)
+        {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+            var data =  _restaurantRepository.GetWeeklySalesByMonth(year, month, restaurantId);
+            return Json(data);
+        }
+
+        [HttpGet]
+        public IActionResult DownloadWeeklyReport(int year, int month)
+        {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+            var data =  _restaurantRepository.GetWeeklySalesByMonth(year, month, restaurantId);
+
+            using (var ms = new MemoryStream())
+            {
+                var doc = new iTextSharp.text.Document();
+                PdfWriter.GetInstance(doc, ms);
+                doc.Open();
+
+                doc.Add(new Paragraph($"Weekly Sales Report for {month}/{year} (Restaurant ID: {restaurantId})"));
+                doc.Add(new Paragraph(" "));
+
+                var table = new PdfPTable(2) { WidthPercentage = 100 };
+                table.AddCell("Week Number");
+                table.AddCell("Total Amount");
+
+                foreach (var item in data)
+                {
+                    table.AddCell(item.WeekNumber.ToString());
+                    table.AddCell(item.TotalAmount.ToString("C"));
+                }
+
+                doc.Close();
+
+                return File(ms.ToArray(), "application/pdf", $"WeeklySales_{year}_{month}_Res{restaurantId}.pdf");
+            }
+        }
+
+
         [HttpGet]
         public IActionResult GetBadOrderStats()
         {

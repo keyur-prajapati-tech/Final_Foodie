@@ -106,143 +106,220 @@
             </div>
 
             <!-- Place Charts Below Summary Cards -->
-            <div class="row mt-3">
-                <div class="col-md-6">
-                    <div class="card shadow-sm p-3 h-100">
-                        <h5 class="text-center text-primary mb-3">Monthly Sales</h5>
-                        <!-- Filter Dropdown -->
-                        <select id="monthlyFilter" class="form-select mb-2">
-                            <option value="ThisYear">This Year</option>
-                            <option value="LastYear">Last Year</option>
-                            <option value="Custom">Custom</option>
-                        </select>
-                        <!-- Download Button -->
-                        <button id="downloadMonthly" class="btn btn-sm btn-primary mb-2">Download Chart</button>
-                        <canvas id="myChart" style="height: 200px; width: 100%;"></canvas>
+            <div class="container mt-4">
+    <div class="row">
+        <!-- Monthly Sales Report -->
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3 h-100">
+                <h2 class="text-center mb-3">📈 Monthly Sales Report</h2>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="monthSelect" class="form-label">Select Month:</label>
+                                    <select id="monthSelect" class="form-select">
+                                        @for (int m = 1; m <= 12; m++)
+                                        {
+                                            <option value="@m">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m)</option>
+                                        }
+                                    </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="yearSelect" class="form-label">Select Year:</label>
+                                    <select id="yearSelect" class="form-select">
+                                        @for (int y = DateTime.Now.Year - 5; y <= DateTime.Now.Year; y++)
+                                        {
+                                            <option value="@y">@y</option>
+                                        }
+                                    </select>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="card shadow-sm p-3 h-100">
-                        <h5 class="text-center text-primary mb-3">Yearly Sales</h5>
-                        <!-- Filter Dropdown -->
-                        <select id="yearlyFilter" class="form-select mb-2">
-                            <option value="ThisYear">This Year</option>
-                            <option value="LastYear">Last Year</option>
-                            <option value="Custom">Custom</option>
-                        </select>
-                        <!-- Download Button -->
-                        <button id="downloadYearly" class="btn btn-sm btn-primary mb-2">Download Chart</button>
-                        <canvas id="lineChart" style="height: 200px; width: 100%;"></canvas>
-                    </div>
+
+                <div style="height: 300px; width: 100%;" class="mt-3">
+                    <canvas id="salesChart"></canvas>
+                </div>
+
+                <div class="text-center mt-3">
+                    <button id="downloadMonthlyPdf" class="btn btn-success">📥 Download PDF Report</button>
                 </div>
             </div>
-
-
         </div>
 
-        <script>
-            let monthlyChart, yearlyChart;
+        <!-- Yearly Sales Report -->
+        <div class="col-md-6">
+            <div class="card shadow-sm p-3 h-100">
+                <h2 class="text-center mb-3">📊 Yearly Sales Report</h2>
 
-            $(document).ready(function () {
-                fetchMonthlyData($('#monthlyFilter').val());
-                fetchYearlyData($('#yearlyFilter').val());
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="yearlySelect" class="form-label">Select Year:</label>
+                                    <select id="yearSelect" class="form-select">
+                                        @for (int y = DateTime.Now.Year - 5; y <= DateTime.Now.Year; y++)
+                                        {
+                                            <option value="@y">@y</option>
+                                        }
+                                    </select>
+                    </div>
+                </div>
 
-                $('#monthlyFilter').change(function () {
-                    fetchMonthlyData($(this).val());
-                });
+                <div style="height: 300px; width: 100%;" class="mt-3">
+                    <canvas id="yearlyChart"></canvas>
+                </div>
 
-                $('#yearlyFilter').change(function () {
-                    fetchYearlyData($(this).val());
-                });
+                <div class="text-center mt-3">
+                    <button id="downloadYearlyPdf" class="btn btn-success">📥 Download PDF Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-                $('#downloadMonthly').click(function () {
-                    const link = document.createElement('a');
-                    link.href = monthlyChart.toBase64Image();
-                    link.download = 'monthly_sales_chart.png';
-                    link.click();
-                });
+            <script>
+                let monthlyChart;
+                let yearlyChart;
 
-                $('#downloadYearly').click(function () {
-                    const link = document.createElement('a');
-                    link.href = yearlyChart.toBase64Image();
-                    link.download = 'yearly_sales_chart.png';
-                    link.click();
-                });
-            });
+                // Load Monthly Sales chart (weekly data in selected month)
+                function loadMonthlyChart(year, month) {
+                    fetch(`/Orders/GetWeeklySales?year=${year}&month=${month}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const labels = data.map(d => "Week " + (d.WeekNumber ?? d.weekNumber));
+                            const amounts = data.map(d => d.TotalAmount ?? d.totalAmount);
 
-            function fetchMonthlyData(filter) {
-                $.ajax({
-                    url: `/Orders/GetMonthlySalesData?filter=${filter}`,
-                    type: 'GET',
-                    success: function (data) {
-                        renderBarChart(data);
-                    },
-                    error: function () {
-                        console.error('Failed to fetch monthly sales data.');
-                    }
-                });
-            }
+                            if (monthlyChart) {
+                                monthlyChart.destroy();
+                            }
 
-            function fetchYearlyData(filter) {
-                $.ajax({
-                    url: `/Orders/GetYearlySalesData?filter=${filter}`,
-                    type: 'GET',
-                    success: function (data) {
-                        renderLineChart(data);
-                    },
-                    error: function () {
-                        console.error('Failed to fetch yearly sales data.');
-                    }
-                });
-            }
-
-            function renderBarChart(data) {
-                const ctx = document.getElementById('myChart').getContext('2d');
-                if (monthlyChart) {
-                    monthlyChart.destroy();
+                            const ctx = document.getElementById('salesChart').getContext('2d');
+                            monthlyChart = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: labels,
+                                    datasets: [{
+                                        label: `Total Sales for ${month}/${year}`,
+                                        data: amounts,
+                                        borderColor: 'rgba(54, 162, 235, 1)',
+                                        backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            ticks: {
+                                                callback: val => '$' + val
+                                            }
+                                        }
+                                    },
+                                    plugins: {
+                                        legend: { display: true },
+                                        title: { display: true, text: 'Weekly Sales Overview' }
+                                    }
+                                }
+                            });
+                        })
+                        .catch(err => console.error('Error fetching monthly sales:', err));
                 }
-                monthlyChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: data.labels,
-                        datasets: data.datasets
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: { display: false }
-                        },
-                        scales: {
-                            y: { beginAtZero: true }
-                        }
-                    }
-                });
-            }
 
-            function renderLineChart(data) {
-                const ctx = document.getElementById('lineChart').getContext('2d');
-                if (yearlyChart) {
-                    yearlyChart.destroy();
+                // Load Yearly Sales chart (monthly data in selected year)
+                function loadYearlyChart(year) {
+                    fetch(`/Orders/GetYearlySales?year=${year}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            const labels = data.map(d => {
+                                // Month names from numbers 1-12
+                                const monthName = new Date(year, d.salesMonth - 1).toLocaleString('default', { month: 'short' });
+                                return monthName;
+                            });
+                            const amounts = data.map(d => d.totalSales);
+
+                            if (yearlyChart) {
+                                yearlyChart.destroy();
+                            }
+
+                            const ctx = document.getElementById('yearlyChart').getContext('2d');
+                            yearlyChart = new Chart(ctx, {
+                                type: 'line',
+                                data: {
+                                    labels: labels,
+                                    datasets: [{
+                                        label: `Sales in ${year}`,
+                                        data: amounts,
+                                        borderColor: 'rgba(75, 192, 192, 1)',
+                                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                        fill: true,
+                                        tension: 0.3,
+                                        pointRadius: 5,
+                                        pointHoverRadius: 7,
+                                    }]
+                                },
+                                options: {
+                                    responsive: true,
+                                    maintainAspectRatio: false,
+                                    scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            ticks: {
+                                                callback: val => '$' + val
+                                            }
+                                        }
+                                    },
+                                    plugins: {
+                                        legend: { display: true },
+                                        title: { display: true, text: 'Monthly Sales Overview' }
+                                    }
+                                }
+                            });
+                        })
+                        .catch(err => console.error('Error fetching yearly sales:', err));
                 }
-                yearlyChart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: data.labels,
-                        datasets: data.datasets
-                    },
-                    options: {
-                        responsive: true,
-                        plugins: {
-                            legend: { position: 'top' }
-                        },
-                        scales: {
-                            y: { beginAtZero: true }
-                        }
-                    }
-                });
-            }
-        </script>
 
+                document.addEventListener("DOMContentLoaded", function () {
+                    const today = new Date();
+
+                    // Set default selects for monthly
+                    document.getElementById("monthSelect").value = today.getMonth() + 1;
+                    document.getElementById("yearSelect").value = today.getFullYear();
+                    loadMonthlyChart(today.getFullYear(), today.getMonth() + 1);
+
+                    // Set default select for yearly
+                    document.querySelector('#yearlyChart').closest('.card').querySelector('select').value = today.getFullYear();
+                    loadYearlyChart(today.getFullYear());
+                });
+
+                // Monthly filter change
+                document.getElementById("monthSelect").addEventListener("change", function () {
+                    const year = document.getElementById("yearSelect").value;
+                    const month = this.value;
+                    loadMonthlyChart(year, month);
+                });
+                document.getElementById("yearSelect").addEventListener("change", function () {
+                    const year = this.value;
+                    const month = document.getElementById("monthSelect").value;
+                    loadMonthlyChart(year, month);
+                });
+
+                // Yearly filter change
+                document.querySelector('#yearlyChart').closest('.card').querySelector('select').addEventListener("change", function () {
+                    loadYearlyChart(this.value);
+                });
+
+                // Monthly PDF download
+                document.getElementById("downloadMonthlyPdf").addEventListener("click", function () {
+                    const year = document.getElementById("yearSelect").value;
+                    const month = document.getElementById("monthSelect").value;
+                    window.location.href = `/Orders/DownloadReport?year=${year}&month=${month}`;
+                });
+
+                // Yearly PDF download
+                document.getElementById("downloadYearlyPdf").addEventListener("click", function () {
+                    const year = document.querySelector('#yearlyChart').closest('.card').querySelector('select').value;
+                    window.location.href = `/Orders/DownloadYearlyReport?year=${year}`;
+                });
+            </script>
+
+       
         <!-- Bootstrap JS Bundle (Optional for components like modals, dropdowns) -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 

@@ -1214,5 +1214,34 @@ namespace Foodie.Repositories
 
             return metrics;
         }
+
+        public  List<PayoutsDetailsViewModel> GetWeeklySalesByMonth(int year, int month, int resId)
+        {
+            var result = new List<PayoutsDetailsViewModel>();
+           
+
+            using (var conn = new SqlConnection(_connectionstring))
+            using (var cmd = new SqlCommand("[Vendores].[GetWeeklySalesbyMonth]", conn))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Year", year);
+                cmd.Parameters.AddWithValue("@Month", month);
+                cmd.Parameters.AddWithValue("@res_id", resId);
+
+                 conn.Open();
+                using (var reader =  cmd.ExecuteReader())
+                {
+                    while ( reader.Read())
+                    {
+                        result.Add(new PayoutsDetailsViewModel
+                        {
+                            WeekNumber = reader.GetInt32(0),
+                            TotalAmount = reader.GetDecimal(1)
+                        });
+                    }
+                }
+            }
+            return result;
+        }
     }
 }

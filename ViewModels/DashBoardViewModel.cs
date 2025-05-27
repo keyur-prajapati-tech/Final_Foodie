@@ -10,17 +10,14 @@
             public int PendingOrders { get; set; }
             public int AcceptedOrders { get; set; }
             public int DeliverdOrders { get; set; }
-
             public int ActiveRestaurants { get; set; }
             public int InactiveRestaurants { get; set; }
             public int OpenRestaurants { get; set; }
             public int ClosedRestaurants { get; set; }
+        public int WeekNumber { get; set; }
+        public decimal TotalAmount { get; set; }
 
-        public List<int> Month { get; set; } = new List<int>();
-        public List<int> MonthlySalesdata { get; set; } = new List<int>();
-        public List<int> Year { get; set; } = new List<int>();
-        public List<int> YearlySalesdata { get; set; } = new List<int>();
-       
-
+        public int SalesMonth { get; set; }
+        public decimal TotalSales { get; set; }
     }
 }

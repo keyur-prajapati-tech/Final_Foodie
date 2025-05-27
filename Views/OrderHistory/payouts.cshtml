@@ -158,11 +158,39 @@
                 </tbody>
             </table>
         </div>
-        <div class="mt-5">
-            <h5>📊 Payout Trend (Last 4 Weeks)</h5>
-            <canvas id="payoutChart" height="100"></canvas>
-        </div>
+        <div class="container mt-4">
+            <div class="card shadow-sm p-3">
+                <h2 class="text-center text-primary mb-3">📈 Weekly Sales Report by Month</h2>
 
+                <div class="row">
+                    <div class="col-md-4">
+                        <label for="filterYear" class="form-label">Year:</label>
+                        <select id="filterYear" class="form-select">
+                            @for (int y = DateTime.Now.Year - 5; y <= DateTime.Now.Year; y++)
+                            {
+                                <option value="@y">@y</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="filterMonth" class="form-label">Month:</label>
+                        <select id="filterMonth" class="form-select">
+                            @for (int m = 1; m <= 12; m++)
+                            {
+                                <option value="@m">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end">
+                        <button id="downloadPdf" class="btn btn-success w-100">📥 Download PDF Report</button>
+                    </div>
+                </div>
+
+                <div class="mt-4" style="height: 300px;">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+            </div>
+        </div>
         <!-- Chart.js CDN -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <div class="mt-4">
@@ -190,60 +218,62 @@
     </div>
 
     <script>
-        document.getElementById("downloadBtn").addEventListener("click", function () {
-            document.getElementById("popup").style.display = "block";
+        let chart;
+        function loadWeeklyChart(year, month) {
+            fetch(`/OrderHistory/GetWeeklySales?year=${year}&month=${month}`)
+                .then(r => r.json())
+                .then(data => {
+                    const labels = data.map(d => "Week " + d.weekNumber);
+                    const amounts = data.map(d => d.totalAmount);
 
-            // Optional: Auto-hide after 3 seconds
-            setTimeout(() => {
-                document.getElementById("popup").style.display = "none";
-            }, 5000);
+                    if (chart) chart.destroy();
+
+                    const ctx = document.getElementById('weeklyChart').getContext('2d');
+                    chart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: `Total Sales in ${month}/${year}`,
+                                data: amounts,
+                                borderColor: 'rgba(75,192,192,1)',
+                                backgroundColor: 'rgba(75,192,192,0.2)',
+                                fill: true,
+                                tension: 0.3,
+                                pointRadius: 5,
+                                pointHoverRadius: 7
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: { y: { beginAtZero: true, ticks: { callback: v => '$' + v } } },
+                            plugins: { legend: { display: true }, title: { display: true, text: 'Weekly Sales Overview' } }
+                        }
+                    });
+                });
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const now = new Date();
+            document.getElementById('filterYear').value = now.getFullYear();
+            document.getElementById('filterMonth').value = now.getMonth() + 1;
+            loadWeeklyChart(now.getFullYear(), now.getMonth() + 1);
         });
-        const ctx = document.getElementById('payoutChart').getContext('2d');
-               const payoutChart = new Chart(ctx, {
-                 type: 'line',
-                 data: {
-                   labels: ['1–7 Apr', '8–14 Apr', '15–21 Apr', '22–28 Apr'],
-                   datasets: [{
-                     label: 'Net Payout (₹)',
-                     data: [41150, 37035, 20986.5, 42000],
-                     fill: true,
-                     borderColor: '#007bff',
-                     backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                     tension: 0.4,
-                     pointBackgroundColor: '#007bff'
-                   }]
-                 },
-                 options: {
-                   responsive: true,
-                   plugins: {
-                     legend: {
-                       display: true
-                     },
-                     tooltip: {
-                       callbacks: {
-                         label: function(context) {
-                           return ` ₹${context.parsed.y.toLocaleString()}`;
-                         }
-                       }
-                     }
-                   },
-                   scales: {
-                     y: {
-                       beginAtZero: true,
-                       title: {
-                         display: true,
-                         text: 'Amount in ₹'
-                       }
-                     },
-                     x: {
-                       title: {
-                         display: true,
-                         text: 'Week'
-                       }
-                     }
-                   }
-                 }
-               });
+
+        ['filterYear', 'filterMonth'].forEach(id => {
+            document.getElementById(id).addEventListener("change", () => {
+                const year = document.getElementById('filterYear').value;
+                const month = document.getElementById('filterMonth').value;
+                loadWeeklyChart(year, month);
+            });
+        });
+
+        document.getElementById('downloadPdf').addEventListener("click", () => {
+            const year = document.getElementById('filterYear').value;
+            const month = document.getElementById('filterMonth').value;
+            window.location.href = `/OrderHistory/DownloadWeeklyReport?year=${year}&month=${month}`;
+        });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
