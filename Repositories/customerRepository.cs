@@ -1519,5 +1519,29 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 cmd.ExecuteNonQuery();
             }
         }
+
+        public List<tbl_restaurant> GetApprovedRestaurants()
+        {
+            List<tbl_restaurant> restaurants = new List<tbl_restaurant>();
+
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT restaurant_id, restaurant_name FROM vendores.tbl_restaurant WHERE restaurant_isApprov = 1";
+                SqlCommand cmd = new SqlCommand(query, con);
+                con.Open();
+
+                SqlDataReader dr = cmd.ExecuteReader();
+                while (dr.Read())
+                {
+                    restaurants.Add(new tbl_restaurant
+                    {
+                        restaurant_id = Convert.ToInt32(dr["restaurant_id"]),
+                        restaurant_name = dr["restaurant_name"].ToString()
+                    });
+                }
+            }
+
+            return restaurants;
+        }
     }
 }

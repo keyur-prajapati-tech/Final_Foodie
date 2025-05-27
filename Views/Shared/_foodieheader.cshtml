@@ -1,4 +1,5 @@
 ﻿@{
+    //var loggedInUserName = HttpContext.Session.GetString("name") ?? "";
     //view data example
     ViewData["food_name"] = "Gurjati Dishes";
 }
@@ -178,7 +179,6 @@
                 </a>
 
                 <!-- Feedback Modal -->
-                <!-- Feedback Modal -->
                 <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
@@ -191,21 +191,19 @@
                                 <div class="modal-body">
                                     <div id="feedbackMessage" class="alert alert-success d-none"></div>
 
+                                    <!-- Hidden field to store username -->
+                                    <input type="hidden" id="sessionUserName" value="@Context.Session.GetString("UserId")" />
+
                                     <div class="mb-3">
-                                        <label for="customer_id" class="form-label">Customer</label>
-                                        <select id="customer_id" name="customer_id" class="form-control" required>
-                                            <option value="">-- Select Customer --</option>
-                                            <option value="1">John Doe</option>
-                                            <option value="2">Jane Smith</option>
-                                        </select>
+                                        <label for="user_name" class="form-label">Your Name</label>
+                                        <input type="text" id="user_name" name="user_name" value="@Context.Session.GetString("UserName")" class="form-control" readonly />
                                     </div>
 
+                                    <!-- Restaurant Dropdown -->
                                     <div class="mb-3">
                                         <label for="restaurant_id" class="form-label">Restaurant</label>
                                         <select id="restaurant_id" name="restaurant_id" class="form-control" required>
                                             <option value="">-- Select Restaurant --</option>
-                                            <option value="101">Pizza Palace</option>
-                                            <option value="102">Burger Barn</option>
                                         </select>
                                     </div>
 
@@ -227,6 +225,8 @@
                         </div>
                     </div>
                 </div>
+
+                <div id="feedbackSuccess" class="alert alert-success mt-3 d-none"></div>
 
                 <!-- Bootstrap JS + CSS (include at bottom of your view/layout) -->
                 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -281,7 +281,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
 
     <script>
-        $(document).ready(function () {
+                $(document).ready(function () {
+            // Initialize Owl Carousel if needed
             $(".owl-carousel").owlCarousel({
                 loop: true,
                 margin: 15,
@@ -297,28 +298,81 @@
                 navText: ["<i class='fas fa-chevron-left'></i>", "<i class='fas fa-chevron-right'></i>"]
             });
 
+            // Auto-fill user name from session
+            $('#user_name').val('@Context.Session.GetString("UserName")');
+
+            // Load restaurant dropdown
+            loadRestaurants();
+
             // Feedback Form Submission
             $('#feedbackForm').submit(function (e) {
-            e.preventDefault();
+                e.preventDefault();
+                submitFeedback();
+            });
+        });
+
+        function loadRestaurants() {
+            $.ajax({
+                type: 'GET',
+                url: '/Locality/GetApprovedRestaurants',
+                success: function (data) {
+                    let dropdown = $('#restaurant_id');
+                    dropdown.empty();
+                    dropdown.append('<option value="">-- Select Restaurant --</option>');
+                    $.each(data, function (i, restaurant) {
+                        dropdown.append(`<option value="${restaurant.restaurant_id}">${restaurant.restaurant_name}</option>`);
+                    });
+                },
+                error: function (xhr) {
+                    console.error("Could not load restaurants:", xhr.responseText);
+                    $('#restaurant_id').html('<option value="">Error loading restaurants</option>');
+                }
+            });
+        }
+
+        function submitFeedback() {
+            // Get form data
+            var formData = {
+                restaurant_id: $('#restaurant_id').val(),
+                rating: $('#rating').val(),
+                feedback_description: $('#feedback_description').val()
+            };
+
+            // Client-side validation
+            if (!formData.restaurant_id || !formData.rating || !formData.feedback_description) {
+                $('#feedbackMessage').removeClass('alert-success d-none').addClass('alert-danger')
+                    .text("Please fill all required fields");
+                return;
+            }
 
             $.ajax({
                 type: 'POST',
                 url: '/Locality/AjaxCreate',
-                data: $(this).serialize(),
+                contentType: 'application/json',
+                data: JSON.stringify(formData),
                 success: function (response) {
                     if (response.success) {
-                        $('#feedbackMessage').removeClass('d-none').text("Feedback submitted successfully!");
+                        $('#feedbackMessage').removeClass('alert-danger d-none').addClass('alert-success')
+                            .text(response.message);
                         $('#feedbackForm')[0].reset();
+
+                        // Close modal after 2 seconds
+                        setTimeout(() => {
+                            $('#feedbackModal').modal('hide');
+                            $('#feedbackMessage').addClass('d-none');
+                        }, 2000);
                     } else {
-                        alert("Error: " + response.message);
+                        $('#feedbackMessage').removeClass('alert-success d-none').addClass('alert-danger')
+                            .text(response.message);
                     }
                 },
-                error: function () {
-                    alert("Something went wrong while submitting feedback.");
+                error: function (xhr) {
+                    var errorMsg = xhr.responseJSON?.message || "Something went wrong while submitting feedback.";
+                    $('#feedbackMessage').removeClass('alert-success d-none').addClass('alert-danger')
+                        .text(errorMsg);
                 }
             });
-        });
-        });
+        }
     </script>
 
     <div>
