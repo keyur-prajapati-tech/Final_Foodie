@@ -69,6 +69,11 @@ namespace Foodie.Repositories
         List<reports> GetPerformanceMetrics();
 
         List<PayoutsDetailsViewModel> GetWeeklySalesByMonth(int year, int month, int resId);
+
+        void InsertFeedback(tbl_vendor_feedback feedback);
+        List<tbl_vendor_feedback> GetAllFeedback();
+
         List<weeklypayoutsViewModel> GetWeeklyPayouts(int restaurantId);
+
     }
 }

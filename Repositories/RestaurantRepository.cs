@@ -4,6 +4,7 @@ using Foodie.Models.Restaurant;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using Foodie.ViewModels;
+using Foodie.Models;
 
 
 namespace Foodie.Repositories
@@ -1324,9 +1325,93 @@ namespace Foodie.Repositories
             return offers;
         }
 
+
+        public List<tbl_vendor_feedback> GetAllFeedback()
+        {
+            var list = new List<tbl_vendor_feedback>();
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            using (SqlCommand cmd = new SqlCommand("sp_GetVendorFeedback", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                con.Open();
+                using (SqlDataReader rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        list.Add(new tbl_vendor_feedback
+                        {
+                            vendore_feedback_id = Convert.ToInt32(rdr["vendore_feedback_id"]),
+                            restaurant_id = Convert.ToInt32(rdr["restaurant_id"]),
+                            rating = Convert.ToDecimal(rdr["rating"]),
+                            feedback_description = rdr["feedback_description"].ToString(),
+                            createdAt = Convert.ToDateTime(rdr["createdAt"])
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public void InsertFeedback(tbl_vendor_feedback feedback)
+        {
+            if (feedback.rating < 1 || feedback.rating > 5)
+                throw new ArgumentException("Rating must be between 1 and 5");
+
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            using (SqlCommand cmd = new SqlCommand("sp_InsertVendorFeedback", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@restaurant_id", feedback.restaurant_id);
+                cmd.Parameters.AddWithValue("@rating", feedback.rating);
+                cmd.Parameters.AddWithValue("@feedback_description", feedback.feedback_description);
+                con.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+
+
         public List<weeklypayoutsViewModel> GetWeeklyPayouts(int restaurantId)
         {
-            throw new NotImplementedException();
+            List<weeklypayoutsViewModel> weekpayouts = new List<weeklypayoutsViewModel>();
+
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT 
+                                DATEPART(WEEK, o.order_date) - DATEPART(WEEK, DATEFROMPARTS(YEAR(o.order_date), MONTH(o.order_date), 1)) + 1 AS WeekNumber,
+                                CONCAT(
+                                    MIN(DATEPART(DAY, o.order_date)), '–', 
+                                    MAX(DATEPART(DAY, o.order_date)), ' ', 
+                                    DATENAME(MONTH, MIN(o.order_date))
+                                ) AS WeekRange,
+                                SUM(o.grand_total) AS OrderValue,
+                                SUM(o.grand_total) * 0.10 AS Commission, -- Assuming 10% commission
+                                SUM(o.grand_total) * 0.18 AS GST,        -- Assuming 18% GST on commission
+                                SUM(o.grand_total) - (SUM(o.grand_total) * 0.10 + SUM(o.grand_total) * 0.18) AS NetPayout,
+                                MAX(p.payment_date) AS PaymentDate
+                            FROM customers.tbl_orders o
+                            LEFT JOIN customers.payments p ON o.order_id = p.order_id AND p.payment_status = 'Paid'
+                            WHERE o.resturant_id = @restaurant_id
+                            GROUP BY DATEPART(WEEK, o.order_date), 
+                                     DATEPART(YEAR, o.order_date), 
+                                     DATEPART(MONTH, o.order_date)
+                            ORDER BY MIN(o.order_date) DESC;";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@restaurant_id", restaurantId);
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    weekpayouts.Add(new weeklypayoutsViewModel
+                    {
+                        WeekNumber = reader.GetInt32(0),
+                        WeekLabel = reader.GetString(1),
+                        TotalAmount = reader.GetDecimal(2)
+                    });
+                }
+                conn.Close();
+            }
         }
+
     }
 }
