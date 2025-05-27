@@ -4,79 +4,328 @@
     Layout = "~/Views/Shared/_RestaurantLayout.cshtml";
 }
 
+<!-- CSS Imports -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css" rel="stylesheet" />
-<link href="https://cdn.datatables.net/buttons/2.2.2/css/buttons.dataTables.min.css" rel="stylesheet" />
+<link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet">
+<style>
+    :root {
+        --primary-color: #4e73df;
+        --secondary-color: #f8f9fc;
+        --success-color: #1cc88a;
+        --danger-color: #e74a3b;
+        --warning-color: #f6c23e;
+        --info-color: #36b9cc;
+    }
 
-<div class="container-fluid mt-5">
+    body {
+        background-color: #f8f9fc;
+        font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .card {
+        border: none;
+        border-radius: 0.35rem;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    }
+
+    .card-header {
+        background-color: #f8f9fc;
+        border-bottom: 1px solid #e3e6f0;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .table {
+        width: 100%;
+        margin-bottom: 1rem;
+        color: #5a5c69;
+    }
+
+        .table th {
+            padding: 1rem;
+            background-color: var(--secondary-color);
+            color: #4e73df;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05rem;
+        }
+
+        .table td {
+            padding: 1rem;
+            vertical-align: middle;
+            border-top: 1px solid #e3e6f0;
+        }
+
+    .badge {
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 0.35em 0.65em;
+    }
+
+    .btn {
+        font-weight: 600;
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        border-radius: 0.35rem;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .btn-success {
+        background-color: var(--success-color);
+        border-color: var(--success-color);
+    }
+
+    .btn-danger {
+        background-color: var(--danger-color);
+        border-color: var(--danger-color);
+    }
+
+    .btn-warning {
+        background-color: var(--warning-color);
+        border-color: var(--warning-color);
+    }
+
+    .btn-info {
+        background-color: var(--info-color);
+        border-color: var(--info-color);
+    }
+
+    .form-control, .form-select {
+        padding: 0.375rem 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        border-radius: 0.35rem;
+        border: 1px solid #d1d3e2;
+    }
+
+    .modal-content {
+        border: none;
+        border-radius: 0.35rem;
+    }
+
+    .modal-header {
+        border-bottom: 1px solid #e3e6f0;
+    }
+
+    .modal-footer {
+        border-top: 1px solid #e3e6f0;
+    }
+
+    .offer-image {
+        height: 50px;
+        width: 50px;
+        object-fit: cover;
+        border-radius: 0.25rem;
+        margin-right: 5px;
+        transition: transform 0.3s;
+    }
+
+        .offer-image:hover {
+            transform: scale(1.5);
+            z-index: 100;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+    .image-preview-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .image-preview {
+        position: relative;
+        width: 80px;
+        height: 80px;
+    }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+
+        .image-preview .remove-image {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+    .dropdown-menu {
+        border: none;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+    }
+
+    .dropdown-item {
+        padding: 0.5rem 1.5rem;
+        font-size: 0.875rem;
+    }
+
+        .dropdown-item:hover {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+        }
+
+    .page-title {
+        font-size: 1.75rem;
+        font-weight: 600;
+        color: #4e73df;
+    }
+
+    .filter-section {
+        background-color: white;
+        padding: 1.5rem;
+        border-radius: 0.35rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+    }
+
+    .action-buttons .btn {
+        margin-right: 5px;
+    }
+
+    .status-badge {
+        padding: 0.35em 0.65em;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border-radius: 0.25rem;
+    }
+
+    .status-active {
+        background-color: rgba(28, 200, 138, 0.1);
+        color: var(--success-color);
+    }
+
+    .status-inactive {
+        background-color: rgba(231, 74, 59, 0.1);
+        color: var(--danger-color);
+    }
+
+    .discount-badge {
+        background-color: rgba(78, 115, 223, 0.1);
+        color: var(--primary-color);
+        padding: 0.35em 0.65em;
+        border-radius: 0.25rem;
+        font-weight: 600;
+    }
+
+    .date-range {
+        font-size: 0.85rem;
+        color: #6c757d;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .required-field::after {
+        content: " *";
+        color: var(--danger-color);
+    }
+</style>
+
+<div class="container-fluid px-4 mt-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="page-title">
+            <i class="fas fa-tags me-2"></i>Special Offers Management
+        </h1>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <form method="get" action="@Url.Action("offers", "OrderHistory")" class="row g-3">
+            <div class="col-md-3">
+                <label for="validFrom" class="form-label">Valid From</label>
+                <input type="date" name="validFrom" id="validFrom" class="form-control"
+                       value="@Context.Request.Query["validFrom"]" />
+            </div>
+            <div class="col-md-3">
+                <label for="validTo" class="form-label">Valid To</label>
+                <input type="date" name="validTo" id="validTo" class="form-control"
+                       value="@Context.Request.Query["validTo"]" />
+            </div>
+            <div class="col-md-3">
+                <label for="isActive" class="form-label">Status</label>
+                <select name="isActive" id="isActive" class="form-select">
+                    <option value="">All Statuses</option>
+                    <option value="true" selected="@(Context.Request.Query["isActive"] == "true")">Active</option>
+                    <option value="false" selected="@(Context.Request.Query["isActive"] == "false")">Inactive</option>
+                </select>
+            </div>
+            <div class="col-md-3 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-filter me-2"></i>Filter
+                </button>
+                <div class="dropdown">
+                    <button class="btn btn-success dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-file-export me-2"></i>Export
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="exportDropdown">
+                        <li>
+                            <a class="dropdown-item" href="@Url.Action("ExportToExcel", "OrderHistory", new {
+                                isActive = Context.Request.Query["isActive"],
+                                validFrom = Context.Request.Query["validFrom"],
+                                validTo = Context.Request.Query["validTo"]
+                            })">
+                                <i class="fas fa-file-excel me-2"></i>Excel
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="@Url.Action("ExportToPDF", "OrderHistory", new {
+                                isActive = Context.Request.Query["isActive"],
+                                validFrom = Context.Request.Query["validFrom"],
+                                validTo = Context.Request.Query["validTo"]
+                            })">
+                                <i class="fas fa-file-pdf me-2"></i>PDF
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Card -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h4 class="m-0 font-weight-bold text-primary">Special Offers Management</h4>
+            <h6 class="m-0 font-weight-bold text-primary">Special Offers List</h6>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addOfferModal">
+                <i class="fas fa-plus me-2"></i>Add New Offer
+            </button>
         </div>
         <div class="card-body">
-            <!-- Filter Section -->
-            <form method="get" action="@Url.Action("offers", "OrderHistory")" class="row g-3 mb-4">
-                <div class="col-md-3">
-                    <label for="validFrom" class="form-label">Valid From</label>
-                    <input type="date" name="validFrom" id="validFrom" class="form-control"
-                           value="@Context.Request.Query["validFrom"]" />
-                </div>
-                <div class="col-md-3">
-                    <label for="validTo" class="form-label">Valid To</label>
-                    <input type="date" name="validTo" id="validTo" class="form-control"
-                           value="@Context.Request.Query["validTo"]" />
-                </div>
-                <div class="col-md-3">
-                    <label for="isActive" class="form-label">Status</label>
-                    <select name="isActive" id="isActive" class="form-select">
-                        <option value="">All Statuses</option>
-                        <option value="true" selected="@(Context.Request.Query["isActive"] == "true")">Active</option>
-                        <option value="false" selected="@(Context.Request.Query["isActive"] == "false")">Inactive</option>
-                    </select>
-                </div>
-                <div class="col-md-3 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn btn-primary w-100">Filter</button>
-                    <div class="dropdown">
-                        <button class="btn btn-success dropdown-toggle" type="button" id="exportDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            Export
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="exportDropdown">
-                            <li>
-                                <a class="dropdown-item" href="@Url.Action("ExportToExcel", "OrderHistory", new {
-                                isActive = Context.Request.Query["isActive"],
-                                validFrom = Context.Request.Query["validFrom"],
-                                validTo = Context.Request.Query["validTo"]
-                            })">Export to Excel</a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="@Url.Action("ExportToPDF", "OrderHistory", new {
-                                isActive = Context.Request.Query["isActive"],
-                                validFrom = Context.Request.Query["validFrom"],
-                                validTo = Context.Request.Query["validTo"]
-                            })">Export to PDF</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </form>
-
-            <!-- Add Offer Button -->
-            <div class="mb-3">
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addOfferModal">
-                    <i class="fas fa-plus"></i> Add New Offer
-                </button>
-            </div>
-
-            <!-- Offers Grid -->
             <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                    <thead class="bg-light">
+                <table class="table table-bordered table-hover" id="dataTable" width="100%" cellspacing="0">
+                    <thead class="table-light">
                         <tr>
                             <th>Title</th>
                             <th>Description</th>
                             <th>Discount</th>
-                            <th>Valid From</th>
-                            <th>Valid To</th>
+                            <th>Valid Period</th>
                             <th>Status</th>
                             <th>Images</th>
                             <th>Actions</th>
@@ -86,19 +335,32 @@
                         @foreach (var item in Model)
                         {
                             <tr>
-                                <td>@item.offer_title</td>
-                                <td>@item.offer_desc</td>
-                                <td>@item.percentage_disc%</td>
-                                <td>@item.validFrom.ToShortDateString()</td>
-                                <td>@item.validTo.ToShortDateString()</td>
+                                <td>
+                                    <strong>@item.offer_title</strong>
+                                </td>
+                                <td>@(string.IsNullOrEmpty(item.offer_desc) ? "N/A" : item.offer_desc)</td>
+                                <td>
+                                    <span class="discount-badge">@item.percentage_disc% OFF</span>
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span>@item.validFrom.ToShortDateString()</span>
+                                        <span class="text-muted small">to</span>
+                                        <span>@item.validTo.ToShortDateString()</span>
+                                    </div>
+                                </td>
                                 <td>
                                     @if (item.is_Active)
                                     {
-                                        <span class="badge bg-success">Active</span>
+                                        <span class="status-badge status-active">
+                                            <i class="fas fa-check-circle me-1"></i>Active
+                                        </span>
                                     }
                                     else
                                     {
-                                        <span class="badge bg-secondary">Inactive</span>
+                                        <span class="status-badge status-inactive">
+                                            <i class="fas fa-times-circle me-1"></i>Inactive
+                                        </span>
                                     }
                                 </td>
                                 <td>
@@ -107,16 +369,20 @@
                                         var images = item.ImagePath.Split(',');
                                         foreach (var img in images)
                                         {
-                                            <img src="@img" style="height: 50px; width: 50px; object-fit: cover; margin-right: 5px;" />
+                                            <img src="@img" class="offer-image" data-bs-toggle="tooltip" data-bs-placement="top" title="Click to enlarge" />
                                         }
                                     }
+                                    else
+                                    {
+                                        <span class="text-muted">No images</span>
+                                    }
                                 </td>
-                                <td>
-                                    <button class="btn btn-sm btn-primary edit-offer" data-id="@item.so_id">
-                                        <i class="fas fa-edit"></i> Edit
+                                <td class="action-buttons">
+                                    <button class="btn btn-sm btn-primary edit-offer" data-id="@item.so_id" data-bs-toggle="tooltip" title="Edit">
+                                        <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-danger delete-offer" data-id="@item.so_id">
-                                        <i class="fas fa-trash"></i> Delete
+                                    <button class="btn btn-sm btn-danger delete-offer" data-id="@item.so_id" data-bs-toggle="tooltip" title="Delete">
+                                        <i class="fas fa-trash"></i>
                                     </button>
                                 </td>
                             </tr>
@@ -132,8 +398,10 @@
 <div class="modal fade" id="addOfferModal" tabindex="-1" aria-labelledby="addOfferModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addOfferModalLabel">Add New Special Offer</h5>
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="addOfferModalLabel">
+                    <i class="fas fa-plus-circle me-2"></i>Add New Special Offer
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="offerForm" enctype="multipart/form-data">
@@ -143,7 +411,7 @@
                         <input type="hidden" name="menu_id" value="16" />
 
                         <div class="col-md-6">
-                            <label class="form-label">Offer Title *</label>
+                            <label class="form-label required-field">Offer Title</label>
                             <input type="text" name="offer_title" class="form-control" required />
                         </div>
                         <div class="col-md-6">
@@ -151,20 +419,25 @@
                             <input type="text" name="offer_desc" class="form-control" />
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Discount (%) *</label>
-                            <input type="number" name="percentage_disc" class="form-control" required min="1" max="100" />
+                            <label class="form-label required-field">Discount (%)</label>
+                            <div class="input-group">
+                                <input type="number" name="percentage_disc" class="form-control" required min="1" max="100" />
+                                <span class="input-group-text">%</span>
+                            </div>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Valid From *</label>
+                            <label class="form-label required-field">Valid From</label>
                             <input type="date" name="validFrom" class="form-control" required />
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Valid To *</label>
+                            <label class="form-label required-field">Valid To</label>
                             <input type="date" name="validTo" class="form-control" required />
                         </div>
                         <div class="col-md-12">
                             <label class="form-label">Upload Images</label>
-                            <input type="file" name="image_path" multiple class="form-control" accept="image/*" />
+                            <input type="file" name="image_path" multiple class="form-control" accept="image/*" id="imageUpload" />
+                            <small class="text-muted">You can upload multiple images (JPEG, PNG, GIF)</small>
+                            <div class="image-preview-container mt-2" id="imagePreviewContainer"></div>
                         </div>
                         <div class="col-md-12">
                             <label class="form-label">Status</label>
@@ -176,8 +449,12 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save Offer</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Save Offer
+                    </button>
                 </div>
             </form>
         </div>
@@ -188,8 +465,10 @@
 <div class="modal fade" id="editOfferModal" tabindex="-1" aria-labelledby="editOfferModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editOfferModalLabel">Edit Special Offer</h5>
+            <div class="modal-header bg-light">
+                <h5 class="modal-title" id="editOfferModalLabel">
+                    <i class="fas fa-edit me-2"></i>Edit Special Offer
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <form id="editOfferForm" enctype="multipart/form-data">
@@ -200,7 +479,7 @@
                         <input type="hidden" name="menu_id" id="edit_menu_id" />
 
                         <div class="col-md-6">
-                            <label class="form-label">Offer Title *</label>
+                            <label class="form-label required-field">Offer Title</label>
                             <input type="text" name="offer_title" id="edit_offer_title" class="form-control" required />
                         </div>
                         <div class="col-md-6">
@@ -208,22 +487,26 @@
                             <input type="text" name="offer_desc" id="edit_offer_desc" class="form-control" />
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Discount (%) *</label>
-                            <input type="number" name="percentage_disc" id="edit_percentage_disc" class="form-control" required min="1" max="100" />
+                            <label class="form-label required-field">Discount (%)</label>
+                            <div class="input-group">
+                                <input type="number" name="percentage_disc" id="edit_percentage_disc" class="form-control" required min="1" max="100" />
+                                <span class="input-group-text">%</span>
+                            </div>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Valid From *</label>
+                            <label class="form-label required-field">Valid From</label>
                             <input type="date" name="validFrom" id="edit_validFrom" class="form-control" required />
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Valid To *</label>
+                            <label class="form-label required-field">Valid To</label>
                             <input type="date" name="validTo" id="edit_validTo" class="form-control" required />
                         </div>
                         <div class="col-md-12">
                             <label class="form-label">Current Images</label>
-                            <div id="currentImages" class="mb-2"></div>
+                            <div id="currentImages" class="image-preview-container mb-3"></div>
                             <label class="form-label">Upload New Images</label>
-                            <input type="file" name="image_path" multiple class="form-control" accept="image/*" />
+                            <input type="file" name="image_path" multiple class="form-control" accept="image/*" id="editImageUpload" />
+                            <div class="image-preview-container mt-2" id="editImagePreviewContainer"></div>
                         </div>
                         <div class="col-md-12">
                             <label class="form-label">Status</label>
@@ -235,8 +518,12 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Update Offer</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-2"></i>Cancel
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Update Offer
+                    </button>
                 </div>
             </form>
         </div>
@@ -247,8 +534,10 @@
 <div class="modal fade" id="deleteOfferModal" tabindex="-1" aria-labelledby="deleteOfferModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deleteOfferModalLabel">Confirm Delete</h5>
+            <div class="modal-header bg-light">
+                <h5 class="modal-title text-danger" id="deleteOfferModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Confirm Delete
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
@@ -256,19 +545,144 @@
                 <input type="hidden" id="delete_offer_id" />
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" id="confirmDeleteBtn" class="btn btn-danger">Delete</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </button>
+                <button type="button" id="confirmDeleteBtn" class="btn btn-danger">
+                    <i class="fas fa-trash me-2"></i>Delete
+                </button>
             </div>
         </div>
     </div>
 </div>
 
+<!-- Image Preview Modal -->
+<div class="modal fade" id="imagePreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Image Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="" id="modalPreviewImage" class="img-fluid" style="max-height: 70vh;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript Imports -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.bootstrap5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
 <script>
     $(document).ready(function () {
+        // Initialize DataTable with export buttons
+        $('#dataTable').DataTable({
+            dom: '<"top"Bf>rt<"bottom"lip><"clear">',
+            buttons: [
+                {
+                    extend: 'copy',
+                    className: 'btn btn-sm btn-warning',
+                    text: '<i class="fas fa-copy"></i> Copy'
+                },
+                {
+                    extend: 'excel',
+                    className: 'btn btn-sm btn-primary',
+                    text: '<i class="fas fa-file-excel"></i> Excel'
+                },
+                {
+                    extend: 'pdf',
+                    className: 'btn btn-sm btn-danger',
+                    text: '<i class="fas fa-file-pdf"></i> PDF'
+                },
+                {
+                    extend: 'print',
+                    className: 'btn btn-sm btn-info',
+                    text: '<i class="fas fa-print"></i> Print'
+                }
+            ],
+            responsive: true,
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "Search offers...",
+            },
+            columnDefs: [
+                { orderable: false, targets: [5, 6] } // Disable sorting for images and actions columns
+            ]
+        });
+
+        // Initialize tooltips
+        $('[data-bs-toggle="tooltip"]').tooltip();
+
+        // Image preview for add modal
+        $('#imageUpload').change(function() {
+            $('#imagePreviewContainer').empty();
+            if (this.files) {
+                $.each(this.files, function(i, file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#imagePreviewContainer').append(`
+                            <div class="image-preview">
+                                <img src="${e.target.result}" alt="Preview">
+                                <div class="remove-image" onclick="$(this).parent().remove()">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                            </div>
+                        `);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            }
+        });
+
+        // Image preview for edit modal
+        $('#editImageUpload').change(function() {
+            $('#editImagePreviewContainer').empty();
+            if (this.files) {
+                $.each(this.files, function(i, file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        $('#editImagePreviewContainer').append(`
+                            <div class="image-preview">
+                                <img src="${e.target.result}" alt="Preview">
+                                <div class="remove-image" onclick="$(this).parent().remove()">
+                                    <i class="fas fa-times"></i>
+                                </div>
+                            </div>
+                        `);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            }
+        });
+
+        // Show image in modal when clicked
+        $(document).on('click', '.offer-image', function() {
+            const imgSrc = $(this).attr('src');
+            $('#modalPreviewImage').attr('src', imgSrc);
+            $('#imagePreviewModal').modal('show');
+        });
+
+        // Add Offer Form Submission
         $("#offerForm").submit(function (e) {
             e.preventDefault();
+
+            // Show loading state
+            const submitBtn = $(this).find('button[type="submit"]');
+            const originalText = submitBtn.html();
+            submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Saving...');
 
             var formData = new FormData(this);
 
@@ -280,14 +694,23 @@
                 contentType: false,
                 success: function (res) {
                     if (res.success) {
-                        alert("Offer added successfully!");
-                        location.reload();
+                        $('#addOfferModal').modal('hide');
+                        showToast('success', 'Offer added successfully!');
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
                     } else {
-                        alert("Error: " + res.message);
+                        showToast('error', res.message || 'Error adding offer');
+                        submitBtn.prop('disabled', false).html(originalText);
                     }
                 },
-                error: function () {
-                    alert("Something went wrong!");
+                error: function (xhr) {
+                    let errorMessage = 'Something went wrong!';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    showToast('error', errorMessage);
+                    submitBtn.prop('disabled', false).html(originalText);
                 }
             });
         });
@@ -295,6 +718,13 @@
         // Edit Offer
         $(".edit-offer").click(function () {
             var id = $(this).data("id");
+
+            // Show loading state
+            const currentImagesContainer = $('#currentImages');
+            currentImagesContainer.html('<div class="text-center py-3"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></div>');
+
+            $('#editOfferModal').modal('show');
+
             $.get("/OrderHistory/GetOffer", { id: id }, function (data) {
                 $("#edit_so_id").val(data.so_id);
                 $("#edit_restaurant_id").val(data.restaurant_id);
@@ -305,7 +735,24 @@
                 $("#edit_validFrom").val(data.validFrom.split('T')[0]);
                 $("#edit_validTo").val(data.validTo.split('T')[0]);
                 $("#edit_is_Active").val(data.is_Active.toString().toLowerCase());
-                $("#editOfferModal").modal("show");
+
+                // Display current images
+                currentImagesContainer.empty();
+                if (data.ImagePath) {
+                    const images = data.ImagePath.split(',');
+                    images.forEach(img => {
+                        currentImagesContainer.append(`
+                            <div class="image-preview">
+                                <img src="${img}" alt="Current Image">
+                            </div>
+                        `);
+                    });
+                } else {
+                    currentImagesContainer.html('<span class="text-muted">No images</span>');
+                }
+            }).fail(function() {
+                showToast('error', 'Failed to load offer details');
+                $('#editOfferModal').modal('hide');
             });
         });
 
@@ -313,8 +760,12 @@
         $("#editOfferForm").submit(function (e) {
             e.preventDefault();
 
-            var formData = new FormData(this);
+            // Show loading state
+            const submitBtn = $(this).find('button[type="submit"]');
+            const originalText = submitBtn.html();
+            submitBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Updating...');
 
+            var formData = new FormData(this);
             formData.set("is_Active", $("#edit_is_Active").val());
 
             $.ajax({
@@ -325,19 +776,26 @@
                 contentType: false,
                 success: function (res) {
                     if (res.success) {
-                        alert("Offer updated successfully!");
-                        $("#editOfferModal").modal('hide');
-                        location.reload();
+                        $('#editOfferModal').modal('hide');
+                        showToast('success', 'Offer updated successfully!');
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
                     } else {
-                        alert("Error: " + res.message);
+                        showToast('error', res.message || 'Error updating offer');
+                        submitBtn.prop('disabled', false).html(originalText);
                     }
                 },
-                error: function () {
-                    alert("Something went wrong during update!");
+                error: function (xhr) {
+                    let errorMessage = 'Something went wrong during update!';
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMessage = xhr.responseJSON.message;
+                    }
+                    showToast('error', errorMessage);
+                    submitBtn.prop('disabled', false).html(originalText);
                 }
             });
         });
-
 
         // Delete Offer
         $(".delete-offer").click(function () {
@@ -347,15 +805,64 @@
         });
 
         $("#confirmDeleteBtn").click(function () {
+            const deleteBtn = $(this);
+            const originalText = deleteBtn.html();
+            deleteBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Deleting...');
+
             var id = $("#delete_offer_id").val();
             $.post("/OrderHistory/DeleteOffer", { id: id }, function (res) {
                 if (res.success) {
-                    alert("Offer deleted successfully!");
-                    location.reload();
+                    $('#deleteOfferModal').modal('hide');
+                    showToast('success', 'Offer deleted successfully!');
+                    setTimeout(function() {
+                        location.reload();
+                    }, 1500);
                 } else {
-                    alert("Failed to delete offer.");
+                    showToast('error', res.message || 'Failed to delete offer');
+                    deleteBtn.prop('disabled', false).html(originalText);
                 }
+            }).fail(function() {
+                showToast('error', 'Failed to delete offer');
+                deleteBtn.prop('disabled', false).html(originalText);
             });
+        });
+
+        // Toast notification function
+        function showToast(type, message) {
+            toastr.options = {
+                closeButton: true,
+                progressBar: true,
+                positionClass: 'toast-top-right',
+                timeOut: 5000,
+                extendedTimeOut: 2000
+            };
+
+            switch(type) {
+                case 'success':
+                    toastr.success(message);
+                    break;
+                case 'error':
+                    toastr.error(message);
+                    break;
+                case 'warning':
+                    toastr.warning(message);
+                    break;
+                case 'info':
+                    toastr.info(message);
+                    break;
+            }
+        }
+
+        // Reset form when modal is closed
+        $('#addOfferModal').on('hidden.bs.modal', function () {
+            $('#offerForm')[0].reset();
+            $('#imagePreviewContainer').empty();
+        });
+
+        $('#editOfferModal').on('hidden.bs.modal', function () {
+            $('#editOfferForm')[0].reset();
+            $('#editImagePreviewContainer').empty();
+            $('#currentImages').empty();
         });
     });
 </script>
