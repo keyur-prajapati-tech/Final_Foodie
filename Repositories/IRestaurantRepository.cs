@@ -69,5 +69,6 @@ namespace Foodie.Repositories
         List<reports> GetPerformanceMetrics();
 
         List<PayoutsDetailsViewModel> GetWeeklySalesByMonth(int year, int month, int resId);
+        List<weeklypayoutsViewModel> GetWeeklyPayouts(int restaurantId);
     }
 }
