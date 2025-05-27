@@ -138,5 +138,32 @@ namespace Foodie.Controllers.Restaurant
         //    }
         //    return Json(orders);
         //}
+
+
+
+        [HttpPost]
+        public IActionResult InsertFeedback(decimal rating, string feedbackDescription)
+        {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+            if (restaurantId == null)
+                return BadRequest("Restaurant ID not found in session.");
+
+            try
+            {
+                var feedback = new tbl_vendor_feedback
+                {
+                    restaurant_id = restaurantId,
+                    rating = rating,
+                    feedback_description = feedbackDescription
+                };
+                _repository.InsertFeedback(feedback);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
     }
 }

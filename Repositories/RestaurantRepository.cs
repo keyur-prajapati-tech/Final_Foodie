@@ -4,6 +4,7 @@ using Foodie.Models.Restaurant;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using Foodie.ViewModels;
+using Foodie.Models;
 
 
 namespace Foodie.Repositories
@@ -1323,5 +1324,50 @@ namespace Foodie.Repositories
             }
             return offers;
         }
+
+        public List<tbl_vendor_feedback> GetAllFeedback()
+        {
+            var list = new List<tbl_vendor_feedback>();
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            using (SqlCommand cmd = new SqlCommand("sp_GetVendorFeedback", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                con.Open();
+                using (SqlDataReader rdr = cmd.ExecuteReader())
+                {
+                    while (rdr.Read())
+                    {
+                        list.Add(new tbl_vendor_feedback
+                        {
+                            vendore_feedback_id = Convert.ToInt32(rdr["vendore_feedback_id"]),
+                            restaurant_id = Convert.ToInt32(rdr["restaurant_id"]),
+                            rating = Convert.ToDecimal(rdr["rating"]),
+                            feedback_description = rdr["feedback_description"].ToString(),
+                            createdAt = Convert.ToDateTime(rdr["createdAt"])
+                        });
+                    }
+                }
+            }
+            return list;
+        }
+
+        public void InsertFeedback(tbl_vendor_feedback feedback)
+        {
+            if (feedback.rating < 1 || feedback.rating > 5)
+                throw new ArgumentException("Rating must be between 1 and 5");
+
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            using (SqlCommand cmd = new SqlCommand("sp_InsertVendorFeedback", con))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@restaurant_id", feedback.restaurant_id);
+                cmd.Parameters.AddWithValue("@rating", feedback.rating);
+                cmd.Parameters.AddWithValue("@feedback_description", feedback.feedback_description);
+                con.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+
     }
 }
