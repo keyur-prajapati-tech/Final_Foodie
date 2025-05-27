@@ -22,7 +22,7 @@ namespace Foodie.Controllers.Restaurant
 
         public IActionResult OrdHistory()
         {
-            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId")); ; // Replace with the actual restaurant ID
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));  // Replace with the actual restaurant ID
 
             var orderHistory = _restaurantRepository.tbl_Orders_History(restaurantId);
 
@@ -273,6 +273,102 @@ namespace Foodie.Controllers.Restaurant
 
             return View(viewModel);
         }
+
+        [HttpGet]
+        public IActionResult GetWeeklySales(int year, int month)
+        {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+            var data =  _restaurantRepository.GetWeeklySalesByMonth(year, month, restaurantId);
+            return Json(data);
+        }
+
+        [HttpGet]
+        public IActionResult DownloadWeeklyReport(int year, int month)
+        {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+            var data = _restaurantRepository.GetWeeklySalesByMonth(year, month, restaurantId);
+
+            using (var ms = new MemoryStream())
+            {
+                var doc = new iTextSharp.text.Document(PageSize.A4, 25, 25, 30, 30);
+                PdfWriter writer = PdfWriter.GetInstance(doc, ms);
+                doc.Open();
+
+                // Title with styling
+                var titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.BLUE);
+                var title = new Paragraph($"Weekly Sales Report for {month}/{year}\n", titleFont)
+                {
+                    Alignment = Element.ALIGN_CENTER,
+                    SpacingAfter = 10
+                };
+                doc.Add(title);
+
+                // Restaurant Info (optional)
+                var subFont = FontFactory.GetFont(FontFactory.HELVETICA, 12, BaseColor.GRAY);
+                doc.Add(new Paragraph($"Restaurant ID: {restaurantId}", subFont));
+                doc.Add(new Paragraph($"Generated on: {DateTime.Now.ToString("f")}", subFont));
+                doc.Add(new Paragraph(" ")); // space
+
+                if (data != null && data.Any())
+                {
+                    // Define table with styling
+                    PdfPTable table = new PdfPTable(2) { WidthPercentage = 100 };
+                    float[] widths = { 1f, 2f };
+                    table.SetWidths(widths);
+
+                    var headerFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 12, BaseColor.WHITE);
+                    var cellBgColor = new BaseColor(0, 102, 204); // blue
+
+                    PdfPCell header1 = new PdfPCell(new Phrase("Week Number", headerFont))
+                    {
+                        BackgroundColor = cellBgColor,
+                        HorizontalAlignment = Element.ALIGN_CENTER,
+                        Padding = 5
+                    };
+                    PdfPCell header2 = new PdfPCell(new Phrase("Total Amount", headerFont))
+                    {
+                        BackgroundColor = cellBgColor,
+                        HorizontalAlignment = Element.ALIGN_CENTER,
+                        Padding = 5
+                    };
+                    table.AddCell(header1);
+                    table.AddCell(header2);
+
+                    var rowFont = FontFactory.GetFont(FontFactory.HELVETICA, 11, BaseColor.BLACK);
+                    foreach (var item in data)
+                    {
+                        table.AddCell(new PdfPCell(new Phrase(item.WeekNumber.ToString(), rowFont))
+                        {
+                            HorizontalAlignment = Element.ALIGN_CENTER,
+                            Padding = 4
+                        });
+                        table.AddCell(new PdfPCell(new Phrase(item.TotalAmount.ToString("C"), rowFont))
+                        {
+                            HorizontalAlignment = Element.ALIGN_RIGHT,
+                            Padding = 4
+                        });
+                    }
+
+                    doc.Add(table);
+                }
+                else
+                {
+                    // No data message
+                    var noDataFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 14, BaseColor.RED);
+                    var noData = new Paragraph("No sales data available for this period.", noDataFont)
+                    {
+                        Alignment = Element.ALIGN_CENTER,
+                        SpacingBefore = 50
+                    };
+                    doc.Add(noData);
+                }
+
+                doc.Close();
+                return File(ms.ToArray(), "application/pdf", $"WeeklySales_{year}_{month}_Res{restaurantId}.pdf");
+            }
+        }
+
+
         [HttpGet]
         public IActionResult GetBadOrderStats()
         {
