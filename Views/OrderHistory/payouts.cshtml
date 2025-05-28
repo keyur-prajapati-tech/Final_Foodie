@@ -1,4 +1,5 @@
-﻿@{
+﻿@using System.Globalization
+@{
     Layout = "~/Views/Shared/_RestaurantLayout.cshtml";
 }
 @model Foodie.ViewModels.PayoutsDetailsViewModel;
@@ -95,6 +96,123 @@
                 </div>
             </div>
         </div>
+
+        <div class="container mt-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="card-title">Weekly Payouts</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label for="monthFilter" class="form-label">Month</label>
+                            <select id="monthFilter" class="form-select">
+
+                                <!-- Rest of your view -->
+                                @for (int i = 1; i <= 12; i++)
+                                {
+                                    <option value="@i" selected="@(i == DateTime.Now.Month)">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="yearFilter" class="form-label">Year</label>
+                            <select id="yearFilter" class="form-select">
+                                @for (int i = DateTime.Now.Year - 2; i <= DateTime.Now.Year + 1; i++)
+                                {
+                                    <option value="@i" selected="@(i == DateTime.Now.Year)">@i</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button id="filterBtn" class="btn btn-primary me-2">Filter</button>
+                            <button id="downloadBtn" class="btn btn-success">Download</button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="payoutsTable" class="table table-striped table-bordered">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Week</th>
+                                    <th>Order Value</th>
+                                    <th>Commission</th>
+                                    <th>GST</th>
+                                    <th>Net Payout</th>
+                                    <th>Payment Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Data will be loaded via AJAX -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            $(document).ready(function() {
+                    // Initial load with current month/year
+                    loadPayouts($('#monthFilter').val(), $('#yearFilter').val());
+
+                    // Filter button click
+                    $('#filterBtn').click(function() {
+                        loadPayouts($('#monthFilter').val(), $('#yearFilter').val());
+                    });
+
+                    // Download button click
+                    $('#downloadBtn').click(function() {
+                        downloadPayouts($('#monthFilter').val(), $('#yearFilter').val());
+                    });
+
+                    function loadPayouts(month, year) {
+                        $.ajax({
+                            url: '/OrderHistory/GetWeeklyPayouts',
+                            type: 'GET',
+                            data: {
+                                month: month,
+                                year: year
+                            },
+                            beforeSend: function() {
+                                $('#payoutsTable tbody').html('<tr><td colspan="6" class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>');
+                            },
+                            success: function(data) {
+                                const tableBody = $('#payoutsTable tbody');
+                                tableBody.empty();
+
+                                if (data.length === 0) {
+                                    tableBody.append('<tr><td colspan="6" class="text-center">No data available for selected period</td></tr>');
+                                    return;
+                                }
+
+                                data.forEach(function(payout) {
+                                    const row = `
+                                        <tr>
+                                            <td>${payout.weekRange}</td>
+                                            <td>₹${parseFloat(payout.orderValue).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                            <td>₹${parseFloat(payout.commission).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                            <td>₹${parseFloat(payout.gst).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                            <td>₹${parseFloat(payout.netPayout).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                            <td>${payout.paymentDate}</td>
+                                        </tr>
+                                    `;
+                                    tableBody.append(row);
+                                });
+                            },
+                            error: function(xhr, status, error) {
+                                console.error('Error loading payouts:', error);
+                                $('#payoutsTable tbody').html('<tr><td colspan="6" class="text-center text-danger">Error loading data. Please try again.</td></tr>');
+                            }
+                        });
+                    }
+
+                    function downloadPayouts(month, year) {
+                        let downloadUrl = `/api/payout/weekly/download?month=${month}&year=${year}`;
+                        window.location.href = downloadUrl;
+                    }
+                });
+        </script>
 
 
 

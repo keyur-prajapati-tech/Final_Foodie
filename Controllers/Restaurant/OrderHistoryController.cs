@@ -1,4 +1,4 @@
-using Foodie.Models.customers;
+﻿using Foodie.Models.customers;
 using Foodie.ViewModels;
 using Foodie.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -6,6 +6,7 @@ using Foodie.Models.Restaurant;
 using ClosedXML.Excel;
 using iTextSharp.text.pdf;
 using iTextSharp.text;
+using System.Text;
 
 namespace Foodie.Controllers.Restaurant
 {
@@ -260,25 +261,11 @@ namespace Foodie.Controllers.Restaurant
             return View();
         }
 
-        public IActionResult payouts()
-        {
-            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId")); // Or wherever you're storing it
-            var viewModel = _restaurantRepository.GetBankDetailsByRestaurantId(restaurantId);
-
-            if (viewModel == null || viewModel.BankDetails == null)
-            {
-                // Optional: handle empty state (no bank details found)
-                ViewBag.Message = "No bank details found.";
-            }
-
-            return View(viewModel);
-        }
-
         [HttpGet]
         public IActionResult GetWeeklySales(int year, int month)
         {
             var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
-            var data =  _restaurantRepository.GetWeeklySalesByMonth(year, month, restaurantId);
+            var data = _restaurantRepository.GetWeeklySalesByMonth(year, month, restaurantId);
             return Json(data);
         }
 
@@ -365,6 +352,73 @@ namespace Foodie.Controllers.Restaurant
 
                 doc.Close();
                 return File(ms.ToArray(), "application/pdf", $"WeeklySales_{year}_{month}_Res{restaurantId}.pdf");
+            }
+        }
+
+        public IActionResult payouts()
+        {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId")); // Or wherever you're storing it
+            var viewModel = _restaurantRepository.GetBankDetailsByRestaurantId(restaurantId);
+
+            if (viewModel == null || viewModel.BankDetails == null)
+            {
+                // Optional: handle empty state (no bank details found)
+                ViewBag.Message = "No bank details found.";
+            }
+
+            return View(viewModel);
+        }
+
+        [HttpGet("GetWeeklyPayouts")]
+        public async Task<IActionResult> GetWeeklyPayouts([FromQuery] int? month, [FromQuery] int? year)
+        {
+            try
+            {
+                var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+                var filter = new PayoutfilterModel
+                {
+                    restaurant_id = restaurantId,
+                    Month = month,
+                    Year = year
+                };
+
+                var payouts = _restaurantRepository.GetWeeklyPayouts(filter);
+                return Ok(payouts);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("weekly/download")]
+        public async Task<IActionResult> DownloadWeeklyPayouts([FromQuery] int? month, [FromQuery] int? year)
+        {
+            try
+            {
+                var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+                var filter = new PayoutfilterModel
+                {
+                    restaurant_id = restaurantId,
+                    Month = month,
+                    Year = year
+                };
+
+                var payouts = _restaurantRepository.GetWeeklyPayouts(filter);
+
+                var sb = new StringBuilder();
+                sb.AppendLine("Week,Order Value,Commission,GST,Net Payout,Payment Date");
+
+                foreach (var payout in payouts)
+                {
+                    sb.AppendLine($"\"{payout.WeekRange}\",\"₹{payout.OrderValue}\",\"₹{payout.Commission}\",\"₹{payout.GST}\",\"₹{payout.NetPayout}\",\"{payout.PaymentDate}\"");
+                }
+
+                return File(Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", $"WeeklyPayouts_{DateTime.Now:yyyyMMdd}.csv");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
 
