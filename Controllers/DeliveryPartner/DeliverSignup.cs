@@ -48,11 +48,11 @@ namespace Foodie.Controllers.DeliveryPartner
 
         [HttpPost]
         [Route("d/register")]
-        public async Task<IActionResult> DeliveryRegister(tbl_deliveryPartners partner)
+        public IActionResult DeliveryRegister(tbl_deliveryPartners partner)
         {
             ViewData["Layout"] = "_DeliveryPartnerLayout";
 
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 return View("DeliveryRegister", partner); // Return view with validation messages
             }
@@ -61,13 +61,13 @@ namespace Foodie.Controllers.DeliveryPartner
             {
                 using (SqlConnection conn = new SqlConnection(GetConnectionString()))
                 {
-                    await conn.OpenAsync();
+                     conn.Open();
 
                     // Check if email already exists
                     using (SqlCommand checkCmd = new SqlCommand("SELECT COUNT(*) FROM deliverypartner.tbl_deliveryPartners WHERE Email = @Email", conn))
                     {
                         checkCmd.Parameters.AddWithValue("@Email", partner.Email);
-                        int emailExists = (int)await checkCmd.ExecuteScalarAsync();
+                        int emailExists = (int) checkCmd.ExecuteScalar();
 
                         if (emailExists > 0)
                         {
@@ -86,7 +86,7 @@ namespace Foodie.Controllers.DeliveryPartner
                         cmd.Parameters.AddWithValue("@Password", partner.Password);
                         cmd.Parameters.AddWithValue("@CreatedAT", DateTime.Now);
 
-                        int rowsAffected = await cmd.ExecuteNonQueryAsync();
+                        int rowsAffected =  cmd.ExecuteNonQuery();
                         if (rowsAffected > 0)
                         {
                             TempData["Success"] = "Registration successful. Please wait for admin approval.";
@@ -113,28 +113,28 @@ namespace Foodie.Controllers.DeliveryPartner
 
         [HttpPost]
         [Route("d/login")]
-        public async Task<IActionResult> DeliveryLogin(string Email, string Password)
+        public IActionResult DeliveryLogin(string Email, string Password)
         {
-            var partner = await GetPartnerByEmailAndPasswordAsync(Email, Password);
+            var partner = GetPartnerByEmailAndPassword(Email, Password);
 
             if (partner != null)
             {
-                await UpdateLastLoginAsync(partner.partner_id);
-                await SignInUser(partner);
+                 UpdateLastLogin(partner.partner_id);
+                 SignInUser(partner);
                 return HandleLoginRedirect(partner.Status);
             }
 
             TempData["Error"] = "Invalid email or password.";
-            return RedirectToAction("DeliveryLogin");
+            return RedirectToAction("Dashboard", "DeliverSignup");
         }
 
-        public async Task<tbl_deliveryPartners> GetPartnerByEmailAndPasswordAsync(string Email, string Password)
+        public  tbl_deliveryPartners GetPartnerByEmailAndPassword(string Email, string Password)
         {
             tbl_deliveryPartners partner = null;
 
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
-                await conn.OpenAsync();
+                 conn.Open();
 
                 using (SqlCommand cmd = new SqlCommand("sp_AuthDeliveryPartner", conn))
                 {
@@ -142,9 +142,9 @@ namespace Foodie.Controllers.DeliveryPartner
                     cmd.Parameters.AddWithValue("@Email", Email);
                     cmd.Parameters.AddWithValue("@Password", Password);
 
-                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
+                    using (SqlDataReader reader =  cmd.ExecuteReader())
                     {
-                        if (await reader.ReadAsync())
+                        if ( reader.Read())
                         {
                             partner = new tbl_deliveryPartners
                             {
@@ -160,22 +160,22 @@ namespace Foodie.Controllers.DeliveryPartner
             return partner;
         }
 
-        private async Task UpdateLastLoginAsync(int partner_id)
+        private void UpdateLastLogin(int partner_id)
         {
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
-                await conn.OpenAsync();
+                conn.Open();
 
                 using (SqlCommand cmd = new SqlCommand("UpdateLastLogin", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@PartnerId", partner_id);
-                    await cmd.ExecuteNonQueryAsync();
+                    cmd.ExecuteNonQuery();
                 }
             }
         }
 
-        private async Task SignInUser(tbl_deliveryPartners partner)
+        private void SignInUser(tbl_deliveryPartners partner)
         {
             var claims = new List<Claim>
             {
@@ -187,7 +187,7 @@ namespace Foodie.Controllers.DeliveryPartner
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
 
-            await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
+             HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
             HttpContext.Session.SetInt32("PartnerId", partner.partner_id);
         }
 
@@ -259,7 +259,7 @@ namespace Foodie.Controllers.DeliveryPartner
         }
 
         [HttpPost("d/details")]
-        public async Task<IActionResult> Per_Details(tbl_deliveryPartnerDetails per, IFormFile profileImage)
+        public  IActionResult Per_Details(tbl_deliveryPartnerDetails per, IFormFile profileImage)
         {
             var partnerId = HttpContext.Session.GetInt32("PartnerId");
 
@@ -283,7 +283,7 @@ namespace Foodie.Controllers.DeliveryPartner
 
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
-                    await profileImage.CopyToAsync(fileStream);
+                     profileImage.CopyTo(fileStream);
                 }
 
                 per.ProfilePicture = uniqueFileName;
@@ -537,7 +537,7 @@ namespace Foodie.Controllers.DeliveryPartner
 
             using (SqlConnection con = new SqlConnection(GetConnectionString()))
             {
-                SqlCommand cmd = new SqlCommand("SP_GetBankDetailsByPartnerId", con);
+                SqlCommand cmd = new SqlCommand("sp_GetBankDetailsByPartnerId", con);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.Add("@partner_id", SqlDbType.Int).Value = partnerId; // FIXED PARAMETER NAME
 

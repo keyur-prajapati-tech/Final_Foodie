@@ -5,21 +5,146 @@
 
 <head>
     <title>@ViewBag.Title</title>
+    <style>
+        /* Fade-in animation for tables */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        /* Container spacing */
+        .container.my-5 {
+            margin-top: 3rem !important;
+            margin-bottom: 3rem !important;
+        }
+
+        /* Card button styles and spacing */
+        #div1 .card {
+            cursor: pointer;
+            transition: box-shadow 0.3s ease;
+        }
+
+            #div1 .card:hover {
+                box-shadow: 0 8px 20px rgba(13, 110, 253, 0.3);
+            }
+
+        #div1 button {
+            margin-top: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+            #div1 button:hover {
+                background-color: #0d6efd;
+                color: white;
+            }
+
+        /* Table bottom margin */
+        .table {
+            background-color: #ffffffcc;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 15px;
+            table-layout: fixed; /* Fixed column widths */
+            width: 100%;
+            min-height: 300px; /* Keeps table height consistent */
+        }
+
+            .table tbody tr td {
+                height: 50px; /* consistent height */
+                vertical-align: middle;
+                text-align: center;
+            }
+
+            .table thead {
+                background-color: #6c63ff;
+                color: #fff;
+                font-size: 1rem;
+            }
+
+                /* Widths for columns as needed */
+                .table thead th:nth-child(1), .table tbody td:nth-child(1) {
+                    width: 100px;
+                }
+
+                .table thead th:nth-child(2), .table tbody td:nth-child(2) {
+                    width: 120px;
+                }
+
+                .table thead th:nth-child(3), .table tbody td:nth-child(3) {
+                    width: 150px;
+                }
+
+                .table thead th:nth-child(4), .table tbody td:nth-child(4) {
+                    width: 150px;
+                }
+
+                .table thead th:nth-child(5), .table tbody td:nth-child(5) {
+                    width: 150px;
+                }
+
+                .table thead th:nth-child(6), .table tbody td:nth-child(6) {
+                    width: 150px;
+                }
+        /* Adjust based on your needs */
+
+        /* Pagination styles */
+        .pagination {
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .page-item {
+            margin: 0 2px;
+        }
+
+        /* Table container styling */
+        .table-responsive.shadow {
+            padding: 1rem;
+            background: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 0 10px rgb(0 0 0 / 0.1);
+            margin-bottom: 2rem;
+        }
+
+        /* Star rating styles */
+        .star-rating {
+            display: inline-block;
+            font-size: 1.1rem;
+            color: #ffc107; /* Bootstrap gold star color */
+            position: relative;
+        }
+
+            .star-rating .star {
+                pointer-events: none;
+            }
+
+                .star-rating .star.empty {
+                    color: #e4e5e9; /* light gray for empty stars */
+                }
+
+        /* If no feedback message row */
+        .no-feedback-row td {
+            text-align: center;
+            font-style: italic;
+            color: #888;
+            height: 300px; /* To maintain consistent height */
+        }
+
+    </style>
 </head>
 
 <div class="container my-5">
     <div class="text-center mb-4">
-        <h1 class="display-5 fw-bold">Feedback </h1>
-        
+        <h1 class="display-5 fw-bold">Feedback</h1>
     </div>
 
     <div class="row row-cols-1 row-cols-md-3 g-4 mb-4" id="div1">
-        <!-- Buttons will be appended here as cards -->
+        <!-- Buttons appended here -->
     </div>
 
-    <div id="customer" class="table-responsive shadow p-3 mb-4 bg-white rounded d-none">
+    <!-- Customer Feedback -->
+    <div id="customer" class="table-responsive shadow d-none">
         <h4 class="text-center text-secondary mb-3">Customer Feedback</h4>
-        <table class="table table-striped table-bordered table-hover align-middle">
+        <table class="table table-striped table-bordered table-hover align-middle" id="customerTable">
             <thead class="table-light">
                 <tr>
                     <th>Customer Feedback Id</th>
@@ -30,25 +155,29 @@
                     <th>Date</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="customerTableBody">
                 @foreach (var feedback in Model.tbl_customer_Feedback)
                 {
                     <tr>
                         <td>@feedback.cust_feedback_id</td>
                         <td>@feedback.customer_name</td>
                         <td>@feedback.restaurant_name</td>
-                        <td>@feedback.rating</td>
+                        <td data-rating="@feedback.rating"></td>
                         <td>@feedback.feedback_description</td>
                         <td>@feedback.createdAt</td>
                     </tr>
                 }
             </tbody>
         </table>
+        <nav>
+            <ul class="pagination" id="customerPagination"></ul>
+        </nav>
     </div>
 
-    <div id="restaurant" class="table-responsive shadow p-3 mb-4 bg-white rounded d-none">
+    <!-- Restaurant Feedback -->
+    <div id="restaurant" class="table-responsive shadow d-none">
         <h4 class="text-center text-secondary mb-3">Restaurant Feedback</h4>
-        <table class="table table-striped table-bordered table-hover align-middle">
+        <table class="table table-striped table-bordered table-hover align-middle" id="restaurantTable">
             <thead class="table-light">
                 <tr>
                     <th>Vendor Feedback Id</th>
@@ -58,24 +187,28 @@
                     <th>Date</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="restaurantTableBody">
                 @foreach (var feedback in Model.tbl_Vendor_Feedback)
                 {
                     <tr>
                         <td>@feedback.vendore_feedback_id</td>
                         <td>@feedback.restaurant_name</td>
-                        <td>@feedback.rating</td>
+                        <td data-rating="@feedback.rating"></td>
                         <td>@feedback.feedback_description</td>
                         <td>@feedback.createdAt</td>
                     </tr>
                 }
             </tbody>
         </table>
+        <nav>
+            <ul class="pagination" id="restaurantPagination"></ul>
+        </nav>
     </div>
 
-    <div id="delivery" class="table-responsive shadow p-3 mb-4 bg-white rounded d-none">
+    <!-- Delivery Feedback -->
+    <div id="delivery" class="table-responsive shadow d-none">
         <h4 class="text-center text-secondary mb-3">Delivery Partner Feedback</h4>
-        <table class="table table-striped table-bordered table-hover align-middle">
+        <table class="table table-striped table-bordered table-hover align-middle" id="deliveryTable">
             <thead class="table-light">
                 <tr>
                     <th>Delivery Feedback Id</th>
@@ -85,32 +218,144 @@
                     <th>Date</th>
                 </tr>
             </thead>
-            <tbody>
+            <tbody id="deliveryTableBody">
                 @foreach (var feedback in Model.tbl_Delivery_Feedback)
                 {
                     <tr>
                         <td>@feedback.delivery_feedback_id</td>
                         <td>@feedback.partner_id</td>
-                        <td>@feedback.rating</td>
+                        <td data-rating="@feedback.rating"></td>
                         <td>@feedback.feedback_description</td>
                         <td>@feedback.createdAt</td>
                     </tr>
                 }
             </tbody>
         </table>
+        <nav>
+            <ul class="pagination" id="deliveryPagination"></ul>
+        </nav>
     </div>
 </div>
 
 <script>
+    const pageSize = 5; // rows per page
+
+    // Function to generate star HTML based on rating (integer 1 to 5)
+    function getStarHtml(rating) {
+        let stars = '';
+        for(let i = 1; i <= 5; i++) {
+            if(i <= rating) {
+                stars += '<span class="star">&#9733;</span>';  // filled star
+            } else {
+                stars += '<span class="star empty">&#9733;</span>';  // empty star
+            }
+        }
+        return `<span class="star-rating">${stars}</span>`;
+    }
+
+    // Render stars inside rating columns based on data-rating attribute
+    function renderStars(tableBodyId) {
+        const tbody = document.getElementById(tableBodyId);
+        if (!tbody) return;
+        const ratingCells = tbody.querySelectorAll('td[data-rating]');
+        ratingCells.forEach(cell => {
+            const rating = parseInt(cell.getAttribute('data-rating')) || 0;
+            cell.innerHTML = getStarHtml(rating);
+        });
+    }
+
+    // If no rows, add an empty row to keep table height consistent
+    function addNoFeedbackRow(tableBodyId, columnsCount) {
+        const tbody = document.getElementById(tableBodyId);
+        if (!tbody) return;
+        if (tbody.children.length === 0) {
+            const tr = document.createElement('tr');
+            tr.classList.add('no-feedback-row');
+            const td = document.createElement('td');
+            td.colSpan = columnsCount;
+            td.textContent = "No feedback available.";
+            tr.appendChild(td);
+            tbody.appendChild(tr);
+        }
+    }
+
+    function paginateTable(tableBodyId, paginationId) {
+        const tbody = document.getElementById(tableBodyId);
+        const pagination = document.getElementById(paginationId);
+        if (!tbody || !pagination) return;
+
+        let rows = Array.from(tbody.querySelectorAll("tr:not(.no-feedback-row)"));
+        const totalRows = rows.length;
+        const totalPages = Math.ceil(totalRows / pageSize);
+
+        if(totalRows === 0) {
+            // no feedback rows - disable pagination and add no-feedback message
+            pagination.innerHTML = '';
+            addNoFeedbackRow(tableBodyId, tbody.parentElement.querySelectorAll('thead th').length);
+            return;
+        }
+
+        function showPage(page) {
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+
+            rows.forEach((row, i) => {
+                row.style.display = (i >= (page - 1) * pageSize && i < page * pageSize) ? "" : "none";
+            });
+
+            // Hide any no-feedback row if exists
+            const noFeedbackRow = tbody.querySelector('.no-feedback-row');
+            if(noFeedbackRow) noFeedbackRow.style.display = 'none';
+
+            renderPagination(page);
+        }
+
+        function renderPagination(currentPage) {
+            let html = '';
+
+            html += `<li class="page-item ${currentPage === 1 ? "disabled" : ""}">
+                        <a class="page-link" href="#" aria-label="Previous" onclick="event.preventDefault(); showPage_${tableBodyId}(${currentPage - 1}); return false;">
+                          &laquo;
+                        </a>
+                     </li>`;
+
+            for (let i = 1; i <= totalPages; i++) {
+                html += `<li class="page-item ${i === currentPage ? "active" : ""}">
+                            <a class="page-link" href="#" onclick="event.preventDefault(); showPage_${tableBodyId}(${i}); return false;">${i}</a>
+                         </li>`;
+            }
+
+            html += `<li class="page-item ${currentPage === totalPages ? "disabled" : ""}">
+                        <a class="page-link" href="#" aria-label="Next" onclick="event.preventDefault(); showPage_${tableBodyId}(${currentPage + 1}); return false;">
+                          &raquo;
+                        </a>
+                     </li>`;
+
+            pagination.innerHTML = html;
+        }
+
+        window[`showPage_${tableBodyId}`] = showPage;
+        showPage(1);
+    }
+
     function hideTables() {
-        document.getElementById('customer').classList.add("d-none");
-        document.getElementById('restaurant').classList.add("d-none");
-        document.getElementById('delivery').classList.add("d-none");
+        ['customer', 'restaurant', 'delivery'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.add('d-none');
+                el.classList.remove('fade-in');
+            }
+        });
     }
 
     function showTable(tableId) {
         hideTables();
-        document.getElementById(tableId).classList.remove("d-none");
+        const el = document.getElementById(tableId);
+        if (el) {
+            el.classList.remove('d-none');
+            // trigger fade-in animation
+            setTimeout(() => el.classList.add('fade-in'), 10);
+        }
     }
 
     function createButton(id, text, handler) {
@@ -151,5 +396,15 @@
                 hideTables();
                 break;
         }
+
+        // Render stars for all tables
+        renderStars('customerTableBody');
+        renderStars('restaurantTableBody');
+        renderStars('deliveryTableBody');
+
+        // Initialize pagination for all tables
+        paginateTable('customerTableBody', 'customerPagination');
+        paginateTable('restaurantTableBody', 'restaurantPagination');
+        paginateTable('deliveryTableBody', 'deliveryPagination');
     });
 </script>
