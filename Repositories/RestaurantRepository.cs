@@ -1182,36 +1182,6 @@ namespace Foodie.Repositories
             return metrics;
         }
 
-
-        public  List<PayoutsDetailsViewModel> GetWeeklySalesByMonth(int year, int month, int resId)
-        {
-            var result = new List<PayoutsDetailsViewModel>();
-           
-
-            using (var conn = new SqlConnection(_connectionstring))
-            using (var cmd = new SqlCommand("[Vendores].[GetWeeklySalesbyMonth]", conn))
-            {
-                cmd.CommandType = CommandType.StoredProcedure;
-                cmd.Parameters.AddWithValue("@Year", year);
-                cmd.Parameters.AddWithValue("@Month", month);
-                cmd.Parameters.AddWithValue("@res_id", resId);
-
-                 conn.Open();
-                using (var reader =  cmd.ExecuteReader())
-                {
-                    while ( reader.Read())
-                    {
-                        result.Add(new PayoutsDetailsViewModel
-                        {
-                            WeekNumber = reader.GetInt32(0),
-                            TotalAmount = reader.GetDecimal(1)
-                        });
-                    }
-                }
-            }
-            return result;
-        }
-
         public IEnumerable<tbl_special_offers> GetOffersByStatus(bool isActive)
         {
             List<tbl_special_offers> offers = new List<tbl_special_offers>();
@@ -1369,17 +1339,54 @@ namespace Foodie.Repositories
             }
         }
 
+        public List<PayoutsDetailsViewModel> GetWeeklySalesByMonth(int year, int month, int resId)
+        {
+            var result = new List<PayoutsDetailsViewModel>();
+
+
+            using (var conn = new SqlConnection(_connectionstring))
+            using (var cmd = new SqlCommand("[Vendores].[GetWeeklySalesbyMonth]", conn))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Year", year);
+                cmd.Parameters.AddWithValue("@Month", month);
+                cmd.Parameters.AddWithValue("@res_id", resId);
+
+                conn.Open();
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        result.Add(new PayoutsDetailsViewModel
+                        {
+                            WeekNumber = reader.GetInt32(0),
+                            TotalAmount = reader.GetDecimal(1)
+                        });
+                    }
+                }
+            }
+            return result;
+        }
+
         public IEnumerable<PayOutViewModel> GetWeeklyPayouts(PayoutfilterModel filter)
         {
             var payouts = new List<PayOutViewModel>();
 
-            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            using (var connection = new SqlConnection(_connectionstring))
             {
-                string query = @"SELECT 
+                connection.Open();
+
+                var query = @"
+                WITH DateRange AS (
+                    SELECT DATEADD(DAY, n, DATEFROMPARTS(@Year, @Month, 1)) AS Date
+                    FROM (SELECT TOP (31) ROW_NUMBER() OVER (ORDER BY object_id) - 1 AS n FROM sys.objects) AS Numbers
+                    WHERE DATEADD(DAY, n, DATEFROMPARTS(@Year, @Month, 1)) < DATEADD(MONTH, 1, DATEFROMPARTS(@Year, @Month, 1))
+                )
+                SELECT 
                     CONCAT(
-                        MIN(DAY(o.order_date)), '–', 
-                        MAX(DAY(o.order_date)), ' ', 
-                        DATENAME(MONTH, MIN(o.order_date))
+                        MIN(DAY(d.Date)), '–', 
+                        MAX(DAY(d.Date)), ' ', 
+                        DATENAME(MONTH, MIN(d.Date))
                     ) AS WeekRange,
                     SUM(o.grand_total) AS OrderValue,
                     SUM(o.grand_total) * 0.10 AS Commission,
@@ -1387,59 +1394,128 @@ namespace Foodie.Repositories
                     SUM(o.grand_total) - (SUM(o.grand_total) * 0.10 + SUM(o.grand_total) * 0.18) AS NetPayout,
                     CONVERT(VARCHAR, MAX(p.payment_date), 106) AS PaymentDate
                 FROM customers.tbl_orders o
+                JOIN DateRange d ON CAST(o.order_date AS DATE) = d.Date
                 LEFT JOIN customers.payments p ON o.order_id = p.order_id AND p.payment_status = 'paid'
                 WHERE o.restaurant_id = @RestaurantId
-                GROUP BY 
-                    DATEPART(WEEK, o.order_date) - DATEPART(WEEK, DATEFROMPARTS(YEAR(o.order_date), MONTH(o.order_date), 1)) + 1,
-                    DATEPART(YEAR, o.order_date),
-                    DATEPART(MONTH, o.order_date)
-                ORDER BY MIN(o.order_date) DESC";
+                GROUP BY DATEPART(WEEK, d.Date) - DATEPART(WEEK, DATEFROMPARTS(@Year, @Month, 1)) + 1
+                ORDER BY DATEPART(WEEK, d.Date) - DATEPART(WEEK, DATEFROMPARTS(@Year, @Month, 1)) + 1";
+
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@RestaurantId", filter.restaurant_id);
+                    command.Parameters.AddWithValue("@Year", filter.Year ?? DateTime.Now.Year);
+                    command.Parameters.AddWithValue("@Month", filter.Month ?? DateTime.Now.Month);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            payouts.Add(new PayOutViewModel
+                            {
+                                WeekRange = reader["WeekRange"].ToString(),
+                                OrderValue = Convert.ToDecimal(reader["OrderValue"]),
+                                Commission = Convert.ToDecimal(reader["Commission"]),
+                                GST = Convert.ToDecimal(reader["GST"]),
+                                NetPayout = Convert.ToDecimal(reader["NetPayout"]),
+                                PaymentDate = reader["PaymentDate"].ToString()
+                            });
+                        }
+                    }
+                }
+                connection.Close();
+            }
+
+            return payouts;
+
+        }
+
+        public EarningSummaryViewModel GetEarningsSummary()
+        {
+            var summary = new EarningSummaryViewModel();
+
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+
+                var query = @"SELECT SUM(oi.list_price * oi.quantity) 
+                  FROM customers.tbl_orders o
+                  JOIN customers.tbl_order_items oi ON o.order_id = oi.order_id";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                var totalResult = cmd.ExecuteScalar();
+                summary.TotalEarnings = totalResult != DBNull.Value ? Convert.ToDecimal(totalResult) : 0;
+
+                // Calculate settled amount from payments
+                var settledCommand = new SqlCommand(
+                    @"SELECT SUM(Amount) 
+                  FROM customers.payments 
+                  WHERE payment_status = 'Complete'",
+                    conn);
+
+                var settledResult = settledCommand.ExecuteScalar();
+                summary.SettledAmount = settledResult != DBNull.Value ? Convert.ToDecimal(settledResult) : 0;
+
+                // Calculate pending amount
+                summary.PendingAmount = summary.TotalEarnings - summary.SettledAmount;
+            }
+            return summary;
+        }
+
+        public IEnumerable<tbl_orders> GetOrders()
+        {
+            var orders = new List<tbl_orders>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+
+                string query = @"SELECT order_id, order_date, grand_total FROM customers.tbl_orders";
                 SqlCommand cmd = new SqlCommand(query, conn);
 
-                cmd.Parameters.AddWithValue("@RestaurantId", filter.restaurant_id);
-
-                if (filter.Month.HasValue)
+                using (SqlDataReader reader = cmd.ExecuteReader())
                 {
-                    cmd.CommandText = cmd.CommandText.Replace(
-                        "WHERE o.restaurant_id = @RestaurantId",
-                        "WHERE o.restaurant_id = @RestaurantId AND MONTH(o.order_date) = @Month");
-                    cmd.Parameters.AddWithValue("@Month", filter.Month.Value);
-                }
-
-                if (filter.Year.HasValue)
-                {
-                    if (filter.Month.HasValue)
+                    while (reader.Read())
                     {
-                        cmd.CommandText += " AND YEAR(o.order_date) = @Year";
+                        orders.Add(new tbl_orders
+                        {
+                            order_id = Convert.ToInt32(reader["order_id"]),
+                            order_date = Convert.ToDateTime(reader["order_date"]),
+                            grand_total = Convert.ToDecimal(reader["grand_total"])
+                        });
                     }
-                    else
-                    {
-                        cmd.CommandText = cmd.CommandText.Replace(
-                            "WHERE o.restaurant_id = @RestaurantId",
-                            "WHERE o.restaurant_id = @RestaurantId AND YEAR(o.order_date) = @Year");
-                    }
-                    cmd.Parameters.AddWithValue("@Year", filter.Year.Value);
                 }
-
-                conn.Open();
-                SqlDataReader rd = cmd.ExecuteReader();
-
-                while (rd.Read())
-                {
-                    payouts.Add(new PayOutViewModel
-                    {
-                        WeekRange = rd["WeekRange"].ToString(),
-                        OrderValue = rd.GetDecimal("OrderValue"),
-                        Commission = rd.GetDecimal("Commission"),
-                        GST = rd.GetDecimal("GST"),
-                        NetPayout = rd.GetDecimal("NetPayout"),
-                        PaymentDate = rd["PaymentDate"].ToString()
-                    });
-                }
-
                 conn.Close();
             }
-            return payouts;
+            return orders;
+        }
+
+        public IEnumerable<payments> GetPayments()
+        {
+            var payments = new List<payments>();
+
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+                string query = @"SELECT payment_id, order_id, amount, payment_date, payment_status FROM customers.payments";
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        payments.Add(new payments
+                        {
+                            payment_id = Convert.ToInt32(reader["payment_id"]),
+                            order_id = Convert.ToInt32(reader["order_id"]),
+                            amount = Convert.ToDecimal(reader["amount"]),
+                            payment_date = Convert.ToDateTime(reader["payment_date"]),
+                            payment_status = reader["payment_status"].ToString()
+                        });
+                    }
+                }
+                conn.Close();
+            }
+            return payments;
         }
     }
 }
