@@ -1380,7 +1380,7 @@ namespace Foodie.Repositories
                 string query = @"SELECT 
                                 DATEPART(WEEK, o.order_date) - DATEPART(WEEK, DATEFROMPARTS(YEAR(o.order_date), MONTH(o.order_date), 1)) + 1 AS WeekNumber,
                                 CONCAT(
-                                    MIN(DATEPART(DAY, o.order_date)), '', 
+                                    MIN(DATEPART(DAY, o.order_date)), '–', 
                                     MAX(DATEPART(DAY, o.order_date)), ' ', 
                                     DATENAME(MONTH, MIN(o.order_date))
                                 ) AS WeekRange,
