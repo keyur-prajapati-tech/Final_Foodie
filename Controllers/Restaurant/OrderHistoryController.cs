@@ -369,7 +369,6 @@ namespace Foodie.Controllers.Restaurant
             return View(viewModel);
         }
 
-        [HttpGet("GetWeeklyPayouts")]
         public async Task<IActionResult> GetWeeklyPayouts([FromQuery] int? month, [FromQuery] int? year)
         {
             try
@@ -378,8 +377,8 @@ namespace Foodie.Controllers.Restaurant
                 var filter = new PayoutfilterModel
                 {
                     restaurant_id = restaurantId,
-                    Month = month,
-                    Year = year
+                    Month = month ?? DateTime.Now.Month,
+                    Year = year ?? DateTime.Now.Year
                 };
 
                 var payouts = _restaurantRepository.GetWeeklyPayouts(filter);
@@ -420,6 +419,18 @@ namespace Foodie.Controllers.Restaurant
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
+        }
+
+        public IActionResult GetEarningSummary()
+        {
+            var summary = _restaurantRepository.GetEarningsSummary();
+            return View(summary);
+        }
+
+        public IActionResult GetEarningData()
+        {
+            var summay = _restaurantRepository.GetEarningsSummary();
+            return Json(summay);
         }
 
 

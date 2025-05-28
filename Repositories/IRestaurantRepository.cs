@@ -2,6 +2,7 @@
 using Foodie.Models.customers;
 using Foodie.Models.Restaurant;
 using Foodie.ViewModels;
+using Razorpay.Api;
 using System.Reflection.Metadata;
 
 namespace Foodie.Repositories
@@ -76,5 +77,10 @@ namespace Foodie.Repositories
         //payouts Details Display
         List<PayoutsDetailsViewModel> GetWeeklySalesByMonth(int year, int month, int resId);
         IEnumerable<PayOutViewModel> GetWeeklyPayouts(PayoutfilterModel filter);
+
+        //Earning Summary Irepo
+        EarningSummaryViewModel GetEarningsSummary();
+        IEnumerable<tbl_orders> GetOrders();
+        IEnumerable<payments> GetPayments();
     }
 }

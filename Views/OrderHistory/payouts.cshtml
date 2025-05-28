@@ -51,7 +51,7 @@
             padding: 20px;
             text-align: center;
             width: 300px;
-            display: none; /* Initially hidden */
+            display: none;
         }
 
         .download-icon {
@@ -67,36 +67,50 @@
             cursor: pointer;
             width: 80px;
         }
-    
     </style>
 </head>
 <body>
-
     <div class="container-fluid">
-
-        <h3 class="my-4">💰 Payout Dashboard</h3>
-
-        <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <div class="summary-card">
-                    <h5>Total Earnings</h5>
-                    <p>₹1,20,500</p>
+        <!-- Earnings Summary Section -->
+        <div class="container mt-5">
+            <h3 class="my-4">💰 Payout Dashboard</h3>
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2>Total Earnings</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card text-white bg-success mb-3">
+                                <div class="card-header">Total Earnings</div>
+                                <div class="card-body">
+                                    <h4 class="card-title" id="totalEarnings">₹0.00</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-white bg-info mb-3">
+                                <div class="card-header">Settled Amount</div>
+                                <div class="card-body">
+                                    <h4 class="card-title" id="settledAmount">₹0.00</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-white bg-warning mb-3">
+                                <div class="card-header">Pending Amount</div>
+                                <div class="card-body">
+                                    <h4 class="card-title" id="pendingAmount">₹0.00</h4>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <div class="summary-card">
-                    <h5>Settled Amount</h5>
-                    <p>₹95,000</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="summary-card">
-                    <h5>Pending Amount</h5>
-                    <p>₹25,500</p>
-                </div>
-            </div>
+            <button id="refreshBtn" class="btn btn-primary mt-3">Refresh Data</button>
         </div>
 
+        <!-- Weekly Payouts Section -->
         <div class="container mt-4">
             <div class="card">
                 <div class="card-header bg-primary text-white">
@@ -107,8 +121,6 @@
                         <div class="col-md-4">
                             <label for="monthFilter" class="form-label">Month</label>
                             <select id="monthFilter" class="form-select">
-
-                                <!-- Rest of your view -->
                                 @for (int i = 1; i <= 12; i++)
                                 {
                                     <option value="@i" selected="@(i == DateTime.Now.Month)">@CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(i)</option>
@@ -143,7 +155,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- Data will be loaded via AJAX -->
+                                <!-- Data loaded via AJAX -->
                             </tbody>
                         </table>
                     </div>
@@ -151,142 +163,17 @@
             </div>
         </div>
 
-        <script>
-            $(document).ready(function() {
-                    // Initial load with current month/year
-                    loadPayouts($('#monthFilter').val(), $('#yearFilter').val());
-
-                    // Filter button click
-                    $('#filterBtn').click(function() {
-                        loadPayouts($('#monthFilter').val(), $('#yearFilter').val());
-                    });
-
-                    // Download button click
-                    $('#downloadBtn').click(function() {
-                        downloadPayouts($('#monthFilter').val(), $('#yearFilter').val());
-                    });
-
-                    function loadPayouts(month, year) {
-                        $.ajax({
-                            url: '/OrderHistory/GetWeeklyPayouts',
-                            type: 'GET',
-                            data: {
-                                month: month,
-                                year: year
-                            },
-                            beforeSend: function() {
-                                $('#payoutsTable tbody').html('<tr><td colspan="6" class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>');
-                            },
-                            success: function(data) {
-                                const tableBody = $('#payoutsTable tbody');
-                                tableBody.empty();
-
-                                if (data.length === 0) {
-                                    tableBody.append('<tr><td colspan="6" class="text-center">No data available for selected period</td></tr>');
-                                    return;
-                                }
-
-                                data.forEach(function(payout) {
-                                    const row = `
-                                        <tr>
-                                            <td>${payout.weekRange}</td>
-                                            <td>₹${parseFloat(payout.orderValue).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                                            <td>₹${parseFloat(payout.commission).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                                            <td>₹${parseFloat(payout.gst).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                                            <td>₹${parseFloat(payout.netPayout).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
-                                            <td>${payout.paymentDate}</td>
-                                        </tr>
-                                    `;
-                                    tableBody.append(row);
-                                });
-                            },
-                            error: function(xhr, status, error) {
-                                console.error('Error loading payouts:', error);
-                                $('#payoutsTable tbody').html('<tr><td colspan="6" class="text-center text-danger">Error loading data. Please try again.</td></tr>');
-                            }
-                        });
-                    }
-
-                    function downloadPayouts(month, year) {
-                        let downloadUrl = `/api/payout/weekly/download?month=${month}&year=${year}`;
-                        window.location.href = downloadUrl;
-                    }
-                });
-        </script>
-
-
-
-        <div class="table-wrapper">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="mb-0">Weekly Payouts</h5>
-                <div class="container-fluid d-flex justify-content-end ">
-                    <!-- Download Button -->
-                    <button class="btn btn-outline-info" id="downloadBtn">Download</button>
-
-                    <!-- Download Popup -->
-                    <div class="download-toast" id="popup">
-                        <div class="download-icon">
-                            <i class="bi bi-download"></i> <!-- Bootstrap Icon -->
-                        </div>
-                        <div class="mb-2">
-                            Download Payouts Report from <strong>1st Nov</strong> to <strong>3rd Nov</strong>
-                        </div>
-                        <div>
-                            <a href="#" class="download-link">Download now</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <table class="table table-bordered table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>Week</th>
-                        <th>Order Value</th>
-                        <th>Commission</th>
-                        <th>GST</th>
-                        <th>Net Payout</th>
-                        <th>Payment Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>1–7 Apr</td>
-                        <td>₹50,000</td>
-                        <td>₹7,500</td>
-                        <td>₹1,350</td>
-                        <td>₹41,150</td>
-                        <td>10 Apr 2025</td>
-                    </tr>
-                    <tr>
-                        <td>8–14 Apr</td>
-                        <td>₹45,000</td>
-                        <td>₹6,750</td>
-                        <td>₹1,215</td>
-                        <td>₹37,035</td>
-                        <td>17 Apr 2025</td>
-                    </tr>
-                    <tr>
-                        <td>15–21 Apr</td>
-                        <td>₹25,500</td>
-                        <td>₹3,825</td>
-                        <td>₹688.5</td>
-                        <td>₹20,986.5</td>
-                        <td>24 Apr 2025</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <!-- Weekly Sales Chart Section -->
         <div class="container mt-4">
             <div class="card shadow-sm p-3">
                 <h2 class="text-center text-primary mb-3">📈 Weekly Sales Report by Month</h2>
-
                 <div class="row">
                     <div class="col-md-4">
                         <label for="filterYear" class="form-label">Year:</label>
                         <select id="filterYear" class="form-select">
                             @for (int y = DateTime.Now.Year - 5; y <= DateTime.Now.Year; y++)
                             {
-                                <option value="@y">@y</option>
+                                <option value="@y" selected="@(y == DateTime.Now.Year)">@y</option>
                             }
                         </select>
                     </div>
@@ -295,7 +182,7 @@
                         <select id="filterMonth" class="form-select">
                             @for (int m = 1; m <= 12; m++)
                             {
-                                <option value="@m">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m)</option>
+                                <option value="@m" selected="@(m == DateTime.Now.Month)">@System.Globalization.CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(m)</option>
                             }
                         </select>
                     </div>
@@ -303,59 +190,169 @@
                         <button id="downloadPdf" class="btn btn-success w-100">📥 Download PDF Report</button>
                     </div>
                 </div>
-
                 <div class="mt-4" style="height: 300px;">
                     <canvas id="weeklyChart"></canvas>
                 </div>
             </div>
         </div>
-        <!-- Chart.js CDN -->
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <div class="mt-4">
-            <h5>🏦 Bank Account Info</h5>
-         
-                @if (Model != null)
-                {
-                    <ul class="list-group">
-                        <li class="list-group-item">Bank Name: <strong>@Model.BankDetails.bank_name</strong></li>
-                        <li class="list-group-item">Account Number: <strong>@Model.BankDetails.ACC_NO</strong></li>
-                        <li class="list-group-item">IFSC Code: <strong>@Model.BankDetails.IFSC_code</strong></li>
-                        <li class="list-group-item">Account Type: <strong>@Model.BankDetails.ACC_Type</strong></li>
-                    </ul>
-                }
-                else
-                {
-                    <div class="alert alert-warning">Bank details not found.</div>
-                }
-            
+
+        <!-- Bank Account Info Section -->
+        <div class="container mt-5">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5>🏦 Bank Account Info</h5>
+                </div>
+                <div class="card-body">
+                    @if (Model != null && Model.BankDetails != null)
+                    {
+                        <ul class="list-group">
+                            <li class="list-group-item">Bank Name: <strong>@Model.BankDetails.bank_name</strong></li>
+                            <li class="list-group-item">Account Number: <strong>@Model.BankDetails.ACC_NO</strong></li>
+                            <li class="list-group-item">IFSC Code: <strong>@Model.BankDetails.IFSC_code</strong></li>
+                            <li class="list-group-item">Account Type: <strong>@Model.BankDetails.ACC_Type</strong></li>
+                        </ul>
+                    }
+                    else
+                    {
+                        <div class="alert alert-warning">Bank details not found.</div>
+                    }
+                </div>
+            </div>
         </div>
-
-
-
-
     </div>
 
+    <!-- JavaScript Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <script>
-        let chart;
+        // Global chart variable
+        let weeklyChart = null;
+
+        $(document).ready(function() {
+            // Initialize all data on page load
+            loadEarningsData();
+            loadPayouts($('#monthFilter').val(), $('#yearFilter').val());
+            loadWeeklyChart($('#filterYear').val(), $('#filterMonth').val());
+
+            // Refresh button click handler
+            $('#refreshBtn').click(function() {
+                loadEarningsData();
+                loadPayouts($('#monthFilter').val(), $('#yearFilter').val());
+                loadWeeklyChart($('#filterYear').val(), $('#filterMonth').val());
+            });
+
+            // Filter button click handler
+            $('#filterBtn').click(function() {
+                loadPayouts($('#monthFilter').val(), $('#yearFilter').val());
+            });
+
+            // Download button click handler
+            $('#downloadBtn').click(function() {
+                const month = $('#monthFilter').val();
+                const year = $('#yearFilter').val();
+                window.location.href = `/OrderHistory/DownloadWeeklyPayouts?month=${month}&year=${year}`;
+            });
+
+            // Chart filter change handlers
+            $('#filterYear, #filterMonth').change(function() {
+                loadWeeklyChart($('#filterYear').val(), $('#filterMonth').val());
+            });
+
+            // PDF download button handler
+            $('#downloadPdf').click(function() {
+                const year = $('#filterYear').val();
+                const month = $('#filterMonth').val();
+                window.location.href = `/OrderHistory/DownloadWeeklyReport?year=${year}&month=${month}`;
+            });
+        });
+
+        // Load earnings summary data
+        function loadEarningsData() {
+            $.ajax({
+                url: '/OrderHistory/GetEarningData',
+                type: 'GET',
+                beforeSend: function() {
+                    $('#totalEarnings, #settledAmount, #pendingAmount').html('<span class="spinner-border spinner-border-sm" role="status"></span>');
+                },
+                success: function(data) {
+                    $('#totalEarnings').text('₹' + data.totalEarnings.toLocaleString('en-IN', {minimumFractionDigits: 2}));
+                    $('#settledAmount').text('₹' + data.settledAmount.toLocaleString('en-IN', {minimumFractionDigits: 2}));
+                    $('#pendingAmount').text('₹' + data.pendingAmount.toLocaleString('en-IN', {minimumFractionDigits: 2}));
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading earnings data:', error);
+                    $('#totalEarnings, #settledAmount, #pendingAmount').text('Error loading data');
+                }
+            });
+        }
+
+        // Load payouts table data
+        function loadPayouts(month, year) {
+            $.ajax({
+                url: '/OrderHistory/GetWeeklyPayouts',
+                type: 'GET',
+                data: { month: month, year: year },
+                beforeSend: function() {
+                    $('#payoutsTable tbody').html('<tr><td colspan="6" class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>');
+                },
+                success: function(data) {
+                    const tableBody = $('#payoutsTable tbody');
+                    tableBody.empty();
+
+                    if (data.length === 0) {
+                        tableBody.append('<tr><td colspan="6" class="text-center">No data available for selected period</td></tr>');
+                        return;
+                    }
+
+                    data.forEach(function(payout) {
+                        const row = `
+                            <tr>
+                                <td>${payout.weekRange}</td>
+                                <td>₹${parseFloat(payout.orderValue).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td>₹${parseFloat(payout.commission).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td>₹${parseFloat(payout.gst).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td>₹${parseFloat(payout.netPayout).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+                                <td>${payout.paymentDate}</td>
+                            </tr>
+                        `;
+                        tableBody.append(row);
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading payouts:', error);
+                    $('#payoutsTable tbody').html('<tr><td colspan="6" class="text-center text-danger">Error loading data. Please try again.</td></tr>');
+                }
+            });
+        }
+
+        // Load weekly sales chart
         function loadWeeklyChart(year, month) {
-            fetch(`/OrderHistory/GetWeeklySales?year=${year}&month=${month}`)
-                .then(r => r.json())
-                .then(data => {
+            $.ajax({
+                url: '/OrderHistory/GetWeeklySales',
+                type: 'GET',
+                data: { year: year, month: month },
+                success: function(data) {
                     const labels = data.map(d => "Week " + d.weekNumber);
                     const amounts = data.map(d => d.totalAmount);
 
-                    if (chart) chart.destroy();
-
                     const ctx = document.getElementById('weeklyChart').getContext('2d');
-                    chart = new Chart(ctx, {
+
+                    // Destroy previous chart if it exists
+                    if (weeklyChart) {
+                        weeklyChart.destroy();
+                    }
+
+                    weeklyChart = new Chart(ctx, {
                         type: 'line',
                         data: {
                             labels: labels,
                             datasets: [{
                                 label: `Total Sales in ${month}/${year}`,
                                 data: amounts,
-                                borderColor: 'rgba(75,192,192,1)',
-                                backgroundColor: 'rgba(75,192,192,0.2)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
                                 fill: true,
                                 tension: 0.3,
                                 pointRadius: 5,
@@ -365,34 +362,38 @@
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
-                            scales: { y: { beginAtZero: true, ticks: { callback: v =>  v } } },
-                            plugins: { legend: { display: true }, title: { display: true, text: 'Weekly Sales Overview' } }
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: function(value) {
+                                            return '₹' + value.toLocaleString('en-IN');
+                                        }
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            return '₹' + context.raw.toLocaleString('en-IN');
+                                        }
+                                    }
+                                }
+                            }
                         }
                     });
-                });
-        }
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const now = new Date();
-            document.getElementById('filterYear').value = now.getFullYear();
-            document.getElementById('filterMonth').value = now.getMonth() + 1;
-            loadWeeklyChart(now.getFullYear(), now.getMonth() + 1);
-        });
-
-        ['filterYear', 'filterMonth'].forEach(id => {
-            document.getElementById(id).addEventListener("change", () => {
-                const year = document.getElementById('filterYear').value;
-                const month = document.getElementById('filterMonth').value;
-                loadWeeklyChart(year, month);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading weekly sales data:', error);
+                    $('#weeklyChart').replaceWith('<div class="alert alert-danger">Error loading chart data</div>');
+                }
             });
-        });
-
-        document.getElementById('downloadPdf').addEventListener("click", () => {
-            const year = document.getElementById('filterYear').value;
-            const month = document.getElementById('filterMonth').value;
-            window.location.href = `/OrderHistory/DownloadWeeklyReport?year=${year}&month=${month}`;
-        });
+        }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

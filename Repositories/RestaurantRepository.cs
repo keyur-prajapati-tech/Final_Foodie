@@ -1422,10 +1422,100 @@ namespace Foodie.Repositories
                         }
                     }
                 }
+                connection.Close();
             }
 
             return payouts;
 
+        }
+
+        public EarningSummaryViewModel GetEarningsSummary()
+        {
+            var summary = new EarningSummaryViewModel();
+
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+
+                var query = @"SELECT SUM(oi.list_price * oi.quantity) 
+                  FROM customers.tbl_orders o
+                  JOIN customers.tbl_order_items oi ON o.order_id = oi.order_id";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                var totalResult = cmd.ExecuteScalar();
+                summary.TotalEarnings = totalResult != DBNull.Value ? Convert.ToDecimal(totalResult) : 0;
+
+                // Calculate settled amount from payments
+                var settledCommand = new SqlCommand(
+                    @"SELECT SUM(Amount) 
+                  FROM customers.payments 
+                  WHERE payment_status = 'Complete'",
+                    conn);
+
+                var settledResult = settledCommand.ExecuteScalar();
+                summary.SettledAmount = settledResult != DBNull.Value ? Convert.ToDecimal(settledResult) : 0;
+
+                // Calculate pending amount
+                summary.PendingAmount = summary.TotalEarnings - summary.SettledAmount;
+            }
+            return summary;
+        }
+
+        public IEnumerable<tbl_orders> GetOrders()
+        {
+            var orders = new List<tbl_orders>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+
+                string query = @"SELECT order_id, order_date, grand_total FROM customers.tbl_orders";
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        orders.Add(new tbl_orders
+                        {
+                            order_id = Convert.ToInt32(reader["order_id"]),
+                            order_date = Convert.ToDateTime(reader["order_date"]),
+                            grand_total = Convert.ToDecimal(reader["grand_total"])
+                        });
+                    }
+                }
+                conn.Close();
+            }
+            return orders;
+        }
+
+        public IEnumerable<payments> GetPayments()
+        {
+            var payments = new List<payments>();
+
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+                string query = @"SELECT payment_id, order_id, amount, payment_date, payment_status FROM customers.payments";
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        payments.Add(new payments
+                        {
+                            payment_id = Convert.ToInt32(reader["payment_id"]),
+                            order_id = Convert.ToInt32(reader["order_id"]),
+                            amount = Convert.ToDecimal(reader["amount"]),
+                            payment_date = Convert.ToDateTime(reader["payment_date"]),
+                            payment_status = reader["payment_status"].ToString()
+                        });
+                    }
+                }
+                conn.Close();
+            }
+            return payments;
         }
     }
 }
