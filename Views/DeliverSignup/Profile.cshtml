@@ -1,5 +1,4 @@
-﻿@using Foodie.Models.DeliveryPartner
-@model tbl_deliveryPartnerDetails
+﻿@model List<Foodie.Models.DeliveryPartner.tbl_deliveryPartnerDetails>
 
 @{
     ViewData["Title"] = "Update Profile";
@@ -14,25 +13,27 @@
         <div class="alert alert-success">@TempData["Success"]</div>
     }
 
-    <form asp-action="UpdateDetails" method="post" class="profile-form">
-        <input type="hidden" asp-for="detail_id" />
+    @foreach (var partner in Model)
+    {
+        <form asp-action="UpdateDetails" method="post" class="profile-form">
+            <input type="hidden" asp-for="@partner.detail_id" />
 
-        <div class="profile-pic-container">
-            <img id="profilePreview" src="@Model.ProfilePicture" alt="Profile Picture" class="profile-pic" />
-            <input type="file" id="ProfilePicture" name="ProfilePicture" class="profile-upload" accept=".jpg,.jpeg,.png" onchange="previewImage(event)" />
-        </div>
-        <div class="form-group">
-            <label for="AadhaarNumber">Aadhaar Number</label>
-            <input type="text" asp-for="AadhaarNumber" class="form-control" required />
-        </div>
+            <div class="profile-pic-container">
+                <img id="profilePreview" src="@partner.ProfilePicture" alt="Profile Picture" class="profile-pic" />
+                <input type="file" id="ProfilePicture" name="ProfilePicture" class="profile-upload" accept=".jpg,.jpeg,.png" onchange="previewImage(event)" />
+            </div>
+            <div class="form-group">
+                <label for="AadhaarNumber">Aadhaar Number</label>
+                <input type="text" name="AadhaarNumber" value="@partner.AadhaarNumber" class="form-control" required />
+            </div>
+            <div class="form-group">
+                <label for="PANNumber">PAN Number</label>
+                <input type="text" name="PANNumber" value="@partner.PANNumber" class="form-control" required />
+            </div>
+            <button type="submit" class="btn-update">Update</button>
+        </form>
+    }
 
-        <div class="form-group">
-            <label for="PANNumber">PAN Number</label>
-            <input type="text" asp-for="PANNumber" class="form-control" required />
-        </div>
-
-        <button type="submit" class="btn-update">Update</button>
-    </form>
 </div>
 
 <style>
