@@ -1,0 +1,52 @@
+﻿@model Foodie.ViewModels.VendoreViewModel
+
+@{
+    Layout = "_AdminLayout";
+}
+
+<h2 class="text-primary fw-bold my-4">Vendor Profile: @Model.RestaurantName</h2>
+
+<div class="card shadow border-0 rounded-4">
+    <div class="row g-0">
+        <div class="col-md-4 bg-light p-4">
+            <h5>@Model.RestaurantName</h5>
+            <p><strong>Email:</strong> @Model.RestaurantEmail</p>
+            <p><strong>Contact:</strong> @Model.RestaurantContact</p>
+            <p><strong>Address:</strong> @Model.RestaurantStreet, @Model.RestaurantPincode</p>
+            @if (Model.RestaurantImage != null)
+            {
+                <img src="data:image/png;base64,@Convert.ToBase64String(Model.RestaurantImage)" class="restaurant-image" />
+            }
+        </div>
+        <div class="col-md-8 p-4">
+            <h6>Owner Info</h6>
+            <p>@Model.OwnerName (@Model.OwnerEmail) - @Model.OwnerContact</p>
+
+            <h6>Bank Details</h6>
+            <p>Bank: @Model.BankName, A/C: @Model.ACCNo, IFSC: @Model.IFSCCode</p>
+
+            <h6>PAN</h6>
+            <p>Number: @Model.PanNumber, Holder: @Model.PanHolderName</p>
+            <p>Status: <span class="badge @(Model.PanIsVerified ? "bg-success" : "bg-danger")">@((Model.PanIsVerified ? "Verified" : "Not Verified"))</span></p>
+            @if (Model.PanImage != null)
+            {
+                <img src="data:image/png;base64,@Convert.ToBase64String(Model.PanImage)" class="image-box" />
+            }
+
+            <h6>GST & FSSAI</h6>
+            <p>GST: @Model.GstNumber (<span class="badge @(Model.GstIsVerified ? "bg-success" : "bg-danger")">@((Model.GstIsVerified ? "Verified" : "Not Verified"))</span>)</p>
+            <p>FSSAI: @Model.FssaiCerti, Exp: @Model.ExpiryDate?.ToShortDateString()</p>
+            <p>Status: <span class="badge @(Model.FssaiIsVerified ? "bg-success" : "bg-danger")">@((Model.FssaiIsVerified ? "Verified" : "Not Verified"))</span></p>
+            @if (Model.FssaiImage != null)
+            {
+                <img src="data:image/png;base64,@Convert.ToBase64String(Model.FssaiImage)" class="image-box" />
+            }
+
+            <h6>Menu</h6>
+            @if (Model.MenuImage != null)
+            {
+                <img src="data:image/png;base64,@Convert.ToBase64String(Model.MenuImage)" class="image-box" />
+            }
+        </div>
+    </div>
+</div>

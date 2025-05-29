@@ -1,21 +1,330 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Pending Approval";
     Layout = ViewBag.Layout ?? "_DeliverRegisterLayout";
 }
 
-<div class="container text-center mt-5">
-    <div class="card shadow-lg p-4 bg-white rounded" style="max-width: 500px; margin: auto;">
-        <h2 class="text-warning">Account Pending Approval</h2>
-        <hr />
-        <p class="mt-3">
-            Thank you for signing up as a delivery partner. Your account is currently under review.
-        </p>
-        <p>
-            You will receive a notification once your account is approved.
-        </p>
-        <div class="mt-4">
-            <a href="@Url.Action("DeliveryLogin", "DeliverSignup")" class="btn btn-primary">Back to Login</a>
+<style>
+    :root {
+        --primary-color: #FF5A00;
+        --secondary-color: #FFF2EB;
+        --text-dark: #333333;
+        --text-muted: #757575;
+        --border-color: #E0E0E0;
+        --success-color: #43A047;
+        --warning-color: #FF9800;
+        --background: #F8F9FA;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f5f7fa, #f7f9fc);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .pending-container {
+        width: 100%;
+        max-width: 540px;
+        padding: 20px;
+        margin: 0 auto;
+    }
+
+    .pending-card {
+        background: #FFFFFF;
+        border-radius: 16px;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+        padding: 32px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .pending-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 30px;
+    }
+
+    .pending-logo {
+        width: 40px;
+        height: 40px;
+        background-color: var(--primary-color);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 24px;
+    }
+
+    .pending-logo-text {
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    .status-icon {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background-color: var(--secondary-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 24px;
+    }
+
+    .clock-icon {
+        color: var(--warning-color);
+        font-size: 40px;
+    }
+
+    .pending-title {
+        font-size: 24px;
+        font-weight: 600;
+        color: var(--warning-color);
+        margin-bottom: 16px;
+    }
+
+    .pending-desc {
+        color: var(--text-muted);
+        font-size: 16px;
+        line-height: 1.6;
+        margin-bottom: 8px;
+    }
+
+    .progress-steps {
+        display: flex;
+        justify-content: space-between;
+        margin: 40px 0;
+    }
+
+    .step {
+        flex: 1;
+        text-align: center;
+        position: relative;
+    }
+
+        .step:not(:last-child):after {
+            content: '';
+            position: absolute;
+            top: 16px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background-color: var(--border-color);
+            z-index: 1;
+        }
+
+        .step.completed:not(:last-child):after {
+            background-color: var(--primary-color);
+        }
+
+        .step.active:not(:last-child):after {
+            background-color: var(--warning-color);
+        }
+
+    .step-dot {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--border-color);
+        color: #FFFFFF;
+        margin: 0 auto 8px;
+        position: relative;
+        z-index: 2;
+        font-weight: 600;
+    }
+
+    .step.completed .step-dot {
+        background-color: var(--primary-color);
+    }
+
+    .step.active .step-dot {
+        background-color: var(--warning-color);
+    }
+
+    .step-label {
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+
+    .step.completed .step-label {
+        color: var(--primary-color);
+        font-weight: 500;
+    }
+
+    .step.active .step-label {
+        color: var(--warning-color);
+        font-weight: 500;
+    }
+
+    .info-section {
+        background-color: #F9F9F9;
+        border-radius: 12px;
+        padding: 20px;
+        margin: 30px 0;
+        text-align: left;
+    }
+
+    .info-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+    }
+
+        .info-title svg {
+            margin-right: 8px;
+        }
+
+    .info-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: 12px;
+    }
+
+    .info-icon {
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--warning-color);
+        margin-right: 12px;
+        font-size: 16px;
+    }
+
+    .info-text {
+        font-size: 14px;
+        color: var(--text-muted);
+        line-height: 1.5;
+    }
+
+    .btn-login {
+        background: var(--primary-color);
+        color: #fff;
+        padding: 14px 32px;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 600;
+        margin-top: 16px;
+    }
+
+        .btn-login:hover {
+            background: #E14D00;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 90, 0, 0.2);
+        }
+
+    .footer-note {
+        margin-top: 24px;
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+
+    .footer-contacts {
+        margin-top: 16px;
+        font-size: 14px;
+    }
+
+    .contact-link {
+        color: var(--primary-color);
+        text-decoration: none;
+        margin: 0 8px;
+        font-weight: 500;
+    }
+
+        .contact-link:hover {
+            text-decoration: underline;
+        }
+
+    @@media (max-width: 576px) {
+        .pending-card
+
+    {
+        padding: 24px 20px;
+        border-radius: 12px;
+    }
+
+    }
+</style>
+
+<div class="pending-container">
+    <div class="pending-card">
+        <div class="pending-header">
+            <div class="pending-logo">
+                <span class="pending-logo-text">F</span>
+            </div>
+
+            <div class="status-icon">
+                <div class="clock-icon">⏳</div>
+            </div>
+
+            <h2 class="pending-title">Account Under Review</h2>
+            <p class="pending-desc">Thank you for completing your payment.</p>
+            <p class="pending-desc">Your application is now pending approval from our team.</p>
+        </div>
+
+        <div class="progress-steps">
+            <div class="step completed">
+                <div class="step-dot">✓</div>
+                <div class="step-label">Sign Up</div>
+            </div>
+            <div class="step completed">
+                <div class="step-dot">✓</div>
+                <div class="step-label">Payment</div>
+            </div>
+            <div class="step active">
+                <div class="step-dot">3</div>
+                <div class="step-label">Verification</div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <div class="info-title">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" />
+                    <path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    <path d="M12 16V16.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                </svg>
+                What happens next?
+            </div>
+            <div class="info-item">
+                <div class="info-icon">1</div>
+                <div class="info-text">Our team will review your submitted documents and information</div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon">2</div>
+                <div class="info-text">You'll receive a notification when your account is approved</div>
+            </div>
+            <div class="info-item">
+                <div class="info-icon">3</div>
+                <div class="info-text">Once approved, you can start accepting delivery assignments</div>
+            </div>
+        </div>
+
+        <a href="@Url.Action("DeliveryLogin", "DeliverSignup")" class="btn-login">Back to Login</a>
+
+        <p class="footer-note">Verification typically takes 24-48 hours. We'll notify you via email and SMS.</p>
+
+        <div class="footer-contacts">
+            Need help? Contact us:
+            <a href="#" class="contact-link">Help Center</a>
+            <a href="#" class="contact-link">Email Support</a>
         </div>
     </div>
 </div>

@@ -1,0 +1,443 @@
+﻿@model List<Foodie.Models.DeliveryPartner.PartnerPerformanceModel>
+@{
+    ViewBag.Title = "Partner Performance Graphs";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <h2 class="text-center my-4">Delivery Partners Performance Dashboard</h2>
+
+    <div class="text-center mb-4">
+        <a href="@Url.Action("PartnerPerformance", "DeliveryPartnerManagement")" class="btn btn-primary">
+            <i class="fas fa-table"></i> Back to Table View
+        </a>
+    </div>
+
+    <!-- Top summary cards -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Partners</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Count</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Orders</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Sum(x => x.TotalOrdersDelivered)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-truck fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Avg Rating</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(Model.Average(x => x.CustomerRatingAvg).ToString("F1"))</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-star fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">On-Time Rate</div>
+                            @{
+                                var totalDeliveries = Model.Sum(x => x.TotalOrdersDelivered);
+                                var totalLate = Model.Sum(x => x.LateDeliveries);
+                                var onTimeRate = totalDeliveries > 0 ? ((totalDeliveries - totalLate) / (double)totalDeliveries * 100) : 0;
+                            }
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@onTimeRate.ToString("F1")%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts with better styling -->
+    <div class="row">
+        <!-- Total Orders Delivered -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Total Orders Delivered</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height:300px;">
+                        <canvas id="ordersBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cancellations -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-danger">Cancellation Count</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height:300px;">
+                        <canvas id="cancellationsBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Late Deliveries -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-warning">Late Deliveries Distribution</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height:300px;">
+                        <canvas id="lateDeliveriesPieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Ratings -->
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-info">Customer Ratings</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height:300px;">
+                        <canvas id="ratingLineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Partner Overall Comparison -->
+        <div class="col-lg-12 mb-4">
+            <div class="card shadow">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Partner Performance Comparison</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container" style="position: relative; height:400px;">
+                        <canvas id="performanceRadarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Required Libraries -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+
+<script>
+    // Professional color palette
+    const colorPalette = {
+        primary: ['rgba(78, 115, 223, 0.7)', 'rgba(78, 115, 223, 1)'],
+        success: ['rgba(40, 167, 69, 0.7)', 'rgba(40, 167, 69, 1)'],
+        info: ['rgba(54, 185, 204, 0.7)', 'rgba(54, 185, 204, 1)'],
+        warning: ['rgba(246, 194, 62, 0.7)', 'rgba(246, 194, 62, 1)'],
+        danger: ['rgba(231, 74, 59, 0.7)', 'rgba(231, 74, 59, 1)'],
+        secondary: ['rgba(133, 135, 150, 0.7)', 'rgba(133, 135, 150, 1)'],
+        pieColors: [
+            'rgba(78, 115, 223, 0.7)', 'rgba(40, 167, 69, 0.7)',
+            'rgba(246, 194, 62, 0.7)', 'rgba(231, 74, 59, 0.7)',
+            'rgba(54, 185, 204, 0.7)', 'rgba(133, 135, 150, 0.7)',
+            'rgba(105, 0, 132, 0.7)', 'rgba(0, 137, 132, 0.7)'
+        ]
+    };
+
+    // Chart.js defaults for consistent styling
+    Chart.defaults.font.family = "'Nunito', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.color = "#858796";
+    Chart.defaults.plugins.legend.position = 'bottom';
+    Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+
+    // Dynamic Data from Server
+    const partners = @Html.Raw(Json.Serialize(Model.Select(x => x.FullName)));
+    const totalOrders = @Html.Raw(Json.Serialize(Model.Select(x => x.TotalOrdersDelivered)));
+    const lateDeliveries = @Html.Raw(Json.Serialize(Model.Select(x => x.LateDeliveries)));
+    const cancellations = @Html.Raw(Json.Serialize(Model.Select(x => x.CancellationCount)));
+    const ratings = @Html.Raw(Json.Serialize(Model.Select(x => x.CustomerRatingAvg)));
+
+    // Function to generate radar chart normalized data
+    function normalizeData(dataArray) {
+        const max = Math.max(...dataArray);
+        return dataArray.map(value => max > 0 ? (value / max) * 10 : 0);
+    }
+
+    // Process data for better visualization
+    const normalizedOrders = normalizeData(totalOrders);
+    const normalizedLate = normalizeData(lateDeliveries.map(v => 10 - v)); // Invert for radar (higher is better)
+    const normalizedCancellations = normalizeData(cancellations.map(v => 10 - v)); // Invert for radar (higher is better)
+    const normalizedRatings = normalizeData(ratings.map(v => v * 2)); // Scale ratings for better radar visualization
+
+    // Generate random but consistent colors for partners
+    function generateConsistentColors(index) {
+        const hue = (index * 137.5) % 360; // Golden angle approximation for even distribution
+        return `hsla(${hue}, 70%, 60%, 0.7)`;
+    }
+
+    // 1. Bar Chart - Total Orders Delivered
+    new Chart(document.getElementById('ordersBarChart'), {
+        type: 'bar',
+        data: {
+            labels: partners,
+            datasets: [{
+                label: 'Total Orders Delivered',
+                data: totalOrders,
+                backgroundColor: colorPalette.primary[0],
+                borderColor: colorPalette.primary[1],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Orders: ${context.raw}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        drawBorder: false,
+                        color: "rgba(0, 0, 0, 0.05)"
+                    },
+                    ticks: {
+                        precision: 0
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+
+    // 2. Bar Chart - Cancellation Count
+    new Chart(document.getElementById('cancellationsBarChart'), {
+        type: 'bar',
+        data: {
+            labels: partners,
+            datasets: [{
+                label: 'Cancellations',
+                data: cancellations,
+                backgroundColor: colorPalette.danger[0],
+                borderColor: colorPalette.danger[1],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Cancellations: ${context.raw}`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        drawBorder: false,
+                        color: "rgba(0, 0, 0, 0.05)"
+                    },
+                    ticks: {
+                        precision: 0
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            }
+        }
+    });
+
+    // 3. Pie Chart - Late Deliveries Share
+    new Chart(document.getElementById('lateDeliveriesPieChart'), {
+        type: 'pie',
+        data: {
+            labels: partners,
+            datasets: [{
+                label: 'Late Deliveries',
+                data: lateDeliveries,
+                backgroundColor: partners.map((_, i) => colorPalette.pieColors[i % colorPalette.pieColors.length]),
+                borderWidth: 1,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                            const percentage = Math.round((context.raw / total) * 100);
+                            return `${context.label}: ${context.raw} (${percentage}%)`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // 4. Line Chart - Customer Ratings
+    new Chart(document.getElementById('ratingLineChart'), {
+        type: 'line',
+        data: {
+            labels: partners,
+            datasets: [{
+                label: 'Average Customer Rating',
+                data: ratings,
+                fill: false,
+                backgroundColor: colorPalette.info[0],
+                borderColor: colorPalette.info[1],
+                pointBackgroundColor: colorPalette.info[1],
+                pointBorderColor: '#fff',
+                pointRadius: 5,
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    max: 5,
+                    grid: {
+                        drawBorder: false,
+                        color: "rgba(0, 0, 0, 0.05)"
+                    },
+                    ticks: {
+                        stepSize: 1
+                    }
+                },
+                x: {
+                    grid: {
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            return `Rating: ${context.raw.toFixed(1)} / 5.0`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // 5. Radar Chart - Overall Partner Performance
+    new Chart(document.getElementById('performanceRadarChart'), {
+        type: 'radar',
+        data: {
+            labels: ['Orders Volume', 'On-Time Delivery', 'Low Cancellations', 'Customer Rating'],
+            datasets: partners.map((partner, index) => ({
+                label: partner,
+                data: [
+                    normalizedOrders[index],
+                    normalizedLate[index],
+                    normalizedCancellations[index],
+                    normalizedRatings[index]
+                ],
+                fill: true,
+                backgroundColor: `${generateConsistentColors(index)}`,
+                borderColor: `${generateConsistentColors(index).replace('0.7', '1')}`,
+                pointBackgroundColor: '#fff',
+                pointBorderColor: `${generateConsistentColors(index).replace('0.7', '1')}`,
+                pointHoverBackgroundColor: '#fff',
+            }))
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                r: {
+                    angleLines: {
+                        color: "rgba(0, 0, 0, 0.1)"
+                    },
+                    grid: {
+                        color: "rgba(0, 0, 0, 0.05)"
+                    },
+                    pointLabels: {
+                        font: {
+                            weight: 'bold'
+                        }
+                    },
+                    beginAtZero: true,
+                    max: 10,
+                    ticks: {
+                        stepSize: 2,
+                        display: false
+                    }
+                }
+            },
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        title: function(context) {
+                            return context[0].dataset.label;
+                        },
+                        label: function(context) {
+                            const metrics = ['Orders Volume', 'On-Time Delivery', 'Low Cancellations', 'Customer Rating'];
+                            return `${metrics[context.dataIndex]}: ${(context.raw * 10).toFixed(1)}%`;
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>

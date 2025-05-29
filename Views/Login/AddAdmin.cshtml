@@ -21,31 +21,31 @@
 
             <!--Full Name-->
             <div class="mb-3 d-flex">
-                <label asp-for="Full_name" class="col-form-label-lg w-25">Full Name</label>
-                <input asp-for="Full_name" class="form-control" required />
+                <label asp-for="Full_name" class="col-form-label-lg w-25">Full Name *</label>
+                <input asp-for="Full_name" class="form-control" id="full-name-input" required />
             </div>
             <!--Password-->
             <div class="mb-3 d-flex">
-                <label asp-for="Password" class="col-form-label-lg w-25">Password</label>
+                <label asp-for="Password" class="col-form-label-lg w-25">Password *</label>
                 <input asp-for="Password" type="password" class="form-control" required />
             </div>
 
             <!-- Email -->
             <div class="mb-3 d-flex">
-                <label asp-for="Email" class="col-form-label-lg w-25 ">Email</label>
+                <label asp-for="Email" class="col-form-label-lg w-25 ">Email *</label>
                 <input asp-for="Email" type="email" class="form-control" required>
             </div>
 
             <!-- Phone -->
             <div class="mb-3 d-flex">
-                <label asp-for="Phone" class="col-form-label-lg w-25">Phone</label>
-                <input asp-for="Phone" type="tel" class="form-control" required>
+                <label asp-for="Phone" class="col-form-label-lg w-25">Phone *</label>
+                <input asp-for="Phone" id="phone-input" type="tel" class="form-control" required>
             </div>
 
             <!-- Role ID (Dropdown) -->
             <div class ="mb-3 d-flex">
-                <label asp-for="role_id" class="col-form-label-lg w-25">Role</label>
-                <select asp-for="role_id" class="form-select" asp-items="@(new SelectList(ViewBag.role,"role_id","role_type"))">
+                <label asp-for="role_id" class="col-form-label-lg w-25">Role *</label>
+                <select asp-for="role_id" class="form-select" asp-items="@(new SelectList(ViewBag.role,"role_id","role_type"))" required>
                     <option value="">Select Role</option>
                 </select>
             </div>
@@ -62,6 +62,57 @@
            
         </form>
     </div>
+
+
+    <script>
+           $(document).ready(function() {
+            // Full Name: Allow only letters and spaces
+            $('#full-name-input').on('keypress', function(e) {
+                var charCode = e.which ? e.which : e.keyCode;
+                // Allow A-Z, a-z, space (32)
+                if (!(charCode >= 65 && charCode <= 90) && // Uppercase
+                    !(charCode >= 97 && charCode <= 122) && // Lowercase
+                    charCode !== 32) { // Space
+                    e.preventDefault();
+                }
+            });
+
+            $('#full-name-input').on('input', function() {
+                // Remove any invalid characters in pasted content
+                var val = $(this).val().replace(/[^a-zA-Z\s]/g, '');
+                $(this).val(val);
+            });
+
+            // Phone: Allow only digits and max 10
+            $('#phone-input').on('keypress', function(e) {
+                var charCode = e.which ? e.which : e.keyCode;
+                if (charCode < 48 || charCode > 57) {
+                    e.preventDefault();
+                }
+            });
+
+            $('#phone-input').on('input', function() {
+                var val = $(this).val().replace(/\D/g, '').slice(0,10);
+                $(this).val(val);
+            });
+        });
+
+        function validateForm() {
+            var phone = $('#phone-input').val();
+            if (phone.length !== 10) {
+                alert('Phone number must be exactly 10 digits.');
+                return false;
+            }
+
+            var name = $('#full-name-input').val();
+            if (!/^[a-zA-Z\s]+$/.test(name)) {
+                alert('Full Name must contain only letters and spaces.');
+                return false;
+            }
+
+            return true;
+        }
+    </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>

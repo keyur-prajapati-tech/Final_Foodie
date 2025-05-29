@@ -1,0 +1,740 @@
+﻿@using Microsoft.IdentityModel.Tokens
+@model Foodie.Models.DeliveryPartner.DeliveryPartnerProfileViewModel
+@{
+    ViewBag.Title = "Delivery Partner Profile";
+    Layout = ViewBag.Layout ?? "_AdminLayout";
+}
+
+<style>
+    /* Modern Admin Dashboard Styling */
+    :root {
+        --primary-color: #3498db;
+        --secondary-color: #2c3e50;
+        --accent-color: #16a085;
+        --danger-color: #e74c3c;
+        --success-color: #27ae60;
+        --warning-color: #f39c12;
+        --light-color: #ecf0f1;
+        --dark-color: #2c3e50;
+        --text-primary: #34495e;
+        --text-secondary: #7f8c8d;
+        --border-radius: 8px;
+        --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+        --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+        --shadow-lg: 0 8px 16px rgba(0,0,0,0.15);
+        --transition-speed: 0.3s;
+    }
+
+    .profile-container {
+        background-color: #f8fafc;
+        padding: 2rem 0;
+        font-family: 'Inter', 'Segoe UI', sans-serif;
+    }
+
+    /* Page header styling */
+    .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+        padding: 1.5rem 2rem;
+        border-radius: var(--border-radius);
+        color: white;
+        box-shadow: var(--shadow-md);
+    }
+
+        .page-header h2 {
+            margin: 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .page-header h2 i {
+                font-size: 1.2em;
+            }
+
+    .header-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    /* Status badge */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        background-color: var(--success-color);
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 30px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+        .status-badge.active {
+            background-color: var(--success-color);
+        }
+
+        .status-badge.inactive {
+            background-color: var(--danger-color);
+        }
+
+    /* Card styling */
+    .profile-card {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow-md);
+        background-color: #ffffff;
+        margin-bottom: 2rem;
+        transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+        overflow: hidden;
+    }
+
+        .profile-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+    .card-header {
+        background: #ffffff;
+        padding: 1.25rem 1.5rem;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+        .card-header h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .card-header h3 i {
+                color: var(--primary-color);
+                font-size: 1.2rem;
+            }
+
+        .card-header .card-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    /* Profile image area */
+    .profile-image-container {
+        position: relative;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .profile-image {
+        width: 150px;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid white;
+        box-shadow: var(--shadow-md);
+    }
+
+    /* Data row styling */
+    .data-row {
+        display: flex;
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        padding: 1rem 0;
+        transition: background-color 0.2s;
+    }
+
+        .data-row:last-child {
+            border-bottom: none;
+        }
+
+        .data-row:hover {
+            background-color: rgba(0,0,0,0.01);
+        }
+
+    .data-label {
+        flex: 0 0 30%;
+        font-weight: 500;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .data-value {
+        flex: 0 0 70%;
+        color: var(--text-primary);
+        font-weight: 500;
+    }
+
+    /* Special values */
+    .sensitive-data {
+        font-family: monospace;
+        letter-spacing: 1px;
+        background-color: #f8f9fa;
+        padding: 0.25rem 0.5rem;
+        border-radius: 4px;
+        border: 1px solid #e9ecef;
+    }
+
+    /* Button styling */
+    .btn {
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: var(--border-radius);
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-primary {
+        background-color: var(--primary-color);
+        border: none;
+        color: white;
+    }
+
+        .btn-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+        }
+
+    .btn-secondary {
+        background-color: var(--secondary-color);
+        border: none;
+        color: white;
+    }
+
+        .btn-secondary:hover {
+            background-color: #1e2b38;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(44, 62, 80, 0.3);
+        }
+
+    .btn-outline {
+        background-color: transparent;
+        border: 1px solid var(--primary-color);
+        color: var(--primary-color);
+    }
+
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+    .btn-danger {
+        background-color: var(--danger-color);
+        border: none;
+        color: white;
+    }
+
+        .btn-danger:hover {
+            background-color: #c0392b;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+        }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    /* Document preview */
+    .document-preview {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .document-card {
+        flex: 0 0 calc(50% - 0.5rem);
+        background-color: #f8f9fa;
+        border-radius: var(--border-radius);
+        padding: 1rem;
+        border: 1px solid #e9ecef;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        transition: all 0.2s;
+    }
+
+        .document-card:hover {
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-sm);
+        }
+
+    .document-icon {
+        width: 40px;
+        height: 40px;
+        background-color: rgba(52, 152, 219, 0.1);
+        border-radius: var(--border-radius);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--primary-color);
+    }
+
+    .document-details {
+        flex: 1;
+    }
+
+    .document-title {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+        color: var(--text-primary);
+    }
+
+    .document-status {
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+    }
+
+    /* Action footer */
+    .action-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(0,0,0,0.05);
+    }
+
+    .action-group {
+        display: flex;
+        gap: 1rem;
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .document-card
+
+    {
+        flex: 0 0 100%;
+    }
+
+    }
+
+    /* Animations */
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    .profile-container {
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    .profile-card {
+        animation: fadeIn 0.5s ease-out;
+        animation-fill-mode: both;
+    }
+
+        .profile-card:nth-child(1) {
+            animation-delay: 0.1s;
+        }
+
+        .profile-card:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .profile-card:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        .profile-card:nth-child(4) {
+            animation-delay: 0.4s;
+        }
+</style>
+
+<!-- Link to FontAwesome for icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<div class="profile-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h2><i class="fas fa-id-card"></i> Delivery Partner Profile</h2>
+        <div class="header-actions">
+            <div class="status-badge @(Model.IsActive ? "active" : "inactive")">
+                <i class="fas @(Model.IsActive ? "fa-check-circle" : "fa-times-circle")"></i>
+                @(Model.IsActive ? "Active" : "Inactive")
+            </div>
+            <button class="btn btn-outline" onclick="printProfile()">
+                <i class="fas fa-print"></i> Print
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Left column - Personal Details -->
+        <div class="col-md-4">
+            <div class="profile-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-user"></i> Personal Details</h3>
+                    <div class="card-actions">
+                        <button class="btn btn-sm btn-outline" onclick="editPersonalDetails()">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="profile-image-container">
+                        @if (!string.IsNullOrEmpty(Model.ProfilePicture))
+                        {
+                            <img src="/Uploads/@Model.ProfilePicture" class="profile-image" alt="Profile Picture" />
+                        }
+                        else
+                        {
+                            <img src="/images/default-profile.jpg" class="profile-image" alt="Default Profile" />
+                        }
+                    </div>
+
+                    <div class="data-row">
+                        <div class="data-label">
+                            <i class="fas fa-fingerprint"></i> Partner ID
+                        </div>
+                        <div class="data-value sensitive-data">@Model.PartnerId</div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.FullName))
+                    {
+                        <div class="data-row">
+                            <div class="data-label">
+                                <i class="fas fa-user"></i> Full Name
+                            </div>
+                            <div class="data-value">@Model.FullName</div>
+                        </div>
+                    }
+
+                   @*  @if (!string.IsNullOrEmpty(Model.ContactNumber))
+                    {
+                        <div class="data-row">
+                            <div class="data-label">
+                                <i class="fas fa-phone"></i> Phone
+                            </div>
+                            <div class="data-value">@Model.ContactNumber</div>
+                        </div>
+                    } *@
+
+                    @if (!string.IsNullOrEmpty(Model.Email))
+                    {
+                        <div class="data-row">
+                            <div class="data-label">
+                                <i class="fas fa-envelope"></i> Email
+                            </div>
+                            <div class="data-value">@Model.Email</div>
+                        </div>
+                    }
+
+                    <div class="data-row">
+                        <div class="data-label">
+                            <i class="fas fa-id-card"></i> Aadhaar
+                        </div>
+                        <div class="data-value sensitive-data">@Model.AadhaarNumber</div>
+                    </div>
+
+                    <div class="data-row">
+                        <div class="data-label">
+                            <i class="fas fa-file-invoice"></i> PAN
+                        </div>
+                        <div class="data-value sensitive-data">@Model.PANNumber</div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.City) && !string.IsNullOrEmpty(Model.State))
+                    {
+                        <div class="data-row">
+                            <div class="data-label">
+                                <i class="fas fa-map-marker-alt"></i> Location
+                            </div>
+                            <div class="data-value">@Model.City, @Model.State</div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Right column - Additional details -->
+        <div class="col-md-8">
+            <!-- Vehicle Details -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-motorcycle"></i> Vehicle Details</h3>
+                    <div class="card-actions">
+                        <button class="btn btn-sm btn-outline" onclick="editVehicleDetails()">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="data-row">
+                        <div class="data-label">
+                            <i class="fas fa-car"></i> Vehicle Type
+                        </div>
+                        <div class="data-value">
+                            @Model.VehicleType
+                            @if (!string.IsNullOrEmpty(Model.VehicleSubType))
+                            {
+                                <span class="badge badge-primary ml-2">@Model.VehicleSubType</span>
+                            }
+                        </div>
+                    </div>
+
+                    <div class="data-row">
+                        <div class="data-label">
+                            <i class="fas fa-id-badge"></i> License Plate
+                        </div>
+                        <div class="data-value sensitive-data">@Model.LicensePlate</div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.RegistrationYear))
+                    {
+                        <div class="data-row">
+                            <div class="data-label">
+                                <i class="fas fa-calendar-alt"></i> Registration Year
+                            </div>
+                            <div class="data-value">@Model.RegistrationYear</div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Bank Details -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-university"></i> Bank Details</h3>
+                    <div class="card-actions">
+                        <button class="btn btn-sm btn-outline" onclick="editBankDetails()">
+                            <i class="fas fa-pen"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="data-row">
+                        <div class="data-label">
+                            <i class="fas fa-university"></i> Bank Name
+                        </div>
+                        <div class="data-value">@Model.BankName</div>
+                    </div>
+
+                    <div class="data-row">
+                        <div class="data-label">
+                            <i class="fas fa-file-invoice-dollar"></i> Account Number
+                        </div>
+                        <div class="data-value sensitive-data">@Model.AccountNumber</div>
+                    </div>
+
+                    <div class="data-row">
+                        <div class="data-label">
+                            <i class="fas fa-code"></i> IFSC Code
+                        </div>
+                        <div class="data-value sensitive-data">@Model.IFSC_Code</div>
+                    </div>
+
+                    @if (!string.IsNullOrEmpty(Model.AccountHolderName))
+                    {
+                        <div class="data-row">
+                            <div class="data-label">
+                                <i class="fas fa-user"></i> Account Holder
+                            </div>
+                            <div class="data-value">@Model.AccountHolderName</div>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <!-- Documents -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <h3><i class="fas fa-file-alt"></i> Documents</h3>
+                    <div class="card-actions">
+                        <button class="btn btn-sm btn-outline" onclick="requestDocuments()">
+                            <i class="fas fa-plus"></i> Request
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="document-preview">
+                        <!-- Aadhaar Document -->
+                        <div class="document-card">
+                            <div class="document-icon">
+                                <i class="fas fa-id-card"></i>
+                            </div>
+                            <div class="document-details">
+                                <div class="document-title">Aadhaar Card</div>
+                                <div class="document-status">
+                                    @if (!string.IsNullOrEmpty(Model.AadhaarDoc))
+                                    {
+                                        <span class="text-success">Uploaded</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger">Not Uploaded</span>
+                                    }
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(Model.AadhaarDoc))
+                            {
+                                <a href="@Model.AadhaarDoc" target="_blank" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            }
+                        </div>
+
+                        <!-- License Document -->
+                        <div class="document-card">
+                            <div class="document-icon">
+                                <i class="fas fa-id-badge"></i>
+                            </div>
+                            <div class="document-details">
+                                <div class="document-title">Driving License</div>
+                                <div class="document-status">
+                                    @if (!string.IsNullOrEmpty(Model.LicenseDoc))
+                                    {
+                                        <span class="text-success">Uploaded</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-danger">Not Uploaded</span>
+                                    }
+                                </div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(Model.LicenseDoc))
+                            {
+                                <a href="@Model.LicenseDoc" target="_blank" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            }
+                        </div>
+
+                        <!-- PAN Document (if available) -->
+                        @if (!string.IsNullOrEmpty(Model.PANDoc))
+                        {
+                            <div class="document-card">
+                                <div class="document-icon">
+                                    <i class="fas fa-file-invoice"></i>
+                                </div>
+                                <div class="document-details">
+                                    <div class="document-title">PAN Card</div>
+                                    <div class="document-status">
+                                        <span class="text-success">Uploaded</span>
+                                    </div>
+                                </div>
+                                <a href="@Model.PANDoc" target="_blank" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        }
+
+                        <!-- Vehicle Document (if available) -->
+                        @if (!string.IsNullOrEmpty(Model.VehicleDoc))
+                        {
+                            <div class="document-card">
+                                <div class="document-icon">
+                                    <i class="fas fa-car"></i>
+                                </div>
+                                <div class="document-details">
+                                    <div class="document-title">Vehicle Registration</div>
+                                    <div class="document-status">
+                                        <span class="text-success">Uploaded</span>
+                                    </div>
+                                </div>
+                                <a href="@Model.VehicleDoc" target="_blank" class="btn btn-sm btn-primary">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Footer -->
+    <div class="action-footer">
+        <div class="action-group">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Back to List
+            </a>
+        </div>
+        <div class="action-group">
+            <button class="btn btn-danger" onclick="deactivatePartner()">
+                <i class="fas fa-ban"></i> Deactivate
+            </button>
+            <button class="btn btn-primary" onclick="viewDeliveryHistory()">
+                <i class="fas fa-history"></i> View Delivery History
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // JavaScript functions for all the interactive buttons
+    function editPersonalDetails() {
+        window.location.href = '/Admin/DeliveryPartner/Edit/@Model.PartnerId?section=personal';
+    }
+
+    function editVehicleDetails() {
+        window.location.href = '/Admin/DeliveryPartner/Edit/@Model.PartnerId?section=vehicle';
+    }
+
+    function editBankDetails() {
+        window.location.href = '/Admin/DeliveryPartner/Edit/@Model.PartnerId?section=bank';
+    }
+
+    function requestDocuments() {
+        alert('Document request notification will be sent to the partner.');
+    }
+
+    function printProfile() {
+        window.print();
+    }
+
+    function deactivatePartner() {
+        if (confirm('Are you sure you want to deactivate this delivery partner?')) {
+            fetch('/Admin/DeliveryPartner/Deactivate/@Model.PartnerId', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Partner deactivated successfully');
+                    location.reload();
+                } else {
+                    alert('Failed to deactivate partner: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while processing your request.');
+            });
+        }
+    }
+
+    function viewDeliveryHistory() {
+        window.location.href = '/Admin/DeliveryPartner/DeliveryHistory/@Model.PartnerId';
+    }
+</script>

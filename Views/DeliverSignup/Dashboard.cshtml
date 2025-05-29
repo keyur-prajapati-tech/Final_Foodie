@@ -1,260 +1,342 @@
-﻿@{
+﻿@model Foodie.Models.DeliveryPartner.DashViewModel
+@{
     ViewData["Title"] = "Delivery Partner Dashboard";
     Layout = ViewBag.Layout ?? "_DeliveryPartnerLayout";
-    var user = Context.Session.GetString("UserName");
+    // Get user data from session
+    var fullName = Context.Session.GetString("FullName");
+    var onlineStatus = Context.Session.GetInt32("isOnline") ?? 0;
+    var currentRequestStatus = ViewBag.RequestStatus as string ?? "Pending";
+    
+    // Dynamic coordinates passed from the controller
+    var restaurantLatitude = Model.RestaurantLat; // e.g. "28.6270"
+    var restaurantLongitude = Model.RestaurantLng; // e.g. "77.2167"
+    var customerLatitude = Model.CustomerLat;  // e.g. "28.6353"
+    var customerLongitude = Model.CustomerLng;  // e.g. "77.2250"
 }
+
+<!-- Bootstrap 5 CSS and Chart.js -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Mapbox CSS & JS -->
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+<!-- Mapbox Directions plugin -->
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.js"></script>
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.css" type="text/css" />
 
 <style>
     body {
-        background-color: #f8f9fa;
-        font-family: 'Arial', sans-serif;
+    background-color: #f1f3f5;
+    font-family: 'Segoe UI', sans-serif;
     }
 
-    .dashboard-container {
-        padding: 20px;
+    .dashboard-header {
+    text-align: center;
+    margin-bottom: 30px;
     }
 
-    .card {
-        background: white;
-        border-radius: 10px;
-        padding: 20px;
-        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
-        transition: transform 0.3s ease-in-out;
-        text-align: center;
+    .card-metric {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-radius: 16px;
+    transition: transform 0.3s ease;
     }
 
-        .card:hover {
-            transform: scale(1.05);
-        }
+    .card-metric:hover {
+    transform: translateY(-5px);
+    }
 
-    .order-table th, .order-table td {
-        text-align: center;
+    .map-container,
+    .chart-container {
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    margin-top: 30px;
     }
 
     .status-badge {
-        padding: 6px 12px;
-        border-radius: 5px;
-        font-weight: bold;
-        font-size: 14px;
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    font-weight: bold;
     }
 
     .status-pending {
-        background-color: #ffc107;
-        color: black;
+    background-color: #ffc107;
+    color: #212529;
     }
 
     .status-delivered {
-        background-color: #28a745;
-        color: white;
+    background-color: #28a745;
+    color: white;
     }
 
     .status-out-for-delivery {
-        background-color: #17a2b8;
-        color: white;
-    }
-
-    .fade-in {
-        animation: fadeIn 1s ease-in-out;
-    }
-
-    @@keyframes fadeIn {
-        from
-
-    {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-
-    }
-
-    .chart-container {
-        width: 100%;
-        max-width: 900px;
-        margin-top: 20px;
-    }
-
-    /* Responsive Design */
-    @@media (max-width: 768px) {
-        .dashboard-container
-
-    {
-        padding: 10px;
-    }
-
-    .card {
-        padding: 15px;
-    }
-
-    h2, h3 {
-        font-size: 1.5rem;
-    }
-
-    .fs-3 {
-        font-size: 1.4rem;
-    }
-
-    }
-
-    @@media (max-width: 576px) {
-        .card
-
-    {
-        padding: 10px;
-    }
-
-    h2, h3 {
-        font-size: 1.3rem;
-    }
-
-    .fs-3 {
-        font-size: 1.2rem;
-    }
-
-    .status-badge {
-        font-size: 12px;
-        padding: 4px 8px;
-    }
-
+    background-color: #17a2b8;
+    color: white;
     }
 </style>
 
-<div class="dashboard-container">
-    <h2 class="fade-in text-center"> Welcome, @user</h2>
+<div class="container py-4">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <h2 class="fw-bold">Welcome, @fullName 👋</h2>
+        @if (onlineStatus == 0)
+        {
+            <div class="alert alert-warning">
+                <p class="mb-0"><strong>You are currently offline.</strong> Go online to view your earnings, delivery routes, and order statistics.</p>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">Here's your delivery performance today.</p>
+        }
+    </div>
 
-    <!-- Overview Cards -->
-    <div class="row g-3">
-        <div class="col-lg-4 col-md-6">
-            <div class="card fade-in">
-                <h4>📦 Total Deliveries</h4>
-                <p class="fs-3" id="totalDeliveries">45</p>
+    <!-- Summary Cards -->
+    <div class="row g-4">
+        <div class="col-md-6 col-xl-3">
+            <div class="card card-metric border-0 text-center p-3">
+                <h5 class="text-muted">Orders Delivered Today</h5>
+                <h2 class="fw-bold text-primary">@Model.OrdersDelivered</h2>
             </div>
         </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="card fade-in">
-                <h4>💰 Total Earnings</h4>
-                <p class="fs-3" id="totalEarnings">₹12,500</p>
+        @if (onlineStatus == 1)
+        {
+            <div class="col-md-6 col-xl-3">
+                <div class="card card-metric border-0 text-center p-3">
+                    <h5 class="text-muted">Today's Earnings</h5>
+                    <h2 class="fw-bold text-success">₹ @Model.TotalEarnings.ToString("F2")</h2>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (onlineStatus == 1)
+    {
+        <!-- Map Section - Only shown when online -->
+        <div class="map-container bg-white p-3 mt-4">
+            <h5 class="mb-3">📍 Your Delivery Route</h5>
+            <div id="map" style="height: 500px; width: 100%; border-radius: 12px;"></div>
+        </div>
+
+        <!-- Charts Section - Only shown when online -->
+        <div class="row g-4 mt-4">
+            <div class="col-md-6">
+                <div class="card chart-container border-0 p-3">
+                    <h5 class="mb-3">📊 Weekly Earnings</h5>
+                    <canvas id="earningsChart" height="200"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card chart-container border-0 p-3">
+                    <h5 class="mb-3">🧾 Order Status Summary</h5>
+                    <canvas id="ordersPieChart" height="200"></canvas>
+                </div>
             </div>
         </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="card fade-in">
-                <h4>🕒 Active Orders</h4>
-                <p class="fs-3" id="activeOrders">2</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Active Orders Table -->
-    <div class="mt-4 fade-in">
-        <h3>📦 Active Orders</h3>
-        <div class="table-responsive">
-            <table class="table table-striped order-table">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Order ID</th>
-                        <th>Pickup</th>
-                        <th>Drop-off</th>
-                        <th>Status</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="ordersTable">
-                    <tr>
-                        <td>#1234</td>
-                        <td>Pizza Hut</td>
-                        <td>John's Apartment</td>
-                        <td><span class="status-badge status-pending">Pending</span></td>
-                        <td><button class="btn btn-primary btn-sm">Update Status</button></td>
-                    </tr>
-                    <tr>
-                        <td>#1235</td>
-                        <td>Subway</td>
-                        <td>Mike's Home</td>
-                        <td><span class="status-badge status-out-for-delivery">Out for Delivery</span></td>
-                        <td><button class="btn btn-success btn-sm">Complete</button></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Earnings Summary -->
-    <div class="mt-4 fade-in">
-        <h3>💰 Earnings Summary</h3>
-        <div class="table-responsive">
-            <table class="table">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Date</th>
-                        <th>Orders Completed</th>
-                        <th>Earnings (₹)</th>
-                    </tr>
-                </thead>
-                <tbody id="earningsTable">
-                    <tr>
-                        <td>March 10, 2025</td>
-                        <td>5</td>
-                        <td>₹1500</td>
-                    </tr>
-                    <tr>
-                        <td>March 11, 2025</td>
-                        <td>7</td>
-                        <td>₹2100</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
-
-    <!-- Earnings Graph -->
-    <div class="chart-container">
-        <canvas id="earningsChart"></canvas>
-    </div>
+    }
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const earningsData = [
-            { date: "March 10", earnings: 1500 },
-            { date: "March 11", earnings: 2100 },
-            { date: "March 12", earnings: 1800 },
-            { date: "March 13", earnings: 2300 },
-            { date: "March 14", earnings: 1700 },
-        ];
+@if (onlineStatus == 1)
+{
+    <!-- Chart Initialization - Only include when online -->
+    <script>
+        // Chart data passed from the server via DashboardViewModel
+        const weeklyLabels = @Html.Raw(Json.Serialize(Model.WeeklyLabels));
+        const weeklyData = @Html.Raw(Json.Serialize(Model.WeeklyEarnings));
+        const statusLabels = @Html.Raw(Json.Serialize(Model.OrderStatusLabels));
+        const statusData = @Html.Raw(Json.Serialize(Model.OrderStatusCounts));
 
-        const ctx = document.getElementById("earningsChart").getContext("2d");
-        new Chart(ctx, {
+        // Initialize Weekly Earnings Chart
+        new Chart(document.getElementById("earningsChart"), {
             type: "bar",
             data: {
-                labels: earningsData.map(d => d.date),
+                labels: weeklyLabels,
                 datasets: [{
                     label: "Earnings (₹)",
-                    data: earningsData.map(d => d.earnings),
-                    backgroundColor: "rgba(40, 167, 69, 0.7)",
-                    borderColor: "#28a745",
-                    borderWidth: 1
+                    data: weeklyData,
+                    backgroundColor: "#0d6efd",
+                    borderRadius: 6
                 }]
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: ctx => `₹ ${ctx.parsed.y.toFixed(2)}`
+                        }
+                    }
+                },
                 scales: {
                     y: {
-                        beginAtZero: true
+                        beginAtZero: true,
+                        ticks: {
+                            callback: value => '₹' + value
+                        }
                     }
                 }
             }
         });
 
-        setTimeout(() => {
-            document.getElementById("totalDeliveries").textContent = "50";
-            document.getElementById("totalEarnings").textContent = "₹14,000";
-            document.getElementById("activeOrders").textContent = "3";
-        }, 3000);
-    });
-</script>
+        // Initialize Order Status Pie Chart
+        new Chart(document.getElementById("ordersPieChart"), {
+            type: "pie",
+            data: {
+                labels: statusLabels,
+                datasets: [{
+                    data: statusData,
+                    backgroundColor: [
+                        "#28a745", // Delivered
+                        "#ffc107", // In Transit
+                        "#dc3545", // Cancelled
+                        "#17a2b8"  // Others
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { position: "bottom" }
+                }
+            }
+        });
+    </script>
+
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoicmlzaGk4MTAyIiwiYSI6ImNtOTFpbXpjeDAxZGwybHNjdjljdnlpZ2UifQ.lwfPOwA0QilljmyDYiUV6A';
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(async position => {
+                const userLat = position.coords.latitude;
+                const userLng = position.coords.longitude;
+                const deliveryPartner = [userLng, userLat]; 
+
+                const restaurantLat = parseFloat('@restaurantLatitude' || '21.1903');
+                const restaurantLng = parseFloat('@restaurantLongitude' || '72.8644');
+                const customerLat = parseFloat('@customerLatitude' || '21.1521');
+                const customerLng = parseFloat('@customerLongitude' || '72.8717');
+
+                const restaurant = [restaurantLng, restaurantLat];
+                const customer = [customerLng, customerLat];
+
+                const map = new mapboxgl.Map({
+                    container: 'map',
+                    style: 'mapbox://styles/mapbox/streets-v11',
+                    center: deliveryPartner,
+                    zoom: 13
+                });
+
+                // Partner marker
+                new mapboxgl.Marker({ color: 'blue' })
+                    .setLngLat(deliveryPartner)
+                    .setPopup(new mapboxgl.Popup().setText("You are here"))
+                    .addTo(map);
+
+                // Restaurant marker
+                new mapboxgl.Marker({ color: 'red' })
+                    .setLngLat(restaurant)
+                    .setPopup(new mapboxgl.Popup().setText("Restaurant"))
+                    .addTo(map);
+
+                // Customer marker
+                new mapboxgl.Marker({ color: 'green' })
+                    .setLngLat(customer)
+                    .setPopup(new mapboxgl.Popup().setText("Customer"))
+                    .addTo(map);
+
+                // Draw route
+                async function drawRoute() {
+                    const query = `https://api.mapbox.com/directions/v5/mapbox/driving/${deliveryPartner.join(',')};${restaurant.join(',')};${customer.join(',')}?geometries=geojson&access_token=${mapboxgl.accessToken}`;
+                    try {
+                        const response = await fetch(query);
+                        const data = await response.json();
+                        if (data.routes && data.routes.length > 0) {
+                            const route = data.routes[0].geometry;
+                            map.addSource('route', {
+                                type: 'geojson',
+                                data: {
+                                    type: 'Feature',
+                                    properties: {},
+                                    geometry: route
+                                }
+                            });
+                            map.addLayer({
+                                id: 'route',
+                                type: 'line',
+                                source: 'route',
+                                layout: {
+                                    'line-join': 'round',
+                                    'line-cap': 'round'
+                                },
+                                paint: {
+                                    'line-color': '#007bff',
+                                    'line-width': 5
+                                }
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Error drawing route:', error);
+                    }
+                }
+
+                map.on('load', drawRoute);
+
+                // Fetch available restaurants
+                fetch('/d/GetAvailableRestaurants')
+                    .then(response => response.json())
+                    .then(restaurants => {
+                        restaurants.forEach(rest => {
+                            const lat = parseFloat(rest.restaurant_lat);
+                            const lng = parseFloat(rest.restaurant_lag);
+
+                            new mapboxgl.Marker({ color: 'red' })
+                                .setLngLat([lng, lat])
+                                .setPopup(new mapboxgl.Popup().setHTML(`
+                                    <strong>${rest.restaurant_name}</strong><br/>
+                                    <button class="btn btn-sm btn-success mt-2" onclick="acceptOrderFromMap(${rest.restaurant_id})">
+                                        ✅ Accept Order
+                                    </button>
+                                `))
+                                .addTo(map);
+                        });
+                    });
+
+                // Accept order function
+                window.acceptOrderFromMap = function (restaurantId) {
+                    if (confirm("Are you sure you want to accept this order?")) {
+                        fetch('/DeliverSignup/AssignOrder?restaurantId=' + restaurantId, {
+                            method: 'POST'
+                        }).then(res => {
+                            if (res.ok) {
+                                alert("✅ Order Assigned Successfully!");
+                                window.location.reload();
+                            } else {
+                                alert("❌ Could not assign order.");
+                            }
+                        });
+                    }
+                };
+
+            }, (error) => {
+                console.error("Geolocation Error:", error);
+                showLocationError(`Unable to fetch your location: ${error.message}`);
+            });
+        } else {
+            showLocationError("Geolocation is not supported by your browser.");
+        }
+
+        // Helper function to show location errors
+        function showLocationError(message) {
+            const mapContainer = document.getElementById('map');
+            if (mapContainer) {
+                mapContainer.innerHTML = `<div class="alert alert-danger">${message}</div>`;
+            } else {
+                console.error(message);
+            }
+        }
+    </script>
+}

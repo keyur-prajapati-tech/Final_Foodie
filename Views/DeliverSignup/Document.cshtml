@@ -2,104 +2,256 @@
     ViewData["Title"] = "Document Verification";
     Layout = ViewBag.Layout ?? "_DeliverRegisterLayout"; ;
 }
-
 <style>
     body {
-        background: linear-gradient(135deg, #e3f2fd, #e1bee7);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
+        background-color: #f5f5f5;
         margin: 0;
-        padding: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
     }
 
+    .main-container {
+        display: flex;
+        width: 800px;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        margin: 0 auto;
+    }
 
-    .form-container {
+    .sidebar {
+        width: 220px;
+        background-color: #4da3ff;
+        color: white;
+        padding: 30px 20px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .sidebar-title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .sidebar-subtitle {
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+
+    .sidebar-text {
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .content {
+        flex: 1;
+        padding: 30px;
+    }
+
+    .steps-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 30px;
+        gap: 35px;
+    }
+
+    .step {
         display: flex;
         align-items: center;
         justify-content: center;
-        min-height: 100vh;
-        padding: 20px;
-    }
-
-    .card {
-        background-color: #e3e7ff;
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 25px;
-        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-        width: 100%;
-        max-width: 450px;
-        animation: fadeInEffect 0.8s ease-in-out;
-    }
-
-    .card-header h3 {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #e0e0e0;
+        color: white;
         font-weight: bold;
-        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
-        text-align: center;
+        position: relative;
     }
 
-    @@keyframes fadeInEffect {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
+        .step.active {
+            background-color: #4da3ff;
         }
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
+        .step.completed {
+            background-color: #4caf50;
         }
+
+        .step:not(:last-child):after {
+            content: '';
+            position: absolute;
+            height: 2px;
+            width: 35px;
+            background-color: #e0e0e0;
+            right: -35px;
+        }
+
+    .content-title {
+        font-size: 24px;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    .content-subtitle {
+        font-size: 14px;
+        color: #666;
+        margin-bottom: 25px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+
+    .upload-box {
+        border: 1px dashed #ccc;
+        border-radius: 4px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        position: relative;
+        height: 80px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+        .upload-box:hover {
+            border-color: #4da3ff;
+            background-color: #f9f9f9;
+        }
+
+    .upload-icon {
+        display: block;
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    .upload-text {
+        font-size: 14px;
+        color: #666;
     }
 
     .form-control {
-        background: rgba(255, 255, 255, 0.6);
+        opacity: 0;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        cursor: pointer;
     }
 
-    .btn-primary {
-        background-color: #007bff;
-        transition: all 0.3s ease-in-out;
-        width: 100%;
+    .continue-btn {
+        background-color: #4da3ff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-weight: bold;
+        cursor: pointer;
+        display: inline-block;
         margin-top: 10px;
     }
 
-        .btn-primary:hover {
-            background-color: #0056b3;
-            transform: scale(1.05);
+        .continue-btn:hover {
+            background-color: #3b8ae6;
         }
 
-    .form-label {
-        color: black;
-        font-weight: 600;
+    .upload-tip {
+        font-size: 12px;
+        color: #888;
+        margin-top: 5px;
+    }
+
+    .file-selected {
+        color: #4da3ff;
+        font-weight: 500;
     }
 </style>
 
-<div class="form-container">
-    <div class="card">
-        <div class="card-header">
-            <h3>📑 Upload Necessary Documents</h3>
-        </div>
-        <div class="card-body">
-            <form asp-action="Document" asp-controller="DeliverSignup" method="post" enctype="multipart/form-data">
-
-                <label for="ProfilePhoto" class="form-label">Upload Profile Photo</label>
-                <input type="file" class="form-control" id="ProfilePhoto" name="ProfilePhoto" accept=".jpg,.jpeg,.png" required>
-
-                <label for="AadhaarCard" class="form-label">Upload Aadhaar Card</label>
-                <input type="file" class="form-control" id="AadhaarCard" name="AadhaarCard" accept=".jpg,.jpeg,.png" required>
-
-                <label for="PANCard" class="form-label">Upload PAN Card</label>
-                <input type="file" class="form-control" id="PANCard" name="PANCard" accept=".jpg,.jpeg,.png" required>
-
-                <label for="DrivingLicense" class="form-label">Upload Driving License</label>
-                <input type="file" class="form-control" id="DrivingLicense" name="DrivingLicense" accept=".jpg,.jpeg,.png" required>
-
-                <label for="RCBook" class="form-label">Upload RC Book</label>
-                <input type="file" class="form-control" id="RCBook" name="RCBook" accept=".jpg,.jpeg,.png" required>
-
-                <button type="submit" class="btn btn-primary">Submit Documents</button>
-            </form>
+<div class="main-container">
+    <div class="sidebar">
+        <div class="sidebar-title">FOODIE</div>
+        <div class="sidebar-subtitle">Delivery</div>
+        <div class="sidebar-text">
+            Complete your profile to start delivering. We're just a few steps away from welcoming you to our team!
         </div>
     </div>
+
+    <div class="content">
+        <div class="steps-container">
+            <div class="step completed">1</div>
+            <div class="step completed">2</div>
+            <div class="step completed">3</div>
+            <div class="step active">4</div>
+        </div>
+
+        <div class="content-title">Document Verification</div>
+        <div class="content-subtitle">Upload your documents to verify your identity</div>
+
+        <form asp-action="Document" asp-controller="DeliverSignup" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label class="form-label">Upload Aadhaar Card</label>
+                <div class="upload-box" id="aadhaar-box">
+                    <span class="upload-icon">📄</span>
+                    <div class="upload-text">Click to upload your Aadhaar Card</div>
+                    <input type="file" class="form-control" id="AadhaarCard" name="AadhaarCard" accept="image/*,application/pdf" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Upload PAN Card</label>
+                <div class="upload-box" id="pan-box">
+                    <span class="upload-icon">📄</span>
+                    <div class="upload-text">Click to upload your PAN Card</div>
+                    <input type="file" class="form-control" id="PANCard" name="PANCard" accept="image/*,application/pdf" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Upload Driving License</label>
+                <div class="upload-box" id="license-box">
+                    <span class="upload-icon">📄</span>
+                    <div class="upload-text">Click to upload your Driving License</div>
+                    <input type="file" class="form-control" id="DrivingLicense" name="DrivingLicense" accept="image/*,application/pdf" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Upload RC Book</label>
+                <div class="upload-box" id="rc-box">
+                    <span class="upload-icon">📄</span>
+                    <div class="upload-text">Click to upload your RC Book</div>
+                    <input type="file" class="form-control" id="RCBook" name="RCBook" accept="image/*,application/pdf" required>
+                </div>
+            </div>
+
+            <button type="submit" class="continue-btn">Continue</button>
+        </form>
+    </div>
 </div>
+
+<script>
+    // Update upload box when files are selected
+    document.querySelectorAll('.form-control').forEach(input => {
+        input.addEventListener('change', function() {
+            const box = this.closest('.upload-box');
+            const textDiv = box.querySelector('.upload-text');
+            if (this.files.length > 0) {
+                textDiv.innerHTML = `<span class="file-selected">Selected: ${this.files[0].name}</span>`;
+            }
+        });
+    });
+</script>  

@@ -1,0 +1,410 @@
+﻿@{
+    ViewBag.Title = "Pay Signup Fee - FOODIE";
+    Layout = "~/Views/Shared/_DeliverRegisterLayout.cshtml"; // Preserving original layout
+}
+
+<style>
+    :root {
+        --primary-color: #FF5A00;
+        --secondary-color: #FFF2EB;
+        --text-dark: #333333;
+        --text-muted: #757575;
+        --border-color: #E0E0E0;
+        --success-color: #43A047;
+        --background: #F8F9FA;
+    }
+
+    body {
+        background: linear-gradient(135deg, #f5f7fa, #f7f9fc);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .payment-container {
+        width: 100%;
+        max-width: 540px;
+        padding: 20px;
+        margin: 0 auto;
+    }
+
+    .payment-card {
+        background: #FFFFFF;
+        border-radius: 16px;
+        box-shadow: 0 6px 24px rgba(0,0,0,0.08);
+        padding: 32px;
+        width: 100%;
+        text-align: left;
+    }
+
+    .payment-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+
+    .payment-logo {
+        width: 40px;
+        height: 40px;
+        background-color: var(--primary-color);
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 16px;
+    }
+
+    .payment-logo-text {
+        color: white;
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    .payment-title {
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 10px;
+    }
+
+    .payment-desc {
+        color: var(--text-muted);
+        font-size: 15px;
+        line-height: 1.5;
+        margin-bottom: 24px;
+    }
+
+    .progress-steps {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 30px;
+    }
+
+    .step {
+        flex: 1;
+        text-align: center;
+        position: relative;
+    }
+
+        .step:not(:last-child):after {
+            content: '';
+            position: absolute;
+            top: 16px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background-color: var(--border-color);
+            z-index: 1;
+        }
+
+        .step.active:not(:last-child):after {
+            background-color: var(--primary-color);
+        }
+
+    .step-dot {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--border-color);
+        color: #FFFFFF;
+        margin: 0 auto 8px;
+        position: relative;
+        z-index: 2;
+        font-weight: 600;
+    }
+
+    .step.active .step-dot {
+        background-color: var(--primary-color);
+    }
+
+    .step.completed .step-dot {
+        background-color: var(--success-color);
+    }
+
+    .step-label {
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+
+    .step.active .step-label {
+        color: var(--primary-color);
+        font-weight: 500;
+    }
+
+    .amount-section {
+        background-color: var(--secondary-color);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 24px;
+    }
+
+    .amount-row {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+        .amount-row:last-child {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--border-color);
+            margin-bottom: 0;
+        }
+
+    .amount-label {
+        color: var(--text-dark);
+        font-size: 15px;
+    }
+
+    .amount-value {
+        font-weight: 600;
+        color: var(--text-dark);
+        font-size: 15px;
+    }
+
+    .total-row .amount-label,
+    .total-row .amount-value {
+        font-size: 18px;
+        color: var(--primary-color);
+        font-weight: 700;
+    }
+
+    .benefits-section {
+        margin-bottom: 24px;
+    }
+
+    .benefits-title {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--text-dark);
+        margin-bottom: 16px;
+    }
+
+    .benefit-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+    }
+
+    .benefit-icon {
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--secondary-color);
+        color: var(--primary-color);
+        border-radius: 50%;
+        margin-right: 12px;
+        font-size: 12px;
+    }
+
+    .benefit-text {
+        font-size: 15px;
+        color: var(--text-muted);
+    }
+
+    .btn-pay {
+        background: var(--primary-color);
+        color: #fff;
+        padding: 14px 32px;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        font-weight: 600;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .btn-pay:hover {
+            background: #E14D00;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 90, 0, 0.2);
+        }
+
+    .payment-secure {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-top: 20px;
+        color: var(--text-muted);
+        font-size: 14px;
+    }
+
+    .secure-icon {
+        width: 18px;
+        height: 18px;
+        margin-right: 8px;
+    }
+
+    .footer-links {
+        margin-top: 24px;
+        font-size: 14px;
+        color: var(--text-muted);
+        text-align: center;
+    }
+
+        .footer-links a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+            .footer-links a:hover {
+                text-decoration: underline;
+            }
+
+    .support-link {
+        display: inline-flex;
+        align-items: center;
+        margin-right: 16px;
+    }
+
+    .support-icon {
+        margin-right: 6px;
+    }
+
+    .divider {
+        width: 100%;
+        height: 1px;
+        background-color: var(--border-color);
+        margin: 20px 0;
+    }
+
+    @@media (max-width: 576px) {
+        .payment-card
+
+    {
+        padding: 24px 20px;
+        border-radius: 12px;
+    }
+
+    .progress-steps {
+        padding: 0 10px;
+    }
+
+    }
+</style>
+
+<div class="payment-container">
+    <div class="payment-card">
+        <div class="payment-header">
+            <div class="payment-logo">
+                <span class="payment-logo-text">F</span>
+            </div>
+            <h1 class="payment-title">FOODIE</h1>
+        </div>
+
+        <h2 class="payment-title">Delivery Partner Registration</h2>
+        <p class="payment-desc">Complete your one-time payment to join our delivery fleet and start earning.</p>
+
+        <div class="progress-steps">
+            <div class="step completed">
+                <div class="step-dot">✓</div>
+                <div class="step-label">Sign Up</div>
+            </div>
+            <div class="step active">
+                <div class="step-dot">2</div>
+                <div class="step-label">Payment</div>
+            </div>
+            <div class="step">
+                <div class="step-dot">3</div>
+                <div class="step-label">Verification</div>
+            </div>
+        </div>
+
+        <div class="amount-section">
+            <div class="amount-row">
+                <div class="amount-label">Registration Fee</div>
+                <div class="amount-value">₹1200.00</div>
+            </div>
+            <div class="amount-row total-row">
+                <div class="amount-label">Total Amount</div>
+                <div class="amount-value">₹1200.00</div>
+            </div>
+        </div>
+
+        <div class="benefits-section">
+            <h3 class="benefits-title">What's included:</h3>
+            <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div class="benefit-text">Document verification and background check</div>
+            </div>
+            <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div class="benefit-text">Delivery training program access</div>
+            </div>
+            <div class="benefit-item">
+                <div class="benefit-icon">✓</div>
+                <div class="benefit-text">Partner app setup and onboarding</div>
+            </div>
+        </div>
+
+        <form id="paymentForm">
+            <input type="hidden" id="amount" value="120000" /> <!-- Razorpay expects amount in paise -->
+            <button type="button" class="btn-pay" onclick="payNow()">
+                Pay ₹1200.00 Securely
+            </button>
+        </form>
+
+        <div class="payment-secure">
+            <img src="https://img.icons8.com/fluency/48/lock-2.png" alt="Secure" class="secure-icon" />
+            <span>Secured Payment via Razorpay</span>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="footer-links">
+            <a href="Support" class="support-link">
+                <svg class="support-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M12 17V17.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M12 13.5C11.9816 13.1754 12.0691 12.8536 12.2495 12.5791C12.4299 12.3045 12.6933 12.0908 13 11.97C13.3759 11.8184 13.7132 11.5981 13.9856 11.3196C14.2579 11.0411 14.4591 10.7103 14.5745 10.3513C14.6899 9.99238 14.7161 9.61424 14.6511 9.24356C14.5861 8.87289 14.4315 8.51869 14.1979 8.20806C13.9642 7.89743 13.6576 7.64093 13.2999 7.45709C12.9423 7.27325 12.5433 7.16727 12.1365 7.14723C11.7297 7.1272 11.3217 7.19357 10.948 7.34085C10.5742 7.48813 10.2448 7.71262 9.98 8L9 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Need help?
+            </a>
+            <span>|</span>
+            <a href="Terms">Terms & Conditions</a>
+        </div>
+    </div>
+</div>
+
+<!-- Razorpay Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    function payNow() {
+        var options = {
+            "key": "rzp_test_aUXiFx5XjAGIrl", // Replace with your Razorpay key
+            "amount": document.getElementById("amount").value,
+            "currency": "INR",
+            "name": "FOODIE",
+            "description": "Signup Fee for Delivery Partner",
+            "image": "/images/logo.png", // Optional logo
+            "handler": function (response) {
+                // Save transaction to DB using AJAX or redirect to success
+                alert("Payment Successful! Transaction ID: " + response.razorpay_payment_id);
+                window.location.href = "/deliverysignup/d/pending?transactionId=" + response.razorpay_payment_id;
+            },
+            "prefill": {
+                "name": "@ViewBag.FullName", // Optional if available
+                "email": "@ViewBag.Email"
+            },
+            "theme": {
+                "color": "#FF5A00"
+            }
+        };
+        var rzp1 = new Razorpay(options);
+        rzp1.open();
+    }
+</script>

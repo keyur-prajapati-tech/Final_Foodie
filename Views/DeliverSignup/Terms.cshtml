@@ -1,0 +1,195 @@
+﻿@{
+    ViewBag.Title = "Terms and Conditions";
+    Layout = "~/Views/Shared/_DeliverRegisterLayout.cshtml";
+}
+<style>
+    .terms-container {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 40px 20px;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .terms-header {
+        text-align: center;
+        margin-bottom: 40px;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 20px;
+    }
+
+    .terms-title {
+        color: #e63946;
+        font-size: 2.5rem;
+        font-weight: 700;
+    }
+
+    .terms-intro {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        margin-bottom: 30px;
+        color: #555;
+    }
+
+    .terms-section {
+        margin-bottom: 30px;
+        padding: 20px;
+        border-radius: 8px;
+        background-color: #fff;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+        .terms-section:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+    .section-title {
+        color: #e63946;
+        font-size: 1.3rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .section-number {
+        background-color: #e63946;
+        color: white;
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+        font-weight: bold;
+    }
+
+    .terms-section p, .terms-section ul {
+        color: #444;
+        line-height: 1.7;
+        font-size: 1rem;
+        margin-bottom: 0;
+    }
+
+    .terms-section ul {
+        padding-left: 20px;
+    }
+
+    .terms-section li {
+        margin-bottom: 8px;
+    }
+
+    .terms-footer {
+        text-align: center;
+        margin-top: 40px;
+        padding-top: 20px;
+        border-top: 2px solid #f0f0f0;
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .terms-link {
+        color: #e63946;
+        text-decoration: none;
+        font-weight: 500;
+        transition: color 0.2s;
+    }
+
+        .terms-link:hover {
+            color: #c1272d;
+            text-decoration: underline;
+        }
+    @@media (max-width: 768px) {
+        .terms-title
+
+    {
+        font-size: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.2rem;
+    }
+
+    .terms-section {
+        padding: 15px;
+    }
+
+    }
+</style>
+
+<div class="terms-container">
+    <div class="terms-header">
+        <h1 class="terms-title">Terms and Conditions</h1>
+        <p class="terms-intro">Welcome to FOODIE! These terms and conditions outline the rules and regulations for using our website and services. Please read them carefully before using our platform.</p>
+    </div>
+
+    <div class="terms-section">
+        <h4 class="section-title"><span class="section-number">1</span> Acceptance of Terms</h4>
+        <p>By accessing this website or using our services, you agree to be bound by these Terms and Conditions. If you do not agree with any part of the terms, please do not use the FOODIE website.</p>
+    </div>
+
+    <div class="terms-section">
+        <h4 class="section-title"><span class="section-number">2</span> User Accounts</h4>
+        <p>When you register on FOODIE as a user, restaurant, or delivery partner, you must provide accurate information. You are responsible for maintaining the confidentiality of your account credentials and activities under your account.</p>
+    </div>
+
+    <div class="terms-section">
+        <h4 class="section-title"><span class="section-number">3</span> Ordering and Payments</h4>
+        <p>All food orders placed through FOODIE are subject to availability and restaurant confirmation. Payments must be made using the available methods on the platform. Refunds and cancellations are governed by our refund policy.</p>
+    </div>
+
+    <div class="terms-section">
+        <h4 class="section-title"><span class="section-number">4</span> Delivery Partners</h4>
+        <p>Delivery partners must be approved by FOODIE before they can start accepting delivery requests. They are responsible for timely and safe delivery of food items.</p>
+    </div>
+
+    <div class="terms-section">
+        <h4 class="section-title"><span class="section-number">5</span> Restaurant Listings</h4>
+        <p>Only verified restaurants are allowed to take orders. FOODIE reserves the right to deactivate or suspend listings found to be violating policies.</p>
+    </div>
+
+    <div class="terms-section">
+        <h4 class="section-title"><span class="section-number">6</span> Privacy Policy</h4>
+        <p>We value your privacy. Please refer to our <a class="terms-link" href="/Privacy">Privacy Policy</a> for details on how we collect and use your data.</p>
+    </div>
+
+    <div class="terms-section">
+        <h4 class="section-title"><span class="section-number">7</span> Prohibited Activities</h4>
+        <ul>
+            <li>Attempting to gain unauthorized access to our systems</li>
+            <li>Using FOODIE for illegal or unauthorized purposes</li>
+            <li>Interfering with other users' use of the service</li>
+        </ul>
+    </div>
+
+    <div class="terms-section">
+        <h4 class="section-title"><span class="section-number">8</span> Intellectual Property</h4>
+        <p>All content on FOODIE including logos, text, graphics, and software is owned by or licensed to FOODIE. You may not copy or use it without permission.</p>
+    </div>
+
+    <div class="terms-section">
+        <h4 class="section-title"><span class="section-number">9</span> Termination</h4>
+        <p>FOODIE reserves the right to suspend or terminate your access to the platform if you violate these terms or engage in fraudulent activities.</p>
+    </div>
+
+    <div class="terms-section">
+        <h4 class="section-title"><span class="section-number">10</span> Limitation of Liability</h4>
+        <p>FOODIE is not liable for any direct, indirect, or incidental damages arising from the use or inability to use the service.</p>
+    </div>
+
+    <div class="terms-section">
+        <h4 class="section-title"><span class="section-number">11</span> Changes to Terms</h4>
+        <p>We may update these Terms and Conditions from time to time. Any changes will be posted on this page with an updated revision date.</p>
+    </div>
+
+    <div class="terms-section">
+        <h4 class="section-title"><span class="section-number">12</span> Contact Us</h4>
+        <p>If you have any questions about these Terms and Conditions, please contact us at <a class="terms-link" href="mailto:support@foodie.com">support@foodie.com</a>.</p>
+    </div>
+
+    <div class="terms-footer">
+        <p><strong>Effective Date:</strong> April 8, 2025</p>
+    </div>
+</div>

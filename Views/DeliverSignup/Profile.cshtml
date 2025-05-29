@@ -1,142 +1,748 @@
-﻿@model List<Foodie.Models.DeliveryPartner.tbl_deliveryPartnerDetails>
-
+﻿@model Foodie.Models.DeliveryPartner.DeliveryPartnerProfileViewModel
 @{
     ViewData["Title"] = "Update Profile";
     Layout = ViewBag.Layout ?? "_DeliveryPartnerLayout";
 }
 
-<div class="profile-container">
-    <h2 class="profile-heading">Update Profile</h2>
-
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success">@TempData["Success"]</div>
-    }
-
-    @foreach (var partner in Model)
-    {
-        <form asp-action="UpdateDetails" method="post" class="profile-form">
-            <input type="hidden" asp-for="@partner.detail_id" />
-
-            <div class="profile-pic-container">
-                <img id="profilePreview" src="@partner.ProfilePicture" alt="Profile Picture" class="profile-pic" />
-                <input type="file" id="ProfilePicture" name="ProfilePicture" class="profile-upload" accept=".jpg,.jpeg,.png" onchange="previewImage(event)" />
-            </div>
-            <div class="form-group">
-                <label for="AadhaarNumber">Aadhaar Number</label>
-                <input type="text" name="AadhaarNumber" value="@partner.AadhaarNumber" class="form-control" required />
-            </div>
-            <div class="form-group">
-                <label for="PANNumber">PAN Number</label>
-                <input type="text" name="PANNumber" value="@partner.PANNumber" class="form-control" required />
-            </div>
-            <button type="submit" class="btn-update">Update</button>
-        </form>
-    }
-
-</div>
-
 <style>
+    /* Main Container Styles */
     .profile-container {
-        width: 40%;
-        margin: auto;
-        padding: 20px;
+        max-width: 800px;
+        margin: 40px auto;
+        padding: 0;
         background: #fff;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        border-radius: 12px;
-        animation: fadeIn 0.5s ease-in-out;
+        box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+        border-radius: 20px;
+        overflow: hidden;
+        transition: all 0.3s ease;
     }
 
-    .profile-heading {
-        text-align: center;
-        font-size: 24px;
-        font-weight: bold;
-        margin-bottom: 20px;
-    }
-
-    .profile-form {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-    }
-
-    .form-control {
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        transition: all 0.3s ease-in-out;
-    }
-
-        .form-control:focus {
-            border-color: #ff5722;
-            box-shadow: 0 0 8px rgba(255,87,34,0.3);
+        .profile-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
         }
 
-    .profile-pic-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
-        margin-bottom: 20px;
+    /* Header Section */
+    .profile-header {
+        background: linear-gradient(135deg, #1a73e8, #3f97fe);
+        color: white;
+        padding: 30px 40px;
+        position: relative;
+        overflow: hidden;
     }
 
-    .profile-pic {
-        width: 100px;
-        height: 100px;
+        .profile-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+            transform: translate(30%, -50%);
+        }
+
+    .profile-heading {
+        margin: 0;
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        animation: fadeIn 0.6s ease-out;
+    }
+
+    .profile-subheading {
+        font-size: 16px;
+        opacity: 0.9;
+        margin-top: 8px;
+        font-weight: 300;
+        animation: fadeIn 0.8s ease-out;
+    }
+
+    /* Form Container */
+    .profile-form-container {
+        padding: 40px 50px;
+    }
+
+    /* Section Styles */
+    .form-section {
+        margin-bottom: 35px;
+        padding-bottom: 35px;
+        border-bottom: 1px solid #eaeaea;
+        transition: all 0.3s ease;
+    }
+
+        .form-section:hover {
+            transform: translateX(5px);
+            border-bottom-color: #d0d0d0;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 10px;
+        }
+
+    .section-title {
+        font-size: 20px;
+        color: #1a73e8;
+        margin-bottom: 25px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+
+        .section-title i {
+            margin-right: 12px;
+            color: #1a73e8;
+        }
+
+    /* Profile Picture Styles */
+    .profile-pic-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 40px;
+    }
+
+    .profile-pic-wrapper {
+        position: relative;
+        width: 140px;
+        height: 140px;
         border-radius: 50%;
+        overflow: hidden;
+        margin-bottom: 15px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        border: 4px solid white;
+        transition: all 0.3s ease;
+    }
+
+        .profile-pic-wrapper:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.2);
+        }
+
+    .profile-pic {
+        width: 100%;
+        height: 100%;
         object-fit: cover;
-        border: 2px solid #ff5722;
+        transition: all 0.5s ease;
+    }
+
+    .profile-pic-wrapper:hover .profile-pic {
+        transform: scale(1.1);
+    }
+
+    .pic-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(26,115,232,0.7);
+        color: white;
+        font-size: 14px;
+        padding: 8px 0;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s;
+        transform: translateY(100%);
+    }
+
+    .profile-pic-wrapper:hover .pic-overlay {
+        transform: translateY(0);
+    }
+
+    .pic-overlay:hover {
+        background: rgba(26,115,232,0.9);
     }
 
     .profile-upload {
-        margin-top: 10px;
-        padding: 5px;
-        font-size: 14px;
+        display: none;
     }
 
-    .btn-update {
-        padding: 10px;
-        background: #412;
-        border: none;
-        color: white;
-        font-size: 16px;
-        border-radius: 8px;
-        cursor: pointer;
+    /* Form Controls */
+    .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        margin: 0 -15px;
+    }
+
+    .form-col-6 {
+        flex: 0 0 50%;
+        padding: 0 15px;
+    }
+
+    .form-col-12 {
+        flex: 0 0 100%;
+        padding: 0 15px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 500;
+        color: #444;
+        font-size: 15px;
         transition: all 0.3s;
     }
 
-        .btn-update:hover {
-            background: #e64a19;
+    .form-control {
+        width: 100%;
+        padding: 14px 16px;
+        border: 2px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 16px;
+        transition: all 0.3s;
+        background-color: #f9f9f9;
+    }
+
+        .form-control:hover {
+            border-color: #c0c0c0;
         }
+
+        .form-control:focus {
+            border-color: #1a73e8;
+            background-color: #fff;
+            box-shadow: 0 0 0 4px rgba(26,115,232,0.15);
+            outline: none;
+        }
+
+    /* Button Styles */
+    .btn-container {
+        text-align: right;
+        margin-top: 40px;
+    }
+
+    .btn-cancel {
+        padding: 14px 28px;
+        background-color: #f2f2f2;
+        color: #555;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        margin-right: 15px;
+        transition: all 0.3s;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+        .btn-cancel:hover {
+            background-color: #e5e5e5;
+            transform: translateY(-2px);
+        }
+
+    .btn-update {
+        padding: 14px 32px;
+        background-color: #1a73e8;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .btn-update::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        .btn-update:hover {
+            background-color: #0b5fca;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(26,115,232,0.4);
+        }
+
+        .btn-update:focus::after {
+            animation: ripple 1s ease-out;
+        }
+
+    @@keyframes ripple {
+        0%
+
+    {
+        transform: scale(0, 0);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(20, 20);
+        opacity: 0;
+    }
+
+    }
+
+    /* Alert Messages */
+    .alert {
+        padding: 18px 20px;
+        border-radius: 12px;
+        margin-bottom: 30px;
+        position: relative;
+        animation: slideDown 0.5s ease-out;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .alert-success {
+        background-color: #e7f7ed;
+        color: #2e7d32;
+        border-left: 4px solid #2e7d32;
+    }
+
+    .alert::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        width: 4px;
+        background: #2e7d32;
+        border-radius: 4px 0 0 4px;
+    }
 
     @@keyframes fadeIn {
         from
 
     {
         opacity: 0;
-        transform: translateY(-10px);
     }
 
     to {
+        opacity: 1;
+    }
+
+    }
+
+    @@keyframes slideDown {
+        from
+
+    {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .profile-container
+
+    {
+        margin: 20px;
+        border-radius: 16px;
+    }
+
+    .profile-form-container {
+        padding: 30px 25px;
+    }
+
+    .form-col-6 {
+        flex: 0 0 100%;
+    }
+
+    .profile-header {
+        padding: 25px;
+    }
+
+    .btn-container {
+        text-align: center;
+    }
+
+    .btn-cancel, .btn-update {
+        width: 100%;
+        margin: 10px 0;
+    }
+
+    }
+
+    /* Input validation styles */
+    .input-validation-error {
+        border-color: #ff3e3e;
+        background-color: #fff8f8;
+    }
+
+    .field-validation-error {
+        color: #ff3e3e;
+        font-size: 13px;
+        margin-top: 6px;
+        display: block;
+        padding-left: 5px;
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    /* Icon styles */
+    .section-icon {
+        width: 28px;
+        height: 28px;
+        margin-right: 10px;
+        color: #1a73e8;
+    }
+
+    /* Focus and active states */
+    .form-group.active .form-label {
+        color: #1a73e8;
+    }
+
+    /* Form inputs floating animation */
+    .form-control::placeholder {
+        color: #aaa;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus::placeholder {
+        opacity: 0.7;
+        transform: translateY(-5px);
+    }
+
+    /* Select styling */
+    select.form-control {
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%231a73e8' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: calc(100% - 15px) center;
+        padding-right: 40px;
+    }
+
+    /* Feedback animations for inputs */
+    .form-control:valid {
+        background-position: calc(100% - 15px) center;
+    }
+
+    /* Tooltip styles */
+    .tooltip {
+        position: relative;
+        display: inline-block;
+        margin-left: 8px;
+        color: #aaa;
+        cursor: help;
+    }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: #555;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            font-size: 13px;
+            font-weight: normal;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+            .tooltip .tooltiptext::after {
+                content: "";
+                position: absolute;
+                top: 100%;
+                left: 50%;
+                margin-left: -5px;
+                border-width: 5px;
+                border-style: solid;
+                border-color: #555 transparent transparent transparent;
+            }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+    /* Section animations */
+    .form-section {
+        opacity: 0;
+        animation: fadeInSection 0.6s forwards;
+    }
+
+    @@keyframes fadeInSection {
+        to
+
+    {
         opacity: 1;
         transform: translateY(0);
     }
 
     }
+
+    .form-section:nth-child(1) {
+        animation-delay: 0.1s;
+    }
+
+    .form-section:nth-child(2) {
+        animation-delay: 0.3s;
+    }
+
+    .form-section:nth-child(3) {
+        animation-delay: 0.5s;
+    }
 </style>
+
+<div class="profile-container">
+    <div class="profile-header">
+        <h2 class="profile-heading">Update Profile</h2>
+        <p class="profile-subheading">Complete your delivery partner details for a seamless experience</p>
+    </div>
+
+    <div class="profile-form-container">
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i> @TempData["Success"]
+            </div>
+        }
+
+        <form asp-action="UpdateProfile" asp-controller="DeliverSignup" method="post" enctype="multipart/form-data" class="profile-form">
+            <input type="hidden" asp-for="PartnerId" />
+            <input type="hidden" asp-for="DetailId" />
+
+            <!-- Profile Picture -->
+            <div class="profile-pic-container">
+                <div class="profile-pic-wrapper">
+                    <img id="profilePreview" src="//Uploads/@Model.ProfilePicture" alt="Profile Picture" class="profile-pic" />
+                    <div class="pic-overlay" onclick="document.getElementById('ProfilePicture').click()">
+                        <i class="fas fa-camera"></i> Change Photo
+                    </div>
+                </div>
+                <input type="file" id="ProfilePicture" name="ProfilePicture" class="profile-upload" accept="image/*" onchange="previewImage(event)" />
+                <small style="color: #777; text-align: center; margin-top: 10px;">Upload a clear profile photo to help customers identify you</small>
+            </div>
+
+            <!-- Personal Information Section -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    </svg>
+                    Personal Information
+                </h3>
+                <div class="form-row">
+                    <div class="form-col-6">
+                        <div class="form-group">
+                            <label class="form-label" for="AadhaarNumber">
+                                Aadhaar Number
+                                <span class="tooltip">
+                                    ⓘ
+                                    <span class="tooltiptext">12-digit unique identification number issued by the Indian government</span>
+                                </span>
+                            </label>
+                            <input type="text" asp-for="AadhaarNumber" class="form-control" placeholder="Enter 12-digit Aadhaar number" required />
+                            <span asp-validation-for="AadhaarNumber" class="field-validation-error"></span>
+                        </div>
+                    </div>
+                    <div class="form-col-6">
+                        <div class="form-group">
+                            <label class="form-label" for="PANNumber">
+                                PAN Number
+                                <span class="tooltip">
+                                    ⓘ
+                                    <span class="tooltiptext">10-character alphanumeric Permanent Account Number</span>
+                                </span>
+                            </label>
+                            <input type="text" asp-for="PANNumber" class="form-control" placeholder="Enter PAN number" required />
+                            <span asp-validation-for="PANNumber" class="field-validation-error"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehicle Information Section -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+                    </svg>
+                    Vehicle Information
+                </h3>
+                <div class="form-row">
+                    <div class="form-col-6">
+                        <div class="form-group">
+                            <label class="form-label" for="VehicleType">Vehicle Type</label>
+                            <select asp-for="VehicleType" class="form-control">
+                                <option value="">Select Vehicle Type</option>
+                                <option value="Bike">Bike</option>
+                                <option value="Scooter">Scooter</option>
+                            </select>
+                            <span asp-validation-for="VehicleType" class="field-validation-error"></span>
+                        </div>
+                    </div>
+                    <div class="form-col-6">
+                        <div class="form-group">
+                            <label class="form-label" for="VehicleNumber">Vehicle Number</label>
+                            <input type="text" asp-for="LicensePlate" class="form-control" placeholder="Enter vehicle registration number" />
+                            <span asp-validation-for="LicensePlate" class="field-validation-error"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bank Information Section -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                    </svg>
+                    Bank Information
+                </h3>
+                <div class="form-row">
+                    <div class="form-col-12">
+                        <div class="form-group">
+                            <label class="form-label" for="BankName">Bank Name</label>
+                            <input type="text" asp-for="BankName" class="form-control" placeholder="Enter bank name" />
+                            <span asp-validation-for="BankName" class="field-validation-error"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-col-6">
+                        <div class="form-group">
+                            <label class="form-label" for="AccountNumber">Account Number</label>
+                            <input type="text" asp-for="AccountNumber" class="form-control" placeholder="Enter account number" />
+                            <span asp-validation-for="AccountNumber" class="field-validation-error"></span>
+                        </div>
+                    </div>
+                    <div class="form-col-6">
+                        <div class="form-group">
+                            <label class="form-label" for="IFSCCode">
+                                IFSC Code
+                                <span class="tooltip">
+                                    ⓘ
+                                    <span class="tooltiptext">Indian Financial System Code - 11 character code that identifies your bank branch</span>
+                                </span>
+                            </label>
+                            <input type="text" asp-for="IFSC_Code" class="form-control" placeholder="Enter IFSC code" />
+                            <span asp-validation-for="IFSC_Code" class="field-validation-error"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Buttons -->
+            <div class="btn-container">
+                <button type="submit" class="btn-update">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
 
 <script>
     function previewImage(event) {
-        var reader = new FileReader();
-        reader.onload = function(){
-            var output = document.getElementById('profilePreview');
+        const reader = new FileReader();
+        reader.onload = function() {
+            const output = document.getElementById('profilePreview');
             output.src = reader.result;
         };
-        reader.readAsDataURL(event.target.files[0]);
+        if (event.target.files[0]) {
+            reader.readAsDataURL(event.target.files[0]);
+        }
     }
+
+    // Form validation & enhanced user experience
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.profile-form');
+        const inputs = document.querySelectorAll('.form-control');
+
+        // Add active class to form groups when input is focused
+        inputs.forEach(input => {
+            input.addEventListener('focus', function() {
+                this.closest('.form-group').classList.add('active');
+            });
+
+            input.addEventListener('blur', function() {
+                if (this.value.trim() === '') {
+                    this.closest('.form-group').classList.remove('active');
+                }
+            });
+
+            // Check if input has value on page load
+            if (input.value.trim() !== '') {
+                input.closest('.form-group').classList.add('active');
+            }
+        });
+
+        form.addEventListener('submit', function(event) {
+            let isValid = true;
+
+            // Validate Aadhaar (12 digits)
+            const aadhaar = document.getElementById('AadhaarNumber');
+            if (!/^\d{12}$/.test(aadhaar.value.trim())) {
+                isValid = false;
+                aadhaar.classList.add('input-validation-error');
+                const errorSpan = aadhaar.nextElementSibling;
+                errorSpan.textContent = "Please enter a valid 12-digit Aadhaar number";
+            } else {
+                aadhaar.classList.remove('input-validation-error');
+                const errorSpan = aadhaar.nextElementSibling;
+                errorSpan.textContent = "";
+            }
+
+            // Validate PAN (10 alphanumeric)
+            const pan = document.getElementById('PANNumber');
+            if (!/^[A-Z0-9]{10}$/.test(pan.value.trim())) {
+                isValid = false;
+                pan.classList.add('input-validation-error');
+                const errorSpan = pan.nextElementSibling;
+                errorSpan.textContent = "Please enter a valid 10-character PAN number";
+            } else {
+                pan.classList.remove('input-validation-error');
+                const errorSpan = pan.nextElementSibling;
+                errorSpan.textContent = "";
+            }
+
+            // Add ripple effect to submit button
+            if (isValid) {
+                const btn = document.querySelector('.btn-update');
+                const btnRect = btn.getBoundingClientRect();
+                const ripple = document.createElement('span');
+                ripple.className = 'ripple';
+                ripple.style.width = ripple.style.height = Math.max(btnRect.width, btnRect.height) + 'px';
+                btn.appendChild(ripple);
+
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            } else {
+                event.preventDefault();
+                // Scroll to first error
+                const firstError = document.querySelector('.input-validation-error');
+                if (firstError) {
+                    firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstError.focus();
+                }
+            }
+        });
+
+        // Add section animations
+        const sections = document.querySelectorAll('.form-section');
+        sections.forEach((section, index) => {
+            section.style.opacity = '0';
+            section.style.transform = 'translateY(20px)';
+            // Set different delays for each section
+            section.style.animationDelay = (0.2 * index) + 's';
+        });
+    });
 </script>

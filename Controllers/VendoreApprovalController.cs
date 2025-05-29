@@ -19,6 +19,18 @@ namespace Foodie.Controllers
             return View(model);
         }
 
+        [HttpGet("VendorApproval/Details/{id}")]
+        public IActionResult Details(int id)
+        {
+            var vendor = _AdminRepository.GetVendorById(id);
+            if (vendor == null)
+            {
+                return NotFound();
+            }
+
+            return View(vendor);
+        }
+
         [HttpPost]
         public IActionResult ApproveVendor(int id, string email)
         {
