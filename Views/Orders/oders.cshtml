@@ -6,32 +6,165 @@
 
 <head>
     <title>@ViewBag.Title</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.1.3/css/bootstrap.min.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            background: linear-gradient(135deg, #ece9e6, #ffffff);
+            font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            padding: 20px;
+        }
+
+        h1 {
+            font-family: 'Poppins', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .card {
+            border-radius: 15px;
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.3);
+            }
+
+        .btn {
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin: 5px;
+            transition: all 0.3s ease;
+        }
+
+            .btn.active {
+                background-color: #6c63ff;
+                color: #fff;
+                box-shadow: 0 4px 15px rgba(108, 99, 255, 0.4);
+            }
+
+            .btn:hover {
+                transform: scale(1.05);
+            }
+
+        .fade-in {
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .table {
+            background-color: #ffffffcc;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 15px;
+            table-layout: fixed; /* Fixed column widths */
+            width: 100%;
+            min-height: 300px; /* Keeps table height consistent */
+        }
+
+            .table th, .table td {
+                word-wrap: break-word;
+                overflow-wrap: break-word;
+                vertical-align: middle;
+                height: 50px; /* Consistent row height */
+                padding: 12px 15px;
+            }
+
+            .table thead {
+                background-color: #6c63ff;
+                color: #fff;
+                font-size: 1rem;
+            }
+
+                .table thead th:nth-child(1), .table tbody td:nth-child(1) {
+                    width: 100px;
+                }
+
+                .table thead th:nth-child(2), .table tbody td:nth-child(2) {
+                    width: 120px;
+                }
+
+                .table thead th:nth-child(3), .table tbody td:nth-child(3) {
+                    width: 150px;
+                }
+
+                .table thead th:nth-child(4), .table tbody td:nth-child(4) {
+                    width: 150px;
+                }
+
+                .table thead th:nth-child(5), .table tbody td:nth-child(5) {
+                    width: 150px;
+                }
+
+                .table thead th:nth-child(6), .table tbody td:nth-child(6) {
+                    width: 150px;
+                }
+
+                .table thead th:nth-child(7), .table tbody td:nth-child(7) {
+                    width: 200px;
+                }
+
+                .table thead th:nth-child(8), .table tbody td:nth-child(8) {
+                    width: 100px;
+                }
+
+                .table thead th:nth-child(9), .table tbody td:nth-child(9) {
+                    width: 100px;
+                }
+
+        .badge {
+            font-size: 0.85rem;
+            padding: 6px 12px;
+            border-radius: 12px;
+            letter-spacing: 0.4px;
+        }
+
+        .pagination button {
+            border-radius: 20px;
+            padding: 8px 18px;
+            margin: 0 5px;
+        }
+
+        #pageInfo {
+            font-weight: 600;
+            color: #6c63ff;
+            margin: 0 10px;
+            font-size: 1rem;
+        }
+    </style>
 </head>
 
-<div class="container mt-5">
-    <div class="text-center mb-4">
+<div class="container mt-4">
+    <div class="text-center mb-4 fade-in">
         <h1 class="display-5 fw-bold">@ViewData["PageName"]</h1>
     </div>
 
-    <div class="card border-0 shadow">
-        <div class="card-header bg-light">
+    <div class="card border-0 shadow fade-in">
+        <div class="card-header bg-transparent text-center">
             <div class="d-flex flex-wrap justify-content-center gap-2">
                 <button class="btn btn-outline-primary active" data-status="All">All</button>
                 <button class="btn btn-outline-secondary" data-status="Pending">Pending</button>
                 <button class="btn btn-outline-secondary" data-status="Accepted">Accepted</button>
                 <button class="btn btn-outline-secondary" data-status="Out for Delivery">Out for Delivery</button>
                 <button class="btn btn-outline-secondary" data-status="Delivered">Delivered</button>
-                <button class="btn btn-outline-danger" data-status="Cancelled">Canceled</button>
+                <button class="btn btn-outline-danger" data-status="Cancelled">Cancelled</button>
             </div>
         </div>
 
         <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover table-striped align-middle text-center">
-                    <thead class="table-primary">
+            <div class="table-responsive fade-in">
+                <table class="table table-hover align-middle text-center">
+                    <thead>
                         <tr>
-                            <th>Order Id</th>
+                            <th>Order ID</th>
                             <th>Status</th>
                             <th>Restaurant</th>
                             <th>Order Date</th>
@@ -43,9 +176,15 @@
                         </tr>
                     </thead>
                     <tbody id="orderTableBody">
-                        <!-- Dynamic rows inserted here -->
+                        <!-- Dynamic rows will be inserted here -->
                     </tbody>
                 </table>
+            </div>
+
+            <div class="pagination mt-3 d-flex justify-content-center align-items-center" id="paginationControls">
+                <button id="prevPage" class="btn btn-outline-secondary" disabled>Previous</button>
+                <span id="pageInfo"></span>
+                <button id="nextPage" class="btn btn-outline-secondary">Next</button>
             </div>
         </div>
     </div>
@@ -53,12 +192,15 @@
 
 <script>
     $(document).ready(function () {
+        let currentPage = 1;
+        const ordersPerPage = 5;
+        let allOrders = [];
+
         loadOrders("All");
 
-        $(".btn-group .btn, .card-header .btn").click(function () {
+        $(".card-header .btn").click(function () {
             $(".card-header .btn").removeClass("active");
             $(this).addClass("active");
-
             const status = $(this).data("status");
             loadOrders(status);
         });
@@ -69,30 +211,72 @@
                 type: 'GET',
                 data: { status: status },
                 success: function (data) {
-                    let rows = "";
-
-                    data.forEach(order => {
-                        rows += `
-                            <tr>
-                                <td>${order.orderId}</td>
-                                <td>${badge(order.order_status)}</td>
-                                <td>${order.restaurantName}</td>
-                                <td>${formatDate(order.orderDate)}</td>
-                                <td>${formatDate(order.deliveryTime)}</td>
-                                <td>${order.customer_name}</td>
-                                <td>${order.menu}</td>
-                                <td>${order.coupone_id ?? "--"}</td>
-                                <td>${order.discount.toFixed(2)}</td>
-                            </tr>`;
-                    });
-
-                    $("#orderTableBody").html(rows);
+                    allOrders = data;
+                    currentPage = 1;
+                    displayOrders();
                 },
                 error: function () {
                     alert("Error loading orders.");
                 }
             });
         }
+
+        function displayOrders() {
+            const start = (currentPage - 1) * ordersPerPage;
+            const end = start + ordersPerPage;
+            const paginatedOrders = allOrders.slice(start, end);
+            let rows = "";
+
+            if (paginatedOrders.length === 0) {
+                rows = `<tr><td colspan="9" class="py-4 text-muted">No orders found.</td></tr>`;
+            } else {
+                paginatedOrders.forEach(order => {
+                    rows += `
+                        <tr>
+                            <td>${order.orderId}</td>
+                            <td>${badge(order.order_status)}</td>
+                            <td>${order.restaurantName}</td>
+                            <td>${formatDate(order.orderDate)}</td>
+                            <td>${formatDate(order.deliveryTime)}</td>
+                            <td>${order.customer_name}</td>
+                            <td>${order.menu}</td>
+                            <td>${order.coupone_id ?? "--"}</td>
+                            <td>${order.discount.toFixed(2)}</td>
+                        </tr>`;
+                });
+            }
+
+            // Ensure consistent table size with extra blank rows
+            const extraRows = ordersPerPage - paginatedOrders.length;
+            for (let i = 0; i < extraRows; i++) {
+                rows += `<tr><td colspan="9" style="height: 50px;"></td></tr>`;
+            }
+
+            $("#orderTableBody").html(rows);
+            updatePaginationControls();
+        }
+
+        function updatePaginationControls() {
+            const totalPages = Math.max(Math.ceil(allOrders.length / ordersPerPage), 1);
+            $("#pageInfo").text(`Page ${currentPage} of ${totalPages}`);
+            $("#prevPage").prop("disabled", currentPage === 1);
+            $("#nextPage").prop("disabled", currentPage === totalPages);
+        }
+
+        $("#prevPage").click(function () {
+            if (currentPage > 1) {
+                currentPage--;
+                displayOrders();
+            }
+        });
+
+        $("#nextPage").click(function () {
+            const totalPages = Math.max(Math.ceil(allOrders.length / ordersPerPage), 1);
+            if (currentPage < totalPages) {
+                currentPage++;
+                displayOrders();
+            }
+        });
 
         function formatDate(dateString) {
             if (!dateString) return "--";
@@ -103,7 +287,7 @@
         function badge(status) {
             let color = "secondary";
             switch (status) {
-                case "Pending": color = "black"; break;
+                case "Pending": color = "warning"; break;
                 case "Accepted": color = "info"; break;
                 case "Out for Delivery": color = "secondary"; break;
                 case "Delivered": color = "success"; break;
