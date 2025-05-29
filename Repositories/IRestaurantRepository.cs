@@ -77,6 +77,11 @@ namespace Foodie.Repositories
         //payouts Details Display
         List<PayoutsDetailsViewModel> GetWeeklySalesByMonth(int year, int month, int resId);
         IEnumerable<PayOutViewModel> GetWeeklyPayouts(PayoutfilterModel filter);
+        
+        // Add these new methods for exports
+        byte[] GenerateWeeklyPayoutsPdf(PayoutfilterModel filter);
+        byte[] GenerateWeeklyPayoutsExcel(PayoutfilterModel filter);
+
 
         //Earning Summary Irepo
         EarningSummaryViewModel GetEarningsSummary();

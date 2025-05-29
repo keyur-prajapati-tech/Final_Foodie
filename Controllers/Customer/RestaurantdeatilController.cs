@@ -46,5 +46,12 @@ namespace Foodie.Controllers.Customer
         {
             return File(imageBytes, "image/jpeg");
         }
+
+        [HttpGet]
+        public IActionResult GetMenuItemsByCuisine(int restaurantId, int cuisineId)
+        {
+            var items = _repository.GetMenuItemsByRestaurantAndCuisine(restaurantId, cuisineId);
+            return PartialView("_MenuItemsPartial", items);
+        }   
     }
 }

@@ -1,10 +1,18 @@
-
 using Foodie.Models.customers;
 using Foodie.Models.Restaurant;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using Foodie.ViewModels;
 using Foodie.Models;
+using iTextSharp.text.pdf;
+using iTextSharp.text;
+using System.Drawing;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
+using System.Globalization;
+using iTextFont = iTextSharp.text.Font;
+using iTextFontFactory = iTextSharp.text.FontFactory;
+using iTextBaseColor = iTextSharp.text.BaseColor;
 
 
 namespace Foodie.Repositories
@@ -1343,7 +1351,6 @@ namespace Foodie.Repositories
         {
             var result = new List<PayoutsDetailsViewModel>();
 
-
             using (var conn = new SqlConnection(_connectionstring))
             using (var cmd = new SqlCommand("[Vendores].[GetWeeklySalesbyMonth]", conn))
             {
@@ -1377,28 +1384,28 @@ namespace Foodie.Repositories
                 connection.Open();
 
                 var query = @"
-        WITH DateRange AS (
-            SELECT DATEADD(DAY, n, DATEFROMPARTS(@Year, @Month, 1)) AS Date
-            FROM (SELECT TOP (31) ROW_NUMBER() OVER (ORDER BY object_id) - 1 AS n FROM sys.objects) AS Numbers
-            WHERE DATEADD(DAY, n, DATEFROMPARTS(@Year, @Month, 1)) < DATEADD(MONTH, 1, DATEFROMPARTS(@Year, @Month, 1))
-        )
-        SELECT 
-            CONCAT(
-                MIN(DAY(d.Date)), '–', 
-                MAX(DAY(d.Date)), ' ', 
-                DATENAME(MONTH, MIN(d.Date))
-            ) AS WeekRange,
-            ISNULL(SUM(o.grand_total), 0) AS OrderValue,
-            ISNULL(SUM(o.grand_total), 0) * 0.10 AS Commission,
-            ISNULL(SUM(o.grand_total), 0) * 0.18 AS GST,
-            ISNULL(SUM(o.grand_total), 0) - (ISNULL(SUM(o.grand_total), 0) * 0.10 + ISNULL(SUM(o.grand_total), 0) * 0.18) AS NetPayout,
-            CONVERT(VARCHAR, MAX(p.payment_date), 106) AS PaymentDate
-        FROM customers.tbl_orders o
-        JOIN DateRange d ON CAST(o.order_date AS DATE) = d.Date
-        LEFT JOIN customers.payments p ON o.order_id = p.order_id AND p.payment_status = 'paid'
-        WHERE o.restaurant_id = @RestaurantId
-        GROUP BY DATEPART(WEEK, d.Date) - DATEPART(WEEK, DATEFROMPARTS(@Year, @Month, 1)) + 1
-        ORDER BY DATEPART(WEEK, d.Date) - DATEPART(WEEK, DATEFROMPARTS(@Year, @Month, 1)) + 1";
+                            WITH DateRange AS (
+                                SELECT DATEADD(DAY, n, DATEFROMPARTS(@Year, @Month, 1)) AS Date
+                                FROM (SELECT TOP (31) ROW_NUMBER() OVER (ORDER BY object_id) - 1 AS n FROM sys.objects) AS Numbers
+                                WHERE DATEADD(DAY, n, DATEFROMPARTS(@Year, @Month, 1)) < DATEADD(MONTH, 1, DATEFROMPARTS(@Year, @Month, 1))
+                            )
+                            SELECT 
+                                CONCAT(
+                                    MIN(DAY(d.Date)), '–', 
+                                    MAX(DAY(d.Date)), ' ', 
+                                    DATENAME(MONTH, MIN(d.Date))
+                                ) AS WeekRange,
+                                ISNULL(SUM(o.grand_total), 0) AS OrderValue,
+                                ISNULL(SUM(o.grand_total), 0) * 0.10 AS Commission,
+                                ISNULL(SUM(o.grand_total), 0) * 0.18 AS GST,
+                                ISNULL(SUM(o.grand_total), 0) - (ISNULL(SUM(o.grand_total), 0) * 0.10 + ISNULL(SUM(o.grand_total), 0) * 0.18) AS NetPayout,
+                                CONVERT(VARCHAR, MAX(p.payment_date), 106) AS PaymentDate
+                            FROM customers.tbl_orders o
+                            JOIN DateRange d ON CAST(o.order_date AS DATE) = d.Date
+                            LEFT JOIN customers.payments p ON o.order_id = p.order_id AND p.payment_status = 'paid'
+                            WHERE o.resturant_id = @RestaurantId
+                            GROUP BY DATEPART(WEEK, d.Date) - DATEPART(WEEK, DATEFROMPARTS(@Year, @Month, 1)) + 1
+                            ORDER BY DATEPART(WEEK, d.Date) - DATEPART(WEEK, DATEFROMPARTS(@Year, @Month, 1)) + 1";
 
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -1514,6 +1521,138 @@ namespace Foodie.Repositories
                 conn.Close();
             }
             return payments;
+        }
+
+        private void AddTableHeader(PdfPTable table, string text, iTextFont font)
+        {
+            var cell = new PdfPCell(new Phrase(text, font))
+            {
+                BackgroundColor = new BaseColor(0, 102, 204),
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                Padding = 5
+            };
+            table.AddCell(cell);
+        }
+
+        public byte[] GenerateWeeklyPayoutsPdf(PayoutfilterModel filter)
+        {
+            var payouts = GetWeeklyPayouts(filter);
+            var monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(filter.Month ?? DateTime.Now.Month);
+
+            using (var ms = new MemoryStream())
+            {
+                var doc = new Document(PageSize.A4, 25, 25, 30, 30);
+                var writer = PdfWriter.GetInstance(doc, ms);
+
+                doc.Open();
+
+                // Add title
+                var titleFont = FontFactory.GetFont(FontFactory.HELVETICA_BOLD, 18, BaseColor.BLUE);
+                doc.Add(new Paragraph($"Weekly Payouts Report - {monthName} {filter.Year}", titleFont)
+                {
+                    Alignment = Element.ALIGN_CENTER,
+                    SpacingAfter = 20
+                });
+
+                // Add table
+                var table = new PdfPTable(6) { WidthPercentage = 100 };
+                table.SetWidths(new float[] { 1.5f, 1.5f, 1f, 1f, 1.5f, 1.5f });
+
+                // Add headers
+                var headerFont = iTextFontFactory.GetFont(FontFactory.HELVETICA_BOLD, 10, iTextBaseColor.WHITE);
+                AddPdfTableHeader(table, "Week", headerFont);
+                AddPdfTableHeader(table, "Order Value", headerFont);
+                AddPdfTableHeader(table, "Commission", headerFont);
+                AddPdfTableHeader(table, "GST", headerFont);
+                AddPdfTableHeader(table, "Net Payout", headerFont);
+                AddPdfTableHeader(table, "Payment Date", headerFont);
+
+                // Add data rows
+                var cellFont = FontFactory.GetFont(FontFactory.HELVETICA, 9);
+                foreach (var payout in payouts)
+                {
+                    table.AddCell(new PdfPCell(new Phrase(payout.WeekRange, cellFont)));
+                    table.AddCell(new PdfPCell(new Phrase($"₹{payout.OrderValue:N2}", cellFont))
+                    { HorizontalAlignment = Element.ALIGN_RIGHT });
+                    table.AddCell(new PdfPCell(new Phrase($"₹{payout.Commission:N2}", cellFont))
+                    { HorizontalAlignment = Element.ALIGN_RIGHT });
+                    table.AddCell(new PdfPCell(new Phrase($"₹{payout.GST:N2}", cellFont))
+                    { HorizontalAlignment = Element.ALIGN_RIGHT });
+                    table.AddCell(new PdfPCell(new Phrase($"₹{payout.NetPayout:N2}", cellFont))
+                    { HorizontalAlignment = Element.ALIGN_RIGHT });
+                    table.AddCell(new PdfPCell(new Phrase(payout.PaymentDate, cellFont)));
+                }
+
+                doc.Add(table);
+                doc.Close();
+
+                return ms.ToArray();
+            }
+        }
+
+        private void AddPdfTableHeader(PdfPTable table, string text, iTextFont font)
+        {
+            var cell = new PdfPCell(new Phrase(text, font))
+            {
+                BackgroundColor = new BaseColor(0, 102, 204),
+                HorizontalAlignment = Element.ALIGN_CENTER,
+                Padding = 5
+            };
+            table.AddCell(cell);
+        }
+
+        public byte[] GenerateWeeklyPayoutsExcel(PayoutfilterModel filter)
+        {
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+            var payouts = GetWeeklyPayouts(filter);
+            var monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(filter.Month ?? DateTime.Now.Month);
+
+            using (var package = new ExcelPackage())
+            {
+                var worksheet = package.Workbook.Worksheets.Add($"{monthName} {filter.Year}");
+
+                // Add headers
+                worksheet.Cells[1, 1].Value = "Week";
+                worksheet.Cells[1, 2].Value = "Order Value";
+                worksheet.Cells[1, 3].Value = "Commission";
+                worksheet.Cells[1, 4].Value = "GST";
+                worksheet.Cells[1, 5].Value = "Net Payout";
+                worksheet.Cells[1, 6].Value = "Payment Date";
+
+                // Format headers
+                using (var range = worksheet.Cells[1, 1, 1, 6])
+                {
+                    range.Style.Font.Bold = true;
+                    range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+                    range.Style.Fill.BackgroundColor.SetColor(Color.DarkBlue);
+                    range.Style.Font.Color.SetColor(Color.White);
+                }
+
+                // Add data
+                var row = 2;
+                foreach (var payout in payouts)
+                {
+                    worksheet.Cells[row, 1].Value = payout.WeekRange;
+                    worksheet.Cells[row, 2].Value = payout.OrderValue;
+                    worksheet.Cells[row, 3].Value = payout.Commission;
+                    worksheet.Cells[row, 4].Value = payout.GST;
+                    worksheet.Cells[row, 5].Value = payout.NetPayout;
+                    worksheet.Cells[row, 6].Value = payout.PaymentDate;
+
+                    // Format currency cells
+                    worksheet.Cells[row, 2].Style.Numberformat.Format = "\"₹\"#,##0.00";
+                    worksheet.Cells[row, 3].Style.Numberformat.Format = "\"₹\"#,##0.00";
+                    worksheet.Cells[row, 4].Style.Numberformat.Format = "\"₹\"#,##0.00";
+                    worksheet.Cells[row, 5].Style.Numberformat.Format = "\"₹\"#,##0.00";
+
+                    row++;
+                }
+
+                // Auto-fit columns
+                worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
+                return package.GetAsByteArray();
+            }
         }
     }
 }

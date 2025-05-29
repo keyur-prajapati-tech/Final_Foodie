@@ -1543,5 +1543,118 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
 
             return restaurants;
         }
+
+        public IEnumerable<tbl_cuisine_master> GetCuisinesByRestaurant(int restaurantId)
+        {
+            List<tbl_cuisine_master> cuisines = new List<tbl_cuisine_master>();
+
+            using (SqlConnection connection = new SqlConnection(_connectionstring))
+            {
+                connection.Open();
+
+                string query = @"
+                SELECT 
+                    vc.cuisine_id,
+                    ac.cuisine_name,
+                    COUNT(mi.menu_id) AS item_count
+                FROM 
+                    admins.tbl_cuisine_master ac
+                INNER JOIN 
+                    vendores.tbl_cuisine vc ON vc.cuisine_id = ac.cuisine_id
+                INNER JOIN
+                    vendores.tbl_restaurant_cuisine rc ON rc.cuisine_id = vc.cuisine_id
+                LEFT JOIN 
+                    vendores.tbl_menu_items mi ON mi.cuisine_id = vc.cuisine_id AND mi.restaurant_id = @RestaurantId
+                WHERE
+                    rc.restaurant_id = @RestaurantId
+                GROUP BY 
+                    vc.cuisine_id, ac.cuisine_name
+                ORDER BY 
+                    ac.cuisine_name";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@RestaurantId", restaurantId);
+
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            cuisines.Add(new tbl_cuisine_master
+                            {
+                                cuisine_id = reader.GetInt32(0),
+                                cuisine_name = reader.GetString(1),
+                                item_count = reader.GetInt32(2)
+                            });
+                        }
+                    }
+                }
+            }
+
+            return cuisines;
+        }
+
+        public IEnumerable<MenuItemViewModel> GetMenuItemsByRestaurantAndCuisine(int restaurantId, int cuisineId)
+        {
+            List<MenuItemViewModel> menuItems = new List<MenuItemViewModel>();
+
+            using (SqlConnection connection = new SqlConnection(_connectionstring))
+            {
+                connection.Open();
+
+                string query = @"
+                SELECT 
+                    mi.menu_id,
+                    mi.menu_name,
+                    mi.menu_descripation,
+                    mi.amount,
+                    mi.menu_img,
+                    vc.cuisine_id,
+                    ac.cuisine_name
+                FROM 
+                    vendores.tbl_menu_items mi
+                INNER JOIN 
+                    vendores.tbl_cuisine vc ON mi.cuisine_id = vc.cuisine_id
+                INNER JOIN 
+                    admins.tbl_cuisine_master ac ON vc.cuisine_id = ac.cuisine_id
+                WHERE 
+                    mi.restaurant_id = @RestaurantId
+                    AND mi.cuisine_id = @CuisineId";
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@RestaurantId", restaurantId);
+                    command.Parameters.AddWithValue("@CuisineId", cuisineId);
+
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            menuItems.Add(new MenuItemViewModel
+                            {
+                                MenuId = reader.GetInt32(0),
+                                MenuName = reader.GetString(1),
+                                MenuDescription = reader.GetString(2),
+                                Amount = reader.GetDecimal(3),
+                                MenuImg = reader.IsDBNull(4) ? null : (byte[])reader[4],
+                                cuisine_id = reader.GetInt32(5),
+                                cuisine_name = reader.GetString(6)
+                            });
+                        }
+                    }
+                }
+            }
+            return menuItems;
+        }
+
+        public MenuItemViewModel GetMenuViewModelAsync(int restaurantId, int? cuisineId = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public List<tbl_cuisine_master> GetCuisinesWithCountAsync(int restaurantId)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

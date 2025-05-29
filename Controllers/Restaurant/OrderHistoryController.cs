@@ -7,6 +7,7 @@ using ClosedXML.Excel;
 using iTextSharp.text.pdf;
 using iTextSharp.text;
 using System.Text;
+using System.Globalization;
 
 namespace Foodie.Controllers.Restaurant
 {
@@ -369,17 +370,28 @@ namespace Foodie.Controllers.Restaurant
             return View(viewModel);
         }
 
-        [HttpGet("OrderHistory/GetWeeklyPayouts")] // Updated route to match view
+        [HttpGet("GetWeeklyPayouts")]
         public IActionResult GetWeeklyPayouts([FromQuery] int? month, [FromQuery] int? year)
         {
             try
             {
+                // Validate parameters
+                if (!month.HasValue || !year.HasValue)
+                {
+                    return BadRequest("Month and year parameters are required");
+                }
+
                 var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+                if (restaurantId <= 0)
+                {
+                    return Unauthorized("Invalid restaurant ID");
+                }
+
                 var filter = new PayoutfilterModel
                 {
                     restaurant_id = restaurantId,
-                    Month = month,
-                    Year = year
+                    Month = month.Value,
+                    Year = year.Value
                 };
 
                 var payouts = _restaurantRepository.GetWeeklyPayouts(filter);
@@ -387,12 +399,19 @@ namespace Foodie.Controllers.Restaurant
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"Internal server error: {ex.Message}");
+                // Log the full error including stack trace
+                Console.WriteLine($"Error: {ex.Message}\n{ex.StackTrace}");
+                return StatusCode(500, new
+                {
+                    error = "Internal server error",
+                    message = ex.Message,
+                    stackTrace = ex.StackTrace
+                });
             }
         }
 
-        [HttpGet("weekly/download")]
-        public async Task<IActionResult> DownloadWeeklyPayouts([FromQuery] int? month, [FromQuery] int? year)
+        [HttpGet("weekly/download-pdf")]
+        public async Task<IActionResult> DownloadWeeklyPayoutsPdf([FromQuery] int? month, [FromQuery] int? year)
         {
             try
             {
@@ -404,17 +423,37 @@ namespace Foodie.Controllers.Restaurant
                     Year = year
                 };
 
-                var payouts = _restaurantRepository.GetWeeklyPayouts(filter);
+                var pdfBytes = _restaurantRepository.GenerateWeeklyPayoutsPdf(filter);
+                var monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month ?? DateTime.Now.Month);
 
-                var sb = new StringBuilder();
-                sb.AppendLine("Week,Order Value,Commission,GST,Net Payout,Payment Date");
+                return File(pdfBytes, "application/pdf",
+                    $"WeeklyPayouts_{monthName}_{year}.pdf");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
 
-                foreach (var payout in payouts)
+        [HttpGet("weekly/download-excel")]
+        public async Task<IActionResult> DownloadWeeklyPayoutsExcel([FromQuery] int? month, [FromQuery] int? year)
+        {
+            try
+            {
+                var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+                var filter = new PayoutfilterModel
                 {
-                    sb.AppendLine($"\"{payout.WeekRange}\",\"₹{payout.OrderValue}\",\"₹{payout.Commission}\",\"₹{payout.GST}\",\"₹{payout.NetPayout}\",\"{payout.PaymentDate}\"");
-                }
+                    restaurant_id = restaurantId,
+                    Month = month,
+                    Year = year
+                };
 
-                return File(Encoding.UTF8.GetBytes(sb.ToString()), "text/csv", $"WeeklyPayouts_{DateTime.Now:yyyyMMdd}.csv");
+                var excelBytes = _restaurantRepository.GenerateWeeklyPayoutsExcel(filter);
+                var monthName = CultureInfo.CurrentCulture.DateTimeFormat.GetMonthName(month ?? DateTime.Now.Month);
+
+                return File(excelBytes,
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    $"WeeklyPayouts_{monthName}_{year}.xlsx");
             }
             catch (Exception ex)
             {
