@@ -369,7 +369,8 @@ namespace Foodie.Controllers.Restaurant
             return View(viewModel);
         }
 
-        public async Task<IActionResult> GetWeeklyPayouts([FromQuery] int? month, [FromQuery] int? year)
+        [HttpGet("OrderHistory/GetWeeklyPayouts")] // Updated route to match view
+        public IActionResult GetWeeklyPayouts([FromQuery] int? month, [FromQuery] int? year)
         {
             try
             {
@@ -377,8 +378,8 @@ namespace Foodie.Controllers.Restaurant
                 var filter = new PayoutfilterModel
                 {
                     restaurant_id = restaurantId,
-                    Month = month ?? DateTime.Now.Month,
-                    Year = year ?? DateTime.Now.Year
+                    Month = month,
+                    Year = year
                 };
 
                 var payouts = _restaurantRepository.GetWeeklyPayouts(filter);
@@ -427,10 +428,11 @@ namespace Foodie.Controllers.Restaurant
             return View(summary);
         }
 
+        [HttpGet("OrderHistory/GetEarningData")] // Updated route to match view
         public IActionResult GetEarningData()
         {
-            var summay = _restaurantRepository.GetEarningsSummary();
-            return Json(summay);
+            var summary = _restaurantRepository.GetEarningsSummary();
+            return Json(summary);
         }
 
 

@@ -1377,34 +1377,34 @@ namespace Foodie.Repositories
                 connection.Open();
 
                 var query = @"
-                WITH DateRange AS (
-                    SELECT DATEADD(DAY, n, DATEFROMPARTS(@Year, @Month, 1)) AS Date
-                    FROM (SELECT TOP (31) ROW_NUMBER() OVER (ORDER BY object_id) - 1 AS n FROM sys.objects) AS Numbers
-                    WHERE DATEADD(DAY, n, DATEFROMPARTS(@Year, @Month, 1)) < DATEADD(MONTH, 1, DATEFROMPARTS(@Year, @Month, 1))
-                )
-                SELECT 
-                    CONCAT(
-                        MIN(DAY(d.Date)), '–', 
-                        MAX(DAY(d.Date)), ' ', 
-                        DATENAME(MONTH, MIN(d.Date))
-                    ) AS WeekRange,
-                    SUM(o.grand_total) AS OrderValue,
-                    SUM(o.grand_total) * 0.10 AS Commission,
-                    SUM(o.grand_total) * 0.18 AS GST,
-                    SUM(o.grand_total) - (SUM(o.grand_total) * 0.10 + SUM(o.grand_total) * 0.18) AS NetPayout,
-                    CONVERT(VARCHAR, MAX(p.payment_date), 106) AS PaymentDate
-                FROM customers.tbl_orders o
-                JOIN DateRange d ON CAST(o.order_date AS DATE) = d.Date
-                LEFT JOIN customers.payments p ON o.order_id = p.order_id AND p.payment_status = 'paid'
-                WHERE o.restaurant_id = @RestaurantId
-                GROUP BY DATEPART(WEEK, d.Date) - DATEPART(WEEK, DATEFROMPARTS(@Year, @Month, 1)) + 1
-                ORDER BY DATEPART(WEEK, d.Date) - DATEPART(WEEK, DATEFROMPARTS(@Year, @Month, 1)) + 1";
+        WITH DateRange AS (
+            SELECT DATEADD(DAY, n, DATEFROMPARTS(@Year, @Month, 1)) AS Date
+            FROM (SELECT TOP (31) ROW_NUMBER() OVER (ORDER BY object_id) - 1 AS n FROM sys.objects) AS Numbers
+            WHERE DATEADD(DAY, n, DATEFROMPARTS(@Year, @Month, 1)) < DATEADD(MONTH, 1, DATEFROMPARTS(@Year, @Month, 1))
+        )
+        SELECT 
+            CONCAT(
+                MIN(DAY(d.Date)), '–', 
+                MAX(DAY(d.Date)), ' ', 
+                DATENAME(MONTH, MIN(d.Date))
+            ) AS WeekRange,
+            ISNULL(SUM(o.grand_total), 0) AS OrderValue,
+            ISNULL(SUM(o.grand_total), 0) * 0.10 AS Commission,
+            ISNULL(SUM(o.grand_total), 0) * 0.18 AS GST,
+            ISNULL(SUM(o.grand_total), 0) - (ISNULL(SUM(o.grand_total), 0) * 0.10 + ISNULL(SUM(o.grand_total), 0) * 0.18) AS NetPayout,
+            CONVERT(VARCHAR, MAX(p.payment_date), 106) AS PaymentDate
+        FROM customers.tbl_orders o
+        JOIN DateRange d ON CAST(o.order_date AS DATE) = d.Date
+        LEFT JOIN customers.payments p ON o.order_id = p.order_id AND p.payment_status = 'paid'
+        WHERE o.restaurant_id = @RestaurantId
+        GROUP BY DATEPART(WEEK, d.Date) - DATEPART(WEEK, DATEFROMPARTS(@Year, @Month, 1)) + 1
+        ORDER BY DATEPART(WEEK, d.Date) - DATEPART(WEEK, DATEFROMPARTS(@Year, @Month, 1)) + 1";
 
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@RestaurantId", filter.restaurant_id);
-                    command.Parameters.AddWithValue("@Year", filter.Year ?? DateTime.Now.Year);
-                    command.Parameters.AddWithValue("@Month", filter.Month ?? DateTime.Now.Month);
+                    command.Parameters.AddWithValue("@Year", filter.Year);
+                    command.Parameters.AddWithValue("@Month", filter.Month);
 
                     using (var reader = command.ExecuteReader())
                     {
@@ -1413,20 +1413,18 @@ namespace Foodie.Repositories
                             payouts.Add(new PayOutViewModel
                             {
                                 WeekRange = reader["WeekRange"].ToString(),
-                                OrderValue = Convert.ToDecimal(reader["OrderValue"]),
-                                Commission = Convert.ToDecimal(reader["Commission"]),
-                                GST = Convert.ToDecimal(reader["GST"]),
-                                NetPayout = Convert.ToDecimal(reader["NetPayout"]),
-                                PaymentDate = reader["PaymentDate"].ToString()
+                                OrderValue = reader["OrderValue"] != DBNull.Value ? Convert.ToDecimal(reader["OrderValue"]) : 0,
+                                Commission = reader["Commission"] != DBNull.Value ? Convert.ToDecimal(reader["Commission"]) : 0,
+                                GST = reader["GST"] != DBNull.Value ? Convert.ToDecimal(reader["GST"]) : 0,
+                                NetPayout = reader["NetPayout"] != DBNull.Value ? Convert.ToDecimal(reader["NetPayout"]) : 0,
+                                PaymentDate = reader["PaymentDate"] != DBNull.Value ? reader["PaymentDate"].ToString() : "N/A"
                             });
                         }
                     }
                 }
-                connection.Close();
             }
 
             return payouts;
-
         }
 
         public EarningSummaryViewModel GetEarningsSummary()
