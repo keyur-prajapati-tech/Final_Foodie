@@ -1,4 +1,6 @@
-﻿namespace Foodie.Models.Restaurant
+﻿using Foodie.Models.customers;
+
+namespace Foodie.Models.Restaurant
 {
     public class tbl_menu_items
     {
@@ -13,5 +15,6 @@
 
         //// For displaying in view
         //public string MenuImageBase64 => Convert.ToBase64String(menu_img);
+        public List<RestaurantMenuModel> restaurantMenuModels { get; set; }
     }
 }

@@ -320,7 +320,7 @@
                 @foreach (var item in Model)
                 {
                     <div class="item text-center">
-                        <a asp-controller="TBrands" asp-action="Brands">
+                        <a asp-controller="TBrands" asp-action="Brands" asp-route-id="@item.Restaurant_name">
                             <img src="data:image/png;base64,@Convert.ToBase64String(item.Restaurant_img)" class="rounded" alt="@item.Restaurant_name" style="width: 200px; height: 150px; margin-left: 3px;" />
                         </a>
                         <p class="mt-2">@item.Restaurant_name</p>

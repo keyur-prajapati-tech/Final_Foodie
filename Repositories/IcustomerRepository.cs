@@ -22,7 +22,6 @@ namespace Foodie.Repositories
         tbl_customer ValidateCustomerLogin(string email, string password);
         public tbl_restaurant ValidateRestaurantLogin(string email, string password);
         List<tbl_menu_items> GetAllMenuItems();
-        IEnumerable<tbl_menu_items> GetMenuItemsByRestaurant(int restaurantId);
 
 
 
@@ -41,7 +40,6 @@ namespace Foodie.Repositories
         void AddAddress(tbl_address tbl_Address);
 
 
-        tbl_menu_items GetMenuItemById(int id);
 
         tbl_customer GetCustomerNameAndPhone(int customerId);
 
@@ -54,7 +52,6 @@ namespace Foodie.Repositories
         IEnumerable<tbl_special_offers> GetOffers();
         tbl_special_offers GetOfferById(int offerId);
 
-        RestaurantMenuViewModel GetRestaurantMenu(int restaurantId,int? cuisineId = null);
         List<tbl_cuisine_master> GetCuisinesByRestaurantId(int restaurantId);
 
         //demo to display all restaurant info
@@ -83,5 +80,19 @@ namespace Foodie.Repositories
         int GetTotalFeedbackCountAsync();
         void InsertFeedback(tbl_customer_feedback feedback);
         List<tbl_restaurant> GetApprovedRestaurants();
+
+        //Cuisine Wise Menu Filter
+        IEnumerable<tbl_menu_items> GetMenuItemsByRestaurant(int restaurantId);
+        tbl_menu_items GetMenuItemById(int id);
+        RestaurantMenuViewModel GetRestaurantMenu(int restaurantId,int? cuisineId = null);
+
+        // Add these new methods for cuisine filtering
+        IEnumerable<tbl_cuisine_master> GetCuisinesByRestaurant(int restaurantId);
+        IEnumerable<MenuItemViewModel> GetMenuItemsByRestaurantAndCuisine(int restaurantId, int cuisineId);
+
+
+
+        MenuItemViewModel GetMenuViewModelAsync(int restaurantId, int? cuisineId = null);
+        List<tbl_cuisine_master> GetCuisinesWithCountAsync(int restaurantId);
     }
 }

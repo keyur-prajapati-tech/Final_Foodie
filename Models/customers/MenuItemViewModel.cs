@@ -1,4 +1,7 @@
-﻿namespace Foodie.Models.customers
+﻿using Foodie.Models.Admin;
+using Foodie.Models.Restaurant;
+
+namespace Foodie.Models.customers
 {
     public class MenuItemViewModel
     {
@@ -15,5 +18,10 @@
         public bool IsAvalable { get; set; }
 
         public string MenuImageBase64 { get; set; }
+
+        public IEnumerable<tbl_cuisine_master> Cuisine { get; set; }
+        public IEnumerable<tbl_menu_items> MenuItems { get; set; }
+        public int? SelectedCuisineId { get; set; }
+        public string RestaurantName { get; set; }
     }
 }
