@@ -1,0 +1,320 @@
+﻿@model Foodie.Models.DeliveryPartner.AdminDashboardViewModel
+
+@{
+    ViewBag.Title = "Admin Dashboard";
+    Layout = ViewBag.Layout ?? "_Admin2Layout";
+}
+
+<style>
+    /* Core dashboard styling */
+    .dashboard-container {
+        padding: 1.5rem;
+        background-color: #f8f9fa;
+    }
+
+    /* Modern card styling */
+    .stat-card {
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+        height: 100%;
+        transition: all 0.3s ease;
+        border: none;
+    }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+        }
+
+        .stat-card .card-body {
+            padding: 1.75rem;
+            position: relative;
+            z-index: 2;
+        }
+
+    .stat-card-bg-1 {
+        background: linear-gradient(135deg, #3a7bd5, #00d2ff);
+    }
+
+    .stat-card-bg-2 {
+        background: linear-gradient(135deg, #f83600, #fe8c00);
+    }
+
+    .stat-card-bg-3 {
+        background: linear-gradient(135deg, #11998e, #38ef7d);
+    }
+
+    .stat-card .stat-icon {
+        position: absolute;
+        bottom: 1rem;
+        right: 1rem;
+        font-size: 3.5rem;
+        opacity: 0.2;
+        color: #fff;
+    }
+
+    .stat-card .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        color: white;
+    }
+
+    .stat-card .stat-label {
+        font-size: 1rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.85);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* Section styling */
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #212529;
+        margin: 0;
+        position: relative;
+        padding-left: 15px;
+    }
+
+        .section-title:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+            background-color: #0d6efd;
+            border-radius: 4px;
+        }
+
+    /* Table styling */
+    .data-table {
+        width: 100%;
+        background-color: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        margin-bottom: 2rem;
+    }
+
+        .data-table thead th {
+            background-color: #f1f4f8;
+            color: #495057;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid #e9ecef;
+            vertical-align: middle;
+        }
+
+        .data-table tbody td {
+            padding: 1.2rem 1.5rem;
+            border-bottom: 1px solid #f1f4f8;
+            font-size: 0.95rem;
+            color: #495057;
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+    /* Utility classes */
+    .earnings-value {
+        font-weight: 600;
+        color: #343a40;
+    }
+
+    .info-badge {
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border-radius: 30px;
+        background-color: #e9f5fe;
+        color: #0d6efd;
+    }
+
+    /* Dashboard layout */
+    .dashboard-section {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+</style>
+
+<div class="dashboard-container">
+    <!-- Header with welcome message -->
+    <div class="dashboard-section mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h3 mb-2">Admin Dashboard</h1>
+                <p class="text-muted mb-0">Welcome back! Here's an overview of your platform's performance.</p>
+            </div>
+            <div class="info-badge">
+                <i class="bi bi-calendar-check me-1"></i> @DateTime.Now.ToString("MMMM d, yyyy")
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card stat-card-bg-1">
+                <div class="card-body">
+                    <div class="stat-value">@Model.TotalPartners</div>
+                    <div class="stat-label">Delivery Partners</div>
+                    <i class="bi bi-truck stat-icon"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card stat-card-bg-2">
+                <div class="card-body">
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">Restaurants</div>
+                    <i class="bi bi-shop stat-icon"></i>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card stat-card-bg-3">
+                <div class="card-body">
+                    <div class="stat-value">150</div>
+                    <div class="stat-label">Customers</div>
+                    <i class="bi bi-people stat-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Restaurant Earnings Section -->
+    <div class="dashboard-section">
+        <div class="section-header">
+            <h2 class="section-title">Restaurant Earnings</h2>
+            <div class="dropdown">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="restaurantPeriodDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-calendar3 me-1"></i> This Month
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="restaurantPeriodDropdown">
+                    <li><a class="dropdown-item" href="#">This Week</a></li>
+                    <li><a class="dropdown-item" href="#">This Month</a></li>
+                    <li><a class="dropdown-item" href="#">Last 3 Months</a></li>
+                    <li><a class="dropdown-item" href="#">This Year</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Restaurant</th>
+                    <th>Orders</th>
+                    <th>Total Earnings</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var restaurant in Model.RestaurantEarnings)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm me-3 bg-light rounded-circle d-flex align-items-center justify-content-center">
+                                    <span class="fw-bold text-primary">@restaurant.Name.Substring(0, 1)</span>
+                                </div>
+                                <div>
+                                    <span class="fw-medium">@restaurant.Name</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>@(new Random().Next(20, 100))</td>
+                        <td>
+                            <span class="earnings-value">₹@restaurant.TotalEarnings.ToString("N2")</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2">Active</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Delivery Partner Earnings Section -->
+    <div class="dashboard-section">
+        <div class="section-header">
+            <h2 class="section-title">Delivery Partner Earnings</h2>
+            <div class="dropdown">
+                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="partnerPeriodDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-calendar3 me-1"></i> This Month
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="partnerPeriodDropdown">
+                    <li><a class="dropdown-item" href="#">This Week</a></li>
+                    <li><a class="dropdown-item" href="#">This Month</a></li>
+                    <li><a class="dropdown-item" href="#">Last 3 Months</a></li>
+                    <li><a class="dropdown-item" href="#">This Year</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Partner</th>
+                    <th>Deliveries</th>
+                    <th>Total Earnings</th>
+                    <th>Rating</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var partner in Model.PartnerEarnings)
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm me-3 bg-light rounded-circle d-flex align-items-center justify-content-center">
+                                    <span class="fw-bold text-primary">@partner.Name.Substring(0, 1)</span>
+                                </div>
+                                <div>
+                                    <span class="fw-medium">@partner.Name</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>@(new Random().Next(10, 50))</td>
+                        <td>
+                            <span class="earnings-value">₹@partner.TotalEarnings.ToString("N2")</span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <span class="text-warning me-1"><i class="bi bi-star-fill"></i></span>
+                                <span>@(4.0 + new Random().NextDouble())</span>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

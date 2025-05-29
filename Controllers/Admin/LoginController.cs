@@ -153,6 +153,31 @@ namespace Foodie.Controllers
 
             return Json(result);
         }
+
+        [HttpPost]
+        public IActionResult ResetPassword(string newPassword)
+        {
+           var email = HttpContext.Session.GetString("UserEmail");
+            if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(newPassword))
+            {
+                TempData["ErrorMessage"] = "Email and new password are required.";
+                return RedirectToAction("Login");
+            }
+
+            bool result = _AdminRepository.UpdatePassword(email, newPassword);
+            if (result)
+            {
+                TempData["SuccessMessage"] = "Password updated successfully.";
+                return RedirectToAction("Login");
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Failed to update password.";
+                return RedirectToAction("Login");
+            }
+        }
+
+
         public IActionResult Logout()
         {
             HttpContext.Session.Clear();

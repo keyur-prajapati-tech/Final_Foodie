@@ -84,10 +84,7 @@ namespace Foodie.Controllers.Restaurant
        
         public IActionResult Registerres()
         {
-
             int r_id = RestaurantRepository.getRId();
-
-
             if (r_id != 0)
             {
                 RestaurantRegistrationViewModel model = new RestaurantRegistrationViewModel
@@ -97,7 +94,6 @@ namespace Foodie.Controllers.Restaurant
                     tbl_Owner = _repository.getOwner(r_id)
                 };
                 return View(model);
-
             }
             else
             {

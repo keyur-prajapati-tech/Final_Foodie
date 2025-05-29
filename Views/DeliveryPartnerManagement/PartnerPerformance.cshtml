@@ -1,0 +1,372 @@
+﻿@model List<Foodie.Models.DeliveryPartner.PartnerPerformanceModel>
+
+@{
+    ViewBag.Title = "Delivery Partner Performance";
+    Layout = "_AdminLayout";
+}
+
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Delivery Partner Performance Report</h1>
+        <a href="/DeliveryPartnerManagement/PartnerPerformanceGraphs" class="btn btn-primary shadow-sm">
+            <i class="fas fa-chart-line fa-sm text-white-50 mr-1"></i> View Graphical Analysis
+        </a>
+    </div>
+
+    <!-- Summary Cards Row -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Total Partners</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Count</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-users fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Total Deliveries</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.Sum(x => x.TotalOrdersDelivered)</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-truck fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-info shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Average Rating</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@(Model.Average(x => (double)x.CustomerRatingAvg).ToString("F1")) <i class="fas fa-star text-warning small"></i></div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-star fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">On-Time Rate</div>
+                            @{
+                                var totalDeliveries = Model.Sum(x => x.TotalOrdersDelivered);
+                                var totalLate = Model.Sum(x => x.LateDeliveries);
+                                var onTimeRate = totalDeliveries > 0 ? ((totalDeliveries - totalLate) / (double)totalDeliveries * 100) : 0;
+                            }
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">@onTimeRate.ToString("F1")%</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="fas fa-clock fa-2x text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Table Card -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+            <h6 class="m-0 font-weight-bold text-primary">Performance Details</h6>
+            <div class="dropdown no-arrow">
+                <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="dropdownMenuLink">
+                    <div class="dropdown-header">Export Options:</div>
+                    <a class="dropdown-item" href="#" id="exportCSV"><i class="fas fa-file-csv fa-sm fa-fw mr-2 text-gray-400"></i>Export to CSV</a>
+                    <a class="dropdown-item" href="#" id="exportPDF"><i class="fas fa-file-pdf fa-sm fa-fw mr-2 text-gray-400"></i>Export to PDF</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="#" id="printReport"><i class="fas fa-print fa-sm fa-fw mr-2 text-gray-400"></i>Print Report</a>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <div class="mb-3">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        </div>
+                        <input type="text" id="partnerSearch" class="form-control" placeholder="Search partner...">
+                    </div>
+                </div>
+                <table class="table table-bordered" id="partnerDataTable" width="100%" cellspacing="0">
+                    <thead class="thead-light">
+                        <tr>
+                            <th class="sortable" data-sort="name">Partner Name <i class="fas fa-sort ml-1"></i></th>
+                            <th class="sortable text-center" data-sort="orders">Total Delivered <i class="fas fa-sort ml-1"></i></th>
+                            <th class="sortable text-center" data-sort="late">Late Deliveries <i class="fas fa-sort ml-1"></i></th>
+                            <th class="sortable text-center" data-sort="cancel">Cancellations <i class="fas fa-sort ml-1"></i></th>
+                            <th class="sortable text-center" data-sort="rating">Avg Rating <i class="fas fa-sort ml-1"></i></th>
+                            <th class="sortable text-center" data-sort="date">Last Updated <i class="fas fa-sort ml-1"></i></th>
+                            <th class="text-center">Performance</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <!-- Convert decimal to double to avoid type mismatch -->
+                            double ratingValue = (double)item.CustomerRatingAvg;
+
+                            <!-- Calculate performance metrics for colored badges -->
+                            string ratingClass = ratingValue >= 4.5 ? "success" :
+                            (ratingValue >= 4.0 ? "info" :
+                            (ratingValue >= 3.0 ? "warning" : "danger"));
+
+                            double latePercentage = item.TotalOrdersDelivered > 0 ?
+                            (double)item.LateDeliveries / item.TotalOrdersDelivered * 100 : 0;
+
+                            string lateClass = latePercentage <= 5 ? "success" :
+                            (latePercentage <= 10 ? "info" :
+                            (latePercentage <= 15 ? "warning" : "danger"));
+
+                            double cancelPercentage = item.TotalOrdersDelivered > 0 ?
+                            (double)item.CancellationCount / item.TotalOrdersDelivered * 100 : 0;
+
+                            string cancelClass = cancelPercentage <= 2 ? "success" :
+                            (cancelPercentage <= 5 ? "info" :
+                            (cancelPercentage <= 10 ? "warning" : "danger"));
+
+                            string performanceClass = ratingValue >= 4.0 && latePercentage <= 10 && cancelPercentage <= 5 ?
+                            "success" : (ratingValue >= 3.0 && latePercentage <= 15 && cancelPercentage <= 10 ?
+                            "warning" : "danger");
+
+                            string performanceText = performanceClass == "success" ? "Good" :
+                            (performanceClass == "warning" ? "Average" : "Needs Improvement");
+
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar avatar-sm mr-2">
+                                            <div class="avatar-initial rounded-circle bg-light text-primary">
+                                                @(item.FullName.Length > 0 ? item.FullName.Substring(0, 1) : "")
+                                            </div>
+                                        </div>
+                                        <div>@item.FullName</div>
+                                    </div>
+                                </td>
+                                <td class="text-center"><strong>@item.TotalOrdersDelivered</strong></td>
+                                <td class="text-center">
+                                    <span class="badge badge-@lateClass">@item.LateDeliveries</span>
+                                    <small class="d-block text-muted">(@latePercentage.ToString("F1")%)</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge badge-@cancelClass">@item.CancellationCount</span>
+                                    <small class="d-block text-muted">(@cancelPercentage.ToString("F1")%)</small>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge badge-@ratingClass">@item.CustomerRatingAvg.ToString("F1")</span>
+                                    <div class="rating-stars small">
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <i class="fas fa-star @(i <= Math.Round(ratingValue) ? "text-warning" : "text-muted")"></i>
+                                        }
+                                    </div>
+                                </td>
+                                <td class="text-center">@item.UpdatedAt.ToString("dd MMM yyyy")</td>
+                                <td class="text-center">
+                                    <span class="badge badge-pill badge-@performanceClass">@performanceText</span>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <!-- Pagination -->
+                <div class="row mt-3">
+                    <div class="col-sm-12 col-md-5">
+                        <div class="dataTables_info" id="dataTable_info" role="status" aria-live="polite">
+                            Showing <span id="start">1</span> to <span id="end">@Model.Count</span> of <span id="total">@Model.Count</span> entries
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-7">
+                        <div class="dataTables_paginate paging_simple_numbers" id="dataTable_paginate">
+                            <ul class="pagination justify-content-end">
+                                <li class="paginate_button page-item previous disabled" id="dataTable_previous">
+                                    <a href="#" aria-controls="dataTable" data-dt-idx="0" tabindex="0" class="page-link">Previous</a>
+                                </li>
+                                <li class="paginate_button page-item active">
+                                    <a href="#" aria-controls="dataTable" data-dt-idx="1" tabindex="0" class="page-link">1</a>
+                                </li>
+                                <li class="paginate_button page-item next disabled" id="dataTable_next">
+                                    <a href="#" aria-controls="dataTable" data-dt-idx="2" tabindex="0" class="page-link">Next</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include Font Awesome -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+
+<!-- Additional Custom Styles -->
+<style>
+    /* Avatar styling */
+    .avatar {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .avatar-initial {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+
+    /* Rating stars */
+    .rating-stars {
+        line-height: 1;
+    }
+
+    /* Sortable headers */
+    th.sortable {
+        cursor: pointer;
+    }
+
+        th.sortable:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+    /* Badge styling enhancements */
+    .badge {
+        font-weight: 500;
+        padding: 0.4em 0.6em;
+    }
+
+    .badge-pill {
+        padding-right: 0.8em;
+        padding-left: 0.8em;
+    }
+</style>
+
+<!-- JavaScript for table functionality -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Table sorting functionality
+        const table = document.getElementById('partnerDataTable');
+        const headers = table.querySelectorAll('th.sortable');
+
+        headers.forEach(header => {
+            header.addEventListener('click', () => {
+                const sortDirection = header.classList.contains('asc') ? 'desc' : 'asc';
+                headers.forEach(h => h.classList.remove('asc', 'desc'));
+                header.classList.add(sortDirection);
+
+                const columnIndex = Array.from(header.parentElement.children).indexOf(header);
+                const sortType = header.dataset.sort;
+
+                sortTable(columnIndex, sortDirection, sortType);
+            });
+        });
+
+        // Search functionality
+        const searchInput = document.getElementById('partnerSearch');
+        searchInput.addEventListener('keyup', () => {
+            const searchText = searchInput.value.toLowerCase();
+            const rows = table.querySelectorAll('tbody tr');
+
+            rows.forEach(row => {
+                const partnerName = row.querySelector('td:first-child').textContent.toLowerCase();
+                row.style.display = partnerName.includes(searchText) ? '' : 'none';
+            });
+
+            updatePaginationInfo();
+        });
+
+        // Export functionality (placeholder)
+        document.getElementById('exportCSV').addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Export to CSV functionality would be implemented here.');
+        });
+
+        document.getElementById('exportPDF').addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('Export to PDF functionality would be implemented here.');
+        });
+
+        document.getElementById('printReport').addEventListener('click', (e) => {
+            e.preventDefault();
+            window.print();
+        });
+
+        // Function to sort table
+        function sortTable(columnIndex, direction, sortType) {
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+
+            rows.sort((a, b) => {
+                let aValue = a.cells[columnIndex].textContent.trim();
+                let bValue = b.cells[columnIndex].textContent.trim();
+
+                // Handle different data types
+                if (sortType === 'orders' || sortType === 'late' || sortType === 'cancel') {
+                    aValue = parseInt(aValue.replace(/[^\d]/g, ''), 10);
+                    bValue = parseInt(bValue.replace(/[^\d]/g, ''), 10);
+                } else if (sortType === 'rating') {
+                    aValue = parseFloat(aValue);
+                    bValue = parseFloat(bValue);
+                } else if (sortType === 'date') {
+                    aValue = new Date(aValue.split(' ').reverse().join(' '));
+                    bValue = new Date(bValue.split(' ').reverse().join(' '));
+                }
+
+                if (direction === 'asc') {
+                    return aValue > bValue ? 1 : -1;
+                } else {
+                    return aValue < bValue ? 1 : -1;
+                }
+            });
+
+            // Remove existing rows
+            while (tbody.firstChild) {
+                tbody.removeChild(tbody.firstChild);
+            }
+
+            // Add sorted rows
+            rows.forEach(row => tbody.appendChild(row));
+
+            updatePaginationInfo();
+        }
+
+        // Update pagination info
+        function updatePaginationInfo() {
+            const visibleRows = table.querySelectorAll('tbody tr:not([style*="display: none"])');
+            document.getElementById('start').textContent = visibleRows.length > 0 ? '1' : '0';
+            document.getElementById('end').textContent = visibleRows.length;
+            document.getElementById('total').textContent = table.querySelectorAll('tbody tr').length;
+
+            // Update pagination buttons state
+            document.getElementById('dataTable_previous').classList.toggle('disabled', true);
+            document.getElementById('dataTable_next').classList.toggle('disabled', true);
+        }
+    });
+</script>

@@ -1,191 +1,709 @@
-﻿@{
-    ViewData["Title"] = "Assigned Orders";
+﻿@model List<Foodie.Models.DeliveryPartner.AssignedOrderViewModel>
+
+@{
+    ViewBag.Title = "Assigned Orders";
     Layout = ViewBag.Layout ?? "_DeliveryPartnerLayout";
 }
-
-<div class="container mt-4">
-    <h2>📦 Assigned Deliveries</h2>
-
-    <div class="search-filter">
-        <input type="text" class="form-control search-bar" placeholder="🔍 Search orders..." />
-        <button class="btn btn-warning filter-btn">⚙️ Filter</button>
-    </div>
-
-    <div class="assigned-orders">
-        <!-- Order Card 1 -->
-        <div class="order-card">
-            <div class="order-header">
-                <span class="order-id">#ORD-7829</span>
-                <span class="order-distance">Pizza Hut - 2.4 km</span>
-            </div>
-            <span class="order-status ready">✅ Ready for pickup</span>
-
-            <div class="order-body">
-                <div class="customer-info">
-                    <img src="/images/user-icon.png" class="customer-icon" />
-                    <div>
-                        <strong>Rahul Sharma</strong>
-                        <p>📞 +91 98765 43210</p>
-                    </div>
-                </div>
-                <p class="delivery-address">📍 803, Park Avenue, Malad West, Mumbai - 400064</p>
-
-                <div class="order-details">
-                    <p>🍽 <strong>3 items</strong> - ₹425 <span class="paid">Paid Online</span></p>
-                    <p>⏳ <strong>25-30 min</strong> - ASAP delivery</p>
-                </div>
-            </div>
-
-            <div class="order-actions">
-                <button class="btn btn-outline-primary">📞 Call</button>
-                <button class="btn btn-success accept-btn">✅ Accept</button>
-            </div>
-        </div>
-
-        <!-- Order Card 2 -->
-        <div class="order-card">
-            <div class="order-header">
-                <span class="order-id">#ORD-7830</span>
-                <span class="order-distance">Subway - 1.8 km</span>
-            </div>
-            <span class="order-status preparing">⏳ Preparing</span>
-
-            <div class="order-body">
-                <div class="customer-info">
-                    <img src="/images/user-icon.png" class="customer-icon" />
-                    <div>
-                        <strong>Priya Patel</strong>
-                        <p>📞 +91 87654 32109</p>
-                    </div>
-                </div>
-                <p class="delivery-address">📍 205, Sunshine Apartments, Andheri East, Mumbai - 400069</p>
-
-                <div class="order-details">
-                    <p>🍽 <strong>2 items</strong> - ₹310 <span class="cod">Cash on Delivery</span></p>
-                    <p>⏳ <strong>15-20 min</strong> - Standard delivery</p>
-                </div>
-            </div>
-
-            <div class="order-actions">
-                <button class="btn btn-outline-primary">📞 Call</button>
-                <button class="btn btn-secondary wait-btn">⏳ Wait</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <style>
+    :root {
+        --primary: #FF6B35;
+        --primary-light: #ff8a5f;
+        --secondary: #2E4057;
+        --success: #28a745;
+        --danger: #dc3545;
+        --warning: #ffc107;
+        --light: #f8f9fa;
+        --dark: #343a40;
+        --gray-light: #f5f5f5;
+        --white: #ffffff;
+    }
+
     body {
-        background-color: #f9f9f9;
+        background-color: var(--gray-light);
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     .container {
-        max-width: 800px;
+        max-width: 1000px;
+        padding: 20px;
+    }
+
+    .page-header {
+        background-color: var(--white);
+        border-radius: 10px;
+        box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+        padding: 20px;
+        margin-bottom: 25px;
+    }
+
+    .page-title {
+        color: var(--secondary);
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .export-buttons .btn {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 500;
     }
 
     .search-filter {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 15px;
+        margin-bottom: 20px;
     }
 
-    .search-bar {
-        width: 70%;
-        padding: 10px;
+    .search-input {
         border-radius: 8px;
-        border: 1px solid #ccc;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     }
 
-    .filter-btn {
-        background-color: orange;
-        color: white;
+    .filter-dropdown {
         border-radius: 8px;
-    }
-
-    .assigned-orders {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
+        border: 1px solid #ddd;
+        background-color: var(--white);
     }
 
     .order-card {
-        background: white;
-        border-radius: 10px;
-        padding: 15px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        background-color: var(--white);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        margin-bottom: 25px;
+        overflow: hidden;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
+
+        .order-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
 
     .order-header {
+        background-color: var(--white);
+        border-bottom: 1px solid #f0f0f0;
+        padding: 15px 20px;
         display: flex;
         justify-content: space-between;
-        font-weight: bold;
+        align-items: center;
+    }
+
+    .order-id {
         font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--secondary);
     }
 
-    .order-status {
-        display: inline-block;
-        padding: 5px 10px;
-        border-radius: 15px;
-        font-size: 0.9rem;
-        margin-top: 5px;
+    .food-status {
+        font-size: 0.85rem;
+        border-radius: 20px;
+        padding: 5px 15px;
     }
 
-    .ready {
-        background-color: #d4f5d4;
-        color: green;
+        .food-status.preparing {
+            background-color: #fff5e6;
+            color: #ff9800;
+        }
+
+        .food-status.ready {
+            background-color: #e6f7ff;
+            color: #0088cc;
+        }
+
+    .order-body {
+        padding: 20px;
     }
 
-    .preparing {
-        background-color: #fff5cc;
-        color: #d4a100;
-    }
-
-    .customer-info {
+    .restaurant-name {
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 1.2rem;
+        margin-bottom: 15px;
         display: flex;
         align-items: center;
-        gap: 10px;
-        margin-top: 10px;
     }
 
-    .customer-icon {
-        width: 40px;
-        height: 40px;
+    .restaurant-icon {
+        margin-right: 10px;
+        font-size: 1.3rem;
     }
 
-    .delivery-address {
+    .order-info {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .info-item {
+        margin-bottom: 5px;
+    }
+
+    .info-label {
+        font-weight: 500;
+        color: #666;
+        display: block;
         font-size: 0.9rem;
-        color: #555;
-        margin: 10px 0;
+        margin-bottom: 3px;
     }
 
-    .order-details p {
-        margin: 3px 0;
-        font-size: 0.9rem;
+    .info-value {
+        font-weight: 600;
+        color: var(--secondary);
     }
 
-    .paid {
-        color: green;
-        font-weight: bold;
-    }
-
-    .cod {
-        color: red;
-        font-weight: bold;
+    .map-container {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+        height: 250px;
     }
 
     .order-actions {
         display: flex;
-        justify-content: space-between;
+        gap: 10px;
         margin-top: 15px;
     }
 
-    .accept-btn {
-        background-color: #28a745;
-        color: white;
+    .btn-action {
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.2s ease;
     }
 
-    .wait-btn {
-        background-color: #bbb;
-        color: white;
+        .btn-action:hover {
+            transform: translateY(-2px);
+        }
+
+    .btn-picked {
+        background-color: var(--warning);
+        border-color: var(--warning);
+        color: var(--dark);
+    }
+
+    .btn-delivered {
+        background-color: var(--success);
+        border-color: var(--success);
+        color: var(--white);
+    }
+
+    .btn-cancel {
+        background-color: var(--danger);
+        border-color: var(--danger);
+        color: var(--white);
+    }
+
+    .no-orders {
+        background-color: var(--white);
+        border-radius: 12px;
+        padding: 40px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .status-pill {
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .status-pending {
+        background-color: #fff5e6;
+        color: #ff9800;
+    }
+
+    .status-assigned {
+        background-color: #e6f7ff;
+        color: #0088cc;
+    }
+
+    .map-loading {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100%;
+        background-color: #f9f9f9;
+    }
+
+    .mapboxgl-marker {
+        cursor: pointer;
+    }
+
+    .mapboxgl-popup {
+        max-width: 200px;
+    }
+
+    .mapboxgl-popup-content {
+        padding: 10px;
+        border-radius: 5px;
+    }
+
+    .mapboxgl-ctrl-logo {
+        display: none !important;
+    }
+
+    @@media (max-width: 768px) {
+        .order-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .order-actions {
+            flex-direction: column;
+            width: 100%;
+        }
+
+        .btn-action {
+            width: 100%;
+            justify-content: center;
+        }
     }
 </style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.css" rel="stylesheet">
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.14.1/mapbox-gl.js"></script>
+<!-- Mapbox Directions Plugin -->
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.js"></script>
+<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.css" type="text/css">
+
+<div class="container mt-4">
+    <div class="page-header d-flex justify-content-between align-items-center mb-4">
+        <h2 class="page-title">
+            <i class="fas fa-motorcycle me-2"></i>Assigned Orders
+        </h2>
+        <div class="export-buttons">
+            <a href="/deliverymoney/export-excel" class="btn btn-outline-success me-2">
+                <i class="fas fa-file-excel me-2"></i>Export to Excel
+            </a>
+            <a href="/deliverymoney/export-pdf" class="btn btn-outline-danger">
+                <i class="fas fa-file-pdf me-2"></i>Export to PDF
+            </a>
+        </div>
+    </div>
+
+    <div class="search-filter d-flex">
+        <input type="text" class="form-control search-input me-2" placeholder="Search by order ID, restaurant name...">
+        <select class="form-select filter-dropdown" style="max-width: 200px;">
+            <option value="">All Orders</option>
+            <option value="pending">Pending</option>
+            <option value="in-transit">In Transit</option>
+            <option value="delivered">Delivered</option>
+        </select>
+    </div>
+
+    @if (Model != null && Model.Any())
+    {
+        foreach (var order in Model)
+        {
+            <div class="order-card">
+                <div class="order-header">
+                    <div class="order-id">
+                        <i class="fas fa-receipt me-2"></i>Order #@order.OrderId
+                    </div>
+                    <span class="food-status @(order.FoodStatus.ToLower() == "ready" ? "ready" : "preparing")">
+                        @if (order.FoodStatus.ToLower() == "ready")
+                        {
+                            <i class="fas fa-check-circle me-1"></i>
+                        }
+                        else
+                        {
+                            <i class="fas fa-spinner fa-spin me-1"></i>
+                        }
+                        @order.FoodStatus
+                    </span>
+                </div>
+                <div class="order-body">
+                    <div class="restaurant-name">
+                        <i class="fas fa-utensils restaurant-icon"></i>
+                        @order.RestaurantName
+                    </div>
+
+                    <div class="order-info">
+                        <div class="info-item">
+                            <span class="info-label">Status</span>
+                            <span class="info-value status-pill @(order.OrderStatus.ToLower() == "pending" ? "status-pending" : "status-assigned")">
+                                @if (order.OrderStatus.ToLower() == "pending")
+                                {
+                                    <i class="fas fa-clock me-1"></i>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-check me-1"></i>
+                                }
+                                @order.OrderStatus
+                            </span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Estimated Delivery</span>
+                            <span class="info-value"><i class="far fa-clock me-1"></i> @order.EstimatedDeliveryTime</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Distance</span>
+                            <span class="info-value"><i class="fas fa-route me-1"></i> @order.DistanceInKm km</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Address Type</span>
+                            <span class="info-value">
+                                @if (order.AddressType.ToLower() == "home")
+                                {
+                                    <i class="fas fa-home me-1"></i>
+                                }
+                                else if (order.AddressType.ToLower() == "office")
+                                {
+                                    <i class="fas fa-building me-1"></i>
+                                }
+                                else
+                                {
+                                    <i class="fas fa-map-marker-alt me-1"></i>
+                                }
+                                @order.AddressType
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="map-container">
+                        <div id="map-@order.OrderId" style="height: 100%; width: 100%;">
+                            <div class="map-loading" id="loading-@order.OrderId">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading map...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="order-actions">
+                        <form method="post" action="/deliverymoney/update-status" style="flex-grow: 1;">
+                            <input type="hidden" name="OrderId" value="@order.OrderId" />
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-action btn-picked flex-grow-1" name="status" value="In Transit">
+                                    <i class="fas fa-box"></i> Picked Up
+                                </button>
+                                <button class="btn btn-action btn-delivered flex-grow-1" name="status" value="Delivered">
+                                    <i class="fas fa-check-circle"></i> Delivered
+                                </button>
+                            </div>
+                        </form>
+                        <form asp-action="CancelOrder" method="post" style="width: 120px;" onsubmit="return confirm('Are you sure you want to cancel this order?');">
+                            <input type="hidden" name="orderId" value="@order.OrderId" />
+                            <button type="submit" class="btn btn-action btn-cancel w-100">
+                                <i class="fas fa-times-circle"></i> Cancel
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="no-orders">
+            <div class="mb-4">
+                <i class="fas fa-clipboard-list fa-4x text-muted"></i>
+            </div>
+            <h4>No assigned orders at the moment</h4>
+            <p class="text-muted">New orders will appear here once they're assigned to you.</p>
+        </div>
+    }
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.js"></script>
+
+<script>
+    // Replace with your Mapbox access token
+    mapboxgl.accessToken = 'pk.eyJ1IjoicmlzaGk4MTAyIiwiYSI6ImNtOTFpbXpjeDAxZGwybHNjdjljdnlpZ2UifQ.lwfPOwA0QilljmyDYiUV6A';
+
+    // Store all maps in an object for easy access
+    const maps = {};
+    const markers = {};
+    const popups = {};
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Check if there are any orders
+        const mapContainers = document.querySelectorAll('[id^="map-"]');
+        if (mapContainers.length > 0) {
+            // Initialize all maps if there are orders
+    @foreach (var order in Model)
+    {
+        <text>
+                        initMap(
+                            '@order.OrderId',
+                            [@order.RestaurantLag, @order.RestaurantLat],
+                            [@order.CustomerLongitude, @order.CustomerLatitude],
+                            '@order.RestaurantName'
+                        );
+        </text>
+    }
+        } else {
+            // If Model is empty or null, there are no orders to display
+            console.log("No orders to display");
+        }
+    });
+
+    function initMap(orderId, restaurantCoords, customerCoords, restaurantName) {
+        try {
+            // Hide loading indicator
+            const loadingElement = document.getElementById(`loading-${orderId}`);
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+
+            // Create the map
+            const map = new mapboxgl.Map({
+                container: `map-${orderId}`,
+                style: 'mapbox://styles/mapbox/streets-v12',
+                center: [(parseFloat(restaurantCoords[0]) + parseFloat(customerCoords[0])) / 2,
+                         (parseFloat(restaurantCoords[1]) + parseFloat(customerCoords[1])) / 2],
+                zoom: 13
+            });
+
+            // Store map reference
+            maps[orderId] = map;
+
+            // Add navigation controls
+            map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+            map.on('load', function () {
+                // Create restaurant marker with custom HTML element
+                const restaurantEl = document.createElement('div');
+                restaurantEl.className = 'marker-restaurant';
+                restaurantEl.style.width = '30px';
+                restaurantEl.style.height = '30px';
+                restaurantEl.style.borderRadius = '50%';
+                restaurantEl.style.backgroundColor = '#FF6B35';
+                restaurantEl.style.display = 'flex';
+                restaurantEl.style.justifyContent = 'center';
+                restaurantEl.style.alignItems = 'center';
+                restaurantEl.style.color = 'white';
+                restaurantEl.style.fontWeight = 'bold';
+                restaurantEl.innerHTML = 'R';
+
+                // Create restaurant marker
+                const restaurantMarker = new mapboxgl.Marker(restaurantEl)
+                    .setLngLat(restaurantCoords)
+                    .addTo(map);
+
+                // Create restaurant popup
+                const restaurantPopup = new mapboxgl.Popup({ offset: 25 })
+                    .setHTML(`<strong>Restaurant</strong><br>${restaurantName}`);
+
+                restaurantMarker.setPopup(restaurantPopup);
+
+                // Create customer marker with custom HTML element
+                const customerEl = document.createElement('div');
+                customerEl.className = 'marker-customer';
+                customerEl.style.width = '30px';
+                customerEl.style.height = '30px';
+                customerEl.style.borderRadius = '50%';
+                customerEl.style.backgroundColor = '#2E4057';
+                customerEl.style.display = 'flex';
+                customerEl.style.justifyContent = 'center';
+                customerEl.style.alignItems = 'center';
+                customerEl.style.color = 'white';
+                customerEl.style.fontWeight = 'bold';
+                customerEl.innerHTML = 'C';
+
+                // Create customer marker
+                const customerMarker = new mapboxgl.Marker(customerEl)
+                    .setLngLat(customerCoords)
+                    .addTo(map);
+
+                // Create customer popup
+                const customerPopup = new mapboxgl.Popup({ offset: 25 })
+                    .setHTML(`<strong>Customer</strong><br>Delivery Location`);
+
+                customerMarker.setPopup(customerPopup);
+
+                // Store markers and popups
+                markers[orderId] = {
+                    restaurant: restaurantMarker,
+                    customer: customerMarker
+                };
+
+                popups[orderId] = {
+                    restaurant: restaurantPopup,
+                    customer: customerPopup
+                };
+
+                // Get directions from Mapbox Directions API
+                getRoute(map, restaurantCoords, customerCoords);
+
+                // Fit bounds to include both markers
+                const bounds = new mapboxgl.LngLatBounds()
+                    .extend(restaurantCoords)
+                    .extend(customerCoords);
+
+                map.fitBounds(bounds, {
+                    padding: 50
+                });
+            });
+
+        } catch (e) {
+            console.error(`Error initializing map for order #${orderId}:`, e);
+            showMapError(orderId, e.message);
+        }
+    }
+
+    async function getRoute(map, start, end) {
+        try {
+            // Make a directions request using Mapbox Directions API
+            const query = await fetch(
+                `https://api.mapbox.com/directions/v5/mapbox/driving/${start[0]},${start[1]};${end[0]},${end[1]}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`,
+                { method: 'GET' }
+            );
+            const json = await query.json();
+            const data = json.routes[0];
+            const route = data.geometry.coordinates;
+
+            // If the map already has the route source, update it, otherwise create it
+            if (map.getSource('route')) {
+                map.getSource('route').setData({
+                    'type': 'Feature',
+                    'properties': {},
+                    'geometry': {
+                        'type': 'LineString',
+                        'coordinates': route
+                    }
+                });
+            } else {
+                map.addSource('route', {
+                    'type': 'geojson',
+                    'data': {
+                        'type': 'Feature',
+                        'properties': {},
+                        'geometry': {
+                            'type': 'LineString',
+                            'coordinates': route
+                        }
+                    }
+                });
+
+                map.addLayer({
+                    'id': 'route',
+                    'type': 'line',
+                    'source': 'route',
+                    'layout': {
+                        'line-join': 'round',
+                        'line-cap': 'round'
+                    },
+                    'paint': {
+                        'line-color': '#0077FF', // Blue color like in your dashboard
+                        'line-width': 5,
+                        'line-opacity': 0.8
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('Error getting route:', error);
+            // Create a fallback curved route if the API call fails
+            createFallbackRoute(map, start, end);
+        }
+    }
+
+    function createFallbackRoute(map, start, end) {
+        // Calculate midpoint with a slight offset to create curve
+        const midLng = (parseFloat(start[0]) + parseFloat(end[0])) / 2;
+        const midLat = (parseFloat(start[1]) + parseFloat(end[1])) / 2;
+
+        // Add some offset to create a curve
+        const offset = 0.01; // Adjust this value for more or less curve
+        const midPoint = [
+            midLng + offset,
+            midLat
+        ];
+
+        // Create a curved path with the midpoint
+        const curvedPath = [
+            start,
+            midPoint,
+            end
+        ];
+
+        // Add the curved path to the map
+        if (map.getSource('fallback-route')) {
+            map.getSource('fallback-route').setData({
+                'type': 'Feature',
+                'properties': {},
+                'geometry': {
+                    'type': 'LineString',
+                    'coordinates': curvedPath
+                }
+            });
+        } else {
+            map.addSource('fallback-route', {
+                'type': 'geojson',
+                'data': {
+                    'type': 'Feature',
+                    'properties': {},
+                    'geometry': {
+                        'type': 'LineString',
+                        'coordinates': curvedPath
+                    }
+                }
+            });
+
+            map.addLayer({
+                'id': 'fallback-route',
+                'type': 'line',
+                'source': 'fallback-route',
+                'layout': {
+                    'line-join': 'round',
+                    'line-cap': 'round'
+                },
+                'paint': {
+                    'line-color': '#0077FF', // Blue color like in your dashboard
+                    'line-width': 5,
+                    'line-opacity': 0.8
+                }
+            });
+        }
+    }
+
+    function showMapError(orderId, message) {
+        const mapContainer = document.getElementById(`map-${orderId}`);
+        if (mapContainer) {
+            const loadingElement = document.getElementById(`loading-${orderId}`);
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+            mapContainer.innerHTML = `
+                <div class="alert alert-warning text-center" style="height:100%;display:flex;align-items:center;justify-content:center;">
+                    <div>
+                        <i class="fas fa-map-marked-alt fa-2x mb-3"></i>
+                        <p>Unable to load map: ${message}</p>
+                        <small>Please check your connection or try again later</small>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    // Filter functionality
+    document.querySelector('.search-input').addEventListener('input', filterOrders);
+    document.querySelector('.filter-dropdown').addEventListener('change', filterOrders);
+
+    function filterOrders() {
+        const searchText = document.querySelector('.search-input').value.toLowerCase();
+        const filterValue = document.querySelector('.filter-dropdown').value.toLowerCase();
+
+        document.querySelectorAll('.order-card').forEach(card => {
+            const orderId = card.querySelector('.order-id').textContent.toLowerCase();
+            const restaurantName = card.querySelector('.restaurant-name').textContent.toLowerCase();
+            const status = card.querySelector('.status-pill').textContent.toLowerCase();
+
+            const matchesSearch = orderId.includes(searchText) || restaurantName.includes(searchText);
+            const matchesFilter = filterValue === '' || status.includes(filterValue);
+
+            card.style.display = matchesSearch && matchesFilter ? 'block' : 'none';
+        });
+    }
+</script>

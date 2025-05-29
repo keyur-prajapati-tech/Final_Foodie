@@ -1,19 +1,4 @@
-﻿@model List<Foodie.Models.customers.CartItemViewModel>
-
-@{
-    ViewData["Title"] = "Add To Cart";
-    decimal grandTotal = 0;
-    string couponeCode = ViewBag.CouponCode as string;
-    decimal discountamount = ViewBag.Discount ?? 0;
-    string successmessage = TempData["successmessage"] as string;
-}
-
-@{
-    var userName = Context.Session.GetString("UserName");
-    var phone = Context.Session.GetString("UserPhone");
-}
-
-@{
+﻿@{
     Layout = "~/Views/Shared/_foodieheader.cshtml";
 }
 
@@ -38,47 +23,200 @@
         padding: 5px 10px;
     }
 
-    <style >
-    /* Add these new styles */
-    #minimumAmountWarning {
-        color: #dc3545;
-        font-size: 0.9rem;
-        margin-top: 5px;
-        display: none;
-    }
-
-    .cart-summary.low-amount {
-        border-left: 4px solid #ffc107;
-        background-color: #fff8e1;
-    }
-
-    #orderNowBtn:disabled {
-        cursor: not-allowed;
-        opacity: 0.7;
-    }
-
-    .btn-secondary[title]:hover:after {
-        content: attr(title);
-        position: absolute;
-        bottom: 100%;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #333;
-        color: #fff;
-        padding: 5px 10px;
-        border-radius: 4px;
-        white-space: nowrap;
-        font-size: 12px;
-    }
 </style>
-</style>
+<hr />
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-<link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
-<script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card bg-white p-3 border-3 shadow-sm">
+                <div class="card bg-primary text-white m-2 p-2 text-center">
+                    <span style="font-size: 20px; font-weight: 800;">😋 You Saved 5 Rupees On This Order</span>
+                </div>
+
+                <!-- Item 1 -->
+                <div class="card m-2 p-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 d-flex justify-content-around">
+                            <img src="https://luniamarketing.com/wp-content/uploads/2021/01/Moong-Dal-Ki-Kachori.jpg" alt="food_img" style="width:100px;height:100px;object-fit:contain;" />
+                            <p class="fw-bold mt-4">Dal Kachori [2 Pieces]</p>
+                            <span class="text-success fw-bold mt-4">120 RS/-</span>
+                        </div>
+                        <div class="col-md-3 d-flex gap-3 justify-content-center mb-4" style="margin-left:50px;">
+                            <button class="btn btn-outline-danger btn-sm">-</button>
+                            <span class="fs-5">1</span>
+                            <button class="btn btn-outline-primary btn-sm">+</button>
+                        </div>
+                        <div class="col-md-3 text-end mb-4">
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#foodModal1">EDIT ➡</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Item 2 -->
+                <div class="card m-2 p-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-4 d-flex justify-content-around">
+                            <img src="https://modernasopalav.com/assets/images/recipe-image/nylon-khaman.png" alt="food_img" style="width:100px;height:100px;object-fit:contain;" />
+                            <p class="fw-bold mt-4">Naylon Khaman [1 KG]</p>
+                            <span class="text-success fw-bold mt-4">120 RS/-</span>
+                        </div>
+                        <div class="col-md-3 d-flex gap-3 justify-content-center mb-4" style="margin-left:50px;">
+                            <button class="btn btn-outline-danger btn-sm">-</button>
+                            <span class="fs-5">1</span>
+                            <button class="btn btn-outline-primary btn-sm">+</button>
+                        </div>
+                        <div class="col-md-3 text-end mb-4">
+                            <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#foodModal2">EDIT ➡</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center mt-3">
+                    <a asp-controller="TBrands" asp-action="Brands" class="btn btn-outline-dark">+ Add More Items</a>
+                    <!-- Place Order Button -->
+                    <button type="button" class="btn btn-primary" id="placeOrderBtn">
+                        Place Order
+                    </button>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Order Confirmation Modal -->
+<div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="foodieplaceorderLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="orderModalLabel">Order Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <h4>Your order has been placed successfully! 🎉</h4>
+                <p>We have sent your order details to the restaurant.</p>
+                <hr>
+                <h5>Order Summary:</h5>
+                <ul id="orderSummary"></ul>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="@Url.Action("Index", "Restaurant")" class="btn btn-success">View Restaurant Orders</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function () {
+        $("#placeOrderBtn").click(function () {
+            // Sample order data (Replace this with actual cart data)
+            var orderData = {
+                items: [
+                    { name: "Dal Kachori", quantity: 1, price: 120 },
+                    { name: "Naylon Khaman", quantity: 1, price: 120 }
+                ],
+                total: 240
+            };
+
+            // Show Order Summary in Modal
+            var summaryHtml = "";
+            orderData.items.forEach(item => {
+                summaryHtml += `<li>${item.name} - ${item.quantity} x ${item.price} RS</li>`;
+            });
+            summaryHtml += `<strong>Total: ${orderData.total} RS</strong>`;
+            $("#orderSummary").html(summaryHtml);
+
+            // Show the modal
+            $("#orderModal").modal("show");
+
+            // Send Order to Restaurant via AJAX
+            $.ajax({
+                url: "/Restaurant/popup",
+                type: "POST",
+                contentType: "application/json",
+                data: JSON.stringify(orderData),
+                 success: function (response) {
+                if (response.success) {
+                    // Redirect to the restaurant's order management page
+                    window.location.href = "/Restaurant/popup";
+                } else {
+                    alert("Error placing order: " + response.message);
+                }
+            },
+            error: function (err) {
+                console.error("Error sending order:", err);
+            }
+            });
+        });
+    });
+</script>
+
+
+
+<!-- MODAL: Dal Kachori -->
+<div class="modal fade" id="foodModal1" tabindex="-1" aria-labelledby="foodModal1Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Dal Kachori [2 Pieces]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="https://luniamarketing.com/wp-content/uploads/2021/01/Moong-Dal-Ki-Kachori.jpg" class="img-fluid rounded" alt="Dal Kachori">
+                <p class="mt-2 text-muted">Delicious crispy Dal Kachori with perfect spices.</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-outline-danger">-</button>
+                    <span class="fs-5">1</span>
+                    <button class="btn btn-outline-primary">+</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: Naylon Khaman -->
+<div class="modal fade" id="foodModal2" tabindex="-1" aria-labelledby="foodModal2Label" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Naylon Khaman [1 KG]</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="https://modernasopalav.com/assets/images/recipe-image/nylon-khaman.png" class="img-fluid rounded" alt="Naylon Khaman">
+                <p class="mt-2 text-muted">Soft and fluffy Naylon Khaman made from gram flour.</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-outline-danger">-</button>
+                    <span class="fs-5">1</span>
+                    <button class="btn btn-outline-primary">+</button>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<hr />
 <div class="container mt-4">
     <div class="row">
         <!-- Left Section -->
@@ -86,13 +224,15 @@
             <!-- Logged In User -->
             <div class="card p-3 mb-3">
                 <h5>Logged in <span class="text-success">✔</span></h5>
-                <p> @userName | @phone</p>
+                <p>Keyur Prajapati | 9725802229</p>
             </div>
 
             <!-- Delivery Address -->
             <div class="card p-3 mb-3">
                 <h5>Add a delivery address</h5>
                 <p>You seem to be in the new location</p>
+
+                <!-- Add Address Button -->
                 <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#addressModal">
                     Add New Address
                 </button>
@@ -100,98 +240,85 @@
 
             <!-- Payment Section -->
             <div class="card p-3">
-                <h3 class="text-uppercase">Payment</h3>
-                <h4>Select Delivery Address</h4>
-                <div class="form-check">
-                    <input type="radio" name="address" class="form-check-input address-radio" value="1" data-address-id="1">
-                    <label class="form-check-label">123 Main Street, City A</label>
-                </div>
-                <div class="form-check">
-                    <input type="radio" name="address" class="form-check-input address-radio" value="2" data-address-id="2">
-                    <label class="form-check-label">456 Market Road, City B</label>
-                </div>
-
-                <button id="orderNowBtn" class="btn btn-outline-success btn-md w-100 mt-3">Pay Now</button>
-                <br />
-                <a class="btn btn-outline-info">Order details</a>
+                <h5>Payment</h5>
             </div>
         </div>
 
         <!-- Right Section (Order Summary) -->
         <div class="col-md-4">
             <div class="card p-3">
-                <h3>Foodie Tasky Food</h3>
-                <p class="h5">Foodie Tasty - The Commoner's Kitchen'</p>
+                <h5>Roof 5</h5>
+                <p class="text-muted">Chhindwara Locality</p>
 
-                @foreach (var item in Model)
-                {
-                    <div class="p-2" style="border: 3px solid #000; border-radius: 5px;margin: 3px 3px;">
-                        <div class="menu-item cart-item border p-2" data-product-id="@item.menu_id"
-                             data-cart-item-id="@item.cart_item_id"
-                             data-price="@item.amount">
-
-                            <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)" alt="@item.menu_name" style="width:350px; height:200px; object-fit:contain;" />
-
-                            <div>
-                                <input type="hidden" class="cart-item-id" value="@item.cart_item_id" />
-                                <input type="hidden" id="customerId" value="@item.customer_id" />
-
-                                <h4>Food Name : <strong>@item.menu_name</strong></h4>
-                                <h4>Price: <strong> ₹<span class="unit-price">@item.amount</span></strong></h4>
-
-                                <div class="d-flex justify-content-between gap-2 align-items-center" style="border-top: 3px solid #333;">
-                                    <div class="mt-2">
-                                        <button class="btn btn-outline-danger qty-minus">-</button>
-                                        <span class="qty">1</span>
-                                        <button class="btn btn-outline-success qty-plus">+</button>
-                                    </div>
-                                    <div>
-                                        <button class="btn btn-outline-danger btn-remove">REMOVE</button>
-                                    </div>
-                                </div>
-
-                                <div class="d-flex justify-content-between" style="margin-top: 2px; margin-bottom: 2px; border-top: 3px solid #000;">
-                                    <h5>Total Amount :- </h5>
-                                    <span class="item-total text-primary fw-bold ms-3">₹@item.amount</span>
-                                </div>
-                            </div>
-                        </div>
+                <!-- Item -->
+                <div class="d-flex justify-content-between align-items-center" style="border:3px solid #000;border-radius:5px;padding:5px;margin:5px;">
+                    <img src="https://b.zmtcdn.com/data/dish_photos/121/3db1de484b41bf0827e0e4f98f4de121.png?fit=around|130:130&crop=130:130;*,*" alt="food-img" width="100px" />
+                    <span>Paneer Tikka</span>
+                    <div>
+                        <button class="btn btn-outline-secondary btn-sm">-</button>
+                        <span class="mx-2">1</span>
+                        <button class="btn btn-outline-secondary btn-sm">+</button>
                     </div>
-                }
+                    <span>₹262</span>
 
-                <div class="d-flex justify-content-between mt-3 p-2" style="border-top: 3px solid #000;">
-                    <h4>Grand Total:</h4>
-                    <h4 class="text-success fw-bold">₹<span id="grand-total">0</span></h4>
-                </div>
-                <div class="d-flex justify-content-between p-2">
-                    <h5>Discount:</h5>
-                    <h5 class="text-danger fw-bold">₹<span id="discount">0</span></h5>
                 </div>
 
-                <div class="d-flex justify-content-between p-2 border-top border-dark">
-                    <h4>Payable:</h4>
-                    <h4 class="text-primary fw-bold">₹<span id="final-total">0</span></h4>
+                <div class="d-flex justify-content-between align-items-center" style="border:3px solid #000;border-radius:5px;padding:5px;margin:5px;">
+                    <img src="https://b.zmtcdn.com/data/dish_photos/121/3db1de484b41bf0827e0e4f98f4de121.png?fit=around|130:130&crop=130:130;*,*" alt="food-img" width="100px" />
+                    <span>Paneer Tikka</span>
+                    <div>
+                        <button class="btn btn-outline-secondary btn-sm">-</button>
+                        <span class="mx-2">1</span>
+                        <button class="btn btn-outline-secondary btn-sm">+</button>
+                    </div>
+                    <span>₹262</span>
+
                 </div>
+                <a asp-controller="TBrands" asp-action="Brands" class="float-end">Add More Item</a>
 
-                <!-- Add this new warning message -->
-                <div id="minimumAmountWarning" class="payment-error text-danger text-center mt-2">
-                    <i class="fas fa-exclamation-circle"></i> Minimum order amount is ₹1. Please add more items.
-                </div>
-
-                <input type="hidden" id="razor-amount" value="0" />
-
-                <a asp-controller="Restaurantdeatil" asp-action="Restuarantinfo" class="float-end">Add More Item</a>
                 <hr>
+
+                <!-- No Contact Delivery -->
                 <div class="form-check">
                     <input type="checkbox" class="form-check-input" id="noContactDelivery">
                     <label class="form-check-label" for="noContactDelivery">
                         Opt-in for No-contact Delivery
                     </label>
                 </div>
+
                 <hr>
+
+                <!-- Apply Coupon -->
                 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#couponModal">
                     Apply Coupon
                 </button>
+
+
+                <hr>
+
+                <!-- Bill Details -->
+                <h6>Bill Details</h6>
+                <p>Item Total: ₹282</p>
+                <p>Delivery Fee: ₹77</p>
+                <p>Extra discount: -₹20</p>
+
+                <!-- Delivery Tip -->
+                <a href="#" class="text-danger">Add Tip</a>
+
+                <hr>
+
+                <!-- Final Amount -->
+                <h5 class="d-flex justify-content-between">
+                    <span>To Pay</span>
+                    <span>₹360</span>
+                </h5>
+
+                <!-- Savings -->
+                <div class="alert alert-success text-center">
+                    Savings of ₹20
+                </div>
+
+                <!-- Cancellation Policy -->
                 <div class="alert alert-light">
                     <h6>Review your order and address details to avoid cancellations</h6>
                     <p>Note: This order is non-refundable if cancelled.</p>
@@ -206,561 +333,172 @@
 <div class="modal fade" id="couponModal" tabindex="-1" aria-labelledby="couponModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
+            <!-- Modal Header -->
             <div class="modal-header">
                 <h5 class="modal-title" id="couponModalLabel">Available Coupons</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
+
+            <!-- Modal Body -->
             <div class="modal-body">
+                <!-- Coupon Input Box -->
                 <div class="input-group mb-3">
                     <input type="text" class="form-control" placeholder="Enter coupon code">
                     <button class="btn btn-warning">Apply</button>
                 </div>
+
                 <hr>
+
                 <h5>Available Coupons</h5>
-                <div class="coupon-list" id="couponListContainer">
-                    <div id="couponListContainer">
-                        <div class="text-center">
-                            <span class="spinner-border"></span> Loading coupons...
-                        </div>
+
+                <!-- Coupon List -->
+                <div class="coupon-list">
+                    <!-- Coupon 1 -->
+                    <div class="card p-3 mb-2">
+                        <strong>STEALDEAL</strong>
+                        <p>Get <b>30% off</b> on orders above ₹149. Max discount: ₹75.</p>
+                        <button class="btn btn-sm btn-outline-primary">Apply Coupon</button>
+                    </div>
+
+                    <!-- Coupon 2 -->
+                    <div class="card p-3 mb-2">
+                        <strong>TRYNEW</strong>
+                        <p>Get <b>20% off</b> on orders above ₹149. Max discount: ₹50.</p>
+                        <button class="btn btn-sm btn-outline-primary">Apply Coupon</button>
+                    </div>
+
+                    <!-- Coupon 3 -->
+                    <div class="card p-3 mb-2">
+                        <strong>APAYFEST</strong>
+                        <p>Get up to <b>₹100 cashback</b> using Amazon Pay Balance. Min order ₹199.</p>
+                        <button class="btn btn-sm btn-outline-primary">Apply Coupon</button>
+                    </div>
+
+                    <!-- Coupon 4 -->
+                    <div class="card p-3 mb-2">
+                        <strong>AXIS30</strong>
+                        <p>Get <b>30% discount</b> using Axis Bank Credit Cards. Min order ₹200.</p>
+                        <button class="btn btn-sm btn-outline-primary">Apply Coupon</button>
+                    </div>
+
+                    <!-- Coupon 5 -->
+                    <div class="card p-3 mb-2">
+                        <strong>HDFC25</strong>
+                        <p>Get <b>30% discount</b> using HDFC Bank Credit Cards. Min order ₹200.</p>
+                        <button class="btn btn-sm btn-outline-primary">Apply Coupon</button>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+
 
 <!-- Address Modal -->
 <div class="modal fade" id="addressModal" tabindex="-1" aria-labelledby="addressModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form id="addressForm" method="post" asp-action="Address">
-                <div class="modal-header">
-                    <h5 class="modal-title">Save delivery address</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div id="map" style="width: 100%; height: 300px; border-radius: 10px; margin-bottom: 15px;"></div>
-                    <input type="hidden" name="latitude" id="latitude" />
-                    <input type="hidden" name="longitude" id="longitude" />
-                    <input type="hidden" name="address" id="address" />
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h5 class="modal-title" id="addressModalLabel">Save delivery address</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Country</label>
-                        <input type="text" name="CountryName" class="form-control" value="India" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">State</label>
-                        <select name="StateId" id="state" class="form-control">
-                            <option value="">-- Select State --</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">District</label>
-                        <select name="DistrictId" id="district" class="form-control">
-                            <option value="">-- Select District --</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">City</label>
-                        <select name="CityId" id="city" class="form-control">
-                            <option value="">-- Select City --</option>
-                        </select>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Door</label>
-                            <input type="text" id="door_no" name="door_no" class="form-control" />
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Area</label>
-                            <input type="text" id="area" name="area" class="form-control" />
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Landmark</label>
-                        <input type="text" id="landmark" name="landmark" class="form-control" />
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Address Type</label><br />
-                        <div class="btn-group" role="group">
-                            <input type="radio" class="btn-check" name="addresses_type" id="home" value="home" checked />
-                            <label class="btn btn-outline-primary" for="home">🏠 Home</label>
-                            <input type="radio" class="btn-check" name="addresses_type" id="work" value="work" />
-                            <label class="btn btn-outline-primary" for="work">💼 Work</label>
-                            <input type="radio" class="btn-check" name="addresses_type" id="other" value="other" />
-                            <label class="btn btn-outline-primary" for="other">📍 Other</label>
-                        </div>
-                    </div>
+            <!-- Modal Body -->
+            <div class="modal-body">
+                <!-- Google Map -->
+                <div class="mb-3">
+                    <div id="map" style="width: 100%; height: 170px; border-radius: 10px; border: 1px solid #ddd;"></div>
                 </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn btn-primary w-100">SAVE ADDRESS & PROCEED</button>
+
+                <!-- Address Fields -->
+                <div class="mb-3">
+                    <label class="form-label">Country</label>
+                    <input type="text" value="India" class="form-control" />
                 </div>
-            </form>
+
+                <div class="mb-3">
+                    <label class="form-label">state</label>
+                    <select name="state" class="form-control">
+                        <option>Gujart</option>
+                        <option>Maharashtr</option>
+                        <option>Goa</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">District</label>
+                    <select name="district" class="form-control">
+                        <option>Valsad</option>
+                        <option>Surat</option>
+                        <option>Ahmedabad</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">City</label>
+                    <select name="city" class="form-control">
+                        <option>Valsad</option>
+                        <option>pardi</option>
+                        <option>atual</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <input type="text" class="form-control" placeholder="Door / Flat No.">
+                </div>
+
+                <div class="mb-3">
+                    <input type="text" class="form-control" placeholder="Area">
+                </div>
+
+                <div class="mb-3">
+                    <input type="text" class="form-control" placeholder="Landmark">
+                </div>
+
+                <!-- Address Type Selection -->
+                <div class="btn-group w-100">
+                    <button type="button" class="btn btn-outline-secondary">🏠 Home</button>
+                    <button type="button" class="btn btn-outline-secondary">💼 Work</button>
+                    <button type="button" class="btn btn-outline-secondary">📍 Other</button>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary w-100">SAVE ADDRESS & PROCEED</button>
+            </div>
         </div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-    // Global variables
-    let selectedAddressId = null;
-    let map;
-    let marker;
-
-    // Initialize map when modal is shown
-    $('#addressModal').on('shown.bs.modal', function() {
-        if (!map) {
-            map = new mapboxgl.Map({
-                container: 'map',
-                style: 'mapbox://styles/mapbox/streets-v11',
-                center: [72.8311, 21.1702],
-                zoom: 10
-            });
-
-            map.addControl(new mapboxgl.NavigationControl());
-
-            map.on('click', function(e) {
-                const lng = e.lngLat.lng;
-                const lat = e.lngLat.lat;
-
-                $('#latitude').val(lat);
-                $('#longitude').val(lng);
-
-                if (marker) marker.remove();
-
-                marker = new mapboxgl.Marker({ draggable: true })
-                    .setLngLat([lng, lat])
-                    .addTo(map);
-
-                marker.on('dragend', function() {
-                    const lngLat = marker.getLngLat();
-                    $('#latitude').val(lngLat.lat);
-                    $('#longitude').val(lngLat.lng);
-                });
-            });
-        }
-    });
-
-    // Document ready function
-    $(document).ready(function() {
-        // Calculate totals on page load
-        calculateTotals();
-        updateTotalWithCoupon();
-        updateCartUI();
-
-        // Address selection
-        $(document).on('change', '.address-radio', function() {
-            selectedAddressId = $(this).data('address-id');
-            console.log("Selected Address ID:", selectedAddressId);
+    function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: 22.5726, lng: 88.3639 }, // Default location (Kolkata, India)
+            zoom: 14,
         });
 
-        // Payment button click
-        $(document).on('click', '#orderNowBtn', function() {
-            if (!selectedAddressId) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Address Required',
-                    text: 'Please select a delivery address.',
-                    confirmButtonColor: '#3085d6',
-                });
-                return;
-            }
-            makePayment(selectedAddressId);
+        var marker = new google.maps.Marker({
+            position: map.getCenter(),
+            map: map,
+            draggable: true,
         });
 
-        // Quantity controls
-        $(document).on('click', '.qty-plus', function() {
-            const qtyEl = $(this).siblings('.qty');
-            const cartItemId = $(this).closest('.cart-item').data('cart-item-id');
-            const newQty = parseInt(qtyEl.text()) + 1;
-
-            qtyEl.text(newQty);
-            calculateTotals();
-            updateCartItemQuantity(cartItemId, newQty);
-            updateCartUI();
-        });
-
-        $(document).on('click', '.qty-minus', function() {
-            const qtyEl = $(this).siblings('.qty');
-            const cartItemId = $(this).closest('.cart-item').data('cart-item-id');
-            let newQty = parseInt(qtyEl.text()) - 1;
-            if (newQty < 1) newQty = 1;
-
-            qtyEl.text(newQty);
-            calculateTotals();
-            updateCartItemQuantity(cartItemId, newQty);
-            updateCartUI();
-        });
-
-        // Remove item
-        $(document).on('click', '.btn-remove', function() {
-            const cartItemId = $(this).closest('.cart-item').data('cart-item-id');
-            removeCartItem(cartItemId);
-            updateCartUI();
-        });
-
-        // Load states
-        $.ajax({
-            url: '/displayCart/GetAllStates',
-            type: 'GET',
-            success: function(states) {
-                $('#state').empty().append('<option value="">-- Select State --</option>');
-                $.each(states, function(i, state) {
-                    $('#state').append(`<option value="${state.stateId}">${state.stateName}</option>`);
-                });
-            }
-        });
-
-        // State → District
-        $('#state').change(function() {
-            const stateId = $(this).val();
-            $.ajax({
-                url: '/displayCart/GetDistricts',
-                type: 'GET',
-                data: { stateId: stateId },
-                success: function(districts) {
-                    $('#district').empty().append('<option value="">-- Select District --</option>');
-                    $.each(districts, function(i, district) {
-                        $('#district').append(`<option value="${district.districtId}">${district.disrictName}</option>`);
-                    });
+        // Get address when marker is moved
+        google.maps.event.addListener(marker, 'dragend', function () {
+            var latlng = marker.getPosition();
+            var geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ 'location': latlng }, function (results, status) {
+                if (status === 'OK' && results[0]) {
+                    $('#address').val(results[0].formatted_address);
                 }
             });
         });
-
-        // District → City
-        $('#district').change(function() {
-            const districtId = $(this).val();
-            $.ajax({
-                url: '/displayCart/GetCities',
-                type: 'GET',
-                data: { districtId: districtId },
-                success: function(cities) {
-                    $('#city').empty().append('<option value="">-- Select City --</option>');
-                    $.each(cities, function(i, city) {
-                        $('#city').append(`<option value="${city.cityId}">${city.cityName}</option>`);
-                    });
-                }
-            });
-        });
-
-        // Address form submission
-        $('#addressForm').on('submit', function(e) {
-            e.preventDefault();
-            const form = $(this);
-            const formData = form.serializeArray();
-
-            formData.push(
-                { name: "latitude", value: $('#latitude').val() },
-                { name: "longitude", value: $('#longitude').val() },
-                { name: "address", value: $('#address').val() }
-            );
-
-            $.ajax({
-                type: "POST",
-                url: form.attr('action'),
-                data: $.param(formData),
-                success: function(response) {
-                    if (response.success) {
-                        Swal.fire({
-                            icon: 'success',
-                            title: 'Address Saved',
-                            text: response.message,
-                            confirmButtonColor: '#3085d6',
-                        });
-                        $('#addressModal').modal('hide');
-                        form.trigger('reset');
-                    } else {
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Error',
-                            text: response.message,
-                            confirmButtonColor: '#3085d6',
-                        });
-                    }
-                },
-                error: function() {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Something went wrong while saving address.',
-                        confirmButtonColor: '#3085d6',
-                    });
-                }
-            });
-        });
-
-        // Coupon modal
-        $('#couponModal').on('shown.bs.modal', function() {
-            $('#couponListContainer').load('/displayCart/GetAllCoupons');
-        });
-    });
-
-    // Update cart UI based on total
-    function updateCartUI() {
-        const grandTotal = parseFloat($('#final-total').text()) || 0;
-        const $warning = $('#minimumAmountWarning');
-        const $summary = $('.card.p-3'); // Target the order summary card
-        const $payBtn = $('#orderNowBtn');
-
-        if (grandTotal < 1) {
-            $warning.show();
-            $summary.addClass('low-amount');
-            $payBtn.prop('disabled', true)
-                   .removeClass('btn-outline-success')
-                   .addClass('btn-secondary')
-                   .attr('title', 'Minimum order amount is ₹1');
-        } else {
-            $warning.hide();
-            $summary.removeClass('low-amount');
-            $payBtn.prop('disabled', false)
-                   .addClass('btn-outline-success')
-                   .removeClass('btn-secondary')
-                   .removeAttr('title');
-        }
     }
 
-    // Calculate totals function
-    function calculateTotals() {
-        let grandTotal = 0;
-
-        $('.menu-item').each(function() {
-            const price = parseFloat($(this).data('price'));
-            const qty = parseInt($(this).find('.qty').text());
-            const total = price * qty;
-
-            $(this).find('.item-total').text('₹' + total.toFixed(2));
-            grandTotal += total;
-        });
-
-        $('#grand-total').text(grandTotal.toFixed(2));
-        $('#final-total').text(grandTotal.toFixed(2));
-        $('#razor-amount').val(grandTotal.toFixed(2));
-
-        return grandTotal;
-    }
-
-    // Update cart item quantity
-    function updateCartItemQuantity(cartItemId, quantity) {
-        $.ajax({
-            url: '/displayCart/UpdateCartItemQuantity',
-            method: 'POST',
-            data: {
-                cartItemId: cartItemId,
-                quantity: quantity
-            },
-            success: function(response) {
-                if (!response.success) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error',
-                        text: 'Failed to update quantity',
-                        confirmButtonColor: '#3085d6',
-                    });
-                }
-            }
-        });
-    }
-
-    // Remove cart item
-    function removeCartItem(cartItemId) {
-        Swal.fire({
-            title: 'Remove Item',
-            text: 'Are you sure you want to remove this item?',
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Yes, remove it!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                $.ajax({
-                    url: '/displayCart/RemoveCartItem',
-                    method: 'POST',
-                    data: { cartItemId: cartItemId },
-                    success: function(response) {
-                        if (response.success) {
-                            $('.cart-item[data-cart-item-id="' + cartItemId + '"]').closest('.p-2').remove();
-                            calculateTotals();
-                            updateCartUI();
-                        } else {
-                            Swal.fire({
-                                icon: 'error',
-                                title: 'Error',
-                                text: 'Failed to remove item',
-                                confirmButtonColor: '#3085d6',
-                            });
-                        }
-                    }
-                });
-            }
-        });
-    }
-
-    // Update total with coupon
-    function updateTotalWithCoupon() {
-        $.ajax({
-            url: '/displayCart/GetGrandTotalWithCoupon',
-            type: 'GET',
-            success: function(res) {
-                $('#grand-total').text(res.grandTotal.toFixed(2));
-                $('#discount').text(res.discount.toFixed(2));
-                $('#final-total').text(res.finalTotal.toFixed(2));
-                $('#razor-amount').val(res.finalTotal);
-                updateCartUI();
-            }
-        });
-    }
-
-    // Make payment function
-    function makePayment(addressId) {
-        const grandTotal = parseFloat($('#final-total').text());
-        const customerId = $('#customerId').val();
-
-        // Show loading state
-        const $payBtn = $('#orderNowBtn');
-        $payBtn.prop('disabled', true).html('<span class="spinner-border spinner-border-sm"></span> Processing...');
-
-        // Validate minimum amount
-        if (grandTotal < 1) {
-            $payBtn.prop('disabled', false).text('Pay Now');
-            Swal.fire({
-                icon: 'error',
-                title: 'Minimum Order Amount',
-                text: 'Order amount must be at least ₹1. Please add more items to your cart.',
-                confirmButtonColor: '#3085d6',
-            });
-            return;
-        }
-
-        const orderItems = [];
-        $('.cart-item').each(function() {
-            const menu_id = $(this).data('product-id');
-            const quantity = parseInt($(this).find('.qty').text());
-            const price = parseFloat($(this).data('price'));
-
-            orderItems.push({
-                menu_id: menu_id,
-                quantity: quantity,
-                listprice: price,
-                discount: 0
-            });
-        });
-
-        fetch('/displayCart/InitiateOrder', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-            },
-            body: JSON.stringify({
-                amount: grandTotal,
-                OrderItems: orderItems,
-                address_id: addressId,
-                CustomerId: customerId
-            })
-        })
-        .then(response => {
-            if (!response.ok) throw new Error('Network response was not ok');
-            return response.json();
-        })
-        .then(data => {
-            $payBtn.prop('disabled', false).text('Pay Now');
-
-            if (data.minimumAmountError) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Order Too Small',
-                    text: data.message,
-                    confirmButtonColor: '#3085d6',
-                });
-                return;
-            }
-
-            if (!data.success) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Payment Error',
-                    text: data.message || 'Failed to initiate payment',
-                    confirmButtonColor: '#3085d6',
-                });
-                return;
-            }
-
-            const options = {
-                key: "rzp_test_uIxZbgotqYKcAK",
-                amount: data.amount,
-                currency: "INR",
-                name: "Foodie Order",
-                description: "Order Payment",
-                order_id: data.orderId,
-                handler: function(response) {
-                    verifyPayment(response, grandTotal, addressId, customerId);
-                },
-                prefill: {
-                    name: "@userName",
-                    contact: "@phone",
-                    email: ""
-                },
-                theme: {
-                    color: "#3399cc"
-                },
-                modal: {
-                    ondismiss: function() {
-                        $payBtn.prop('disabled', false).text('Pay Now');
-                    }
-                }
-            };
-
-            const rzp1 = new Razorpay(options);
-            rzp1.open();
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            $payBtn.prop('disabled', false).text('Pay Now');
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'An error occurred. Please try again.',
-                confirmButtonColor: '#3085d6',
-            });
-        });
-    }
-
-    function verifyPayment(response, amount, addressId, customerId) {
-        fetch('/displayCart/Success', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
-            },
-            body: JSON.stringify({
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_signature: response.razorpay_signature,
-                amount: amount,
-                addressId: addressId,
-                customerId: customerId
-            })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Payment Successful',
-                    text: 'Your order has been placed successfully!',
-                    confirmButtonColor: '#3085d6',
-                }).then(() => {
-                    window.location.href = '/displayCart/ThankYou';
-                });
-            } else {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Payment Verification Failed',
-                    text: data.message || 'Could not verify your payment',
-                    confirmButtonColor: '#3085d6',
-                });
-            }
-        });
-    }
+    // Load Google Maps API
 </script>
+@* <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCZUhf2Ol83gsHZ9YaA_aOIy01pry_Bh7I&callback=initMap" async defer></script> *@

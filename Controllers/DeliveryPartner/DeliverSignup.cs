@@ -6,8 +6,14 @@ using Microsoft.Data.SqlClient;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Foodie.Models;
+using Foodie.Models.DeliveryPartner;
 using Microsoft.Extensions.Configuration;
 using Foodie.Models.DeliveryPartner;
+using Foodie.Models.Admin;
+using Foodie.ViewModels;
+
+
+
 
 namespace Foodie.Controllers.DeliveryPartner
 {
@@ -23,7 +29,7 @@ namespace Foodie.Controllers.DeliveryPartner
         {
             _configuration = configuration;
             _webHostEnvironment = webHostEnvironment;
-            _env = webHostEnvironment; // ✅ FIX: Assign the passed-in value to _env
+            _env = webHostEnvironment;
             _connStr = configuration.GetConnectionString("DefaultConnection");
         }
 
@@ -48,26 +54,29 @@ namespace Foodie.Controllers.DeliveryPartner
 
         [HttpPost]
         [Route("d/register")]
-        public IActionResult DeliveryRegister(tbl_deliveryPartners partner)
+        public async Task<IActionResult> DeliveryRegister(tbl_deliveryPartners partner)
         {
             ViewData["Layout"] = "_DeliveryPartnerLayout";
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                return View("DeliveryRegister", partner); // Return view with validation messages
+
+                //await CheckAndUpdatePartnerStatusAsync(partner.partner_id);
+
+                return View("DeliveryRegister", partner);
             }
 
             try
             {
                 using (SqlConnection conn = new SqlConnection(GetConnectionString()))
                 {
-                     conn.Open();
+                    await conn.OpenAsync();
 
                     // Check if email already exists
                     using (SqlCommand checkCmd = new SqlCommand("SELECT COUNT(*) FROM deliverypartner.tbl_deliveryPartners WHERE Email = @Email", conn))
                     {
                         checkCmd.Parameters.AddWithValue("@Email", partner.Email);
-                        int emailExists = (int) checkCmd.ExecuteScalar();
+                        int emailExists = (int)await checkCmd.ExecuteScalarAsync();
 
                         if (emailExists > 0)
                         {
@@ -76,17 +85,25 @@ namespace Foodie.Controllers.DeliveryPartner
                         }
                     }
 
-                    // Call stored procedure to insert
+                    // Call stored procedure to register
                     using (SqlCommand cmd = new SqlCommand("sp_RegisterDeliveryPartner", conn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
+
                         cmd.Parameters.AddWithValue("@FullName", partner.FullName);
-                        cmd.Parameters.AddWithValue("@ContactNumber", Convert.ToInt64(partner.ContactNumber));
+                        cmd.Parameters.AddWithValue("@ContactNumber", partner.ContactNumber); // already string (nvarchar)
                         cmd.Parameters.AddWithValue("@Email", partner.Email);
                         cmd.Parameters.AddWithValue("@Password", partner.Password);
-                        cmd.Parameters.AddWithValue("@CreatedAT", DateTime.Now);
 
-                        int rowsAffected =  cmd.ExecuteNonQuery();
+                        // These are optional or default values set in SP
+                        cmd.Parameters.AddWithValue("@Status", "Inactive");         // or "Offline"
+                        cmd.Parameters.AddWithValue("@CreatedAT", DateTime.Now);
+                        cmd.Parameters.AddWithValue("@isApprov", 0);
+                        cmd.Parameters.AddWithValue("@isOnline", 0);
+                        cmd.Parameters.AddWithValue("@Isavailable", 0);
+
+                        int rowsAffected = await cmd.ExecuteNonQueryAsync();
+
                         if (rowsAffected > 0)
                         {
                             TempData["Success"] = "Registration successful. Please wait for admin approval.";
@@ -105,6 +122,7 @@ namespace Foodie.Controllers.DeliveryPartner
         }
 
 
+
         [Route("d/login")]
         public IActionResult DeliveryLogin()
         {
@@ -113,28 +131,30 @@ namespace Foodie.Controllers.DeliveryPartner
 
         [HttpPost]
         [Route("d/login")]
-        public IActionResult DeliveryLogin(string Email, string Password)
+        public async Task<IActionResult> DeliveryLogin(string Email, string Password)
         {
-            var partner = GetPartnerByEmailAndPassword(Email, Password);
+            var partner = await GetPartnerByEmailAndPasswordAsync(Email, Password);
 
             if (partner != null)
             {
-                 UpdateLastLogin(partner.partner_id);
-                 SignInUser(partner);
+                //await CheckAndUpdatePartnerStatusAsync(partner.partner_id);
+
+                await UpdateLastLoginAsync(partner.partner_id);
+                await SignInUser(partner);
                 return HandleLoginRedirect(partner.Status);
             }
 
             TempData["Error"] = "Invalid email or password.";
-            return RedirectToAction("Dashboard", "DeliverSignup");
+            return RedirectToAction("DeliveryLogin");
         }
 
-        public  tbl_deliveryPartners GetPartnerByEmailAndPassword(string Email, string Password)
+        public async Task<tbl_deliveryPartners> GetPartnerByEmailAndPasswordAsync(string Email, string Password)
         {
             tbl_deliveryPartners partner = null;
 
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
-                 conn.Open();
+                await conn.OpenAsync();
 
                 using (SqlCommand cmd = new SqlCommand("sp_AuthDeliveryPartner", conn))
                 {
@@ -142,15 +162,18 @@ namespace Foodie.Controllers.DeliveryPartner
                     cmd.Parameters.AddWithValue("@Email", Email);
                     cmd.Parameters.AddWithValue("@Password", Password);
 
-                    using (SqlDataReader reader =  cmd.ExecuteReader())
+                    using (SqlDataReader reader = await cmd.ExecuteReaderAsync())
                     {
-                        if ( reader.Read())
+                        if (await reader.ReadAsync())
                         {
                             partner = new tbl_deliveryPartners
                             {
                                 partner_id = Convert.ToInt32(reader["partner_id"]),
                                 Email = reader["Email"].ToString(),
-                                Status = reader["Status"].ToString()
+                                FullName = reader["FullName"].ToString(),
+                                Status = reader["Status"].ToString(),
+                                isOnline = Convert.ToBoolean(reader["isOnline"]),
+                                isApprov = Convert.ToBoolean(reader["isApprov"])
                             };
                         }
                     }
@@ -160,36 +183,31 @@ namespace Foodie.Controllers.DeliveryPartner
             return partner;
         }
 
-        private void UpdateLastLogin(int partner_id)
+
+        private async Task UpdateLastLoginAsync(int partner_id)
         {
             using (SqlConnection conn = new SqlConnection(GetConnectionString()))
             {
-                conn.Open();
+                await conn.OpenAsync();
 
                 using (SqlCommand cmd = new SqlCommand("UpdateLastLogin", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@PartnerId", partner_id);
-                    cmd.ExecuteNonQuery();
+                    await cmd.ExecuteNonQueryAsync();
                 }
             }
         }
 
-        private void SignInUser(tbl_deliveryPartners partner)
+        private async Task SignInUser(tbl_deliveryPartners partner)
         {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, partner.Email),
-                new Claim("PartnerId", partner.partner_id.ToString()),
-                new Claim(ClaimTypes.Role, "DeliveryPartner")
-            };
-
-            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var principal = new ClaimsPrincipal(identity);
-
-             HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal);
             HttpContext.Session.SetInt32("PartnerId", partner.partner_id);
+            HttpContext.Session.SetString("FullName", partner.FullName ?? "");
+            HttpContext.Session.SetInt32("isOnline", partner.isOnline ? 1 : 0);
+            HttpContext.Session.SetInt32("isApprov", partner.isApprov ? 1 : 0);
+            //HttpContext.Session.SetString("Status", partner.Status);
         }
+
 
         private IActionResult HandleLoginRedirect(string status)
         {
@@ -259,7 +277,7 @@ namespace Foodie.Controllers.DeliveryPartner
         }
 
         [HttpPost("d/details")]
-        public  IActionResult Per_Details(tbl_deliveryPartnerDetails per, IFormFile profileImage)
+        public async Task<IActionResult> Per_Details(tbl_deliveryPartnerDetails per, IFormFile profileImage)
         {
             var partnerId = HttpContext.Session.GetInt32("PartnerId");
 
@@ -271,11 +289,10 @@ namespace Foodie.Controllers.DeliveryPartner
 
             string uniqueFileName = null;
 
-            // 📁 Save profile image if uploaded
             if (profileImage != null && profileImage.Length > 0)
             {
                 string uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-                Directory.CreateDirectory(uploadsFolder); // Ensure folder exists
+                Directory.CreateDirectory(uploadsFolder);
 
                 string fileExtension = Path.GetExtension(profileImage.FileName);
                 uniqueFileName = Guid.NewGuid().ToString() + fileExtension;
@@ -283,7 +300,7 @@ namespace Foodie.Controllers.DeliveryPartner
 
                 using (var fileStream = new FileStream(filePath, FileMode.Create))
                 {
-                     profileImage.CopyTo(fileStream);
+                    await profileImage.CopyToAsync(fileStream);
                 }
 
                 per.ProfilePicture = uniqueFileName;
@@ -293,7 +310,9 @@ namespace Foodie.Controllers.DeliveryPartner
             {
                 con.Open();
 
-                // 🔍 Check if details already exist
+
+                bool detailsExist = false;
+
                 using (SqlCommand checkCmd = new SqlCommand("sp_GetDeliveryPartnerDetailsById", con))
                 {
                     checkCmd.CommandType = CommandType.StoredProcedure;
@@ -303,13 +322,18 @@ namespace Foodie.Controllers.DeliveryPartner
                     {
                         if (reader.HasRows)
                         {
-                            TempData["Error"] = "Your personal details already exist. You can update them from your profile.";
-                            return RedirectToAction("BankDetails");
+                            detailsExist = true;
                         }
                     }
                 }
 
-                // ✅ Insert details
+                if (detailsExist)
+                {
+                    TempData["Error"] = "Your personal details already exist. You can update them from your profile.";
+                    return RedirectToAction("BankDetails");
+                }
+
+
                 using (SqlCommand cmd = new SqlCommand("sp_InsertDeliveryPartnerDetails", con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -320,6 +344,7 @@ namespace Foodie.Controllers.DeliveryPartner
 
                     cmd.ExecuteNonQuery();
                 }
+
             }
 
             TempData["Success"] = "Details saved successfully. Proceed to enter your vehicle details.";
@@ -329,7 +354,7 @@ namespace Foodie.Controllers.DeliveryPartner
 
 
 
-        // 🎯 Get All Delivery Partner Details
+
         [HttpGet("all")]
         public IActionResult GetAllDetails()
         {
@@ -363,7 +388,7 @@ namespace Foodie.Controllers.DeliveryPartner
             return View("~/Views/DeliverSignup/Profile.cshtml", ProfileList);
         }
 
-        // 🎯 Update Delivery Partner Details
+
         [HttpPost("update")]
         public IActionResult UpdateDetails(tbl_deliveryPartnerDetails model)
         {
@@ -393,7 +418,7 @@ namespace Foodie.Controllers.DeliveryPartner
             return View("~/Views/DeliverSignup/Per_Details.cshtml", model);
         }
 
-        // 🎯 Delete Delivery Partner Details
+
         [HttpPost("delete/{id}")]
         public IActionResult DeleteDetails(int id)
         {
@@ -416,10 +441,11 @@ namespace Foodie.Controllers.DeliveryPartner
         }
 
 
-        // 🎯 Additional CRUD Pages
+
 
         [HttpGet("d/vehicle")]
-        public IActionResult VehicleDetails() {
+        public IActionResult VehicleDetails()
+        {
             return View();
         }
 
@@ -463,7 +489,7 @@ namespace Foodie.Controllers.DeliveryPartner
                         newVehicleId = Convert.ToInt32(outputParam.Value);
                     }
 
-                    // Now update tbl_deliveryPartners with new vehicle_id
+
                     using (SqlCommand updateCmd = new SqlCommand("UPDATE [deliverypartner].[tbl_deliveryPartners] SET vehicle_id = @vehicle_id WHERE partner_id = @partner_id", con))
                     {
                         updateCmd.Parameters.AddWithValue("@vehicle_id", newVehicleId);
@@ -537,7 +563,7 @@ namespace Foodie.Controllers.DeliveryPartner
 
             using (SqlConnection con = new SqlConnection(GetConnectionString()))
             {
-                SqlCommand cmd = new SqlCommand("sp_GetBankDetailsByPartnerId", con);
+                SqlCommand cmd = new SqlCommand("SP_GetBankDetailsByPartnerId", con);
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.Add("@partner_id", SqlDbType.Int).Value = partnerId; // FIXED PARAMETER NAME
 
@@ -588,7 +614,7 @@ namespace Foodie.Controllers.DeliveryPartner
             return RedirectToAction("Document"); // Reload the page after saving
         }
 
-        // 🟢 Separate Method to Insert Bank Details
+
         private void InsertBankDetails(tbl_deliveryPartnerPaymentDetails model)
         {
             using (SqlConnection con = new SqlConnection(GetConnectionString()))
@@ -609,7 +635,7 @@ namespace Foodie.Controllers.DeliveryPartner
             }
         }
 
-        // 🟢 Separate Method to Update Bank Details
+
         private void UpdateBankDetails(tbl_deliveryPartnerPaymentDetails model)
         {
             using (SqlConnection con = new SqlConnection(GetConnectionString()))
@@ -631,7 +657,7 @@ namespace Foodie.Controllers.DeliveryPartner
             }
         }
 
-        // 🟢 Delete Bank Details
+
         [HttpPost]
         public IActionResult DeleteBankDetails(int paymentDetailId, int partnerId)
         {
@@ -717,13 +743,164 @@ namespace Foodie.Controllers.DeliveryPartner
             }
 
             TempData["Success"] = isExisting ? "Documents updated successfully!" : "Documents uploaded successfully!";
-            return RedirectToAction("PendingApproval");
+            return RedirectToAction("PaySignupFee");
         }
 
         [Route("d/dash")]
         public IActionResult Dashboard()
         {
-            return View();
+            int partnerId = HttpContext.Session.GetInt32("PartnerId") ?? 0;
+            int isOnline = HttpContext.Session.GetInt32("isOnline") ?? 0;
+
+            var model = new DashViewModel();
+
+
+            using (SqlConnection conn = new SqlConnection(_connStr))
+            {
+                conn.Open();
+
+                // ✅ Today Summary
+                SqlCommand todayCmd = new SqlCommand("deliverypartner.sp_GetTodaySummary", conn);
+                todayCmd.CommandType = CommandType.StoredProcedure;
+                todayCmd.Parameters.AddWithValue("@PartnerId", partnerId);
+                using (SqlDataReader reader = todayCmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        model.OrdersDelivered = reader.GetInt32(0);
+                        model.TotalEarnings = reader.GetDecimal(1);
+                    }
+                }
+
+                // ✅ Weekly Earnings
+                SqlCommand weekCmd = new SqlCommand("deliverypartner.sp_GetWeeklyEarnings", conn);
+                weekCmd.CommandType = CommandType.StoredProcedure;
+                weekCmd.Parameters.AddWithValue("@PartnerId", partnerId);
+                using (SqlDataReader reader = weekCmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        model.WeeklyLabels.Add(reader.GetString(0));
+                        model.WeeklyEarnings.Add(reader.GetDecimal(1));
+                    }
+                }
+
+                // ✅ Order Status Breakdown
+                SqlCommand statusCmd = new SqlCommand("deliverypartner.sp_GetOrderStatusSummary", conn);
+                statusCmd.CommandType = CommandType.StoredProcedure;
+                statusCmd.Parameters.AddWithValue("@PartnerId", partnerId);
+                using (SqlDataReader reader = statusCmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        model.OrderStatusLabels.Add(reader.GetString(0));
+                        model.OrderStatusCounts.Add(reader.GetInt32(1));
+                    }
+                }
+
+                conn.Close();
+            }
+
+            using (SqlConnection con = new SqlConnection(_connStr))
+            {
+                using (SqlCommand cmd = new SqlCommand("deliverypartner.sp_GetAssignedOrders", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    con.Open();
+
+                    using (SqlDataReader rdr = cmd.ExecuteReader())
+                    {
+                        if (rdr.Read()) // Get the first assigned order
+                        {
+                            model.RestaurantLat = rdr["restaurant_lat"].ToString();
+                            model.RestaurantLng = rdr["restaurant_lag"].ToString();
+                            model.CustomerLat = rdr["customer_latitude"].ToString();
+                            model.CustomerLng = rdr["customer_longitude"].ToString();
+                        }
+                    }
+                }
+            }
+
+            // ✅ Fetch latest delivery request status (to show/hide customer)
+            using (SqlConnection conn = new SqlConnection(_connStr))
+            {
+                conn.Open();
+                SqlCommand cmd = new SqlCommand(@"
+            SELECT TOP 1 RequestStatus
+            FROM deliverypartner.tbl_deliveryRequest
+            ORDER BY request_id DESC", conn);
+
+                var status = cmd.ExecuteScalar()?.ToString() ?? "Pending";
+                ViewBag.RequestStatus = status;
+            }
+
+            // 🔁 Optional fallback dummy data
+            model.OrdersDelivered = 7;
+            model.TotalEarnings = 2350.50m;
+            model.WeeklyLabels = new List<string> { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+            model.WeeklyEarnings = new List<decimal> { 200, 300, 150, 400, 450, 500, 350 };
+            model.OrderStatusLabels = new List<string> { "Delivered", "In Transit", "Cancelled" };
+            model.OrderStatusCounts = new List<int> { 12, 3, 1 };
+
+            return View("Dashboard", model);
+        }
+
+
+
+        [HttpPost]
+        [Route("d/toggle-status")]
+        public IActionResult ToggleStatusForm()
+        {
+            int? partnerId = HttpContext.Session.GetInt32("PartnerId");
+            if (partnerId == null) return RedirectToAction("DeliveryLogin");
+
+            int currentStatus = HttpContext.Session.GetInt32("isOnline") ?? 0;
+            int newStatus = currentStatus == 1 ? 0 : 1;
+
+            HttpContext.Session.SetInt32("isOnline", newStatus);
+
+            using (SqlConnection con = new SqlConnection(_connStr))
+            {
+                string query = "UPDATE deliverypartner.tbl_deliveryPartners SET Isavailable = @status WHERE partner_id = @id";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@status", newStatus);
+                cmd.Parameters.AddWithValue("@id", partnerId);
+                con.Open();
+                cmd.ExecuteNonQuery();
+                con.Close();
+            }
+
+            return RedirectToAction("Dashboard");
+        }
+
+
+        [HttpGet("d/GetAvailableRestaurants")]
+        public IActionResult GetAvailableRestaurants()
+        {
+            var restaurants = new List<dynamic>();
+
+            using (SqlConnection con = new SqlConnection(GetConnectionString()))
+            {
+                using (SqlCommand cmd = new SqlCommand("deliverypartner.GetAvailableRestaurants", con))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    con.Open();
+                    using (SqlDataReader rdr = cmd.ExecuteReader())
+                    {
+                        while (rdr.Read())
+                        {
+                            restaurants.Add(new
+                            {
+                                restaurant_id = rdr["restaurant_id"],
+                                restaurant_name = rdr["restaurant_name"].ToString(),
+                                restaurant_lat = rdr["restaurant_lat"].ToString(),
+                                restaurant_lag = rdr["restaurant_lag"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+            return Json(restaurants);
         }
 
         [Route("d/pending")]
@@ -737,53 +914,300 @@ namespace Foodie.Controllers.DeliveryPartner
         {
             return View();
         }
+        [Route("d/terms")]
+        public IActionResult Terms()
+        {
+            return View();
+        }
 
         [HttpGet("d/profile")]
         public IActionResult Profile()
         {
-            var partnerId = HttpContext.Session.GetInt32("PartnerId");
-
+            int? partnerId = HttpContext.Session.GetInt32("PartnerId");
             if (partnerId == null)
             {
-                TempData["Error"] = "Please log in to view your profile.";
+                TempData["Error"] = "Please log in to access your profile.";
                 return RedirectToAction("DeliveryLogin");
             }
 
-            tbl_deliveryPartnerDetails partnerDetails = null;
+            var model = new DeliveryPartnerProfileViewModel
+            {
+                PartnerId = partnerId.Value
+            };
 
             using (SqlConnection con = new SqlConnection(GetConnectionString()))
             {
+                con.Open();
+
+                // 1. Personal Details
                 using (SqlCommand cmd = new SqlCommand("sp_GetDeliveryPartnerDetailsById", con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@partner_id", partnerId);
-
-                    con.Open();
+                    cmd.Parameters.AddWithValue("@partner_id", partnerId.Value);
                     using (SqlDataReader reader = cmd.ExecuteReader())
                     {
                         if (reader.Read())
                         {
-                            partnerDetails = new tbl_deliveryPartnerDetails
-                            {
-                                detail_id = Convert.ToInt32(reader["detail_id"]),
-                                partner_id = Convert.ToInt32(reader["partner_id"]),
-                                ProfilePicture = reader["ProfilePicture"].ToString(),
-                                AadhaarNumber = reader["AadhaarNumber"].ToString(),
-                                PANNumber = reader["PANNumber"].ToString()
-                            };
+                            model.DetailId = Convert.ToInt32(reader["detail_id"]);
+                            model.AadhaarNumber = reader["AadhaarNumber"].ToString();
+                            model.PANNumber = reader["PANNumber"].ToString();
+                            model.ProfilePicture = reader["ProfilePicture"].ToString();
+                        }
+                    }
+                }
+
+                // 2. Vehicle Info
+                using (SqlCommand cmd = new SqlCommand("SELECT TOP 1 * FROM deliverypartner.tbl_deliveryVehicle WHERE partner_id = @partner_id", con))
+                {
+                    cmd.Parameters.AddWithValue("@partner_id", partnerId.Value);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            model.VehicleType = reader["VehicleType"].ToString();
+                            model.LicensePlate = reader["LicensePlate"].ToString();
+                        }
+                    }
+                }
+
+                // 3. Bank Info
+                using (SqlCommand cmd = new SqlCommand("SELECT TOP 1 * FROM deliverypartner.tbl_deliveryPartnerPaymentDetails WHERE partner_id = @partner_id", con))
+                {
+                    cmd.Parameters.AddWithValue("@partner_id", partnerId.Value);
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            model.BankName = reader["BankName"].ToString();
+                            model.AccountNumber = reader["AccountNumber"].ToString();
+                            model.IFSC_Code = reader["IFSC_Code"].ToString();
                         }
                     }
                 }
             }
 
-            if (partnerDetails == null)
-            {
-                TempData["Error"] = "No details found! Please complete your personal details.";
-                return RedirectToAction("Per_Details");
-            }
-
-            return View("Profile", partnerDetails);
+            return View("Profile", model);
         }
 
+        [HttpPost("d/profile")]
+        public async Task<IActionResult> UpdateProfile(DeliveryPartnerProfileViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["Error"] = "Invalid data submitted.";
+                return View("Profile", model);
+            }
+
+            using (SqlConnection con = new SqlConnection(GetConnectionString()))
+            {
+                await con.OpenAsync();
+
+                // 1. Update Personal Details
+                string updateDetailsQuery = @"
+            IF EXISTS (SELECT 1 FROM deliverypartner.tbl_deliveryPartnerDetails WHERE partner_id = @partner_id)
+            UPDATE deliverypartner.tbl_deliveryPartnerDetails
+            SET AadhaarNumber = @AadhaarNumber, PANNumber = @PANNumber
+            WHERE partner_id = @partner_id
+            ELSE
+            INSERT INTO deliverypartner.tbl_deliveryPartnerDetails (partner_id, AadhaarNumber, PANNumber)
+            VALUES (@partner_id, @AadhaarNumber, @PANNumber)";
+                using (SqlCommand cmd = new SqlCommand(updateDetailsQuery, con))
+                {
+                    cmd.Parameters.AddWithValue("@partner_id", model.PartnerId);
+                    cmd.Parameters.AddWithValue("@AadhaarNumber", model.AadhaarNumber ?? "");
+                    cmd.Parameters.AddWithValue("@PANNumber", model.PANNumber ?? "");
+                    await cmd.ExecuteNonQueryAsync();
+                }
+
+                // 2. Update Vehicle Info
+                string updateVehicleQuery = @"
+            IF EXISTS (SELECT 1 FROM deliverypartner.tbl_deliveryVehicle WHERE partner_id = @partner_id)
+            UPDATE deliverypartner.tbl_deliveryVehicle
+            SET VehicleType = @VehicleType, LicensePlate = @LicensePlate
+            WHERE partner_id = @partner_id
+            ELSE
+            INSERT INTO deliverypartner.tbl_deliveryVehicle (partner_id, VehicleType, LicensePlate)
+            VALUES (@partner_id, @VehicleType, @LicensePlate)";
+                using (SqlCommand cmd = new SqlCommand(updateVehicleQuery, con))
+                {
+                    cmd.Parameters.AddWithValue("@partner_id", model.PartnerId);
+                    cmd.Parameters.AddWithValue("@VehicleType", model.VehicleType ?? "");
+                    cmd.Parameters.AddWithValue("@LicensePlate", model.LicensePlate ?? "");
+                    await cmd.ExecuteNonQueryAsync();
+                }
+
+                // 3. Update Bank Info
+                string updateBankQuery = @"
+            IF EXISTS (SELECT 1 FROM deliverypartner.tbl_deliveryPartnerPaymentDetails WHERE partner_id = @partner_id)
+            UPDATE deliverypartner.tbl_deliveryPartnerPaymentDetails
+            SET BankName = @BankName, AccountNumber = @AccountNumber, IFSCCode = @IFSCCode
+            WHERE partner_id = @partner_id
+            ELSE
+            INSERT INTO deliverypartner.tbl_deliveryPartnerPaymentDetails (partner_id, BankName, AccountNumber, IFSCCode)
+            VALUES (@partner_id, @BankName, @AccountNumber, @IFSCCode)";
+                using (SqlCommand cmd = new SqlCommand(updateBankQuery, con))
+                {
+                    cmd.Parameters.AddWithValue("@partner_id", model.PartnerId);
+                    cmd.Parameters.AddWithValue("@BankName", model.BankName ?? "");
+                    cmd.Parameters.AddWithValue("@AccountNumber", model.AccountNumber ?? "");
+                    cmd.Parameters.AddWithValue("@IFSCCode", model.IFSC_Code ?? "");
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+
+            TempData["Success"] = "Profile updated successfully!";
+            return RedirectToAction("Profile");
+        }
+
+
+        [HttpGet("d/fees")]
+        public IActionResult PaySignupFee()
+        {
+            if (HttpContext.Session.GetInt32("PartnerId") == null)
+            {
+                TempData["Error"] = "Session expired. Please login again.";
+                return RedirectToAction("DeliveryLogin", "DeliveryAccount");
+            }
+            return View();
+        }
+
+        [HttpPost("d/fees")]
+        public IActionResult PaySignupFee(string transactionId)
+        {
+            int? partnerId = HttpContext.Session.GetInt32("PartnerId");
+            if (partnerId == null || string.IsNullOrEmpty(transactionId))
+            {
+                TempData["Error"] = "Invalid payment data.";
+                return RedirectToAction("PaySignupFee");
+            }
+
+            try
+            {
+                using (SqlConnection con = new SqlConnection(GetConnectionString()))
+                {
+                    string checkQuery = "SELECT COUNT(*) FROM admins.tbl_signupFees WHERE partner_id = @partner_id AND Status = 'Completed'";
+                    using (SqlCommand checkCmd = new SqlCommand(checkQuery, con))
+                    {
+                        checkCmd.Parameters.AddWithValue("@partner_id", partnerId);
+                        con.Open();
+                        int count = (int)checkCmd.ExecuteScalar();
+                        con.Close();
+
+                        if (count > 0)
+                        {
+                            TempData["Error"] = "You have already paid the signup fee.";
+                            return RedirectToAction("PendingApproval");
+                        }
+                    }
+
+                    string insertQuery = @"INSERT INTO admins.tbl_signupFees 
+                (partner_id, Amount, PaymentMethod, TransactionID, Status) 
+                VALUES (@partner_id, @Amount, @PaymentMethod, @TransactionID, @Status)";
+
+                    using (SqlCommand cmd = new SqlCommand(insertQuery, con))
+                    {
+                        cmd.Parameters.AddWithValue("@partner_id", partnerId);
+                        cmd.Parameters.AddWithValue("@Amount", 49); // Or fetch from Razorpay webhook if dynamic
+                        cmd.Parameters.AddWithValue("@PaymentMethod", "Razorpay");
+                        cmd.Parameters.AddWithValue("@TransactionID", transactionId);
+                        cmd.Parameters.AddWithValue("@Status", "Completed");
+
+                        con.Open();
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+
+                TempData["Success"] = "Payment successful!";
+                return RedirectToAction("PendingApproval"); // 🔁 Redirect here after payment
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = "Error occurred: " + ex.Message;
+                return RedirectToAction("PaySignupFee");
+            }
+        }
+
+        private async Task CheckAndUpdatePartnerStatusAsync(int partnerId)
+        {
+
+            using (SqlConnection conn = new SqlConnection(GetConnectionString()))
+            {
+                using (SqlCommand cmd = new SqlCommand("sp_CheckAndUpdateStatus", conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@PartnerId", partnerId);
+
+                    await conn.OpenAsync();
+                    await cmd.ExecuteNonQueryAsync();
+                }
+            }
+        }
+
+
+        public IActionResult FeeStatus()
+        {
+            int? partnerId = HttpContext.Session.GetInt32("PartnerId");
+            if (partnerId == null)
+            {
+                TempData["Error"] = "Session expired.";
+                return RedirectToAction("DeliveryLogin", "DeliveryAccount");
+            }
+
+            tbl_signupFees fee = new tbl_signupFees();
+
+            using (SqlConnection con = new SqlConnection(GetConnectionString()))
+            {
+                string query = "SELECT TOP 1 * FROM admins.tbl_signupFees WHERE partner_id = @partner_id ORDER BY PaidAt DESC";
+                using (SqlCommand cmd = new SqlCommand(query, con))
+                {
+                    cmd.Parameters.AddWithValue("@partner_id", partnerId);
+                    con.Open();
+                    SqlDataReader reader = cmd.ExecuteReader();
+                    if (reader.Read())
+                    {
+                        fee.partner_id = Convert.ToInt32(reader["partner_id"]);
+                        fee.Amount = Convert.ToDecimal(reader["Amount"]);
+                        fee.PaymentMethod = reader["PaymentMethod"].ToString();
+                        fee.TransactionID = reader["TransactionID"].ToString();
+                        fee.Status = reader["Status"].ToString();
+                        fee.PaidAt = Convert.ToDateTime(reader["PaidAt"]);
+                    }
+                }
+            }
+
+            return View(fee);
+
+        }
+        public DashViewModel GetTodayDeliverySummary(int partnerId)
+        {
+            DashViewModel summary = new DashViewModel();
+
+            using (SqlConnection conn = new SqlConnection(_configuration.GetConnectionString("DefaultConnection")))
+            {
+                SqlCommand cmd = new SqlCommand("deliverypartner.sp_GetTodayDeliverySummary", conn);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@PartnerId", partnerId);
+
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                if (reader.Read())
+                {
+                    summary.OrdersDelivered = Convert.ToInt32(reader["OrdersDelivered"]);
+                    summary.AvgDeliveryTime = Convert.ToInt32(reader["AvgDeliveryTime"]);
+                    summary.TotalEarnings = Convert.ToDecimal(reader["TotalEarnings"]);
+                }
+                conn.Close();
+            }
+
+            return summary;
+        }
+
+
     }
+    // Fix for CS0229: Ambiguity between 'DeliveryPartnerProfileViewModel.PartnerId' and 'DeliveryPartnerProfileViewModel.PartnerId'
+
+    // The issue arises because the `DeliveryPartnerProfileViewModel` class has duplicate property definitions for `PartnerId`.
+    // To resolve this, remove the duplicate property definition from the `DeliveryPartnerProfileViewModel` class.
+
+    
 }

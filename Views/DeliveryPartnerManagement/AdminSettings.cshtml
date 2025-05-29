@@ -1,0 +1,1020 @@
+﻿@{
+    ViewData["Title"] = "Admin Settings";
+    Layout = ViewBag.Layout ?? "_Admin2Layout";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-gradient-primary">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h4 class="text-white mb-0">Admin Settings</h4>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <ul class="nav nav-tabs mb-4" id="settingsTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="account-tab" data-bs-toggle="tab" data-bs-target="#account-tab-pane" type="button" role="tab" aria-controls="account-tab-pane" aria-selected="true">
+                                <i class="fas fa-user-shield me-2"></i>Account
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="security-tab" data-bs-toggle="tab" data-bs-target="#security-tab-pane" type="button" role="tab" aria-controls="security-tab-pane" aria-selected="false">
+                                <i class="fas fa-lock me-2"></i>Security
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="system-tab" data-bs-toggle="tab" data-bs-target="#system-tab-pane" type="button" role="tab" aria-controls="system-tab-pane" aria-selected="false">
+                                <i class="fas fa-cogs me-2"></i>System
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="notification-tab" data-bs-toggle="tab" data-bs-target="#notification-tab-pane" type="button" role="tab" aria-controls="notification-tab-pane" aria-selected="false">
+                                <i class="fas fa-bell me-2"></i>Notifications
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="settingsTabContent">
+                        <!-- Account Settings Tab -->
+                        <div class="tab-pane fade show active" id="account-tab-pane" role="tabpanel" aria-labelledby="account-tab" tabindex="0">
+                            <div class="row">
+                                <div class="col-md-3 mb-4 mb-md-0">
+                                    <div class="text-center">
+                                        <div class="avatar-upload mb-3">
+                                            <div class="avatar-preview rounded-circle mx-auto" style="width: 150px; height: 150px; background-image: url('/img/admin-avatar.png');">
+                                            </div>
+                                            <label for="profileImageUpload" class="btn btn-sm btn-primary mt-2">
+                                                <i class="fas fa-camera me-1"></i> Change Photo
+                                            </label>
+                                            <input type="file" id="profileImageUpload" class="d-none" accept="image/*">
+                                        </div>
+                                        <h5 class="mb-1" id="adminName">Administrator</h5>
+                                        <p class="text-muted small">System Administrator</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-9">
+                                    <form id="accountInfoForm" asp-action="UpdateAdminProfile" method="post">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Full Name</label>
+                                                <input type="text" class="form-control" id="fullName" name="FullName" value="Administrator" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Username</label>
+                                                <input type="text" class="form-control" id="username" name="Username" value="admin" required>
+                                            </div>
+                                        </div>
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Email Address</label>
+                                                <input type="email" class="form-control" id="email" name="Email" value="admin@foodie.com" required>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Phone Number</label>
+                                                <input type="tel" class="form-control" id="phone" name="Phone" value="+1 (555) 123-4567">
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Admin Role</label>
+                                            <select class="form-select" id="adminRole" name="AdminRole" disabled>
+                                                <option value="1" selected>Super Administrator</option>
+                                                <option value="2">Content Manager</option>
+                                                <option value="3">Order Manager</option>
+                                            </select>
+                                            <div class="form-text text-muted">Role changes must be performed by database administrators</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Bio/Notes</label>
+                                            <textarea class="form-control" id="adminBio" name="AdminBio" rows="3">System administrator with full access rights to the food delivery platform.</textarea>
+                                        </div>
+                                        <div class="d-flex justify-content-end">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save me-1"></i> Save Changes
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Security Tab -->
+                        <div class="tab-pane fade" id="security-tab-pane" role="tabpanel" aria-labelledby="security-tab" tabindex="0">
+                            <div class="card mb-4 border-0 shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Change Password</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="changePasswordForm" asp-action="ChangeAdminPassword" method="post">
+                                        <div class="mb-3">
+                                            <label class="form-label">Current Password</label>
+                                            <div class="input-group">
+                                                <input type="password" class="form-control" id="currentPassword" name="CurrentPassword" required>
+                                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="currentPassword">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">New Password</label>
+                                            <div class="input-group">
+                                                <input type="password" class="form-control" id="newPassword" name="NewPassword" required>
+                                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="newPassword">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                            <div class="progress mt-2" style="height: 5px;">
+                                                <div id="passwordStrength" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                            </div>
+                                            <div class="form-text mt-1" id="passwordStrengthText">Password strength</div>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Confirm New Password</label>
+                                            <div class="input-group">
+                                                <input type="password" class="form-control" id="confirmPassword" name="ConfirmPassword" required>
+                                                <button class="btn btn-outline-secondary toggle-password" type="button" data-target="confirmPassword">
+                                                    <i class="fas fa-eye"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div class="d-flex justify-content-end">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-key me-1"></i> Update Password
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Two-Factor Authentication</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <h6 class="mb-1">Two-Factor Authentication</h6>
+                                            <p class="text-muted mb-0 small">Add an extra layer of security to your account</p>
+                                        </div>
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" id="twoFactorToggle">
+                                        </div>
+                                    </div>
+                                    <div id="twoFactorSetup" class="mt-4 d-none">
+                                        <div class="alert alert-info">
+                                            <p class="mb-0">Scan the QR code with your authenticator app and enter the verification code below</p>
+                                        </div>
+                                        <div class="text-center mb-3">
+                                            <img src="/api/placeholder/180/180" alt="QR Code" class="img-fluid border p-2" style="max-width: 180px;">
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6 mx-auto">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Verification Code</label>
+                                                    <input type="text" class="form-control text-center" id="verificationCode" maxlength="6">
+                                                </div>
+                                                <button class="btn btn-primary w-100" id="verify2FA">
+                                                    <i class="fas fa-shield-alt me-1"></i> Verify & Activate
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- System Settings Tab -->
+                        <div class="tab-pane fade" id="system-tab-pane" role="tabpanel" aria-labelledby="system-tab" tabindex="0">
+                            <div class="card mb-4 border-0 shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">System Settings</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="systemSettingsForm">
+                                        <div class="mb-3">
+                                            <label class="form-label">System Timezone</label>
+                                            <select class="form-select" id="systemTimezone" name="SystemTimezone">
+                                                <option value="UTC" selected>UTC (Coordinated Universal Time)</option>
+                                                <option value="America/New_York">Eastern Time (US & Canada)</option>
+                                                <option value="America/Chicago">Central Time (US & Canada)</option>
+                                                <option value="America/Denver">Mountain Time (US & Canada)</option>
+                                                <option value="America/Los_Angeles">Pacific Time (US & Canada)</option>
+                                                <option value="Asia/Kolkata">India Standard Time</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Date Format</label>
+                                            <select class="form-select" id="dateFormat" name="DateFormat">
+                                                <option value="MM/DD/YYYY" selected>MM/DD/YYYY</option>
+                                                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Currency</label>
+                                            <select class="form-select" id="currency" name="Currency">
+                                                <option value="USD" selected>USD ($)</option>
+                                                <option value="EUR">EUR (€)</option>
+                                                <option value="GBP">GBP (£)</option>
+                                                <option value="INR">INR (₹)</option>
+                                            </select>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Default Language</label>
+                                            <select class="form-select" id="language" name="Language">
+                                                <option value="en-US" selected>English (US)</option>
+                                                <option value="es-ES">Spanish</option>
+                                                <option value="fr-FR">French</option>
+                                                <option value="hi-IN">Hindi</option>
+                                            </select>
+                                        </div>
+                                        <div class="d-flex justify-content-end">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save me-1"></i> Save System Settings
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">API Keys & Integrations</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="mb-0">Payment Gateway API Keys</h6>
+                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#paymentApiModal">
+                                                <i class="fas fa-edit me-1"></i> Configure
+                                            </button>
+                                        </div>
+                                        <div class="small text-muted">Last updated: 12 Apr 2025</div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="mb-0">SMS Service API Keys</h6>
+                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#smsApiModal">
+                                                <i class="fas fa-edit me-1"></i> Configure
+                                            </button>
+                                        </div>
+                                        <div class="small text-muted">Last updated: 28 Mar 2025</div>
+                                    </div>
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="mb-0">Map & Location API Keys</h6>
+                                            <button class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#mapApiModal">
+                                                <i class="fas fa-edit me-1"></i> Configure
+                                            </button>
+                                        </div>
+                                        <div class="small text-muted">Last updated: 05 Apr 2025</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notifications Tab -->
+                        <div class="tab-pane fade" id="notification-tab-pane" role="tabpanel" aria-labelledby="notification-tab" tabindex="0">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Notification Preferences</h5>
+                                </div>
+                                <div class="card-body">
+                                    <form id="notificationSettingsForm">
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="mb-0">Email Notifications</h6>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="emailNotificationsToggle" checked>
+                                                </div>
+                                            </div>
+                                            <div class="ps-4 mt-3">
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="newPartnerSignup" checked>
+                                                    <label class="form-check-label" for="newPartnerSignup">
+                                                        New delivery partner signup
+                                                    </label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="newRestaurantSignup" checked>
+                                                    <label class="form-check-label" for="newRestaurantSignup">
+                                                        New restaurant signup
+                                                    </label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="orderCancellations" checked>
+                                                    <label class="form-check-label" for="orderCancellations">
+                                                        Order cancellations
+                                                    </label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="systemAlerts" checked>
+                                                    <label class="form-check-label" for="systemAlerts">
+                                                        System alerts and notifications
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="weeklyReports" checked>
+                                                    <label class="form-check-label" for="weeklyReports">
+                                                        Weekly performance reports
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="mb-0">SMS Notifications</h6>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="smsNotificationsToggle">
+                                                </div>
+                                            </div>
+                                            <div class="ps-4 mt-3">
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="smsCriticalAlerts">
+                                                    <label class="form-check-label" for="smsCriticalAlerts">
+                                                        Critical system alerts
+                                                    </label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="smsLoginAlerts">
+                                                    <label class="form-check-label" for="smsLoginAlerts">
+                                                        Login alerts
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <h6 class="mb-0">Browser Notifications</h6>
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" id="browserNotificationsToggle" checked>
+                                                </div>
+                                            </div>
+                                            <div class="ps-4 mt-3">
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="browserNewOrders" checked>
+                                                    <label class="form-check-label" for="browserNewOrders">
+                                                        New orders
+                                                    </label>
+                                                </div>
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="checkbox" id="browserPartnerIssues" checked>
+                                                    <label class="form-check-label" for="browserPartnerIssues">
+                                                        Delivery partner issues
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" id="browserCustomerSupport" checked>
+                                                    <label class="form-check-label" for="browserCustomerSupport">
+                                                        Customer support tickets
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="d-flex justify-content-end">
+                                            <button type="submit" class="btn btn-primary">
+                                                <i class="fas fa-save me-1"></i> Save Notification Settings
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Payment API Settings -->
+<div class="modal fade" id="paymentApiModal" tabindex="-1" aria-labelledby="paymentApiModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paymentApiModalLabel">Payment Gateway API Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="paymentApiForm">
+                    <div class="mb-3">
+                        <label class="form-label">Gateway Provider</label>
+                        <select class="form-select" id="paymentGateway">
+                            <option value="stripe" selected>Stripe</option>
+                            <option value="paypal">PayPal</option>
+                            <option value="razorpay">Razorpay</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">API Key</label>
+                        <input type="text" class="form-control" id="paymentApiKey" value="pk_test_51NxXXXXXXXXXXXXXXXXXXXXX">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">API Secret</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="paymentApiSecret" value="sk_test_51NxXXXXXXXXXXXXXXXXXXXXX">
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="paymentApiSecret">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Webhook Secret</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="webhookSecret" value="whsec_XXXXXXXXXXXXXXXXXXXXXXXX">
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="webhookSecret">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" id="testMode" checked>
+                        <label class="form-check-label" for="testMode">
+                            Test Mode Enabled
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="savePaymentApi">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for SMS API Settings -->
+<div class="modal fade" id="smsApiModal" tabindex="-1" aria-labelledby="smsApiModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="smsApiModalLabel">SMS Service API Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="smsApiForm">
+                    <div class="mb-3">
+                        <label class="form-label">SMS Provider</label>
+                        <select class="form-select" id="smsProvider">
+                            <option value="twilio" selected>Twilio</option>
+                            <option value="messagebird">MessageBird</option>
+                            <option value="nexmo">Nexmo (Vonage)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Account SID / API Key</label>
+                        <input type="text" class="form-control" id="smsAccountSid" value="AC0a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Auth Token / API Secret</label>
+                        <div class="input-group">
+                            <input type="password" class="form-control" id="smsAuthToken" value="0a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6">
+                            <button class="btn btn-outline-secondary toggle-password" type="button" data-target="smsAuthToken">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">From Number / Sender ID</label>
+                        <input type="text" class="form-control" id="smsSenderId" value="+15551234567">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveSmsApi">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal for Map API Settings -->
+<div class="modal fade" id="mapApiModal" tabindex="-1" aria-labelledby="mapApiModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="mapApiModalLabel">Map & Location API Settings</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="mapApiForm">
+                    <div class="mb-3">
+                        <label class="form-label">Map Provider</label>
+                        <select class="form-select" id="mapProvider">
+                            <option value="google" selected>Google Maps</option>
+                            <option value="mapbox">Mapbox</option>
+                            <option value="here">HERE Maps</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">API Key</label>
+                        <input type="text" class="form-control" id="mapApiKey" value="AIzaSyD-9tSrke72PouQMn1234567890abcdef">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Client ID (if applicable)</label>
+                        <input type="text" class="form-control" id="mapClientId" value="">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Rate Limit (requests per minute)</label>
+                        <input type="number" class="form-control" id="mapRateLimit" value="1000">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveMapApi">Save Changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Toggle password visibility
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const input = document.getElementById(targetId);
+                if (input.type === "password") {
+                    input.type = "text";
+                    this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                } else {
+                    input.type = "password";
+                    this.innerHTML = '<i class="fas fa-eye"></i>';
+                }
+            });
+        });
+
+        // Password strength meter
+        const passwordInput = document.getElementById('newPassword');
+        const passwordStrength = document.getElementById('passwordStrength');
+        const passwordStrengthText = document.getElementById('passwordStrengthText');
+
+        if (passwordInput) {
+            passwordInput.addEventListener('input', function() {
+                const password = this.value;
+                let strength = 0;
+
+                // Check password length
+                if (password.length >= 8) {
+                    strength += 25;
+                }
+
+                // Check for uppercase letters
+                if (/[A-Z]/.test(password)) {
+                    strength += 25;
+                }
+
+                // Check for numbers
+                if (/[0-9]/.test(password)) {
+                    strength += 25;
+                }
+
+                // Check for special characters
+                if (/[^A-Za-z0-9]/.test(password)) {
+                    strength += 25;
+                }
+
+                // Update the progress bar
+                passwordStrength.style.width = strength + '%';
+
+                // Update the color based on strength
+                if (strength <= 25) {
+                    passwordStrength.className = 'progress-bar bg-danger';
+                    passwordStrengthText.textContent = 'Weak password';
+                } else if (strength <= 50) {
+                    passwordStrength.className = 'progress-bar bg-warning';
+                    passwordStrengthText.textContent = 'Fair password';
+                } else if (strength <= 75) {
+                    passwordStrength.className = 'progress-bar bg-info';
+                    passwordStrengthText.textContent = 'Good password';
+                } else {
+                    passwordStrength.className = 'progress-bar bg-success';
+                    passwordStrengthText.textContent = 'Strong password';
+                }
+            });
+        }
+
+        // Two-Factor Authentication toggle
+        const twoFactorToggle = document.getElementById('twoFactorToggle');
+        const twoFactorSetup = document.getElementById('twoFactorSetup');
+
+        if (twoFactorToggle && twoFactorSetup) {
+            twoFactorToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    twoFactorSetup.classList.remove('d-none');
+                } else {
+                    twoFactorSetup.classList.add('d-none');
+                }
+            });
+        }
+
+        // Email notifications toggle
+        const emailNotificationsToggle = document.getElementById('emailNotificationsToggle');
+
+        if (emailNotificationsToggle) {
+            const emailCheckboxes = [
+                document.getElementById('newPartnerSignup'),
+                document.getElementById('newRestaurantSignup'),
+                document.getElementById('orderCancellations'),
+                document.getElementById('systemAlerts'),
+                document.getElementById('weeklyReports')
+            ];
+
+            emailNotificationsToggle.addEventListener('change', function() {
+                emailCheckboxes.forEach(checkbox => {
+                    if (checkbox) {
+                        checkbox.disabled = !this.checked;
+                        if (!this.checked) {
+                            checkbox.checked = false;
+                        } else {
+                            checkbox.checked = true;
+                        }
+                    }
+                });
+            });
+        }
+
+        // SMS notifications toggle
+        const smsNotificationsToggle = document.getElementById('smsNotificationsToggle');
+
+        if (smsNotificationsToggle) {
+            const smsCheckboxes = [
+                document.getElementById('smsCriticalAlerts'),
+                document.getElementById('smsLoginAlerts')
+            ];
+
+            smsNotificationsToggle.addEventListener('change', function() {
+                smsCheckboxes.forEach(checkbox => {
+                    if (checkbox) {
+                        checkbox.disabled = !this.checked;
+                        if (!this.checked) {
+                            checkbox.checked = false;
+                        } else {
+                            checkbox.checked = true;
+                        }
+                    }
+                });
+            });
+        }
+
+        // Browser notifications toggle
+        const browserNotificationsToggle = document.getElementById('browserNotificationsToggle');
+
+        if (browserNotificationsToggle) {
+            const browserCheckboxes = [
+                document.getElementById('browserNewOrders'),
+                document.getElementById('browserPartnerIssues'),
+                document.getElementById('browserCustomerSupport')
+            ];
+
+            browserNotificationsToggle.addEventListener('change', function() {
+                browserCheckboxes.forEach(checkbox => {
+                    if (checkbox) {
+                        checkbox.disabled = !this.checked;
+                        if (!this.checked) {
+                            checkbox.checked = false;
+                        } else {
+                            checkbox.checked = true;
+                        }
+                    }
+                });
+            });
+        }
+
+        // Form submission handlers
+        const accountInfoForm = document.getElementById('accountInfoForm');
+        if (accountInfoForm) {
+            accountInfoForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Show loading state
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalText = submitButton.innerHTML;
+                submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
+                submitButton.disabled = true;
+
+                // Simulate API call with timeout
+                setTimeout(() => {
+                    // Update the profile name in UI
+                    const fullNameInput = document.getElementById('fullName');
+                    const adminNameElement = document.getElementById('adminName');
+                    if (fullNameInput && adminNameElement) {
+                        adminNameElement.textContent = fullNameInput.value;
+                    }
+
+                    // Show success message
+                    const successAlert = document.createElement('div');
+                    successAlert.className = 'alert alert-success alert-dismissible fade show mt-3';
+                    successAlert.innerHTML = `
+                        <strong>Success!</strong> Account information updated successfully.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+                    accountInfoForm.appendChild(successAlert);
+
+                    // Reset button state
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
+
+                    // Auto-dismiss alert after 5 seconds
+                    setTimeout(() => {
+                        successAlert.remove();
+                    }, 5000);
+                }, 1500);
+            });
+        }
+
+        const changePasswordForm = document.getElementById('changePasswordForm');
+        if (changePasswordForm) {
+            changePasswordForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const currentPassword = document.getElementById('currentPassword').value;
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+
+                // Validate current password
+                if (currentPassword !== 'admin123') {
+                    showFormError(this, 'Current password is incorrect.');
+                    return;
+                }
+
+                // Validate password match
+                if (newPassword !== confirmPassword) {
+                    showFormError(this, 'New passwords do not match.');
+                    return;
+                }
+
+                // Show loading state
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalText = submitButton.innerHTML;
+                submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Updating...';
+                submitButton.disabled = true;
+
+                // Simulate API call with timeout
+                setTimeout(() => {
+                    // Show success message
+                    const successAlert = document.createElement('div');
+                    successAlert.className = 'alert alert-success alert-dismissible fade show mt-3';
+                    successAlert.innerHTML = `
+                        <strong>Success!</strong> Password has been updated successfully.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+                    changePasswordForm.appendChild(successAlert);
+
+                    // Reset form
+                    changePasswordForm.reset();
+                    passwordStrength.style.width = '0%';
+                    passwordStrength.className = 'progress-bar';
+                    passwordStrengthText.textContent = 'Password strength';
+
+                    // Reset button state
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
+
+                    // Auto-dismiss alert after 5 seconds
+                    setTimeout(() => {
+                        successAlert.remove();
+                    }, 5000);
+                }, 1500);
+            });
+        }
+
+        const systemSettingsForm = document.getElementById('systemSettingsForm');
+        if (systemSettingsForm) {
+            systemSettingsForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Show loading state
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalText = submitButton.innerHTML;
+                submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
+                submitButton.disabled = true;
+
+                // Simulate API call with timeout
+                setTimeout(() => {
+                    // Show success message
+                    const successAlert = document.createElement('div');
+                    successAlert.className = 'alert alert-success alert-dismissible fade show mt-3';
+                    successAlert.innerHTML = `
+                        <strong>Success!</strong> System settings updated successfully.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+                    systemSettingsForm.appendChild(successAlert);
+
+                    // Reset button state
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
+
+                    // Auto-dismiss alert after 5 seconds
+                    setTimeout(() => {
+                        successAlert.remove();
+                    }, 5000);
+                }, 1500);
+            });
+        }
+
+        const notificationSettingsForm = document.getElementById('notificationSettingsForm');
+        if (notificationSettingsForm) {
+            notificationSettingsForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                // Show loading state
+                const submitButton = this.querySelector('button[type="submit"]');
+                const originalText = submitButton.innerHTML;
+                submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
+                submitButton.disabled = true;
+
+                // Simulate API call with timeout
+                setTimeout(() => {
+                    // Show success message
+                    const successAlert = document.createElement('div');
+                    successAlert.className = 'alert alert-success alert-dismissible fade show mt-3';
+                    successAlert.innerHTML = `
+                        <strong>Success!</strong> Notification preferences updated successfully.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    `;
+                    notificationSettingsForm.appendChild(successAlert);
+
+                    // Reset button state
+                    submitButton.innerHTML = originalText;
+                    submitButton.disabled = false;
+
+                    // Auto-dismiss alert after 5 seconds
+                    setTimeout(() => {
+                        successAlert.remove();
+                    }, 5000);
+                }, 1500);
+            });
+        }
+
+        // Modal save buttons
+        const savePaymentApi = document.getElementById('savePaymentApi');
+        if (savePaymentApi) {
+            savePaymentApi.addEventListener('click', function() {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('paymentApiModal'));
+
+                // Show loading state
+                const originalText = this.innerHTML;
+                this.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
+                this.disabled = true;
+
+                // Simulate API call with timeout
+                setTimeout(() => {
+                    // Reset button state
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+
+                    // Close modal
+                    modal.hide();
+
+                    // Show success toast
+                    showToast('Payment API settings updated successfully');
+                }, 1500);
+            });
+        }
+
+        const saveSmsApi = document.getElementById('saveSmsApi');
+        if (saveSmsApi) {
+            saveSmsApi.addEventListener('click', function() {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('smsApiModal'));
+
+                // Show loading state
+                const originalText = this.innerHTML;
+                this.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
+                this.disabled = true;
+
+                // Simulate API call with timeout
+                setTimeout(() => {
+                    // Reset button state
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+
+                    // Close modal
+                    modal.hide();
+
+                    // Show success toast
+                    showToast('SMS API settings updated successfully');
+                }, 1500);
+            });
+        }
+
+        const saveMapApi = document.getElementById('saveMapApi');
+        if (saveMapApi) {
+            saveMapApi.addEventListener('click', function() {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('mapApiModal'));
+
+                // Show loading state
+                const originalText = this.innerHTML;
+                this.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
+                this.disabled = true;
+
+                // Simulate API call with timeout
+                setTimeout(() => {
+                    // Reset button state
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+
+                    // Close modal
+                    modal.hide();
+
+                    // Show success toast
+                    showToast('Map API settings updated successfully');
+                }, 1500);
+            });
+        }
+
+        // Helper functions
+        function showFormError(form, message) {
+            // Remove any existing alerts
+            const existingAlerts = form.querySelectorAll('.alert');
+            existingAlerts.forEach(alert => alert.remove());
+
+            // Create and show error alert
+            const errorAlert = document.createElement('div');
+            errorAlert.className = 'alert alert-danger alert-dismissible fade show mt-3';
+            errorAlert.innerHTML = `
+                <strong>Error!</strong> ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+            form.appendChild(errorAlert);
+
+            // Auto-dismiss after 5 seconds
+            setTimeout(() => {
+                errorAlert.remove();
+            }, 5000);
+        }
+
+        function showToast(message) {
+            // Check if toast container exists, create if not
+            let toastContainer = document.querySelector('.toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.className = 'toast-container position-fixed bottom-0 end-0 p-3';
+                document.body.appendChild(toastContainer);
+            }
+
+            // Create toast element
+            const toastId = 'toast-' + Date.now();
+            const toastEl = document.createElement('div');
+            toastEl.className = 'toast';
+            toastEl.id = toastId;
+            toastEl.setAttribute('role', 'alert');
+            toastEl.setAttribute('aria-live', 'assertive');
+            toastEl.setAttribute('aria-atomic', 'true');
+
+            toastEl.innerHTML = `
+                <div class="toast-header">
+                    <strong class="me-auto">Foodie Admin</strong>
+                    <small>Just now</small>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+                <div class="toast-body">
+                    ${message}
+                </div>
+            `;
+
+            toastContainer.appendChild(toastEl);
+
+            // Initialize and show toast
+            const toast = new bootstrap.Toast(toastEl, {
+                autohide: true,
+                delay: 3000
+            });
+            toast.show();
+
+            // Remove from DOM after hiding
+            toastEl.addEventListener('hidden.bs.toast', function () {
+                this.remove();
+            });
+        }
+
+        // Initialize the page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const tab = urlParams.get('tab');
+
+            // Switch to the specified tab if provided
+            if (tab) {
+                const tabElement = document.querySelector(`#${tab}-tab`);
+                if (tabElement) {
+                    const tabInstance = new bootstrap.Tab(tabElement);
+                    tabInstance.show();
+                }
+            }
+
+            // Initialize all modals
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modalEl => {
+                new bootstrap.Modal(modalEl);
+            });
+        });
+    </script>
+}

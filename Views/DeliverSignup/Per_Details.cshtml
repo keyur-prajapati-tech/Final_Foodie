@@ -1,122 +1,360 @@
 ﻿@model Foodie.Models.DeliveryPartner.tbl_deliveryPartnerDetails
-
 @{
     ViewData["Title"] = "Personal Details";
-    Layout = "~/Views/Shared/_DeliverRegisterLayout.cshtml";  // Safe casting
+    Layout = "~/Views/Shared/_DeliverRegisterLayout.cshtml";
 }
+
 <style>
     * {
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: 'Arial', sans-serif;
+        font-family: 'Poppins', 'Arial', sans-serif;
     }
 
     body {
-        background: linear-gradient(135deg, #e3f2fd, #e1bee7);
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
         display: flex;
         justify-content: center;
         align-items: center;
         min-height: 100vh;
         margin: 0;
-        padding: 0;
+        padding: 20px;
     }
 
-    @@keyframes fadeInUp {
-        from
-
-    {
-        opacity: 0;
-        transform: translateY(20px);
+    .details-container {
+        display: flex;
+        max-width: 900px;
+        width: 100%;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        border-radius: 16px;
+        overflow: hidden;
+        animation: fadeIn 0.8s ease-in-out;
     }
 
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-    
+    .details-image {
+        flex: 1;
+        background-image: url('https://via.placeholder.com/500x700/0096ff/ffffff?text=Almost+Done');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
     }
 
-    .card {
-        background: #e3e7ff;
-        backdrop-filter: blur(10px);
-        width: 400px;
+    .details-image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(0, 123, 255, 0.7), rgba(0, 150, 255, 0.5));
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
         padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+        color: white;
         text-align: center;
-        color: black;
-        animation: fadeInUp 0.8s ease-in-out;
-        margin-left: 50px;
     }
 
-    .card-header h3 {
-        font-weight: bold;
-        color: #333;
+    .details-image-title {
+        font-size: 32px;
+        font-weight: 700;
         margin-bottom: 15px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .details-image-text {
+        font-size: 16px;
+        max-width: 300px;
+        line-height: 1.6;
+    }
+
+    .details-form {
+        flex: 2;
+        background: white;
+        padding: 50px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .details-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .details-title {
+        font-weight: 700;
+        color: #333;
+        font-size: 28px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .details-title-icon {
+        margin-right: 10px;
+        font-size: 32px;
+        color: #0096ff;
+    }
+
+    .details-subtitle {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .form-label {
+        color: #555;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: block;
+        text-align: left;
     }
 
     .form-control {
         width: 100%;
-        padding: 12px;
-        margin-top: 5px;
-        margin-bottom: 15px;
-        border: 1px solid #aaa;
-        border-radius: 6px;
-        font-size: 16px;
-        background: rgba(255, 255, 255, 0.6);
-        color: black;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: all 0.3s;
+        background: #f8f9fa;
     }
 
-    .btn-primary {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        padding: 12px;
-        width: 100%;
-        border-radius: 6px;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s ease-in-out;
-    }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-            box-shadow: 0px 0px 10px rgba(0, 123, 255, 0.4);
-            transform: scale(1.05);
+        .form-control:focus {
+            border-color: #0096ff;
+            box-shadow: 0 0 0 3px rgba(0, 150, 255, 0.1);
+            background: white;
+            outline: none;
         }
 
-    .form-label {
-        color: #333;
+    .form-icon {
+        position: absolute;
+        right: 15px;
+        top: 42px;
+        color: #aaa;
+    }
+
+    .details-btn {
+        background: linear-gradient(135deg, #0096ff, #0066cc);
+        color: white;
+        border: none;
+        padding: 15px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.25);
+    }
+
+        .details-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.35);
+        }
+
+        .details-btn:active {
+            transform: translateY(0);
+        }
+
+    .details-btn-icon {
+        margin-left: 8px;
+    }
+
+    .file-upload-wrapper {
+        position: relative;
+        width: 100%;
+        height: 120px;
+        border: 2px dashed #ddd;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        background: #f8f9fa;
+        margin-bottom: 5px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+        .file-upload-wrapper:hover {
+            border-color: #0096ff;
+            background: #f0f7ff;
+        }
+
+    .file-upload-text {
+        color: #666;
         font-size: 14px;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .file-upload-icon {
+        font-size: 28px;
+        margin-bottom: 10px;
+        color: #0096ff;
+    }
+
+    .file-upload {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .step-indicator {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+
+    .step {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: #ddd;
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 8px;
         font-weight: bold;
-        text-align: left;
-        display: block;
+        position: relative;
+    }
+
+        .step.active {
+            background: #0096ff;
+        }
+
+        .step.completed {
+            background: #28a745;
+        }
+
+        .step:not(:last-child):after {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 14px;
+            width: 16px;
+            height: 2px;
+            background: #ddd;
+        }
+
+        .step.completed:not(:last-child):after {
+            background: #28a745;
+        }
+
+    @@keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @@media (max-width: 768px) {
+        .details-container {
+            flex-direction: column;
+            max-width: 400px;
+        }
+
+        .details-image {
+            display: none;
+        }
+
+        .details-form {
+            padding: 30px 20px;
+        }
     }
 </style>
 
-<div class="card">
-    <div class="card-header">
-        <h3>🚴‍♂️ Delivery Partner Details</h3>
+<div class="details-container">
+    <div class="details-image">
+        <div class="details-image-overlay">
+            <h2 class="details-image-title">FOODIE Delivery</h2>
+            <p class="details-image-text">Complete your profile to start delivering. We're just a few details away from welcoming you to our team!</p>
+        </div>
     </div>
-    <div class="card-body">
+
+    <div class="details-form">
+        <div class="details-header">
+            <div class="step-indicator">
+                <div class="step active">1</div>
+                <div class="step">2</div>
+                <div class="step">3</div>
+                <div class="step">4</div>
+
+            </div>
+            <h3 class="details-title">
+                
+                Personal Details
+            </h3>
+            <p class="details-subtitle">Complete your profile information to continue</p>
+        </div>
+
         <form asp-action="Per_Details" asp-controller="DeliverSignup" method="post" enctype="multipart/form-data">
             <div class="form-group">
-                <label>Upload Profile Picture</label>
-                <input type="file" name="profileImage" class="form-control" />
+                <label class="form-label">Upload Profile Picture</label>
+                <div class="file-upload-wrapper">
+                    <div class="file-upload-text">
+                        <span class="file-upload-icon">📷</span>
+                        <span>Click to upload your photo</span>
+                    </div>
+                    <input type="file" name="profileImage" class="file-upload" id="profileImage" />
+                </div>
+                <small style="display: block; text-align: left; color: #666; margin-top: 5px;">Recommended: Square image, minimum 300x300 pixels</small>
+            </div>
+            <input type="hidden" asp-for="ProfilePicture" />
+
+            <div class="form-group">
+                <label class="form-label">Aadhaar Number</label>
+                <input asp-for="AadhaarNumber" class="form-control" placeholder="Enter your 12-digit Aadhaar number" />
+                <span class="form-icon">🪪</span>
             </div>
 
-            <input type="hidden" asp-for="ProfilePicture" />
             <div class="form-group">
-                <label>Aadhaar Number</label>
-                <input asp-for="AadhaarNumber" class="form-control" />
+                <label class="form-label">PAN Number</label>
+                <input asp-for="PANNumber" class="form-control" placeholder="Enter your 10-digit PAN number" />
+                <span class="form-icon">📝</span>
             </div>
-            <div class="form-group">
-                <label>PAN Number</label>
-                <input asp-for="PANNumber" class="form-control" />
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
+
+            <button type="submit" class="details-btn">
+                Continue
+                <span class="details-btn-icon">→</span>
+            </button>
         </form>
     </div>
 </div>
+
+<script>
+    // Display selected filename
+    document.getElementById('profileImage').addEventListener('change', function(e) {
+        if(e.target.files.length > 0) {
+            const fileName = e.target.files[0].name;
+            const fileUploadText = document.querySelector('.file-upload-text');
+            fileUploadText.innerHTML = `<span class="file-upload-icon">✓</span><span>${fileName}</span>`;
+        }
+    });
+</script>   

@@ -1,115 +1,213 @@
 ﻿@{
-    ViewData["Title"] = "Vehicle Details";
+    ViewData["Title"] = "Vehicle Details - FOODIE";
     Layout = ViewBag.Layout ?? "_DeliverRegisterLayout";
 }
 
 <style>
     body {
-        background: linear-gradient(135deg, #e3f2fd, #e1bee7);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 100vh;
+        background-color: #f0f0f0;
         margin: 0;
         padding: 0;
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
     }
 
-
-    .form-container {
+    .container {
         display: flex;
+        width: 800px;
+        margin: -48px;
+        margin-left: -158px;
+        margin-right: -78px;
+        margin-bottom: 1px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .sidebar {
+        background-color: #3b98ff;
+        color: white;
+        width: 30%;
+        padding: 30px 20px;
+        display: flex;
+        flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 100vh;
-        padding: 20px;
-    }
-
-    .card {
-        background-color: #e3e7ff;
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 25px;
-        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
-        width: 100%;
-        max-width: 450px;
-        animation: fadeInEffect 0.8s ease-in-out;
-    }
-
-    .card-header h3 {
-        font-weight: bold;
-        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
         text-align: center;
     }
 
-    @@keyframes fadeInEffect {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
+        .sidebar h2 {
+            margin-bottom: 15px;
+            font-size: 26px;
+            font-weight: bold;
         }
 
-        to {
-            opacity: 1;
-            transform: translateY(0);
+        .sidebar p {
+            font-size: 14px;
+            line-height: 1.6;
         }
+
+    .content {
+        background-color: white;
+        width: 70%;
+        padding: 30px;
+    }
+
+    .steps {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 30px;
+    }
+
+    .step-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        margin: 0 5px;
+        font-weight: bold;
+    }
+
+    .step-completed {
+        background-color: #4caf50;
+        color: white;
+    }
+
+    .step-active {
+        background-color: #2196f3;
+        color: white;
+    }
+
+    .step-pending {
+        background-color: #e0e0e0;
+        color: #9e9e9e;
+    }
+
+    .content h2 {
+        font-size: 24px;
+        margin-bottom: 10px;
+        text-align: center;
+    }
+
+    .content p {
+        color: #666;
+        margin-bottom: 30px;
+        text-align: center;
+        font-size: 14px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: #333;
     }
 
     .form-control {
-        background: rgba(255, 255, 255, 0.6);
-    }
-
-    .btn-primary {
-        background-color: #007bff;
-        transition: all 0.3s ease-in-out;
         width: 100%;
-        margin-top: 10px;
-    }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-            transform: scale(1.05);
-        }
-
-    .form-label {
-        color: black;
-        font-weight: 600;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
     }
 
     .error {
-        border: 2px solid red !important;
+        border: 1px solid #f44336 !important;
+    }
+
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+    }
+
+    .btn {
+        padding: 10px 15px;
+        border-radius: 4px;
+        font-weight: 500;
+        cursor: pointer;
+        border: none;
+    }
+
+    .btn-back {
+        background-color: #f5f5f5;
+        color: #333;
+    }
+
+    .btn-continue {
+        background-color: #2196f3;
+        color: white;
+        display: flex;
+        align-items: center;
     }
 </style>
 
-<div class="form-container">
-    <div class="card">
-        <div class="card-header">
-            <h3>🚗 Vehicle Information</h3>
-        </div>
-        <div class="card-body">
-            <form id="vehicleForm" asp-action="VehicleDetails" asp-controller="DeliverSignup" method="post">
-                <label for="RCNumber" class="form-label">Vehicle RC Number</label>
-                <input type="text" class="form-control required" id="RCNumber" name="RCNumber" required>
+<div class="container">
+    <div class="sidebar">
+        <h2>FOODIE Delivery</h2>
+        <p>Complete your profile to start delivering. We're just a few details away from welcoming you to our team!</p>
+    </div>
+    <div class="content">
+        <div class="steps">
+            <div class="step-item step-completed">1</div>
+            <div class="step-item step-active">2</div>
+            <div class="step-item step-pending">3</div>
+            <div class="step-item step-pending">4</div>
 
-                <label for="VehicleType" class="form-label">Vehicle Type</label>
+        </div>
+
+        <h2>Vehicle Details</h2>
+        <p>Provide information about your vehicle</p>
+
+        <form id="vehicleForm" asp-action="VehicleDetails" asp-controller="DeliverSignup" method="post">
+            <div class="form-group">
+                <label class="form-label" for="RCNumber">Vehicle RC Number</label>
+                <input type="text" class="form-control required" id="RCNumber" name="RCNumber" placeholder="Enter RC number" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="VehicleType">Vehicle Type</label>
                 <select class="form-control required" id="VehicleType" name="VehicleType" required>
                     <option value="">Select Vehicle Type</option>
                     <option value="Bike">Bike</option>
                     <option value="Scooter">Scooter</option>
                 </select>
-                <label for="LicensePlate" class="form-label">License Plate Number</label>
-                <input type="text" class="form-control required" id="LicensePlate" name="LicensePlate" required>
+            </div>
 
-                <label for="MakeModel" class="form-label">Make & Model</label>
-                <input type="text" class="form-control required" id="MakeModel" name="MakeModel" required>
+            <div class="form-group">
+                <label class="form-label" for="LicensePlate">License Plate Number</label>
+                <input type="text" class="form-control required" id="LicensePlate" name="LicensePlate" placeholder="Enter license plate number" required>
+            </div>
 
-                <label for="DrivingLicense" class="form-label">Driving License Number</label>
-                <input type="text" class="form-control required" id="DrivingLicense" name="DrivingLicense" required>
+            <div class="form-group">
+                <label class="form-label" for="MakeModel">Make & Model</label>
+                <input type="text" class="form-control required" id="MakeModel" name="MakeModel" placeholder="Enter make and model" required>
+            </div>
 
-                <label for="InsuranceDetails" class="form-label">Insurance Details</label>
-                <textarea class="form-control required" id="InsuranceDetails" name="InsuranceDetails" rows="2" required></textarea>
+            <div class="form-group">
+                <label class="form-label" for="DrivingLicense">Driving License Number</label>
+                <input type="text" class="form-control required" id="DrivingLicense" name="DrivingLicense" placeholder="Enter driving license number" required>
+            </div>
 
-                <button type="submit" class="btn btn-primary" id="submitBtn">Submit Vehicle Details</button>
-            </form>
-        </div>
+            <div class="form-group">
+                <label class="form-label" for="InsuranceDetails">Insurance Details</label>
+                <textarea class="form-control required" id="InsuranceDetails" name="InsuranceDetails" rows="2" placeholder="Enter insurance policy number and details" required></textarea>
+            </div>
+
+            <div class="button-container">
+                <button type="button" class="btn btn-back" onclick="window.location.href='@Url.Action("Per_Details", "DeliverSignup")'">Back</button>
+                <button type="submit" class="btn btn-continue">Continue →</button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -131,7 +229,7 @@
 
         if (!isValid) {
             event.preventDefault();
-            alert("⚠ Please fill out all required fields before submitting.");
+            alert("Please fill out all required fields before submitting.");
         }
     });
 </script>

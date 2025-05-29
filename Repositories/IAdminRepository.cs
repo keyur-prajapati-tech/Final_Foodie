@@ -77,6 +77,7 @@ namespace Foodie.Repositories
 
 
         List<VendoreViewModel> GetVendorsForApproval();
+        VendoreViewModel GetVendorById(int restaurantId);
         void UpdateApprovalStatus(int restaurantId, bool isApproved);
 
         public bool DeleteVendor(int id);
@@ -100,6 +101,8 @@ namespace Foodie.Repositories
 
         public List<OrderViewModel> GetFilteredOrders(DateTime? fromDate, DateTime? toDate, string orderStatus);
 
+
+        bool UpdatePassword(string email, string newPassword);
 
     }
 }

@@ -1,6 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Delivery Login";
-    Layout = ViewBag.Layout ?? "_DeliverRegisterLayout"; ;
+    Layout = ViewBag.Layout ?? "_DeliverRegisterLayout";
 }
 
 <style>
@@ -8,130 +8,426 @@
         margin: 0;
         padding: 0;
         box-sizing: border-box;
-        font-family: 'Arial', sans-serif;
+        font-family: 'Poppins', 'Arial', sans-serif;
     }
 
     body {
-        background: linear-gradient(135deg, #e3f2fd, #e1bee7);
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
         display: flex;
         justify-content: center;
         align-items: center;
         min-height: 100vh;
         margin: 0;
-        padding: 0;
+        padding: 20px;
     }
 
-
-    @@keyframes fadeInUp {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
+    .login-container {
+        display: flex;
+        max-width: 900px;
+        width: 100%;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        border-radius: 16px;
+        overflow: hidden;
+        animation: fadeIn 0.8s ease-in-out;
     }
 
-    .card {
-        background: #e3e7ff;
-        backdrop-filter: blur(10px);
-        width: 400px;
+    .login-image {
+        flex: 1;
+        background-image: url('https://via.placeholder.com/500x700/0096ff/ffffff?text=Food+Delivery');
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+
+    .login-image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(0, 123, 255, 0.7), rgba(0, 150, 255, 0.5));
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
         padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0px 6px 15px rgba(0, 0, 0, 0.1);
+        color: white;
         text-align: center;
-        color: black;
-        animation: fadeInUp 0.8s ease-in-out;
-        margin-left:50px;
     }
 
-    .card-header h3 {
-        font-weight: bold;
-        color: #333;
+    .login-image-title {
+        font-size: 32px;
+        font-weight: 700;
         margin-bottom: 15px;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .login-image-text {
+        font-size: 16px;
+        max-width: 300px;
+        line-height: 1.6;
+    }
+
+    .login-form {
+        flex: 2;
+        background: white;
+        padding: 50px 40px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 40px;
+    }
+
+    .login-title {
+        font-weight: 700;
+        color: #333;
+        font-size: 28px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-title-icon {
+        margin-right: 10px;
+        font-size: 32px;
+        color: #0096ff;
+    }
+
+    .login-subtitle {
+        color: #666;
+        font-size: 14px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .form-label {
+        color: #555;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 8px;
+        display: block;
     }
 
     .form-control {
         width: 100%;
-        padding: 12px;
-        margin-top: 5px;
-        margin-bottom: 15px;
-        border: 1px solid #aaa;
-        border-radius: 6px;
-        font-size: 16px;
-        background: rgba(255, 255, 255, 0.6);
-        color: black;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 15px;
+        transition: all 0.3s;
+        background: #f8f9fa;
     }
 
-    .btn-primary {
-        background-color: #007bff;
-        color: white;
-        border: none;
-        padding: 12px;
-        width: 100%;
-        border-radius: 6px;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.3s ease-in-out;
-    }
-
-        .btn-primary:hover {
-            background-color: #0056b3;
-            box-shadow: 0px 0px 10px rgba(0, 123, 255, 0.4);
-            transform: scale(1.05);
+        .form-control:focus {
+            border-color: #0096ff;
+            box-shadow: 0 0 0 3px rgba(0, 150, 255, 0.1);
+            background: white;
+            outline: none;
         }
 
+    .form-icon {
+        position: absolute;
+        right: 15px;
+        top: 42px;
+        color: #aaa;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 15px;
+        top: 42px;
+        color: #aaa;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .login-btn {
+        background: linear-gradient(135deg, #0096ff, #0066cc);
+        color: white;
+        border: none;
+        padding: 15px 20px;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        box-shadow: 0 4px 10px rgba(0, 123, 255, 0.25);
+    }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.35);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+    .login-btn-icon {
+        margin-left: 8px;
+    }
+
     .card-footer {
-        margin-top: 10px;
+        text-align: center;
+        margin-top: 30px;
+        color: #666;
+        font-size: 14px;
     }
 
         .card-footer a {
-            color: #007bff;
-            font-weight: bold;
+            color: #0096ff;
+            font-weight: 600;
             text-decoration: none;
+            transition: all 0.3s;
         }
 
             .card-footer a:hover {
+                color: #0066cc;
                 text-decoration: underline;
             }
 
-    .form-label {
-        color: #333;
-        font-size: 14px;
-        font-weight: bold;
+    #error-message {
+        color: #e53935;
+        margin-top: 5px;
+        font-size: 13px;
+        text-align: center;
+        padding: 8px;
+        border-radius: 4px;
+        background-color: #ffebee;
+        display: none;
     }
 
-    #error-message {
-        color: red;
-        margin-top: 10px;
+        #error-message.show {
+            display: block;
+            animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+        }
+
+    .divider {
+        display: flex;
+        align-items: center;
+        text-align: center;
+        margin: 30px 0;
+        color: #999;
+    }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid #eee;
+        }
+
+        .divider::before {
+            margin-right: 10px;
+        }
+
+        .divider::after {
+            margin-left: 10px;
+        }
+
+    .social-login {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .social-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        border: 1px solid #ddd;
+        background: white;
+        transition: all 0.3s;
+        cursor: pointer;
+    }
+
+        .social-btn:hover {
+            background: #f5f5f5;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.05);
+        }
+
+    .remember-forgot {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
         font-size: 14px;
+    }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+    }
+
+        .remember-me input {
+            margin-right: 5px;
+        }
+
+    .forgot-password {
+        color: #0096ff;
+        text-decoration: none;
+    }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+    @@keyframes fadeIn {
+        from
+
+    {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    }
+
+    @@keyframes shake {
+        10%, 90%
+
+    {
+        transform: translateX(-1px);
+    }
+
+    20%, 80% {
+        transform: translateX(2px);
+    }
+
+    30%, 50%, 70% {
+        transform: translateX(-4px);
+    }
+
+    40%, 60% {
+        transform: translateX(4px);
+    }
+
+    }
+
+    @@media (max-width: 768px) {
+        .login-container
+
+    {
+        flex-direction: column;
+        max-width: 400px;
+    }
+
+    .login-image {
+        display: none;
+    }
+
+    .login-form {
+        padding: 30px 20px;
+    }
+
     }
 </style>
 
-<div class="card">
-    <div class="card-header">
-        <h3>🚴‍♂️ Delivery Partner Login</h3>
+<div class="login-container">
+    <div class="login-image">
+        <div class="login-image-overlay">
+            <h2 class="login-image-title">FOODIE Delivery</h2>
+            <p class="login-image-text">Join our delivery team and start earning today. Flexible hours, competitive pay, and a supportive community.</p>
+        </div>
     </div>
-    <div class="card-body">
+
+    <div class="login-form">
+        <div class="login-header">
+            <h3 class="login-title">
+                <span class="login-title-icon"></span>
+                Delivery Partner Login
+            </h3>
+            <p class="login-subtitle">Sign in to your account to manage deliveries</p>
+        </div>
+
         <form id="loginForm" method="post" asp-action="DeliveryLogin" asp-controller="DeliverSignup">
-            <label for="Email" class="form-label">Email</label>
-            <input type="email" class="form-control" id="Email" name="email" required>
+            @if (TempData["Error"] != null)
+            {
+                <div id="error-message" class="alert alert-danger text-center show">
+                    @TempData["Error"]
+                </div>
+            }
+            else
+            {
+                <div id="error-message" class="alert alert-danger text-center"></div>
+            }
 
-            <label for="Password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="Password" name="Password" value="" required>
+            <div class="form-group">
+                <label for="Email" class="form-label">Email Address</label>
+                <input type="email" class="form-control" id="Email" name="Email" placeholder="Enter your email address" required />
+                <span class="form-icon">✉️</span>
+            </div>
 
-            <button type="submit" class="btn-primary" >Login</button>
-            <p id="error-message"></p>
+            <div class="form-group">
+                <label for="Password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="Password" name="Password" placeholder="Enter your password" required />
+                <span class="password-toggle" onclick="togglePassword()">👁️</span>
+            </div>
+
+            <button type="submit" class="login-btn">
+                Login to your account
+                <span class="login-btn-icon">→</span>
+            </button>
         </form>
-    </div>
-    <div class="card-footer">
-        <p>Don't have an account? <a asp-controller="DeliverSignup" asp-action="DeliveryRegister">Register here</a></p>
+
+
+        <div class="card-footer">
+            <p>Don't have an account? <a asp-controller="DeliverSignup" asp-action="DeliveryRegister">Register here</a></p>
+        </div>
     </div>
 </div>
 
+<script>
+    function togglePassword() {
+        const passwordField = document.getElementById('Password');
+        const passwordToggle = document.querySelector('.password-toggle');
 
+        if (passwordField.type === 'password') {
+            passwordField.type = 'text';
+            passwordToggle.textContent = '🔒';
+        } else {
+            passwordField.type = 'password';
+            passwordToggle.textContent = '👁️';
+        }
+    }
 
-        
+    document.getElementById('loginForm').addEventListener('submit', function(event) {
+        // Form validation can be added here
+        const email = document.getElementById('Email').value;
+        const password = document.getElementById('Password').value;
+        const errorMessage = document.getElementById('error-message');
+
+        // Example validation - can be modified as needed
+        if (email.trim() === '' || password.trim() === '') {
+            event.preventDefault();
+            errorMessage.textContent = 'Please enter both email and password.';
+            errorMessage.classList.add('show');
+
+            setTimeout(() => {
+                errorMessage.classList.remove('show');
+            }, 3000);
+        }
+    });
+</script>

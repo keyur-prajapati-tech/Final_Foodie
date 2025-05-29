@@ -844,6 +844,62 @@ namespace Foodie.Repositories
             }
             return vendors;
         }
+        public VendoreViewModel GetVendorById(int restaurantId)
+        {
+            VendoreViewModel vendor = null;
+
+            using (var con = new SqlConnection(_connectionstring))
+            {
+                var cmd = new SqlCommand("vendores.sp_GetVendorDetailsForApprovalbyid", con)
+                {
+                    CommandType = CommandType.StoredProcedure
+                };
+                cmd.Parameters.AddWithValue("@res_id", restaurantId);
+
+                con.Open();
+                var reader = cmd.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    vendor = new VendoreViewModel
+                    {
+                        RestaurantId = reader["restaurant_id"] != DBNull.Value ? Convert.ToInt32(reader["restaurant_id"]) : 0,
+                        RestaurantName = reader["restaurant_name"]?.ToString(),
+                        RestaurantEmail = reader["restaurant_email"]?.ToString(),
+                        RestaurantContact = reader["restaurant_contact"]?.ToString(),
+                        RestaurantStreet = reader["restaurant_street"]?.ToString(),
+                        RestaurantPincode = reader["restaurant_pincode"]?.ToString(),
+
+                        OwnerName = reader["owner_name"]?.ToString(),
+                        OwnerContact = reader["owner_contact"]?.ToString(),
+                        OwnerEmail = reader["owner_email"]?.ToString(),
+
+                        BankName = reader["bank_name"]?.ToString(),
+                        IFSCCode = reader["IFSC_code"]?.ToString(),
+                        ACCNo = reader["ACC_No"]?.ToString(),
+                        ACCType = reader["ACC_Type"]?.ToString(),
+
+                        PanNumber = reader["pan_number"]?.ToString(),
+                        PanHolderName = reader["pan_holder_name"]?.ToString(),
+                        PanIsVerified = reader["pan_isVerify"] != DBNull.Value ? Convert.ToBoolean(reader["pan_isVerify"]) : false,
+                        PanImage = reader["pan_img"] != DBNull.Value ? (byte[])reader["pan_img"] : null,
+
+                        GstNumber = reader["gst_number"]?.ToString(),
+                        GstIsVerified = reader["gst_isVerify"] != DBNull.Value ? Convert.ToBoolean(reader["gst_isVerify"]) : false,
+
+                        FssaiCerti = reader["fssai_certi"]?.ToString(),
+                        ExpiryDate = reader["Ex_date"] != DBNull.Value ? Convert.ToDateTime(reader["Ex_date"]) : DateTime.MinValue,
+                        FssaiImage = reader["fssai_img"] != DBNull.Value ? (byte[])reader["fssai_img"] : null,
+                        FssaiIsVerified = reader["fssai_isVerify"] != DBNull.Value ? Convert.ToBoolean(reader["fssai_isVerify"]) : false,
+
+                        RestaurantImage = reader["Restaurant_img"] != DBNull.Value ? (byte[])reader["Restaurant_img"] : null,
+                        MenuImage = reader["Restaurant_menu_img"] != DBNull.Value ? (byte[])reader["Restaurant_menu_img"] : null
+                    };
+                }
+            }
+
+            return vendor;
+        }
 
         public bool DeleteVendor(int id)
         {
@@ -1045,6 +1101,23 @@ namespace Foodie.Repositories
             }
 
             return sales;
+        }
+        public bool UpdatePassword(string email, string newPassword)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                using (SqlCommand cmd = new SqlCommand("[admins].[sp_UpdateAdminPassword]", conn))
+                {
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@Email", email);
+                    cmd.Parameters.AddWithValue("@NewPassword", newPassword);
+
+                    conn.Open();
+                    int rowsAffected = cmd.ExecuteNonQuery();
+
+                    return rowsAffected > 0;
+                }
+            }
         }
     }
 }
