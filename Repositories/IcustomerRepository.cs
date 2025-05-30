@@ -17,6 +17,12 @@ namespace Foodie.Repositories
         void UpdateCustomerProfile(tbl_customer customerinfo, byte[] profilePic);
 
         List<RestaurantInfo> GetAllRestaurants();
+        RestaurantInfo GetRestaurantByName(string restaurantName);
+        List<MenuItemViewModel> GetMenuItemsByRestaurantdetails(int restaurantId);
+        List<RestaurantInfo> GetTopRestaurant(int count = 5);
+        List<MenuItemViewModel> getCuisinrByRestaurant(int restaurantId);
+        //List<MenuItemViewModel> GetMenuItemByRestaurantAndCuisine(int restaurantId, int cuisineId);
+
 
         // 🔐 Add this method
         tbl_customer ValidateCustomerLogin(string email, string password);

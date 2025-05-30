@@ -1,0 +1,432 @@
+﻿@model Foodie.Models.Restaurant.RestaurantInfo
+@{
+    Layout = "~/Views/Shared/_foodieheader.cshtml";
+    var menuItems = ViewBag.MenuItems as List<Foodie.Models.customers.MenuItemViewModel>;
+}
+
+<div class="container mt-4 restaurant-detail">
+    <!-- Restaurant Header -->
+    <div class="row">
+        <div class="col-md-4">
+            <img src="data:image/png;base64,@Convert.ToBase64String(Model.Restaurant_img)"
+                 class="img-fluid rounded" alt="@Model.Restaurant_name" style="max-height: 300px;">
+        </div>
+        <div class="col-md-8">
+            <h1>@Model.Restaurant_name</h1>
+            <div class="rating mb-3">
+                <span class="badge bg-success">@Model.Rating ★</span>
+                <span class="text-muted ms-2">(Ratings)</span>
+            </div>
+
+            <div class="details-section mt-4">
+                <h4>Details</h4>
+                <ul class="list-unstyled">
+                    <li><i class="fas fa-map-marker-alt"></i> @Model.Address</li>
+                    <li><i class="fas fa-phone"></i> @Model.Phone</li>
+                    <li><i class="fas fa-envelope"></i> @Model.Email</li>
+                    <li><i class="fas fa-calendar-alt"></i> Open @Model.DayOfWeek days a week</li>
+                    <li><i class="fas fa-clock"></i> @Model.OpeningTime.ToString(@"hh\:mm") - @Model.ClosingTime.ToString(@"hh\:mm")</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <hr class="my-4">
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs" id="restaurantTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab">Overview</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="menu-tab" data-bs-toggle="tab" data-bs-target="#menu" type="button" role="tab">Menu</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="menu-tab" data-bs-toggle="tab" data-bs-target="#photos" type="button" role="tab">Photos</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="menu-tab" data-bs-toggle="tab" data-bs-target="#review" type="button" role="tab">Review</button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content py-4" id="restaurantTabContent">
+        <!-- Overview Tab -->
+        <div class="tab-pane fade show active" id="overview" role="tabpanel">
+            <div class="res-container mt-3">
+                <!-- Left Side Content -->
+                <div class="left-content">
+                    <div class="menu-section">
+                        <h2>Menu</h2>
+                        <div class="cuisines">
+                            <span class="tag">North Indian</span>
+                            <span class="tag">Kathiyawadi</span>
+                        </div>
+                        <div class="menu-card">
+                            <img src="https://i.pinimg.com/736x/e0/92/ac/e092ac87d6ff12512795de70ae181331.jpg" alt="Menu">
+                            <p>Menu <br> 2 pages</p>
+                        </div>
+                    </div>
+
+                    <div class="average-cost">
+                        <h2>Average Cost</h2>
+                        <p><strong>₹500</strong> for two people (approx.)</p>
+                        <p>Exclusive of taxes & charges, if any</p>
+                        <p>Digital payments accepted</p>
+                    </div>
+
+                    <div class="more-info">
+                        <h2>More Info</h2>
+                        <ul>
+                            <li>Takeaway Available</li>
+                            <li>Vegetarian Only</li>
+                            <li>Family Friendly</li>
+                            <li>Outdoor Seating</li>
+                        </ul>
+                    </div>
+
+                    <!-- Similar Restaurants Section -->
+                    <div class="similar-restaurants">
+                        <h2>Similar Restaurants</h2>
+                        <div class="restaurant-carousel">
+                            <div class="restaurant-card">
+                                <img src="restaurant1.jpg" alt="Vishala Garden">
+                                <h3>Vishala Garden R...</h3>
+                                <p><span class="rating">3.0 ⭐</span> DINING | <span class="rating">3.9 ⭐</span> DELIVERY</p>
+                                <p>North Indian, Chinese, Gujarati</p>
+                                <p>Katargam, Surat</p>
+                            </div>
+
+                            <div class="restaurant-card">
+                                <img src="restaurant2.jpg" alt="Super Seek Paratha">
+                                <h3>Super Seek Parat...</h3>
+                                <p><span class="rating">4.1 ⭐</span> DINING | <span class="rating">4.0 ⭐</span> DELIVERY</p>
+                                <p>North Indian, Biryani</p>
+                                <p>Shahpore, Surat</p>
+                            </div>
+
+                            <div class="restaurant-card">
+                                <img src="restaurant3.jpg" alt="Swaminarayan Khichdi">
+                                <h3>Swaminarayan Khi...</h3>
+                                <p><span class="rating">3.9 ⭐</span> DINING | <span class="rating">3.9 ⭐</span> DELIVERY</p>
+                                <p>Gujarati, North Indian</p>
+                                <p>Kapodra, Surat</p>
+                            </div>
+                        </div>
+                    </div>
+                    <!--Review Highlights-->
+                    <div class="container mt-4" style="background-color:#fff;box-shadow:3px 3px 3px 3px rgba(0,0,0,0);">
+                        <h4>Review Highlights</h4>
+                        <div class="review-container">
+                            <span class="review-pill">Large Servings</span>
+                            <span class="review-pill">Delivery Person</span>
+                            <span class="review-pill">Contactless Delivery</span>
+                            <span class="review-pill">Wonderful Presentation</span>
+                            <span class="review-pill">Nice Food</span>
+                            <span class="review-pill">Student Crowd</span>
+                        </div>
+                    </div>
+                    <!-- Featured Section -->
+                    <div class="featured-section">
+                        <h2>Featured In</h2>
+                        <div class="featured-card">
+                            <img src="featured.jpg" alt="Gujarati Dishes">
+                            <div class="featured-text">
+                                <h3>Unmissable Gujarati D...</h3>
+                                <p>11 Places ➜</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Help Us Make Zomato Better Section -->
+                    <div class="help-section mt-3">
+                        <h2>HELP US MAKE ZOMATO BETTER</h2>
+
+                        <div class="help-box">
+                            <h3>Report an error in this listing</h3>
+                            <p>Help us make Zomato more updated and relevant for everyone</p>
+                            <a href="#" class="report-link">Report now ➜</a>
+                        </div>
+
+                        <hr> <!-- Horizontal Line -->
+
+                        <div class="help-box">
+                            <h3>Claim this listing</h3>
+                            <p>Claim this listing to get access to a free management and analytics dashboard, where you can edit information, track your page views, and more.</p>
+                            <a href="#" class="claim-link">Claim now ➜</a>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Right Side Fixed Location -->
+                <div class="right-content">
+                    <div class="location-box">
+                        <h2>Direction</h2>
+                        <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=..." width="100%" height="150"></iframe>
+                        <p>Adajan Hazira Main Road, Opposite Shell Petrol Pump, Bhatha Gam, Pal Gam, Surat</p>
+                        <button class="copy-btn">📋 Copy</button>
+                        <button class="direction-btn">📍 Direction</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Tab -->
+        <div class="tab-pane fade" id="menu" role="tabpanel">
+            @if (menuItems != null && menuItems.Count > 0)
+            {
+                <!-- Group by cuisine -->
+                var menuGroups = menuItems.GroupBy(m => m.cuisine_name);
+
+                <div class="accordion" id="menuAccordion">
+                    @foreach (var group in menuGroups)
+                    {
+                        string headingId = "heading" + group.Key.Replace(" ", "");
+                        string collapseId = "collapse" + group.Key.Replace(" ", "");
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="@headingId">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="true">
+                                    @group.Key (@group.Count())
+                                </button>
+                            </h2>
+                            <div id="@collapseId" class="accordion-collapse collapse show" aria-labelledby="@headingId" data-bs-parent="#menuAccordion">
+                                <div class="accordion-body">
+                                    <div class="row">
+                                        @foreach (var item in group)
+                                        {
+                                            <div class="col-md-4 mb-4">
+                                                <div class="card h-100">
+                                                    @if (!string.IsNullOrEmpty(item.MenuImageBase64))
+                                                    {
+                                                        <img src="data:image/jpeg;base64,@item.MenuImageBase64"
+                                                             class="card-img-top"
+                                                             alt="@item.MenuName"
+                                                             style="height: 200px; object-fit: cover;">
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="card-img-top bg-light" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                                                            <i class="fas fa-utensils fa-3x text-muted"></i>
+                                                        </div>
+                                                    }
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">@item.MenuName</h5>
+                                                        <p class="card-text">@item.MenuDescription</p>
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <span class="text-danger fw-bold">₹@item.Amount</span>
+                                                            <button class="btn btn-sm btn-outline-primary">Add to Cart</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">No menu items available for this restaurant.</div>
+            }
+        </div>
+    </div>
+</div>
+
+    <style>
+        .restaurant-detail {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .restaurant-header h1 {
+            font-size: 2.2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .rating {
+            font-size: 1.2rem;
+        }
+
+        .details-section i {
+            width: 20px;
+            margin-right: 10px;
+            color: #6c757d;
+        }
+
+        .card {
+            transition: transform 0.2s;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+            .card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            }
+
+        .card-img-top {
+            object-position: center;
+        }
+
+        .accordion-button {
+            font-weight: 500;
+        }
+
+            .accordion-button:not(.collapsed) {
+                background-color: #f8f9fa;
+            }
+
+        .nav-tabs {
+            border-bottom: 2px solid #dee2e6;
+        }
+
+            .nav-tabs .nav-link {
+                border: none;
+                color: #495057;
+                font-weight: 500;
+            }
+
+                .nav-tabs .nav-link.active {
+                    color: #d23c3c;
+                    border-bottom: 2px solid #d23c3c;
+                    background-color: transparent;
+                }
+
+    /* Layout */
+    .res-container {
+        display: flex;
+        width: 100%;
+        margin: auto;
+        gap: 20px;
+    }
+
+    /* Left Content */
+    .left-content {
+        width: 65%;
+    }
+
+    /* Tabs */
+    .tabs {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+        .tabs a {
+            text-decoration: none;
+            color: #666;
+            font-weight: bold;
+        }
+
+        .tabs .active {
+            color: red;
+            border-bottom: 2px solid red;
+        }
+
+    /* Menu Section */
+    .menu-section {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .cuisines {
+        margin-top: 10px;
+    }
+
+    .tag {
+        display: inline-block;
+        background: #f7c744;
+        padding: 5px 10px;
+        margin-right: 5px;
+        border-radius: 5px;
+        font-size: 14px;
+    }
+
+    .menu-card {
+        margin-top: 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+        .menu-card img {
+            width: 100px;
+            height: 100px;
+            border-radius: 8px;
+        }
+
+    /* Cost & More Info */
+    .average-cost, .more-info {
+        background: white;
+        padding: 20px;
+        margin-top: 15px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Right Content (Fixed Location Box) */
+    .right-content {
+        width: 30%;
+        position: relative;
+    }
+
+    .location-box {
+        position: sticky;
+        top: 20px; /* Keeps it fixed when scrolling */
+        background: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+
+        .location-box iframe {
+            border-radius: 5px;
+        }
+
+    .copy-btn, .direction-btn {
+        display: block;
+        width: 100%;
+        margin: 5px 0;
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .copy-btn {
+        background: #ddd;
+    }
+
+    .direction-btn {
+        background: red;
+        color: white;
+    }
+    </style>
+
+
+<script>
+    $(document).ready(function() {
+            // Initialize Bootstrap tabs
+            $('#restaurantTabs button').on('click', function (e) {
+                e.preventDefault();
+                $(this).tab('show');
+            });
+
+            // Add to cart functionality
+            $('.btn-outline-primary').click(function() {
+                const menuItemId = $(this).closest('.card').data('menu-id');
+                // Implement your add to cart logic here
+                alert('Added to cart: ' + menuItemId);
+            });
+        });
+</script>

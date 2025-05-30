@@ -7,6 +7,8 @@ using System.Data;
 using System;
 using Foodie.Models.Admin;
 using Foodie.Models;
+using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace Foodie.Repositories
 {
@@ -1647,7 +1649,187 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
             return menuItems;
         }
 
-        public MenuItemViewModel GetMenuViewModelAsync(int restaurantId, int? cuisineId = null)
+  
+        public RestaurantInfo GetRestaurantByName(string restaurantName)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_connectionstring))
+                using (SqlCommand cmd = new SqlCommand(
+                    @"SELECT  
+                        rs.restaurant_id,
+                        Restaurant_name,
+                        restaurant_img,
+                        rs.restaurant_street + ' ' + rs.restaurant_pincode AS [address],
+                        rs.restaurant_contact,
+                        rs.restaurant_email,
+                        va.day_of_week,
+                        va.open_DATETIME,
+                        va.close_DATETIME
+                    FROM vendores.tbl_restaurant rs
+                    INNER JOIN vendores.tbl_vendores_img vi ON rs.restaurant_id = vi.Restaurant_id
+                    INNER JOIN vendores.tbl_vendor_availability va ON va.Restaurant_id = rs.restaurant_id
+                    WHERE 
+                        customers.RemoveExtraSpaces(restaurant_name) = customers.RemoveExtraSpaces(@name)
+                        AND restaurant_isApprov = 1", conn))
+                {
+                    string normalizedName = Regex.Replace(restaurantName.Trim(), @"\s+", " ");
+                    cmd.Parameters.AddWithValue("@name", normalizedName);
+
+                    conn.Open();
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            DateTime openTime = reader["open_DATETIME"] != DBNull.Value
+                                ? Convert.ToDateTime(reader["open_DATETIME"])
+                                : DateTime.MinValue;
+
+                            DateTime closeTime = reader["close_DATETIME"] != DBNull.Value
+                                ? Convert.ToDateTime(reader["close_DATETIME"])
+                                : DateTime.MinValue;
+
+                            return new RestaurantInfo
+                            {
+                                RestaurantId = Convert.ToInt32(reader["restaurant_id"]),
+                                Restaurant_name = reader["Restaurant_name"].ToString(),
+                                Restaurant_img = reader["restaurant_img"] as byte[],
+                                Description = string.Empty,
+                                Address = reader["address"].ToString(),
+                                Phone = reader["restaurant_contact"].ToString(),
+                                Email = reader["restaurant_email"].ToString(),
+                                Rating = 0,
+                                DayOfWeek = reader["day_of_week"] != DBNull.Value
+                                    ? reader["day_of_week"].ToString().Split(',').Length
+                                    : 0,
+                                OpeningTime = openTime != DateTime.MinValue
+                                    ? openTime.TimeOfDay
+                                    : TimeSpan.Zero,
+                                ClosingTime = closeTime != DateTime.MinValue
+                                    ? closeTime.TimeOfDay
+                                    : TimeSpan.Zero
+                            };
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                Debug.WriteLine($"Error in GetRestaurantByName: {ex.Message}");
+            }
+            return null;
+        }
+
+        public List<RestaurantInfo> GetTopRestaurant(int count = 5)
+        {
+            var brands = new List<RestaurantInfo>();
+
+            using (var connection = new SqlConnection(_connectionstring))
+            {
+                var command = new SqlCommand("SELECT TOP (@Count) * FROM vendores.tbl_restaurant rs inner join customers.tbl_rating cr on rs.restaurant_id = cr.restaurant_id WHERE restaurant_isApprov = 1 ORDER BY rating DESC", connection);
+                command.Parameters.AddWithValue("@Count", count);
+                connection.Open();
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        brands.Add(new RestaurantInfo
+                        {
+                            RestaurantId = Convert.ToInt32(reader["restaurant_id"]),
+                            Restaurant_name = reader["restaurant_name"].ToString(),
+                            Restaurant_img = reader["Restaurant_img"] as byte[],
+                            Description = reader["Description"].ToString(),
+                            Address = reader["Address"].ToString(),
+                            Phone = reader["Phone"].ToString(),
+                            Email = reader["Email"].ToString(),
+                            Rating = Convert.ToDecimal(reader["rating"]),
+                            DayOfWeek = Convert.ToInt32(reader["DayOfWeek"]),
+                            OpeningTime = TimeSpan.Parse(reader["OpeningTime"].ToString()),
+                            ClosingTime = TimeSpan.Parse(reader["ClosingTime"].ToString())
+                        });
+                    }
+                }
+            }
+
+            return brands;
+        }
+
+        List<MenuItemViewModel> IcustomerRepository.GetMenuItemsByRestaurantdetails(int restaurantId)
+        {
+            var menuItems = new List<MenuItemViewModel>();
+
+            using (var connection = new SqlConnection(_connectionstring))
+            {
+                var command = new SqlCommand(
+                    @"SELECT mi.*, cm.cuisine_name 
+              FROM vendores.tbl_menu_items mi
+              JOIN admins.tbl_cuisine_master cm ON mi.cuisine_id = cm.cuisine_id
+              WHERE mi.Restaurant_id = @RestaurantId AND mi.IsAvalable = 1",
+                    connection);
+
+                command.Parameters.AddWithValue("@RestaurantId", restaurantId);
+                connection.Open();
+
+                using (var reader = command.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        menuItems.Add(new MenuItemViewModel
+                        {
+                            MenuId = Convert.ToInt32(reader["menu_id"]),
+                            MenuName = reader["menu_name"].ToString(),
+                            MenuImg = reader["menu_img"] != DBNull.Value ? (byte[])reader["menu_img"] : null,
+                            MenuDescription = reader["menu_descripation"].ToString(),
+                            Amount = Convert.ToDecimal(reader["amount"]),
+                            cuisine_name = reader["cuisine_name"].ToString(),
+                            cuisine_id = Convert.ToInt32(reader["cuisine_id"]),
+                            RestaurantId = restaurantId,
+                            IsAvalable = Convert.ToBoolean(reader["IsAvalable"]),
+                            MenuImageBase64 = reader["menu_img"] != DBNull.Value
+                                ? Convert.ToBase64String((byte[])reader["menu_img"])
+                                : string.Empty
+                        });
+                    }
+                }
+            }
+
+            return menuItems;
+        }
+
+        MenuItemViewModel IcustomerRepository.GetMenuViewModelAsync(int restaurantId, int? cuisineId)
+        {
+            List<MenuItemViewModel> cuisines = new List<MenuItemViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT DISTINCT mi.cuisine_id, cuisine_name FROM admins.tbl_cuisine_master ad inner join vendores.tbl_menu_items mi on ad.cuisine_id = mi.cuisine_id 
+                         WHERE Restaurant_id = @restaurantId";
+
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@restaurantId", restaurantId);
+                    conn.Open();
+
+                    using (SqlDataReader reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            cuisines.Add(new MenuItemViewModel
+                            {
+                                cuisine_id = Convert.ToInt32(reader["cuisine_id"]),
+                                cuisine_name = reader["cuisine_name"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        public List<MenuItemViewModel> getCuisinrByRestaurant(int restaurantId)
         {
             throw new NotImplementedException();
         }
@@ -1656,5 +1838,51 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
         {
             throw new NotImplementedException();
         }
+
+        //List<tbl_cuisine_master> IcustomerRepository.GetCuisinesWithCountAsync(int restaurantId)
+        //{
+        //    List<MenuItemViewModel> items = new List<MenuItemViewModel>();
+
+        //    using (SqlConnection conn = new SqlConnection(_connectionstring))
+        //    {
+        //        string query = @"SELECT * FROM vendores.tbl_menu_items WHERE Restaurant_id = @restaurantId";
+
+        //        if (cuisine_id.HasValue)
+        //        {
+        //            query += " AND cuisine_id = @cuisineId";
+        //        }
+
+        //        using (SqlCommand cmd = new SqlCommand(query, conn))
+        //        {
+        //            cmd.Parameters.AddWithValue("@restaurantId", restaurantId);
+
+        //            if (cuisineId.HasValue)
+        //                cmd.Parameters.AddWithValue("@cuisineId", cuisineId.Value);
+
+        //            conn.Open();
+
+        //            using (SqlDataReader reader = cmd.ExecuteReader())
+        //            {
+        //                while (reader.Read())
+        //                {
+        //                    items.Add(new MenuItemViewModel
+        //                    {
+        //                        MenuId = Convert.ToInt32(reader["menu_id"]),
+        //                        MenuName = reader["menu_name"].ToString(),
+        //                        cuisine_id = Convert.ToInt32(reader["cuisine_id"]),
+        //                        CuisineName = reader["cuisine_name"].ToString(),
+        //                        MenuDescription = reader["menu_description"].ToString(),
+        //                        Amount = Convert.ToDecimal(reader["amount"]),
+        //                        IsAvailable = Convert.ToBoolean(reader["isAvailable"]),
+        //                        RestaurantId = Convert.ToInt32(reader["RestaurantId"])
+        //                        // Add other fields as needed
+        //                    });
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    return items;
+        //}
     }
 }
