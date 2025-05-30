@@ -553,15 +553,20 @@
                                             <i class="fas fa-eye mr-1"></i> View
                                         </a>
                                         <div>
-                                            @if (!restaurant.restaurant_isApprov)
-                                            {
-                                                <a href="#" class="btn btn-action btn-approve">
-                                                    <i class="fas fa-check mr-1"></i> Approve
-                                                </a>
-                                            }
-                                            <a href="#" class="btn btn-action @(restaurant.restaurant_isApprov ? "btn-reject" : "btn-danger")">
-                                                <i class="fas @(restaurant.restaurant_isApprov ? "fa-ban" : "fa-times") mr-1"></i> @(restaurant.restaurant_isApprov ? "Revoke" : "Reject")
-                                            </a>
+                                            <div>
+                                                @if (restaurant.restaurant_isApprov != true)
+                                                {
+                                                    <a asp-controller="VendoreApproval" asp-action="Approve" asp-route-email="@restaurant.restaurant_email" asp-route-id="@restaurant.restaurant_id" class="btn btn-action btn-approve">
+                                                        <i class="fas fa-check mr-1"></i> Approve
+                                                    </a>
+                                                }
+                                                @if (restaurant.restaurant_isApprov != false)
+                                                {
+                                                    <a asp-controller="VendoreApproval" asp-action="Reject" asp-route-email="@restaurant.restaurant_email" asp-route-id="@restaurant.restaurant_id" class="btn btn-action btn-reject">
+                                                        <i class="fas fa-ban mr-1"></i> @(restaurant.restaurant_isApprov == true ? "Inactive" : "Reject")
+                                                    </a>
+                                                }
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>

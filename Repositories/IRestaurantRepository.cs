@@ -87,5 +87,6 @@ namespace Foodie.Repositories
         EarningSummaryViewModel GetEarningsSummary();
         IEnumerable<tbl_orders> GetOrders();
         IEnumerable<payments> GetPayments();
+        
     }
 }
