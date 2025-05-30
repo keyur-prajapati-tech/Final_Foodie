@@ -1,8 +1,43 @@
 ﻿@{
     ViewBag.Title = "Pay Signup Fee - FOODIE";
-    Layout = "~/Views/Shared/_DeliverRegisterLayout.cshtml"; // Preserving original layout
+    Layout = "~/Views/Shared/_DeliverRegisterLayout.cshtml";
 }
 
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+    function payNow() {
+        var options = {
+            "key": "rzp_test_A6DIgBxiN6cygo", // Replace with LIVE key in production
+            "amount": document.getElementById("amount").value, // Amount in paise (120000 paise = ₹1200)
+            "currency": "INR",
+            "name": "FOODIE",
+            "description": "Signup Fee for Delivery Partner",
+            "image": "/images/logo.png",
+            "handler": function (response) {
+                // Call backend to save payment details
+                fetch('/deliverysignup/d/fees?transactionId=' + response.razorpay_payment_id, {
+                    method: 'POST'
+                })
+                .then(res => res.text())
+                .then(data => {
+                    window.location.href = '/deliverysignup/d/pending';
+                })
+                .catch(err => {
+                    alert("Payment succeeded but server error occurred. Contact support.");
+                });
+            },
+            "prefill": {
+                "name": "@ViewBag.FullName",
+                "email": "@ViewBag.Email"
+            },
+            "theme": {
+                "color": "#FF5A00"
+            }
+        };
+        var rzp1 = new Razorpay(options);
+        rzp1.open();
+    }
+</script>
 <style>
     :root {
         --primary-color: #FF5A00;
@@ -352,10 +387,8 @@
         </div>
 
         <form id="paymentForm">
-            <input type="hidden" id="amount" value="120000" /> <!-- Razorpay expects amount in paise -->
-            <button type="button" class="btn-pay" onclick="payNow()">
-                Pay ₹1200.00 Securely
-            </button>
+            <input type="hidden" id="amount" value="120000" />
+            <button type="button" onclick="payNow()">Pay ₹1200</button>
         </form>
 
         <div class="payment-secure">
@@ -381,30 +414,3 @@
 </div>
 
 <!-- Razorpay Script -->
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-<script>
-    function payNow() {
-        var options = {
-            "key": "rzp_test_aUXiFx5XjAGIrl", // Replace with your Razorpay key
-            "amount": document.getElementById("amount").value,
-            "currency": "INR",
-            "name": "FOODIE",
-            "description": "Signup Fee for Delivery Partner",
-            "image": "/images/logo.png", // Optional logo
-            "handler": function (response) {
-                // Save transaction to DB using AJAX or redirect to success
-                alert("Payment Successful! Transaction ID: " + response.razorpay_payment_id);
-                window.location.href = "/deliverysignup/d/pending?transactionId=" + response.razorpay_payment_id;
-            },
-            "prefill": {
-                "name": "@ViewBag.FullName", // Optional if available
-                "email": "@ViewBag.Email"
-            },
-            "theme": {
-                "color": "#FF5A00"
-            }
-        };
-        var rzp1 = new Razorpay(options);
-        rzp1.open();
-    }
-</script>

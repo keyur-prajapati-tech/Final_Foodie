@@ -104,5 +104,6 @@ namespace Foodie.Repositories
 
         bool UpdatePassword(string email, string newPassword);
 
+        public bool ChangeResStatus(int resid, bool status);
     }
 }

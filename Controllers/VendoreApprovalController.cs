@@ -2,6 +2,7 @@
 using System.Net;
 using Foodie.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace Foodie.Controllers
 {
@@ -30,21 +31,6 @@ namespace Foodie.Controllers
 
             return View(vendor);
         }
-
-        [HttpPost]
-        public IActionResult ApproveVendor(int id, string email)
-        {
-            _AdminRepository.UpdateApprovalStatus(id, true);
-
-            string subject = "Restaurant Approved";
-            string body = "<h3>Your restaurant has been approved!</h3><p>You can now receive orders on our platform.</p>";
-            SendEmail(email, subject, body);
-
-            TempData["message"] = "Vendor approved and notified successfully.";
-            return RedirectToAction("VendorApproval");
-        }
-
-
         [HttpPost]
         public IActionResult RejectVendor(int id, string email)
         {
@@ -63,9 +49,35 @@ namespace Foodie.Controllers
                 TempData["error"] = "Failed to delete vendor.";
             }
 
-            return RedirectToAction("VendorApproval");
+            return RedirectToAction("Restaurant", "AddRestaurant");
         }
 
+        public IActionResult ChangeStatus(int resid, bool status)
+        {
+            bool success = _AdminRepository.ChangeResStatus(resid, status);
+
+            if (success)
+                TempData["Success"] = $"Restaurant status changed to {status} successfully";
+            else
+                TempData["Error"] = "Failed to update partner status";
+
+            return RedirectToAction("Restaurant", "AddRestaurant");
+        }
+        public IActionResult Approve(int id , string email)
+        {
+            string subject = "Restaurant Approved";
+            string body = "<h3>Your restaurant has been approved!</h3><p>You can now receive orders on our platform.</p>";
+            SendEmail(email, subject, body);
+            return ChangeStatus(id, true);
+        }
+
+        public IActionResult Reject(int id , string email)
+                    {
+            string subject = "Restaurant Suspended";
+            string body = "<h3>We're sorry!</h3><p>Your restaurant registration has been Suspended.</p>";
+            SendEmail(email, subject, body);
+            return ChangeStatus(id, false);
+        }
         public void SendEmail(string toEmail, string subject, string body)
         {
             var fromEmail = "amishaambaliya12203@gmail.com";

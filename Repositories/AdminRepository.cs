@@ -804,7 +804,7 @@ namespace Foodie.Repositories
             var vendors = new List<VendoreViewModel>();
             using (var con = new SqlConnection(_connectionstring))
             {
-                var cmd = new SqlCommand("vendores.sp_GetVendorDetailsForApproval", con)
+                var cmd = new SqlCommand("vendores.sp_GetVendorpendingDetailsForApproval", con)
                 {
                     CommandType = CommandType.StoredProcedure
                 };
@@ -1119,5 +1119,22 @@ namespace Foodie.Repositories
                 }
             }
         }
+
+        public bool ChangeResStatus(int resid, bool status)
+        {
+            using (var connection = new SqlConnection(_connectionstring))
+            {
+                connection.Open();
+                var command = new SqlCommand(
+                    "update vendores.tbl_restaurant set restaurant_isApprov = @status where restaurant_id =@resid ",
+                    connection);
+                command.Parameters.AddWithValue("@resid", resid);
+                command.Parameters.AddWithValue("@status", status);
+
+                int rowsAffected = command.ExecuteNonQuery();
+                return rowsAffected > 0;
+            }
+        }
+
     }
 }
