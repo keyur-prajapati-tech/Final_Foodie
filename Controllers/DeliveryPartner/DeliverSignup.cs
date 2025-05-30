@@ -51,8 +51,13 @@ namespace Foodie.Controllers.DeliveryPartner
             ViewData["Layout"] = "_DeliveryPartnerLayout";
             return View("DeliveryRegister");
         }
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("d/login");
+        }
 
-        [HttpPost]
+       [HttpPost]
         [Route("d/register")]
         public async Task<IActionResult> DeliveryRegister(tbl_deliveryPartners partner)
         {
@@ -861,7 +866,7 @@ namespace Foodie.Controllers.DeliveryPartner
 
             using (SqlConnection con = new SqlConnection(_connStr))
             {
-                string query = "UPDATE deliverypartner.tbl_deliveryPartners SET Isavailable = @status WHERE partner_id = @id";
+                string query = "UPDATE deliverypartner.tbl_deliveryPartners SET isOnline = @status WHERE partner_id = @id";
                 SqlCommand cmd = new SqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@status", newStatus);
                 cmd.Parameters.AddWithValue("@id", partnerId);
@@ -1085,6 +1090,7 @@ namespace Foodie.Controllers.DeliveryPartner
             {
                 using (SqlConnection con = new SqlConnection(GetConnectionString()))
                 {
+                    // Check if already paid
                     string checkQuery = "SELECT COUNT(*) FROM admins.tbl_signupFees WHERE partner_id = @partner_id AND Status = 'Completed'";
                     using (SqlCommand checkCmd = new SqlCommand(checkQuery, con))
                     {
@@ -1096,29 +1102,45 @@ namespace Foodie.Controllers.DeliveryPartner
                         if (count > 0)
                         {
                             TempData["Error"] = "You have already paid the signup fee.";
-                            return RedirectToAction("PendingApproval");
+                            return RedirectToAction("d/pending");
                         }
                     }
 
+                    // Insert payment record
                     string insertQuery = @"INSERT INTO admins.tbl_signupFees 
-                (partner_id, Amount, PaymentMethod, TransactionID, Status) 
-                VALUES (@partner_id, @Amount, @PaymentMethod, @TransactionID, @Status)";
-
+                (partner_id, Amount, PaymentMethod, TransactionID, PaidAt, Status) 
+                VALUES (@partner_id, @Amount, @PaymentMethod, @TransactionID, @PaidAt, @Status)";
                     using (SqlCommand cmd = new SqlCommand(insertQuery, con))
                     {
                         cmd.Parameters.AddWithValue("@partner_id", partnerId);
-                        cmd.Parameters.AddWithValue("@Amount", 49); // Or fetch from Razorpay webhook if dynamic
-                        cmd.Parameters.AddWithValue("@PaymentMethod", "Razorpay");
+                        cmd.Parameters.AddWithValue("@Amount", 1200); // ₹1200
+                        cmd.Parameters.AddWithValue("@PaymentMethod", "UPI");
                         cmd.Parameters.AddWithValue("@TransactionID", transactionId);
+                        cmd.Parameters.AddWithValue("@PaidAt", DateTime.Now);
                         cmd.Parameters.AddWithValue("@Status", "Completed");
-
                         con.Open();
                         cmd.ExecuteNonQuery();
                     }
+
+                    using (SqlCommand command = new SqlCommand(
+                         "UPDATE deliverypartner.tbl_deliveryPartners SET Status = @Status WHERE partner_id = @PartnerId",
+                         con))
+                    {
+
+
+                        command.Parameters.AddWithValue("@PartnerId", partnerId);
+                        command.Parameters.AddWithValue("@Status", "Pending");
+
+                        command.ExecuteNonQuery();
+                    }
+
+
+
                 }
 
                 TempData["Success"] = "Payment successful!";
-                return RedirectToAction("PendingApproval"); // 🔁 Redirect here after payment
+
+                return RedirectToAction("PendingApproval");
             }
             catch (Exception ex)
             {
@@ -1126,6 +1148,8 @@ namespace Foodie.Controllers.DeliveryPartner
                 return RedirectToAction("PaySignupFee");
             }
         }
+
+
 
         private async Task CheckAndUpdatePartnerStatusAsync(int partnerId)
         {
@@ -1209,5 +1233,5 @@ namespace Foodie.Controllers.DeliveryPartner
     // The issue arises because the `DeliveryPartnerProfileViewModel` class has duplicate property definitions for `PartnerId`.
     // To resolve this, remove the duplicate property definition from the `DeliveryPartnerProfileViewModel` class.
 
-    
+
 }

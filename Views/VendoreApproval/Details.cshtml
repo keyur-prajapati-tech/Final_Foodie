@@ -4,49 +4,171 @@
     Layout = "_AdminLayout";
 }
 
-<h2 class="text-primary fw-bold my-4">Vendor Profile: @Model.RestaurantName</h2>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
 
-<div class="card shadow border-0 rounded-4">
-    <div class="row g-0">
-        <div class="col-md-4 bg-light p-4">
-            <h5>@Model.RestaurantName</h5>
-            <p><strong>Email:</strong> @Model.RestaurantEmail</p>
-            <p><strong>Contact:</strong> @Model.RestaurantContact</p>
-            <p><strong>Address:</strong> @Model.RestaurantStreet, @Model.RestaurantPincode</p>
-            @if (Model.RestaurantImage != null)
-            {
-                <img src="data:image/png;base64,@Convert.ToBase64String(Model.RestaurantImage)" class="restaurant-image" />
+<style>
+    :root {
+        --primary-color: #3498db;
+        --secondary-color: #2c3e50;
+        --accent-color: #16a085;
+        --danger-color: #e74c3c;
+        --success-color: #27ae60;
+        --warning-color: #f39c12;
+        --light-color: #ecf0f1;
+        --dark-color: #2c3e50;
+        --text-primary: #34495e;
+        --text-secondary: #7f8c8d;
+        --border-radius: 8px;
+        --shadow-sm: 0 2px 4px rgba(0,0,0,0.05);
+        --shadow-md: 0 4px 8px rgba(0,0,0,0.1);
+        --shadow-lg: 0 8px 16px rgba(0,0,0,0.15);
+        --transition-speed: 0.3s;
+    }
+    .page-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 2rem;
+        background: linear-gradient(135deg, var(--secondary-color), var(--primary-color));
+        padding: 1.5rem 2rem;
+        border-radius: var(--border-radius);
+        color: white;
+        box-shadow: var(--shadow-md);
+    }
+
+        .page-header h2 {
+            margin: 0;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+            .page-header h2 i {
+                font-size: 1.2em;
             }
+    .profile-section {
+        background-color: #fff;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+        .profile-section h5 {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+    .profile-picture {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #ddd;
+        margin-bottom: 10px;
+    }
+
+    .status-badge {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        padding: 5px 10px;
+        border-radius: 20px;
+    }
+
+    .doc-card {
+        background-color: #f9f9f9;
+        border-radius: 10px;
+        padding: 10px;
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+        .doc-card i {
+            font-size: 24px;
+            color: #0d6efd;
+        }
+</style>
+
+<div class="container py-4">
+    <div class="page-header">
+        <h2><i class="fas fa-id-card"></i> Restaurant Profile</h2>
+    </div>
+
+    <div class="row">
+        <!-- Sidebar - Personal Details -->
+        <div class="col-md-4">
+            <div class="profile-section text-center">
+                <img src="@(Model.RestaurantImage != null ? $"data:image/png;base64,{Convert.ToBase64String(Model.RestaurantImage)}" : "https://via.placeholder.com/120")" class="profile-picture" />
+                <h5>@Model.RestaurantName</h5>
+                <p><i class="bi bi-envelope me-2"></i>@Model.RestaurantEmail</p>
+                <p><i class="bi bi-telephone me-2"></i>@Model.RestaurantContact</p>
+                <p><i class="bi bi-geo-alt me-2"></i>@Model.RestaurantStreet, @Model.RestaurantPincode</p>
+                <hr />
+                <p><i class="bi bi-person"></i> @Model.OwnerName<br /><small>@Model.OwnerEmail</small></p>
+                <p><i class="bi bi-telephone"></i> @Model.OwnerContact</p>
+            </div>
+            <div class="profile-section">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5><i class="bi bi-bank"></i> Bank Details</h5>
+                </div>
+                <p><strong>Bank Name:</strong> @Model.BankName</p>
+                <p><strong>Account No:</strong> @Model.ACCNo</p>
+                <p><strong>IFSC Code:</strong> @Model.IFSCCode</p>
+            </div>
         </div>
-        <div class="col-md-8 p-4">
-            <h6>Owner Info</h6>
-            <p>@Model.OwnerName (@Model.OwnerEmail) - @Model.OwnerContact</p>
 
-            <h6>Bank Details</h6>
-            <p>Bank: @Model.BankName, A/C: @Model.ACCNo, IFSC: @Model.IFSCCode</p>
+        <!-- Main Content -->
+        <div class="col-md-8">
+            <!-- PAN Details -->
+            <div class="profile-section">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5><i class="bi bi-card-text"></i> PAN</h5>
+                </div>
+                <p><strong>Number:</strong> @Model.PanNumber</p>
+                <p><strong>Holder:</strong> @Model.PanHolderName</p>
+                <span class="badge @(Model.PanIsVerified ? "bg-success" : "bg-warning text-dark")">@((Model.PanIsVerified ? "Verified" : "Pending"))</span>
+                @if (Model.PanImage != null)
+                {
+                    <img src="data:image/png;base64,@Convert.ToBase64String(Model.PanImage)" class="w-100 rounded my-2" style="max-height:150px;" />
+                }
+            </div>
 
-            <h6>PAN</h6>
-            <p>Number: @Model.PanNumber, Holder: @Model.PanHolderName</p>
-            <p>Status: <span class="badge @(Model.PanIsVerified ? "bg-success" : "bg-danger")">@((Model.PanIsVerified ? "Verified" : "Not Verified"))</span></p>
-            @if (Model.PanImage != null)
-            {
-                <img src="data:image/png;base64,@Convert.ToBase64String(Model.PanImage)" class="image-box" />
-            }
+            <!-- GST & FSSAI -->
+            <div class="profile-section">
+                <h5><i class="bi bi-receipt"></i> GST & FSSAI</h5>
+                <p>GST: @Model.GstNumber <span class="badge @(Model.GstIsVerified ? "bg-success" : "bg-danger")">@((Model.GstIsVerified ? "Verified" : "Not Verified"))</span></p>
+                <p>FSSAI: @Model.FssaiCerti Exp: @Model.ExpiryDate?.ToShortDateString()</p>
+                <span class="badge @(Model.FssaiIsVerified ? "bg-success" : "bg-danger")">@((Model.FssaiIsVerified ? "Verified" : "Not Verified"))</span>
+                @if (Model.FssaiImage != null)
+                {
+                    <img src="data:image/png;base64,@Convert.ToBase64String(Model.FssaiImage)" class="w-100 rounded my-2" style="max-height:150px;" />
+                }
+            </div>
 
-            <h6>GST & FSSAI</h6>
-            <p>GST: @Model.GstNumber (<span class="badge @(Model.GstIsVerified ? "bg-success" : "bg-danger")">@((Model.GstIsVerified ? "Verified" : "Not Verified"))</span>)</p>
-            <p>FSSAI: @Model.FssaiCerti, Exp: @Model.ExpiryDate?.ToShortDateString()</p>
-            <p>Status: <span class="badge @(Model.FssaiIsVerified ? "bg-success" : "bg-danger")">@((Model.FssaiIsVerified ? "Verified" : "Not Verified"))</span></p>
-            @if (Model.FssaiImage != null)
-            {
-                <img src="data:image/png;base64,@Convert.ToBase64String(Model.FssaiImage)" class="image-box" />
-            }
+            <!-- Menu Document -->
+            <div class="profile-section">
+                <h5><i class="bi bi-menu-button-wide"></i> Menu</h5>
+                @if (Model.MenuImage != null)
+                {
+                    <img src="data:image/png;base64,@Convert.ToBase64String(Model.MenuImage)" class="w-100 rounded" style="max-height:200px;" />
+                }
+                else
+                {
+                    <div class="text-muted">No Menu Uploaded</div>
+                }
+            </div>
 
-            <h6>Menu</h6>
-            @if (Model.MenuImage != null)
-            {
-                <img src="data:image/png;base64,@Convert.ToBase64String(Model.MenuImage)" class="image-box" />
-            }
+            <!-- Action Buttons -->
+            <div class="d-flex justify-content-end">
+                <form asp-controller="VendoreApproval" asp-action="RejectVendor" method="post">
+                    <input type="hidden" name="id" value="@Model.RestaurantId" />
+                    <input type="hidden" name="email" value="@Model.RestaurantEmail" />
+                    <button type="submit" class="btn btn-danger"><i class="bi bi-x-circle-fill"></i> Reject</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
