@@ -515,9 +515,10 @@
             </div>
         }
 
-        <form asp-action="UpdateProfile" asp-controller="DeliverSignup" method="post" enctype="multipart/form-data" class="profile-form">
+        <form action="/deliverysignup/d/profile" method="post" enctype="multipart/form-data">
             <input type="hidden" asp-for="PartnerId" />
             <input type="hidden" asp-for="DetailId" />
+            
 
             <!-- Profile Picture -->
             <div class="profile-pic-container">
