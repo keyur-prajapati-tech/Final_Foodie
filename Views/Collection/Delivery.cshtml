@@ -317,10 +317,11 @@
         @if (Model.Count() > 1)
         {
             <div class="owl-carousel brand-carousel owl-theme mt-3">
+                <!-- Change this in your Brands.cshtml -->
                 @foreach (var item in Model)
                 {
                     <div class="item text-center">
-                        <a asp-controller="TBrands" asp-action="Brands" asp-route-id="@item.Restaurant_name">
+                        <a asp-controller="TBrands" asp-action="BrandDetails" asp-route-name="@Uri.EscapeDataString(item.Restaurant_name)">
                             <img src="data:image/png;base64,@Convert.ToBase64String(item.Restaurant_img)" class="rounded" alt="@item.Restaurant_name" style="width: 200px; height: 150px; margin-left: 3px;" />
                         </a>
                         <p class="mt-2">@item.Restaurant_name</p>
@@ -585,6 +586,26 @@
                     1000: { items: 5 }
                 },
                 navText: ["<i class='fas fa-chevron-left'></i>", "<i class='fas fa-chevron-right'></i>"]
+            });
+
+                    // In your click handler for brand links
+            $('.brand-link').on('click', function(e) {
+            e.preventDefault();
+            var restaurantName = encodeURIComponent($(this).data('name'));
+
+            $.get('@Url.Action("CheckRestaurantApproval", "TBrands")', { name: restaurantName })
+                .done(function(response) {
+                    if (response.isApproved) {
+                        window.location.href = response.url;
+                    } else {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Not Available',
+                            text: 'This restaurant is not currently approved.',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                });
             });
         });
 
