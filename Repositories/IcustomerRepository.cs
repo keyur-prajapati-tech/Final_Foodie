@@ -100,5 +100,19 @@ namespace Foodie.Repositories
 
         MenuItemViewModel GetMenuViewModelAsync(int restaurantId, int? cuisineId = null);
         List<tbl_cuisine_master> GetCuisinesWithCountAsync(int restaurantId);
+
+        List<SimilarRestaurantDtoViewModel> GetSimilarRestaurants(
+        string currentRestaurantName,
+        List<string> cuisines,
+        List<string> pincodes);
+
+        //Menu Image based on restaurantname
+        List<MenuItemViewModel> GetMenuItemsImageByRestaurant(string restaurantName);
+        List<tbl_cuisine_master> GetAllCuisines();
+
+        List<MenuItemViewModel> GetMenuItems(string restaurantName);
+        List<MenuItemViewModel> GetMenuItemsByCuisine(string restaurantName, int cuisineId);
+
+        List<CustomerRatingViewModel> GetRatingByRestaurant(string restaurantName);
     }
 }

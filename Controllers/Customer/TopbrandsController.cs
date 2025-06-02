@@ -1,5 +1,6 @@
 ﻿using Foodie.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Org.BouncyCastle.Tls;
 
 namespace Foodie.Controllers.Customer
 {
@@ -33,6 +34,7 @@ namespace Foodie.Controllers.Customer
             var menuItems = _repository.GetMenuItemsByRestaurantdetails(brand.RestaurantId);
 
             ViewBag.MenuItems = menuItems;
+
             return View(brand);
         }
 
@@ -45,6 +47,111 @@ namespace Foodie.Controllers.Customer
                 return Json(new { success = false, message = "Brand not found" });
             }
             return Json(new { success = true, data = brand });
+        }
+
+        // AJAX endpoint for similar restaurants
+        public JsonResult GetSimilarRestaurants(string currentRestaurantName,
+                                              List<string> cuisines,
+                                              List<string> pincodes)
+        {
+            try
+            {
+                // Set defaults if empty
+                if (cuisines == null || !cuisines.Any())
+                    cuisines = new List<string> { "Chinese" };
+
+                if (pincodes == null || !pincodes.Any())
+                    pincodes = new List<string> { "395006" };
+
+                var similarRestaurants = _repository.GetSimilarRestaurants(
+                    currentRestaurantName,
+                    cuisines,
+                    pincodes);
+
+                return Json(new
+                {
+                    success = true,
+                    data = similarRestaurants
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Error loading similar restaurants"
+                });
+            }
+        }
+
+        [HttpGet("GetMenuImages")]
+        public IActionResult GetMenuImages(string restaurantName)
+        {
+            try
+            {
+                var menuImages = _repository.GetMenuItemsImageByRestaurant(restaurantName);
+
+                if (menuImages == null || !menuImages.Any())
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        data = new List<object>(),
+                        count = 0,
+                        message = "No menu photos found"
+                    });
+                }
+
+                // Convert byte arrays to base64 strings for the view
+                var result = menuImages.Select(m => new {
+                    menuId = m.MenuId,
+                    menuName = m.MenuName,
+                    imageBase64 = m.MenuImg != null ? Convert.ToBase64String(m.MenuImg) : null,
+                    cuisineName = m.cuisine_name
+                }).ToList();
+
+                return Json(new
+                {
+                    success = true,
+                    data = result,
+                    count = result.Count
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Error loading menu images"
+                });
+            }
+        }
+
+
+        public ActionResult Index()
+        {
+            return View();
+        }
+
+        [HttpGet]
+        public JsonResult GetMenuByRestaurant(string restaurantName)
+        {
+            var items = _repository.GetMenuItems(restaurantName);
+            return Json(items);
+        }
+
+        [HttpGet]
+        public JsonResult GetMenuByCuisine(string restaurantName, int cuisineId)
+        {
+            var items = _repository.GetMenuItemsByCuisine(restaurantName, cuisineId);
+            return Json(items);
+        }
+
+        [HttpGet]
+        public JsonResult GetRatings(string restaurantName)
+        {
+            var ratings = _repository.GetRatingByRestaurant(restaurantName);
+            return Json(ratings);
         }
     }
 }

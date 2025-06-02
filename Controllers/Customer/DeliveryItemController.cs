@@ -36,5 +36,12 @@ namespace Foodie.Controllers.Customer
 
             return View("AllDeliveryFood", viewModel); // Ensure your view is named MenuDetails.cshtml
         }
+
+        [HttpGet]
+        public JsonResult GetAllCuisines()
+        {
+            var cuisines = _repository.GetAllCuisines();
+            return Json(cuisines);
+        }
     }
 }

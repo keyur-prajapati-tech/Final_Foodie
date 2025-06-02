@@ -127,12 +127,42 @@
                 color: orange;
             }
 
+        .cuisine-btn {
+            border-radius: 5px;
+            padding: 6px 16px;
+            margin: 5px;
+            border: 3px solid #333;
+            background-color: #f8f9fa;
+            color: #000;
+            cursor: pointer;
+            transition: 0.2s;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+            .cuisine-btn:hover {
+                background-color: #e2e6ea;
+            }
+
+            .cuisine-btn.active {
+                background-color: #ff6f61;
+                color: #fff;
+                border: none;
+                position: relative;
+            }
+
+                .cuisine-btn.active::after {
+                    content: " ×";
+                    margin-left: 6px;
+                    font-weight: bold;
+                    cursor: pointer;
+                }
     </style>
 </head>
 <body>
 
     <!-- Filter Section -->
-    <div class="container mt-4">
+    @* <div class="container mt-4">
         <div class="filters">
             <button class="filter-btn active">1 Filters</button>
             <button class="filter-btn veg-meal">Veg Meal <span class="close">&times;</span></button>
@@ -141,6 +171,11 @@
             <button class="filter-btn">Pet Friendly</button>
             <button class="filter-btn">Outdoor Seating</button>
             <button class="filter-btn">Open Now</button>
+        </div>
+    </div> *@
+    <div class="container mt-4">
+        <div class="d-flex flex-wrap" id="cuisineContainer">
+            <!-- Cuisines will be loaded here -->
         </div>
     </div>
 
@@ -307,5 +342,25 @@
     </div> *@
 
     <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            $.ajax({
+                url: '/DeliveryItem/GetAllCuisines',
+                method: 'GET',
+                success: function (data) {
+                    data.forEach(function (cuisine) {
+                        $('#cuisineContainer').append(
+                            '<div class="cuisine-btn" data-id="' + cuisine.cuisine_id + '">' + cuisine.cuisine_name + '</div>'
+                        );
+                    });
+                }
+            });
+
+            $('#cuisineContainer').on('click', '.cuisine-btn', function () {
+                $(this).toggleClass('active');
+            });
+        });
+    </script>
 </body>
 </html>

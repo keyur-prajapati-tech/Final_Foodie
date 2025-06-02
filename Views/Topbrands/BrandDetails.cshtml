@@ -42,10 +42,10 @@
             <button class="nav-link" id="menu-tab" data-bs-toggle="tab" data-bs-target="#menu" type="button" role="tab">Menu</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="menu-tab" data-bs-toggle="tab" data-bs-target="#photos" type="button" role="tab">Photos</button>
+            <button class="nav-link" id="photos-tab" data-bs-toggle="tab" data-bs-target="#photos" type="button" role="tab">Photos</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="menu-tab" data-bs-toggle="tab" data-bs-target="#review" type="button" role="tab">Review</button>
+            <button class="nav-link" id="review-tab" data-bs-toggle="tab" data-bs-target="#review" type="button" role="tab">Review</button>
         </li>
     </ul>
 
@@ -89,28 +89,37 @@
                     <div class="similar-restaurants">
                         <h2>Similar Restaurants</h2>
                         <div class="restaurant-carousel">
-                            <div class="restaurant-card">
-                                <img src="restaurant1.jpg" alt="Vishala Garden">
-                                <h3>Vishala Garden R...</h3>
-                                <p><span class="rating">3.0 ⭐</span> DINING | <span class="rating">3.9 ⭐</span> DELIVERY</p>
-                                <p>North Indian, Chinese, Gujarati</p>
-                                <p>Katargam, Surat</p>
+                            <div class="restaurant-card" style="border: 3px solid #000;border-radius: 5px;margin:5px;padding:2px;">
+                                <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/18/d5/0b/cd/restaurant.jpg?w=600&h=-1&s=1" alt="Vishala Garden" style="width:100%;">
+                                <h3 class="text-uppercase">Vishala Garden R...</h3>
+                                <p class="ratings">
+                                    <span style="color:#ff9900;">3.0 ⭐</span> DINING |
+                                    <span style="color:#28a745;">3.9 ⭐</span> DELIVERY
+                                </p>
+                                <p style="font-weight:800">North Indian, Chinese, Gujarati</p>
+                                <p style="font-weight:500;color:gray">Katargam, Surat</p>
                             </div>
 
-                            <div class="restaurant-card">
-                                <img src="restaurant2.jpg" alt="Super Seek Paratha">
-                                <h3>Super Seek Parat...</h3>
-                                <p><span class="rating">4.1 ⭐</span> DINING | <span class="rating">4.0 ⭐</span> DELIVERY</p>
-                                <p>North Indian, Biryani</p>
-                                <p>Shahpore, Surat</p>
+                            <div class="restaurant-card" style="border: 3px solid #000;border-radius: 5px;margin:5px;padding:2px;">
+                                <img src="https://b.zmtcdn.com/data/dish_photos/5e0/20afda3d5fbbae1892c288a15c39a5e0.jpg" alt="Super Seek Paratha" style="width:100%;">
+                                <h3 class="text-uppercase">Super Seek Parat...</h3>
+                                <p class="ratings">
+                                    <span style="color:#ff9900;">3.0 ⭐</span> DINING |
+                                    <span style="color:#28a745;">3.9 ⭐</span> DELIVERY
+                                </p>
+                                <p style="font-weight:800">North Indian, Biryani</p>
+                                <p style="font-weight:500;color:gray">Shahpore, Surat</p>
                             </div>
 
-                            <div class="restaurant-card">
-                                <img src="restaurant3.jpg" alt="Swaminarayan Khichdi">
-                                <h3>Swaminarayan Khi...</h3>
-                                <p><span class="rating">3.9 ⭐</span> DINING | <span class="rating">3.9 ⭐</span> DELIVERY</p>
-                                <p>Gujarati, North Indian</p>
-                                <p>Kapodra, Surat</p>
+                            <div class="restaurant-card" style="border: 3px solid #000;border-radius: 5px;margin:5px;padding:2px;">
+                                <img src="https://b.zmtcdn.com/data/pictures/0/20730160/9c546ddc8db22e2c68e83132714df86e_o2_featured_v2.jpg?fit=around|750:500&crop=750:500;*,*" alt="Swaminarayan Khichdi" style="width:100%;">
+                                <h3 class="text-uppercase">Swaminarayan Khi...</h3>
+                                <p class="ratings">
+                                    <span style="color:#ff9900;">3.0 ⭐</span> DINING |
+                                    <span style="color:#28a745;">3.9 ⭐</span> DELIVERY
+                                </p>
+                                <p style="font-weight:800">Gujarati, North Indian</p>
+                                <p style="font-weight:500;color:gray">Kapodra, Surat</p>
                             </div>
                         </div>
                     </div>
@@ -216,7 +225,7 @@
                                                         <p class="card-text">@item.MenuDescription</p>
                                                         <div class="d-flex justify-content-between align-items-center">
                                                             <span class="text-danger fw-bold">₹@item.Amount</span>
-                                                            <button class="btn btn-sm btn-outline-primary">Add to Cart</button>
+                                                            <button class="btn btn-sm btn-outline-primary">PRODUCT INFO</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -233,6 +242,32 @@
             {
                 <div class="alert alert-info">No menu items available for this restaurant.</div>
             }
+        </div>
+
+        <!-- Photo Tab -->
+        <div class="tab-pane fade" id="photos" role="tabpanel">
+            <div class="container mt-4">
+                <h3 class="mb-3">Restaurant Dishes...😛</h3>
+
+                <!-- Cuisine Filter Pills -->
+                <div class="d-flex flex-wrap" id="cuisineContainer">
+                    <!-- Cuisines will be loaded here -->
+                </div>
+
+                <!-- Menu Grid -->
+                <div id="menuContainer" class="d-flex flex-wrap justify-content-start">
+                    <!-- Menu Items Here -->
+                </div>
+            </div>
+        </div>
+
+        <!--Review Tab-->
+        <div class="tab-pane fade" id="review" role="tabpanel">
+            <h5 class="mt-4">Customer Reviews</h5>
+            
+            <div id="ratingsContainer" class="mt-2">
+
+            </div>
         </div>
     </div>
 </div>
@@ -298,6 +333,38 @@
                     border-bottom: 2px solid #d23c3c;
                     background-color: transparent;
                 }
+
+    /*Navigation cuisine style*/
+    .cuisine-btn {
+        border-radius: 5px;
+        padding: 6px 16px;
+        margin: 5px;
+        border: 3px solid #333;
+        background-color: #f8f9fa;
+        color: #000;
+        cursor: pointer;
+        transition: 0.2s;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+        .cuisine-btn:hover {
+            background-color: #e2e6ea;
+        }
+
+        .cuisine-btn.active {
+            background-color: #ff6f61;
+            color: #fff;
+            border: none;
+            position: relative;
+        }
+
+            .cuisine-btn.active::after {
+                content: " ×";
+                margin-left: 6px;
+                font-weight: bold;
+                cursor: pointer;
+            }
 
     /* Layout */
     .res-container {
@@ -422,11 +489,82 @@
                 $(this).tab('show');
             });
 
-            // Add to cart functionality
-            $('.btn-outline-primary').click(function() {
-                const menuItemId = $(this).closest('.card').data('menu-id');
-                // Implement your add to cart logic here
-                alert('Added to cart: ' + menuItemId);
+            let restaurantName = 'Dominos'; // Set dynamically if needed
+
+            $.ajax({
+                url: '/DeliveryItem/GetAllCuisines',
+                method: 'GET',
+                success: function (data) {
+                    data.forEach(function (cuisine) {
+                        $('#cuisineContainer').append(
+                            '<div class="cuisine-btn" data-id="' + cuisine.cuisine_id + '">' + cuisine.cuisine_name + '</div>'
+                        );
+                    });
+                }
             });
-        });
+
+            $('#cuisineContainer').on('click', '.cuisine-btn', function () {
+                $('.cuisine-btn').removeClass('active');
+                $(this).toggleClass('active');
+            });
+
+            loadAllMenu();
+            loadRatings();
+
+
+            function loadAllMenu() {
+                $.getJSON('/TBrands/GetMenuByRestaurant', { restaurantName }, function (data) {
+                    renderMenu(data);
+                });
+            }
+
+            function renderMenu(items) {
+                $('#menuContainer').html('');
+                items.forEach(function (item) {
+                    $('#menuContainer').append(`
+                        <div class="card menu-card shadow-sm">
+                            <img src="data:image/png;base64,${item.MenuImageBase64}" class="card-img-top menu-image" />
+                            <div class="card-body p-2">
+                                <h6 class="card-title mb-0">${item.MenuName}</h6>
+                            </div>
+                        </div>
+                    `);
+                });
+            }
+
+            $('#cuisineFilters').on('click', '.cuisine-pill', function () {
+                $('.cuisine-pill').removeClass('active');
+                $(this).addClass('active');
+
+                const cuisineId = $(this).data('id');
+                $.getJSON('/Menu/GetMenuByCuisine', { restaurantName, cuisineId }, function (data) {
+                    renderMenu(data);
+                });
+            });
+    });
+
+    function loadRatings() {
+                $.getJSON('/TBrands/GetRatings', { restaurantName: restaurantName }, function (data) {
+                    $('#ratingsContainer').html('');
+                    if (data.length === 0) {
+                        $('#ratingsContainer').html('<p>No reviews yet for this restaurant.</p>');
+                    } else {
+                        data.forEach(function (r) {
+                            const stars = '★'.repeat(r.Rating) + '☆'.repeat(5 - r.Rating);
+                            $('#ratingsContainer').append(`
+                                <div class="card mb-2 shadow-sm">
+                                    <div class="card-body p-2">
+                                        <div class="d-flex justify-content-between">
+                                            <strong>${r.CustomerName}</strong>
+                                            <span class="text-warning">${stars}</span>
+                                        </div>
+                                        <p class="mb-1">${r.Description}</p>
+                                        <small class="text-muted">${new Date(r.CreatedAt).toLocaleString()}</small>
+                                    </div>
+                                </div>
+                            `);
+                        });
+                    }
+                });
+            }
 </script>
