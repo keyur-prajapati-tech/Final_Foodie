@@ -37,6 +37,7 @@ namespace Foodie.Repositories
         void RemoveCartItem(int cartItemId);
         decimal GetCartTotal(int customerId);
 
+
         void AddToCart(tbl_cart_item tbl_Cart_Item);
         tbl_cart GetOrCreateCart(int customerId);
 
@@ -114,5 +115,6 @@ namespace Foodie.Repositories
         List<MenuItemViewModel> GetMenuItemsByCuisine(string restaurantName, int cuisineId);
 
         List<CustomerRatingViewModel> GetRatingByRestaurant(string restaurantName);
+        void ClearCartAfterOrder(int customer_id);
     }
 }

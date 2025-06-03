@@ -181,7 +181,78 @@
             </div>
         </div>
 
-        <!-- Menu Tab -->
+        <!-- Update the Menu Tab section to include the product info button with data attributes -->
+        <div class="tab-pane fade" id="menu" role="tabpanel">
+            @if (menuItems != null && menuItems.Count > 0)
+            {
+                <!-- Group by cuisine -->
+                var menuGroups = menuItems.GroupBy(m => m.cuisine_name);
+
+                <div class="accordion" id="menuAccordion">
+                    @foreach (var group in menuGroups)
+                    {
+                        string headingId = "heading" + group.Key.Replace(" ", "");
+                        string collapseId = "collapse" + group.Key.Replace(" ", "");
+
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="@headingId">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#@collapseId" aria-expanded="true">
+                                    @group.Key (@group.Count())
+                                </button>
+                            </h2>
+                            <div id="@collapseId" class="accordion-collapse collapse show" aria-labelledby="@headingId" data-bs-parent="#menuAccordion">
+                                <div class="accordion-body">
+                                    <div class="row">
+                                        @foreach (var item in group)
+                                        {
+                                            <div class="col-md-4 mb-4">
+                                                <div class="card h-100">
+                                                    @if (!string.IsNullOrEmpty(item.MenuImageBase64))
+                                                    {
+                                                        <img src="data:image/jpeg;base64,@item.MenuImageBase64"
+                                                             class="card-img-top"
+                                                             alt="@item.MenuName"
+                                                             style="height: 200px; object-fit: cover;">
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="card-img-top bg-light" style="height: 200px; display: flex; align-items: center; justify-content: center;">
+                                                            <i class="fas fa-utensils fa-3x text-muted"></i>
+                                                        </div>
+                                                    }
+                                                    <div class="card-body">
+                                                        <h5 class="card-title">@item.MenuName</h5>
+                                                        <p class="card-text description-truncate">@item.MenuDescription</p>
+                                                        <div class="d-flex justify-content-between align-items-center">
+                                                            <span class="text-danger fw-bold">₹@item.Amount</span>
+                                                            <button class="btn btn-sm btn-outline-primary product-info-btn"
+                                                                    data-bs-toggle="modal" data-bs-target="#productInfoModal"
+                                                                    data-name="@item.MenuName"
+                                                                    data-description="@item.MenuDescription"
+                                                                    data-price="@item.Amount"
+                                                                    data-image="@item.MenuImageBase64"
+                                                                    data-cuisine="@item.cuisine_name">
+                                                                PRODUCT INFO
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">No menu items available for this restaurant.</div>
+            }
+        </div>
+
+        @* <!-- Menu Tab -->
         <div class="tab-pane fade" id="menu" role="tabpanel">
             @if (menuItems != null && menuItems.Count > 0)
             {
@@ -242,7 +313,7 @@
             {
                 <div class="alert alert-info">No menu items available for this restaurant.</div>
             }
-        </div>
+        </div> *@
 
         <!-- Photo Tab -->
         <div class="tab-pane fade" id="photos" role="tabpanel">
@@ -272,7 +343,60 @@
     </div>
 </div>
 
+
+<!-- Add this modal at the bottom of your page, just before the closing </div> tag -->
+<div class="modal fade" id="productInfoModal" tabindex="-1" aria-labelledby="productInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productInfoModalLabel">Product Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <img id="modalProductImage" src="" class="img-fluid rounded" alt="Product Image" style="max-height: 300px;">
+                    </div>
+                    <div class="col-md-6">
+                        <h3 id="modalProductName"></h3>
+                        <p id="modalProductDescription" class="text-muted"></p>
+
+                        <div class="details-section mt-3">
+                            <ul class="list-unstyled">
+                                <li><strong>Price:</strong> ₹<span id="modalProductPrice"></span></li>
+                                <li><strong>Cuisine:</strong> <span id="modalProductCuisine"></span></li>
+                                <li><strong>Calories:</strong> <span id="modalProductCalories">Not specified</span> kcal</li>
+                                <li><strong>Allergens:</strong> <span id="modalProductAllergens">None</span></li>
+                                <li><strong>Dietary:</strong> <span id="modalProductVegetarian">Vegetarian</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
     <style>
+        .description-truncate {
+            position: relative;
+            max-height: 3.6em; /* 2 lines (1.8em per line) */
+            overflow: hidden;
+            line-height: 1.8em;
+            margin-bottom: 0.5rem;
+        }
+
+        .description-truncate::after {
+            content: '...';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            padding-left: 5px;
+            background: linear-gradient(to right, transparent, white 50%);
+        }
         .restaurant-detail {
             max-width: 1200px;
             margin: 0 auto;
@@ -489,7 +613,33 @@
                 $(this).tab('show');
             });
 
-            let restaurantName = 'Dominos'; // Set dynamically if needed
+            //let restaurantName = 'Vishram'; // Set dynamically if needed
+
+              // Product Info Modal Handler
+            $(document).on('click', '.product-info-btn', function() {
+                // Get data from the button's data attributes
+                const name = $(this).data('name');
+                const description = $(this).data('description');
+                const price = $(this).data('price');
+                const image = $(this).data('image');
+                const cuisine = $(this).data('cuisine');
+
+                // Set modal content
+                $('#modalProductName').text(name);
+                $('#modalProductDescription').text(description);
+                $('#modalProductPrice').text(price);
+                $('#modalProductCuisine').text(cuisine);
+
+                // Set image if available
+                if (image) {
+                    $('#modalProductImage').attr('src', 'data:image/jpeg;base64,' + image);
+                } else {
+                    $('#modalProductImage').attr('src', 'https://via.placeholder.com/300x200?text=No+Image');
+                }
+
+                // Show the modal
+                $('#productInfoModal').modal('show');
+            });
 
             $.ajax({
                 url: '/DeliveryItem/GetAllCuisines',
@@ -544,11 +694,11 @@
     });
 
     function loadRatings() {
-                $.getJSON('/TBrands/GetRatings', { restaurantName: restaurantName }, function (data) {
-                    $('#ratingsContainer').html('');
-                    if (data.length === 0) {
+        $.getJSON('/TBrands/GetRatings', { restaurantName: restaurantName }, function (data) {
+            $('#ratingsContainer').html('');
+                if (data.length === 0) {
                         $('#ratingsContainer').html('<p>No reviews yet for this restaurant.</p>');
-                    } else {
+                } else {
                         data.forEach(function (r) {
                             const stars = '★'.repeat(r.Rating) + '☆'.repeat(5 - r.Rating);
                             $('#ratingsContainer').append(`
@@ -564,7 +714,41 @@
                                 </div>
                             `);
                         });
-                    }
-                });
+                }
+        });
+    }
+
+    function renderMenu(items) {
+        $('#menuContainer').html('');
+        items.forEach(function (item) {
+            $('#menuContainer').append(`
+                <div class="card menu-card shadow-sm">
+                    <img src="data:image/png;base64,${item.MenuImageBase64}" class="card-img-top menu-image" />
+                    <div class="card-body p-2">
+                        <h6 class="card-title mb-0">${item.MenuName}</h6>
+                    </div>
+                </div>
+            `);
+        });
+    }
+
+        function truncateDescriptions() {
+        $('.description-truncate').each(function() {
+            const $el = $(this);
+            const lineHeight = parseInt($el.css('line-height'));
+            const maxHeight = lineHeight * 2; // 2 lines
+
+            if ($el.height() > maxHeight) {
+                // If text is overflowing, add ellipsis
+                let text = $el.text();
+                while ($el.height() > maxHeight && text.length > 0) {
+                    text = text.substr(0, text.length - 1);
+                    $el.text(text + '...');
+                }
             }
+        });
+    }
+
+    // Call it on load and window resize
+    $(window).on('load resize', truncateDescriptions);
 </script>

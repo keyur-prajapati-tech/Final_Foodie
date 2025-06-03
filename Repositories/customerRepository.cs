@@ -2087,5 +2087,46 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
             }
             return list;
         }
+
+        //private void ClearCart(int customerId, SqlConnection con, SqlTransaction transaction)
+        //{
+        //    SqlCommand getCartId = new SqlCommand("SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @customerId", con, transaction);
+        //    getCartId.Parameters.AddWithValue("@customerId", customerId);
+        //    object cartIdObj = getCartId.ExecuteScalar();
+
+        //    if (cartIdObj != null)
+        //    {
+        //        int cartId = Convert.ToInt32(cartIdObj);
+
+        //        SqlCommand deleteItems = new SqlCommand("DELETE FROM customers.tbl_cart_item WHERE cart_id = @cartId", con, transaction);
+        //        deleteItems.Parameters.AddWithValue("@cartId", cartId);
+        //        deleteItems.ExecuteNonQuery();
+        //    }
+        //}
+
+        public void ClearCartAfterOrder(int customer_id)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+
+                SqlCommand cmd = new SqlCommand("SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @CustomerId", conn);
+                cmd.Parameters.AddWithValue("@CustomerId", customer_id);
+                object result = cmd.ExecuteScalar();
+
+                if(result != null)
+                {
+                    int cartId = Convert.ToInt32(result);
+
+                    SqlCommand deleteItemsCmd = new SqlCommand("DELETE FROM customers.tbl_cart_item WHERE cart_id = @CartId", conn);
+                    deleteItemsCmd.Parameters.AddWithValue("@CartId", cartId);
+                    deleteItemsCmd.ExecuteNonQuery();
+
+                    SqlCommand deleteCartCmd = new SqlCommand("DELETE FROM customers.tbl_cart WHERE customer_id = @CustomerId", conn);
+                    deleteCartCmd.Parameters.AddWithValue("@CustomerId", customer_id);
+                    deleteCartCmd.ExecuteNonQuery();
+                }
+            }
+        }
     }
 }
