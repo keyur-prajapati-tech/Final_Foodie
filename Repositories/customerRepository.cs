@@ -2051,58 +2051,160 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
             return list;
         }
 
+        // Repository - Updated with better debugging
         public List<CustomerRatingViewModel> GetRatingByRestaurant(string restaurantName)
         {
             var list = new List<CustomerRatingViewModel>();
 
-            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            try
             {
-                string query = @"SELECT r.rating_id, r.customer_id, r.restaurant_id, r.order_id, r.rating, 
-                   r.discription, r.created_at, c.customer_name
-                    FROM customers.tbl_rating r
-                    INNER JOIN customers.tbl_customer c ON r.customer_id = c.customer_id
-                    INNER JOIN vendores.tbl_restaurant rest ON r.restaurant_id = rest.restaurant_id
-                    WHERE rest.restaurant_name = @restaurantName
-                    ORDER BY r.created_at DESC";
-
-                SqlCommand cmd = new SqlCommand(query, conn);
-                cmd.Parameters.AddWithValue("@restaurantName", restaurantName);
-
-                conn.Open();
-                SqlDataReader rdr = cmd.ExecuteReader();
-                while (rdr.Read())
+                using (SqlConnection conn = new SqlConnection(_connectionstring))
                 {
-                    list.Add(new CustomerRatingViewModel
+                    string query = @"SELECT r.rating_id, r.customer_id, r.restaurant_id, r.order_id, r.rating,r.discription, r.created_at, c.customer_name
+                            FROM customers.tbl_rating r
+                            INNER JOIN customers.tbl_customer c ON r.customer_id = c.customer_id
+                            INNER JOIN vendores.tbl_restaurant rest ON r.restaurant_id = rest.restaurant_id
+                            WHERE rest.restaurant_name = @restaurantName
+                            ORDER BY r.created_at DESC";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@restaurantName", restaurantName);
+
+                    conn.Open();
+                    using (SqlDataReader rdr = cmd.ExecuteReader())
                     {
-                        RatingId = Convert.ToInt32(rdr["rating_id"]),
-                        CustomerId = Convert.ToInt32(rdr["customer_id"]),
-                        RestaurantId = Convert.ToInt32(rdr["restaurant_id"]),
-                        OrderId = Convert.ToInt32(rdr["order_id"]),
-                        Rating = Convert.ToInt32(rdr["rating"]),
-                        Description = rdr["discription"].ToString(),
-                        CreatedAt = Convert.ToDateTime(rdr["created_at"]),
-                        CustomerName = rdr["customer_name"].ToString()
-                    });
+                        while (rdr.Read())
+                        {
+                            var review = new CustomerRatingViewModel
+                            {
+                                RatingId = rdr["rating_id"] != DBNull.Value ? Convert.ToInt32(rdr["rating_id"]) : 0,
+                                CustomerId = rdr["customer_id"] != DBNull.Value ? Convert.ToInt32(rdr["customer_id"]) : 0,
+                                RestaurantId = rdr["restaurant_id"] != DBNull.Value ? Convert.ToInt32(rdr["restaurant_id"]) : 0,
+                                OrderId = rdr["order_id"] != DBNull.Value ? Convert.ToInt32(rdr["order_id"]) : 0,
+                                Rating = rdr["rating"] != DBNull.Value ? Convert.ToInt32(rdr["rating"]) : 0,
+                                Description = rdr["discription"] != DBNull.Value ? rdr["discription"].ToString() : string.Empty,
+                                CreatedAt = rdr["created_at"] != DBNull.Value ? Convert.ToDateTime(rdr["created_at"]) : DateTime.MinValue,
+                                CustomerName = rdr["customer_name"] != DBNull.Value ? rdr["customer_name"].ToString() : "Anonymous"
+                            };
+
+                            // Debug output
+                            Console.WriteLine($"Found review: {review.RatingId} by {review.CustomerName}");
+
+                            list.Add(review);
+                        }
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetRatingByRestaurant: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
+            }
+
             return list;
         }
 
-        //private void ClearCart(int customerId, SqlConnection con, SqlTransaction transaction)
-        //{
-        //    SqlCommand getCartId = new SqlCommand("SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @customerId", con, transaction);
-        //    getCartId.Parameters.AddWithValue("@customerId", customerId);
-        //    object cartIdObj = getCartId.ExecuteScalar();
+        public bool AddRating(CustomerRatingViewModel model)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_connectionstring))
+                {
+                    string query = @"INSERT INTO customers.tbl_rating 
+                               (customer_id, restaurant_id, order_id, rating, description, created_at)
+                               VALUES (@customerId, @restaurantId, @orderId, @rating, @description, GETDATE())";
 
-        //    if (cartIdObj != null)
-        //    {
-        //        int cartId = Convert.ToInt32(cartIdObj);
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@customerId", model.CustomerId);
+                    cmd.Parameters.AddWithValue("@restaurantId", model.RestaurantId);
+                    cmd.Parameters.AddWithValue("@orderId", model.OrderId);
+                    cmd.Parameters.AddWithValue("@rating", model.Rating);
+                    cmd.Parameters.AddWithValue("@description", model.Description ?? string.Empty);
 
-        //        SqlCommand deleteItems = new SqlCommand("DELETE FROM customers.tbl_cart_item WHERE cart_id = @cartId", con, transaction);
-        //        deleteItems.Parameters.AddWithValue("@cartId", cartId);
-        //        deleteItems.ExecuteNonQuery();
-        //    }
-        //}
+                    conn.Open();
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in AddRating: {ex.Message}");
+                return false;
+            }
+        }
+
+        public bool UpdateRating(CustomerRatingViewModel model)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_connectionstring))
+                {
+                    string query = @"UPDATE customers.tbl_rating 
+                               SET rating = @rating, 
+                                   description = @description,
+                                   created_at = GETDATE()
+                               WHERE rating_id = @ratingId AND customer_id = @customerId";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@ratingId", model.RatingId);
+                    cmd.Parameters.AddWithValue("@customerId", model.CustomerId);
+                    cmd.Parameters.AddWithValue("@rating", model.Rating);
+                    cmd.Parameters.AddWithValue("@description", model.Description ?? string.Empty);
+
+                    conn.Open();
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in UpdateRating: {ex.Message}");
+                return false;
+            }
+        }
+
+        public CustomerRatingViewModel GetRatingById(int ratingId, int customerId)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_connectionstring))
+                {
+                    string query = @"SELECT rating_id, customer_id, restaurant_id, order_id, 
+                               rating, description, created_at
+                               FROM customers.tbl_rating
+                               WHERE rating_id = @ratingId AND customer_id = @customerId";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@ratingId", ratingId);
+                    cmd.Parameters.AddWithValue("@customerId", customerId);
+
+                    conn.Open();
+                    using (SqlDataReader rdr = cmd.ExecuteReader())
+                    {
+                        if (rdr.Read())
+                        {
+                            return new CustomerRatingViewModel
+                            {
+                                RatingId = rdr["rating_id"] != DBNull.Value ? Convert.ToInt32(rdr["rating_id"]) : 0,
+                                CustomerId = rdr["customer_id"] != DBNull.Value ? Convert.ToInt32(rdr["customer_id"]) : 0,
+                                RestaurantId = rdr["restaurant_id"] != DBNull.Value ? Convert.ToInt32(rdr["restaurant_id"]) : 0,
+                                OrderId = rdr["order_id"] != DBNull.Value ? Convert.ToInt32(rdr["order_id"]) : 0,
+                                Rating = rdr["rating"] != DBNull.Value ? Convert.ToInt32(rdr["rating"]) : 0,
+                                Description = rdr["description"] != DBNull.Value ? rdr["description"].ToString() : string.Empty,
+                                CreatedAt = rdr["created_at"] != DBNull.Value ? Convert.ToDateTime(rdr["created_at"]) : DateTime.MinValue
+                            };
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetRatingById: {ex.Message}");
+            }
+
+            return null;
+        }
+
 
         public void ClearCartAfterOrder(int customer_id)
         {
@@ -2128,5 +2230,6 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 }
             }
         }
+
     }
 }

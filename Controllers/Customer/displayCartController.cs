@@ -418,5 +418,9 @@ namespace Foodie.Controllers.Customer
             }
         }
 
+        public IActionResult ThankYou()
+        {
+            return View();
+        }
     }
 }

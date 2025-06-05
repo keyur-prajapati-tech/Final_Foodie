@@ -1,4 +1,5 @@
-﻿using Foodie.Repositories;
+﻿using Foodie.Models.customers;
+using Foodie.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Org.BouncyCastle.Tls;
 
@@ -147,11 +148,155 @@ namespace Foodie.Controllers.Customer
             return Json(items);
         }
 
+        // Controller - Updated with more detailed response
         [HttpGet]
-        public JsonResult GetRatings(string restaurantName)
+        public IActionResult GetRatings(string restaurantName)
         {
-            var ratings = _repository.GetRatingByRestaurant(restaurantName);
-            return Json(ratings);
+            try
+            {
+                if (string.IsNullOrWhiteSpace(restaurantName))
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Restaurant name is required",
+                        receivedName = restaurantName // Debugging info
+                    });
+                }
+
+                Console.WriteLine($"Fetching reviews for: {restaurantName}"); // Debug
+
+                var ratings = _repository.GetRatingByRestaurant(restaurantName);
+
+                Console.WriteLine($"Found {ratings?.Count ?? 0} reviews"); // Debug
+
+                return Ok(new
+                {
+                    success = true,
+                    data = ratings ?? new List<CustomerRatingViewModel>(),
+                    count = ratings?.Count ?? 0,
+                    isEmpty = (ratings == null || !ratings.Any())
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Controller error: {ex.Message}"); // Debug
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "An error occurred while fetching ratings",
+                    error = ex.Message
+                });
+            }
+        }
+
+        [HttpPost("SubmitRating")]
+        public IActionResult SubmitRating([FromBody] CustomerRatingViewModel model)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Invalid data",
+                        errors = ModelState.Values.SelectMany(v => v.Errors)
+                    });
+                }
+
+                // Get current customer ID from session (you'll need to implement this)
+                var customerId = HttpContext.Session.GetInt32("UserId");
+                if (customerId == 0)
+                {
+                    return Unauthorized(new
+                    {
+                        success = false,
+                        message = "Please login to submit a review"
+                    });
+                }
+
+                model.CustomerId = (int)customerId;
+
+                bool result;
+                if (model.RatingId > 0)
+                {
+                    // Update existing rating
+                    result = _repository.UpdateRating(model);
+                }
+                else
+                {
+                    // Add new rating
+                    result = _repository.AddRating(model);
+                }
+
+                if (result)
+                {
+                    return Ok(new
+                    {
+                        success = true,
+                        message = model.RatingId > 0 ? "Review updated successfully" : "Review added successfully"
+                    });
+                }
+
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Failed to save review"
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "An error occurred while saving the review",
+                    error = ex.Message
+                });
+            }
+        }
+
+        [HttpGet("GetUserRating")]
+        public IActionResult GetUserRating(int restaurantId)
+        {
+            try
+            {
+                var customerId = HttpContext.Session.GetInt32("UserId");
+                if (customerId == 0)
+                {
+                    return Ok(new
+                    {
+                        success = true,
+                        hasRating = false
+                    });
+                }
+
+                var rating = _repository.GetRatingById((int)customerId, restaurantId);
+                if (rating == null)
+                {
+                    return Ok(new
+                    {
+                        success = true,
+                        hasRating = false
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    hasRating = true,
+                    data = rating
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "An error occurred while fetching user rating",
+                    error = ex.Message
+                });
+            }
         }
     }
 }

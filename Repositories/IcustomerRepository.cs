@@ -114,7 +114,11 @@ namespace Foodie.Repositories
         List<MenuItemViewModel> GetMenuItems(string restaurantName);
         List<MenuItemViewModel> GetMenuItemsByCuisine(string restaurantName, int cuisineId);
 
+        /*Rating Section Irepository here*/
         List<CustomerRatingViewModel> GetRatingByRestaurant(string restaurantName);
+        bool AddRating(CustomerRatingViewModel model);
+        bool UpdateRating(CustomerRatingViewModel model);
+        CustomerRatingViewModel GetRatingById(int ratingId, int customerId);
         void ClearCartAfterOrder(int customer_id);
     }
 }
