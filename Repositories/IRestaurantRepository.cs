@@ -87,6 +87,9 @@ namespace Foodie.Repositories
         EarningSummaryViewModel GetEarningsSummary();
         IEnumerable<tbl_orders> GetOrders();
         IEnumerable<payments> GetPayments();
-        
+
+        // Add this method to your existing interface
+        string GetMenuItemName(int menuId);
+
     }
 }

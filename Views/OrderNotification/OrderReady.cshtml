@@ -1,4 +1,4 @@
-﻿@{
+﻿﻿@{
     Layout = "~/Views/Shared/_RestaurantLayout.cshtml";
     decimal listprice = 0;
 }
@@ -152,9 +152,16 @@
                     <div class="card shadow h-100  mx-3">
 
                         <div class="card-body">
+
+
+
+
+
                             @foreach (var dish in ord.Dishes)
 
                             {
+
+
                                 <div class="d-flex justify-content-between fw-bold">
                                     <p>@dish.quantity x @dish.menu_name</p>
 
@@ -164,7 +171,7 @@
                                         listprice += dish.list_price;
                                     }
                                 </div>
-                               
+
 
                             }
 
@@ -172,7 +179,9 @@
 
                                 <p><strong>Total Bill:</strong> <span class="badge bg-success">PAID</span></p>
 
-                                  <p>@listprice @{listprice = 0;}</p>   
+                                <p>@listprice @{
+                                        listprice = 0;
+                                    }</p>
                             </div>
 
 
@@ -246,7 +255,7 @@
 
 
     <script>
-        
+
 
         // $(document).on('click', '#preparing', function () {
         //     window.location.href = '/Restaurant/OrderReady';
@@ -318,12 +327,12 @@
 
         $(document).on('click', '#btnReady', function () {
             var orderId = $(this).data('ordid');
-           
+
             data = {
-                order_id: orderId,
-                restaurant_id : 1
+                order_id: 19,
+                restaurant_id : 7
             }
-          
+
             $.ajax({
                 url: '/Restaurant/OrderReady',
                 type: 'POST',
@@ -337,7 +346,7 @@
                     console.error('Error:', error);
                 }
             });
-           
+
         });
 
     </script>

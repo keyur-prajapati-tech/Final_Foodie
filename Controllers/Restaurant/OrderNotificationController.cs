@@ -18,6 +18,8 @@ namespace Foodie.Controllers.Restaurant
         [Route("OrderNoti")]
         public IActionResult OrderNoti()
         {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+            ViewBag.RestaurantId = restaurantId;    
             return View();
         }
 
@@ -26,6 +28,7 @@ namespace Foodie.Controllers.Restaurant
         {
             var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId")); ;
             var orders = _repository.tbl_Orders_Notifis_Accepted(restaurantId);
+
             return View(orders);
         }
 
@@ -39,26 +42,69 @@ namespace Foodie.Controllers.Restaurant
         [Route("CheckNewOrders")]
         public JsonResult CheckNewOrders(int restaurantId)
         {
-            var orders = _repository.tbl_Orders_Notifis(restaurantId);
-            if (orders == null || orders.Count == 0)
+            try
             {
-                return Json(new { success = false, message = "No new orders found." });
+                var orders = _repository.tbl_Orders_Notifis(restaurantId);
+
+                if (orders == null || orders.Count == 0)
+                {
+                    return Json(new { success = false, message = "No new orders found." });
+                }
+
+                // Group by order_id and get menu names
+                var formattedOrders = orders
+                    .GroupBy(o => o.order_id)
+                    .Select(g => new {
+                        orderId = g.Key,
+                        customerName = g.First().customer_name,
+                        orderTime = g.First().estimated_time.ToString("hh:mm tt"),
+                        items = g.Select(i => new {
+                            name = _repository.GetMenuItemName(i.menu_id), // USING THE METHOD HERE
+                            quantity = i.quantity,
+                            price = i.list_price
+                        }),
+                        total = g.Sum(i => i.list_price * i.quantity)
+                    }).ToList();
+
+                return Json(new { success = true, orders = formattedOrders });
             }
-            return Json(orders);
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Error: {ex.Message}" });
+            }
+
         }
 
         [HttpPost]
         [Route("acceptOrder")]
         public IActionResult acceptOrder(int order_id, string food_status)
         {
-            var result = _repository.AcceptOrder(order_id, food_status);
-            if (result > 0)
+            try
             {
-                return Json(new { success = true, message = "Order accepted successfully." });
+                var result = _repository.AcceptOrder(order_id, food_status);
+                if (result > 0)
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        message = food_status == "ACCEPT"
+                            ? "Order accepted successfully."
+                            : "Order rejected successfully."
+                    });
+                }
+                return Json(new
+                {
+                    success = false,
+                    message = "Failed to update order status."
+                });
             }
-            else
+            catch (Exception ex)
             {
-                return Json(new { success = false, message = "Failed to accept order." });
+                return Json(new
+                {
+                    success = false,
+                    message = $"Error: {ex.Message}"
+                });
             }
         }
 
@@ -66,21 +112,26 @@ namespace Foodie.Controllers.Restaurant
         [Route("isOnline")]
         public JsonResult isOnline(int status)
         {
-            var restaurantId  = Convert.ToInt32(HttpContext.Session.GetString("UserId")); 
-
-            if (status == 1)
+            try
             {
-                var result = _repository.IsOnline(restaurantId, 1);
+                var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+                var result = _repository.IsOnline(restaurantId, status);
 
-                return Json(new { success = true, message = "Restaurant is offline." });
-
+                return Json(new
+                {
+                    success = result > 0,
+                    message = status == 1
+                        ? "Restaurant is now offline."
+                        : "Restaurant is now online."
+                });
             }
-            else
+            catch (Exception ex)
             {
-                var result = _repository.IsOnline(restaurantId, 0);
-
-                return Json(new { success = true, message = "Restaurant is online." });
-
+                return Json(new
+                {
+                    success = false,
+                    message = $"Error: {ex.Message}"
+                });
             }
         }
 
@@ -88,32 +139,77 @@ namespace Foodie.Controllers.Restaurant
         [Route("getOnline")]
         public JsonResult getOnline(int restaurantId)
         {
-            var data = _repository.getOnline(restaurantId);
-            return Json(data);
+            try
+            {
+                var data = _repository.getOnline(restaurantId);
+                return Json(new
+                {
+                    success = true,
+                    isOnline = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = $"Error: {ex.Message}"
+                });
+            }
         }
 
         [HttpGet]
         [Route("isApproved")]
         public JsonResult isApproved(int restaurantId)
         {
-            var data = _repository.isApprove(restaurantId);
-            return Json(data);
+            try
+            {
+                var data = _repository.isApprove(restaurantId);
+                return Json(new
+                {
+                    success = true,
+                    isApproved = data
+                });
+            }
+            catch (Exception ex)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = $"Error: {ex.Message}"
+                });
+            }
         }
 
         [HttpPost]
         [Route("OrderReady")]
         public JsonResult OrderReady(int order_id, int restaurant_id)
         {
-            var result = _repository.OrderReady(order_id, restaurant_id);
-            if (result > 0)
+            try
             {
-                return Json(new { success = true, message = "Order is ready." });
+                var result = _repository.OrderReady(order_id, restaurant_id);
+                if (result > 0)
+                {
+                    return Json(new
+                    {
+                        success = true,
+                        message = "Order is ready."
+                    });
+                }
+                return Json(new
+                {
+                    success = false,
+                    message = "Failed to update order status."
+                });
             }
-            else
+            catch (Exception ex)
             {
-                return Json(new { success = false, message = "Failed to update order status." });
+                return Json(new
+                {
+                    success = false,
+                    message = $"Error: {ex.Message}"
+                });
             }
-
         }
         //[HttpGet]
         //[Route("getOrderReady")]

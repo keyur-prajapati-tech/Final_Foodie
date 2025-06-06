@@ -723,6 +723,8 @@ namespace Foodie.Repositories
             return orders;
         }
 
+
+
         public OutletInfo GetOutletInfo(int id)
         {
             using var con = new SqlConnection(_connectionstring);
@@ -771,8 +773,6 @@ namespace Foodie.Repositories
             cmd.ExecuteNonQuery();
         }
 
-
-
         public List<tbl_ratings> GetAllRatings(int restaurant_id)
             {
             var ratings = new List<tbl_ratings>();
@@ -806,11 +806,10 @@ namespace Foodie.Repositories
             return ratings;
         }
 
-
         public IEnumerable<tbl_cust_vendor_complaints> GetComplaintsByRestaurantId(int restaurantId)
         {
             var complaints = new List<tbl_cust_vendor_complaints>();
-
+            
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 SqlCommand cmd = new SqlCommand("admins.sp_get_complaints_by_restaurant_id", conn);
@@ -1655,6 +1654,36 @@ namespace Foodie.Repositories
                 return package.GetAsByteArray();
             }
         }
-       
+
+        public string GetMenuItemName(int menuId)
+        {
+            string menuName = "Unknown Item";
+
+            using (SqlConnection connection = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT menu_name FROM vendores.tbl_menu_items WHERE menu_id = @MenuId";
+
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@MenuId", menuId);
+
+                try
+                {
+                    connection.Open();
+                    var result = command.ExecuteScalar();
+                    if (result != null)
+                    {
+                        menuName = result.ToString();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log error if needed
+                    Console.WriteLine($"Error getting menu name: {ex.Message}");
+                }
+            }
+
+            return menuName;
+
+        }
     }
 }

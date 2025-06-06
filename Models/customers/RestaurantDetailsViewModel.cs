@@ -15,5 +15,10 @@ namespace Foodie.Models.customers
         public byte[] Restaurant_menu_img { get; set; }
 
         public List<tbl_menu_items> MenuItems { get; set; }
+        
+        public decimal Rating { get; set; }
+        public string Pricerange { get; set; }
+        public string RestaurantImageBase64 { get; set; }
+        public double distance { get; set; } = 29.5;
     }
 }

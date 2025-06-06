@@ -68,6 +68,8 @@ namespace Foodie.Repositories
 
         List<MenuItemViewModel> GetInspirationItems();
         MenuItemViewModel GetInspireMenuItemById(int menuid);
+        List<MenuItemViewModel> GetDeliveryItemsByOrderId(int orderId);
+
         List<AvailableDishViewModel> GetDeliveryFoods(int menuId);
 
         int PlaceOrder(RazorPayViewModel model);
@@ -120,5 +122,10 @@ namespace Foodie.Repositories
         bool UpdateRating(CustomerRatingViewModel model);
         CustomerRatingViewModel GetRatingById(int ratingId, int customerId);
         void ClearCartAfterOrder(int customer_id);
+
+        /*All Deliverd Food Will be display IRepo*/
+        List<RestaurantViewModel> GetRecommendedRestaurants(int count = 6);
+        List<RestaurantViewModel> GetRestaurantsByCuisine(int cuisineId);
+        List<RestaurantViewModel> SearchRestaurants(string searchTerm);
     }
 }

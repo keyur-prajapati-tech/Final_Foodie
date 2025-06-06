@@ -1,4 +1,7 @@
-﻿namespace Foodie.Models.Restaurant
+﻿using Foodie.Models.customers;
+using Foodie.ViewModels;
+
+namespace Foodie.Models.Restaurant
 {
     public class tbl_orders_notifi
     {
@@ -16,6 +19,8 @@
 
         public string customer_name { get; set; }
 
-      
+        // Add this:
+        public virtual ICollection<OrderItem> Items { get; set; }
+
     }
 }

@@ -2231,5 +2231,196 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
             }
         }
 
+        public List<MenuItemViewModel> GetDeliveryItemsByOrderId(int orderId)
+        {
+            var menuItems = new List<MenuItemViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"  SELECT mi.menu_id, mi.menu_name, mi.menu_img, mi.amount, mi.menu_descripation, r.restaurant_name
+        FROM vendores.tbl_menu_items mi
+        INNER JOIN customers.tbl_order_items oi ON mi.menu_id = oi.menu_id
+        INNER JOIN vendores.tbl_restaurant r ON mi.restaurant_id = r.restaurant_id
+        WHERE oi.order_id = @OrderId";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@OrderId", orderId);
+
+                conn.Open();
+
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    string base64Image = string.Empty;
+
+                    if (reader["menu_img"] != DBNull.Value)
+                    {
+                        byte[] imgBytes = (byte[])reader["menu_img"];
+                        base64Image = Convert.ToBase64String(imgBytes);
+                    }
+
+                    menuItems.Add(new MenuItemViewModel
+                    {
+                        MenuId = Convert.ToInt32(reader["menu_id"]),
+                        MenuName = reader["menu_name"].ToString(),
+                        MenuImageBase64 = base64Image,
+                        Amount = Convert.ToDecimal(reader["amount"]),
+                        MenuDescription = reader["menu_descripation"].ToString(),
+                        RestaurantName = reader["restaurant_name"].ToString()
+                    });
+                }
+                conn.Close();
+            }
+            return menuItems;
+        }
+
+        public List<RestaurantViewModel> GetRecommendedRestaurants(int count = 6)
+        {
+            var restaurants = new List<RestaurantViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT TOP (@count) 
+                            r.restaurant_id, 
+                            r.restaurant_name, 
+                            r.restaurant_street,
+                            r.restaurant_pincode,
+                            AVG(cr.rating) AS average_rating,
+                            vi.Restaurant_menu_img,
+                            STRING_AGG(cm.cuisine_name, ', ') AS cuisines
+                        FROM vendores.tbl_restaurant r
+                        INNER JOIN vendores.tbl_vendores_img vi ON r.restaurant_id = vi.Restaurant_id
+                        INNER JOIN vendores.tbl_cuisine tc ON r.restaurant_id = tc.Restaurnat_id
+                        INNER JOIN admins.tbl_cuisine_master cm ON tc.cuisine_id = cm.cuisine_id
+                        INNER JOIN customers.tbl_rating cr ON cr.restaurant_id = r.restaurant_id
+                        WHERE r.restaurant_isApprov = 1
+                        GROUP BY 
+                            r.restaurant_id, 
+                            r.restaurant_name, 
+                            r.restaurant_street,
+                            r.restaurant_pincode,
+                            vi.Restaurant_menu_img
+                        ORDER BY average_rating DESC";
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                cmd.Parameters.AddWithValue("@count", count);
+
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+
+                while (rd.Read()) { 
+                    restaurants.Add(new RestaurantViewModel
+                    {
+                        RestaurantId = Convert.ToInt32(rd["restaurant_id"]),
+                        RestaurantName = rd["restaurant_name"].ToString(),
+                        Address = $"{rd["restaurant_street"]} {rd["restaurant_pincode"]}",
+                        Rating = rd["average_rating"] != DBNull.Value ? Convert.ToDecimal(rd["average_rating"]) : 0,
+                        RestaurantImageBase64 = rd["Restaurant_menu_img"] != DBNull.Value ? Convert.ToBase64String((byte[])rd["Restaurant_menu_img"]) : string.Empty,
+                        CuisineName = rd["cuisines"] != DBNull.Value ? rd["cuisines"].ToString() : string.Empty
+                    });
+                }
+                conn.Close();
+            }
+            return restaurants;
+        }
+
+        public List<RestaurantViewModel> GetRestaurantsByCuisine(int cuisineId)
+        {
+            var restaurants = new List<RestaurantViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT 
+                            r.restaurant_id, 
+                            r.restaurant_name, 
+                            r.restaurant_street, 
+                            r.restaurant_pincode, 
+                            AVG(cr.rating) AS average_rating,
+                            vi.Restaurant_menu_img,
+                            cm.cuisine_name
+                        FROM vendores.tbl_restaurant r
+                        INNER JOIN vendores.tbl_vendores_img vi ON r.restaurant_id = vi.Restaurant_id
+                        INNER JOIN vendores.tbl_cuisine tc ON r.restaurant_id = tc.Restaurnat_id
+                        INNER JOIN admins.tbl_cuisine_master cm ON tc.cuisine_id = cm.cuisine_id
+                        INNER JOIN customers.tbl_rating cr ON cr.restaurant_id = r.restaurant_id
+                        WHERE r.restaurant_isApprov = 1 AND cm.cuisine_id = @cuisineId
+                        GROUP BY
+                            r.restaurant_id, 
+                            r.restaurant_name, 
+                            r.restaurant_street, 
+                            r.restaurant_pincode,
+                            vi.Restaurant_menu_img,
+                            cm.cuisine_name
+                        ORDER BY average_rating DESC";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@cuisineId", cuisineId);
+
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+
+                while (rd.Read())
+                {
+                    restaurants.Add(new RestaurantViewModel
+                    {
+                        RestaurantId = Convert.ToInt32(rd["restaurant_id"]),
+                        RestaurantName = rd["restaurant_name"].ToString(),
+                        Address = $"{rd["restaurant_street"]} {rd["restaurant_pincode"]}",
+                        Rating = rd["average_rating"] != DBNull.Value ? Convert.ToDecimal(rd["average_rating"]) : 0,
+                        RestaurantImageBase64 = rd["Restaurant_menu_img"] != DBNull.Value ? Convert.ToBase64String((byte[])rd["Restaurant_menu_img"]) : string.Empty,
+                        CuisineName = rd["cuisine_name"] != DBNull.Value ? rd["cuisine_name"].ToString() : string.Empty
+                    });
+                }
+                conn.Close();
+            }
+            return restaurants;
+        }
+
+        public List<RestaurantViewModel> SearchRestaurants(string searchTerm)
+        {
+            var restaurants = new List<RestaurantViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT 
+                            r.restaurant_id, 
+                            r.restaurant_name, 
+                            r.restaurant_street, 
+                            r.restaurant_pincode, 
+                            AVG(cr.rating) AS average_rating,
+                            vi.Restaurant_menu_img,
+                            STRING_AGG(cm.cuisine_name, ', ') AS cuisines
+                        FROM vendores.tbl_restaurant r
+                        INNER JOIN vendores.tbl_vendores_img vi ON r.restaurant_id = vi.Restaurant_id
+                        INNER JOIN vendores.tbl_cuisine tc ON r.restaurant_id = tc.Restaurnat_id
+                        INNER JOIN admins.tbl_cuisine_master cm ON tc.cuisine_id = cm.cuisine_id
+                        INNER JOIN customers.tbl_rating cr ON cr.restaurant_id = r.restaurant_id
+                        WHERE r.restaurant_isApprov = 1 AND (r.restaurant_name LIKE @searchTerm OR cm.cuisine_name LIKE @searchTerm)
+                        GROUP BY 
+                            r.restaurant_id, 
+                            r.restaurant_name, 
+                            r.restaurant_street, 
+                            r.restaurant_pincode,
+                            vi.Restaurant_menu_img
+                        ORDER BY average_rating DESC";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@searchTerm", "%" + searchTerm + "%");
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+                while (rd.Read())
+                {
+                    restaurants.Add(new RestaurantViewModel
+                    {
+                        RestaurantId = Convert.ToInt32(rd["restaurant_id"]),
+                        RestaurantName = rd["restaurant_name"].ToString(),
+                        Address = $"{rd["restaurant_street"]} {rd["restaurant_pincode"]}",
+                        Rating = rd["average_rating"] != DBNull.Value ? Convert.ToDecimal(rd["average_rating"]) : 0,
+                        RestaurantImageBase64 = rd["Restaurant_menu_img"] != DBNull.Value ? Convert.ToBase64String((byte[])rd["Restaurant_menu_img"]) : string.Empty,
+                        CuisineName = rd["cuisines"] != DBNull.Value ? rd["cuisines"].ToString() : string.Empty
+                    });
+                }
+                conn.Close();
+            }
+            return restaurants;
+        }
     }
 }
