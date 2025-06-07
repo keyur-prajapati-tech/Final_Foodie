@@ -422,5 +422,10 @@ namespace Foodie.Controllers.Customer
         {
             return View();
         }
+
+        public IActionResult CustomerOrderhistory()
+        {
+            return View();
+        }
     }
 }
