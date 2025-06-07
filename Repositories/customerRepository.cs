@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Text.RegularExpressions;
 using System.Text;
 using Microsoft.Extensions.Configuration;
+using Foodie.ViewModels;
 
 namespace Foodie.Repositories
 {
@@ -1352,7 +1353,20 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                         itemCmd.Parameters.AddWithValue("@EstimatedTime", DateTime.Now.AddHours(1));
                         itemCmd.ExecuteNonQuery();
                     }
-                    transaction.Commit();
+
+                    // After successfully creating order and items, clear the cart
+                    string clearCartSql = @"
+                    DELETE ci 
+                    FROM customers.tbl_cart_item ci
+                    JOIN customers.tbl_cart c ON ci.cart_id = c.cart_id
+                    WHERE c.customer_id = @CustomerId";
+
+                        SqlCommand clearCartCmd = new SqlCommand(clearCartSql, connection, transaction);
+                        clearCartCmd.Parameters.AddWithValue("@CustomerId", customerId);
+                        clearCartCmd.ExecuteNonQuery();
+
+                        transaction.Commit();
+                    //transaction.Commit();
 
                     return new tbl_orders
                     {
@@ -2421,6 +2435,40 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 conn.Close();
             }
             return restaurants;
+        }
+
+        public bool ClearCustomerCart(int customerId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+                using (SqlTransaction transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        // Delete all cart items for this customer
+                        string sql = @"
+                DELETE ci
+                FROM customers.tbl_cart_item ci
+                INNER JOIN customers.tbl_cart c ON ci.cart_id = c.cart_id
+                WHERE c.customer_id = @CustomerId";
+
+                        SqlCommand cmd = new SqlCommand(sql, conn, transaction);
+                        cmd.Parameters.AddWithValue("@CustomerId", customerId);
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        transaction.Commit();
+
+                        return rowsAffected >= 0; // Returns true even if cart was empty
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        // Log error (ex)
+                        throw; // Or return false if you prefer
+                    }
+                }
+            }
         }
     }
 }
