@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
+﻿using Foodie.Models.customers;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Foodie.Models.Restaurant
 {
@@ -19,5 +20,7 @@ namespace Foodie.Models.Restaurant
         public string rest_password { get; set; }
         public int owner_id { get; set; } 
         public string owner_name { get; set; }
+
+        public List<tbl_order_items> OrderItems { get; set; } = new List<tbl_order_items>();
     }
 }

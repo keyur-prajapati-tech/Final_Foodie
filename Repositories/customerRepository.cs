@@ -2576,6 +2576,7 @@ ORDER BY order_date DESC";
             }
         }
 
+        //Generate Billing Based in Order
         public byte[] GenerateBill(int orderId)
         {
             var order = GetUserOrdersWithItemsAndImages(2) // Replace with dynamic customer ID

@@ -132,7 +132,7 @@ namespace Foodie.Repositories
         //ORDER HISTORY
         List<tbl_orders> GetUserOrdersWithItemsAndImages(int userId);
         bool SubmitReview(tbl_ratings ratings);
-        byte[] GenerateBill(int orderId);
+        byte[] GenerateBill(int orderId); //Restaurant is pendding
         List<tbl_orders> FilterOrders(int userId, string status, int? days);
     }
 }
