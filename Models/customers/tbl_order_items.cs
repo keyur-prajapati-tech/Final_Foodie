@@ -1,4 +1,6 @@
-﻿namespace Foodie.Models.customers
+﻿using Foodie.Models.Restaurant;
+
+namespace Foodie.Models.customers
 {
     public class tbl_order_items
     {
@@ -10,5 +12,9 @@
         public decimal list_price { get; set; }
         public decimal discount { get; set; }
         public DateTime estimated_time { get; set; }
+
+        public string? menu_name { get; set; }
+        public byte[]? menu_img { get; set; }
+        public List<tbl_menu_items> MenuItems { get; set; } = new List<tbl_menu_items>();
     }
 }

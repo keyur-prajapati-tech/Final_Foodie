@@ -128,5 +128,11 @@ namespace Foodie.Repositories
         List<RestaurantViewModel> GetRecommendedRestaurants(int count = 6);
         List<RestaurantViewModel> GetRestaurantsByCuisine(int cuisineId);
         List<RestaurantViewModel> SearchRestaurants(string searchTerm);
+
+        //ORDER HISTORY
+        List<tbl_orders> GetUserOrdersWithItemsAndImages(int userId);
+        bool SubmitReview(tbl_ratings ratings);
+        byte[] GenerateBill(int orderId);
+        List<tbl_orders> FilterOrders(int userId, string status, int? days);
     }
 }

@@ -12,6 +12,10 @@ using System.Text.RegularExpressions;
 using System.Text;
 using Microsoft.Extensions.Configuration;
 using Foodie.ViewModels;
+using PdfSharpCore.Drawing;
+using PdfSharpCore.Pdf;
+using Razorpay.Api;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 
 namespace Foodie.Repositories
 {
@@ -2469,6 +2473,217 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                     }
                 }
             }
+        }
+
+        public List<tbl_orders> GetUserOrdersWithItemsAndImages(int userId)
+        {
+            var orders = new List<tbl_orders>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+
+                // Get orders
+                string orderQuery = @"
+                    SELECT co.*,cc.*,ca.address+' , '+ca.landmark+' | Romm No '+ca.door_no as address FROM customers.tbl_orders co
+inner join customers.tbl_customer cc on co.customer_id = cc.customer_id
+inner join customers.tbl_address ca on ca.customer_id = co.customer_id
+WHERE cc.customer_id = @CustomerId
+ORDER BY order_date DESC";
+
+                SqlCommand orderCmd = new SqlCommand(orderQuery, conn);
+                orderCmd.Parameters.AddWithValue("@CustomerId", userId);
+
+                using (var reader = orderCmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var order = new tbl_orders
+                        {
+                            order_id = Convert.ToInt32(reader["order_id"]),
+                            customer_id = Convert.ToInt32(reader["customer_id"]),
+                            order_date = Convert.ToDateTime(reader["order_date"]),
+                            order_status = reader["order_status"].ToString(),
+                            grand_total = Convert.ToDecimal(reader["grand_total"]),
+                            razorpay_payment_id = reader["razorpay_payment_id"].ToString(),
+                            razorpay_order_id = reader["razorpay_order_id"].ToString(),
+                            razorpay_signature = reader["razorpay_signature"].ToString(),
+                            address_id = Convert.ToInt32(reader["addressid"]),
+                            customer_name = reader["customer_name"].ToString(), // adjust column name
+                            delivery_address = reader["address"].ToString()
+                        };
+                        orders.Add(order);
+                    }
+                }
+
+                // Get order items for each order
+                foreach (var order in orders)
+                {
+                    string itemQuery = @"
+                        SELECT oi.order_items_id, oi.order_id, oi.menu_id, oi.quantity, 
+                           oi.list_price, oi.discount, oi.estimated_DATETIME,
+                           mi.menu_name, mi.menu_img 
+                            FROM customers.tbl_order_items oi
+                            JOIN vendores.tbl_menu_items mi ON oi.menu_id = mi.menu_id
+                            WHERE oi.order_id = @OrderId";
+
+                    SqlCommand itemCmd = new SqlCommand(itemQuery, conn);
+                    itemCmd.Parameters.AddWithValue("@OrderId", order.order_id);
+
+                    using (var itemReader = itemCmd.ExecuteReader())
+                    {
+                        while (itemReader.Read())
+                        {
+                            order.OrderItems.Add(new tbl_order_items
+                            {
+                                order_item_id = Convert.ToInt32(itemReader["order_items_id"]),
+                                order_id = Convert.ToInt32(itemReader["order_id"]),
+                                menu_id = Convert.ToInt32(itemReader["menu_id"]),
+                                quantity = Convert.ToInt32(itemReader["quantity"]),
+                                list_price = Convert.ToDecimal(itemReader["list_price"]),
+                                discount = Convert.ToDecimal(itemReader["discount"]),
+                                estimated_time = Convert.ToDateTime(itemReader["estimated_DATETIME"]),
+                                menu_name = itemReader["menu_name"].ToString(),
+                                menu_img = itemReader["menu_img"] as byte[]
+                            });
+                        }
+                    }
+                }
+            }
+
+            return orders;
+        }
+
+        public bool SubmitReview(tbl_ratings ratings)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+
+                string query = @"
+                    INSERT INTO customers.tbl_rating 
+                (customer_id, restaurant_id, order_id, rating, discription, created_at)
+                VALUES (@Customer_Id, @RestaurantId, @OrderId ,@Rating, @Discription, GETDATE())";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Customer_Id", ratings.CustomerId);
+                cmd.Parameters.AddWithValue("@RestaurantId", ratings.RestaurantId);
+                cmd.Parameters.AddWithValue("@OrderId", ratings.OrderId);
+                cmd.Parameters.AddWithValue("@Rating", ratings.RatingValue);
+                cmd.Parameters.AddWithValue("@Discription", ratings.discription ?? string.Empty);
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        public byte[] GenerateBill(int orderId)
+        {
+            var order = GetUserOrdersWithItemsAndImages(2) // Replace with dynamic customer ID
+        .FirstOrDefault(o => o.order_id == orderId);
+
+            if (order == null) return null;
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (PdfDocument document = new PdfDocument())
+                {
+                    PdfPage page = document.AddPage();
+                    XGraphics gfx = XGraphics.FromPdfPage(page);
+
+                    XFont headerFont = new XFont("Arial", 18, XFontStyle.Bold);
+                    XFont subHeaderFont = new XFont("Arial", 12, XFontStyle.Bold);
+                    XFont normalFont = new XFont("Arial", 12, XFontStyle.Regular);
+
+                    double y = 30;
+
+                    // Restaurant Name
+                    gfx.DrawString("Foodie Express", headerFont, XBrushes.Black, new XRect(0, y, page.Width, 0), XStringFormats.TopCenter);
+                    y += 25;
+                    gfx.DrawString("123 Main Street, Mumbai, India", normalFont, XBrushes.Black, new XRect(0, y, page.Width, 0), XStringFormats.TopCenter);
+                    y += 15;
+                    gfx.DrawString("Phone: +91 9876543210 | GSTIN: 27AABCU9603R1ZV", normalFont, XBrushes.Black, new XRect(0, y, page.Width, 0), XStringFormats.TopCenter);
+
+                    // Line
+                    y += 30;
+                    gfx.DrawLine(XPens.Black, 40, y, page.Width - 40, y);
+                    y += 10;
+
+                    // Invoice Header
+                    gfx.DrawString($"Invoice for Order #{order.order_id}", subHeaderFont, XBrushes.Black, 40, y);
+                    y += 25;
+
+                    // Customer & Order Info
+                    gfx.DrawString($"Customer: {order.customer_name}", normalFont, XBrushes.Black, 40, y);
+                    y += 20;
+                    gfx.DrawString($"Order Date: {order.order_date:dd MMM yyyy}", normalFont, XBrushes.Black, 40, y);
+                    y += 20;
+                    gfx.DrawString($"Order Status: {order.order_status}", normalFont, XBrushes.Black, 40, y);
+                    y += 20;
+                    gfx.DrawString($"Delivery Address: {order.delivery_address}", normalFont, XBrushes.Black, 40, y);
+                    y += 30;
+
+                    // Table Header
+                    gfx.DrawString("Item", subHeaderFont, XBrushes.Black, 40, y);
+                    gfx.DrawString("Qty", subHeaderFont, XBrushes.Black, 280, y);
+                    gfx.DrawString("Price", subHeaderFont, XBrushes.Black, 340, y);
+                    gfx.DrawString("Total", subHeaderFont, XBrushes.Black, 420, y);
+                    y += 10;
+                    gfx.DrawLine(XPens.Gray, 40, y, page.Width - 40, y);
+                    y += 15;
+
+                    // Items Loop
+                    foreach (var item in order.OrderItems)
+                    {
+                        string itemName = item.menu_name.Length > 40 ? item.menu_name.Substring(0, 37) + "..." : item.menu_name;
+                        gfx.DrawString(itemName, normalFont, XBrushes.Black, 40, y);
+                        gfx.DrawString(item.quantity.ToString(), normalFont, XBrushes.Black, 280, y);
+                        gfx.DrawString("₹" + item.list_price.ToString("0.00"), normalFont, XBrushes.Black, 340, y);
+                        gfx.DrawString("₹" + (item.quantity * item.list_price).ToString("0.00"), normalFont, XBrushes.Black, 420, y);
+                        y += 20;
+
+                        if (y > page.Height - 100)
+                        {
+                            page = document.AddPage();
+                            gfx = XGraphics.FromPdfPage(page);
+                            y = 30;
+                        }
+                    }
+
+                    // Line
+                    y += 10;
+                    gfx.DrawLine(XPens.Black, 40, y, page.Width - 40, y);
+                    y += 20;
+
+                    // Total
+                    gfx.DrawString("Grand Total:", subHeaderFont, XBrushes.Black, 340, y);
+                    gfx.DrawString("₹" + order.grand_total.ToString("0.00"), subHeaderFont, XBrushes.Black, 420, y);
+
+                    // Footer
+                    y += 40;
+                    gfx.DrawString("Thank you for ordering with Foodie Express!", normalFont, XBrushes.Black, new XRect(0, y, page.Width, 0), XStringFormats.TopCenter);
+
+                    document.Save(ms);
+                }
+
+                return ms.ToArray();
+            }
+        }
+
+        public List<tbl_orders> FilterOrders(int userId, string status, int? days)
+        {
+            var orders = GetUserOrdersWithItemsAndImages(userId);
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                orders = orders.Where(o => o.order_status.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            if(days.HasValue)
+            {
+                DateTime cutoffDate = DateTime.Now.AddDays(-days.Value);
+                orders = orders.Where(o => o.order_date >= cutoffDate).ToList();
+            }
+            return orders;
         }
     }
 }
