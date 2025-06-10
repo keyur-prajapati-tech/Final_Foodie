@@ -40,7 +40,13 @@ namespace Foodie.Repositories
         public int OrderReady(int order_id,int restaurant_id);
         //get all Order with Accepted status
         public List<ordersViewMdel> tbl_Orders_Notifis_Accepted(int restaurant_id);
+
+        //MANAGES THE ORDER HISTORY
         public List<ordersViewMdel> tbl_Orders_History(int restaurant_id);
+
+
+
+
         //isOnline
         public int IsOnline(int restaurant_id, int isOnline);
         public int getOnline(int restaurant_id);

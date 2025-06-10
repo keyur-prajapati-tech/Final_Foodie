@@ -12,175 +12,206 @@
     <title>Order History</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
     <style>
         :root {
-            --primary-color: #4e73df;
-            --success-color: #1cc88a;
-            --danger-color: #e74a3b;
-            --warning-color: #f6c23e;
-            --light-bg: #f8f9fc;
-            --card-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        --primary-color: #4e73df;
+        --success-color: #1cc88a;
+        --danger-color: #e74a3b;
+        --warning-color: #f6c23e;
+        --info-color: #36b9cc;
+        --light-bg: #f8f9fc;
+        --card-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
         }
 
         body {
-            background-color: #f8f9fc;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fc;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         .container-fluid {
-            max-width: 1200px;
-            padding: 0 20px;
+        max-width: 1200px;
+        padding: 0 20px;
         }
 
         h2 {
-            color: #2e3a4d;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.5rem;
-            border-bottom: 1px solid #e3e6f0;
+        color: #2e3a4d;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #e3e6f0;
         }
 
-        /* Search and Download Section */
         .action-section {
-            background: white;
-            border-radius: 0.35rem;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            box-shadow: var(--card-shadow);
+        background: white;
+        border-radius: 0.35rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--card-shadow);
         }
 
         .search-input-group {
-            position: relative;
-            flex-grow: 1;
+        position: relative;
+        flex-grow: 1;
         }
 
-            .search-input-group input {
-                padding-left: 2.5rem;
-                border-radius: 0.35rem;
-                border: 1px solid #d1d3e2;
-            }
+        .search-input-group input {
+        padding-left: 2.5rem;
+        border-radius: 0.35rem;
+        border: 1px solid #d1d3e2;
+        }
 
-            .search-input-group i {
-                position: absolute;
-                left: 1rem;
-                top: 50%;
-                transform: translateY(-50%);
-                color: #b7b9cc;
-            }
+        .search-input-group i {
+        position: absolute;
+        left: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #b7b9cc;
+        }
 
-        /* Order Cards */
         .order-card {
-            border: none;
-            border-radius: 0.35rem;
-            margin-bottom: 1.25rem;
-            box-shadow: var(--card-shadow);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            overflow: hidden;
+        border: none;
+        border-radius: 0.35rem;
+        margin-bottom: 1.25rem;
+        box-shadow: var(--card-shadow);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        overflow: hidden;
         }
 
-            .order-card:hover {
-                transform: translateY(-3px);
-                box-shadow: 0 0.5rem 1.5rem rgba(58, 59, 69, 0.2);
-            }
+        .order-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1.5rem rgba(58, 59, 69, 0.2);
+        }
 
-            .order-card .card-body {
-                padding: 1.5rem;
-            }
+        .order-card .card-body {
+        padding: 1.5rem;
+        }
 
-            .order-card.delivered {
-                border-left: 4px solid var(--success-color);
-            }
+        .order-card.pending {
+        border-left: 4px solid var(--warning-color);
+        }
 
-            .order-card.rejected {
-                border-left: 4px solid var(--danger-color);
-            }
+        .order-card.completed {
+        border-left: 4px solid var(--success-color);
+        }
+
+        .order-card.rejected {
+        border-left: 4px solid var(--danger-color);
+        }
+
+        .order-card.accepted {
+        border-left: 4px solid var(--info-color);
+        }
+
+        .order-card.pickup {
+        border-left: 4px solid var(--primary-color);
+        }
 
         .order-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
         }
 
         .order-time {
-            color: #858796;
-            font-size: 0.85rem;
+        color: #858796;
+        font-size: 0.85rem;
         }
 
         .badge {
-            font-weight: 500;
-            padding: 0.35em 0.65em;
-            font-size: 0.75rem;
+        font-weight: 500;
+        padding: 0.35em 0.65em;
+        font-size: 0.75rem;
         }
 
         .order-id {
-            font-weight: 600;
-            color: #2e3a4d;
-            margin-bottom: 1rem;
+        font-weight: 600;
+        color: #2e3a4d;
+        margin-bottom: 1rem;
         }
 
         .order-detail {
-            margin-bottom: 0.5rem;
-            color: #5a5c69;
+        margin-bottom: 0.5rem;
+        color: #5a5c69;
         }
 
-            .order-detail strong {
-                color: #2e3a4d;
-            }
+        .order-detail strong {
+        color: #2e3a4d;
+        }
 
-        /* Download Toast */
+        .filter-section {
+        background: white;
+        border-radius: 0.35rem;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        box-shadow: var(--card-shadow);
+        }
+
+        .status-filter .btn {
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        }
+
+        .date-filter .form-control {
+        max-width: 200px;
+        display: inline-block;
+        }
+
         .download-toast {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1050;
-            background: white;
-            border-radius: 0.35rem;
-            box-shadow: 0 0.5rem 1.5rem rgba(58, 59, 69, 0.3);
-            padding: 1.5rem;
-            text-align: center;
-            width: 320px;
-            display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1050;
+        background: white;
+        border-radius: 0.35rem;
+        box-shadow: 0 0.5rem 1.5rem rgba(58, 59, 69, 0.3);
+        padding: 1.5rem;
+        text-align: center;
+        width: 320px;
+        display: none;
         }
 
         .download-icon {
-            font-size: 2.5rem;
-            color: var(--success-color);
-            margin-bottom: 1rem;
+        font-size: 2.5rem;
+        color: var(--success-color);
+        margin-bottom: 1rem;
         }
 
         .download-link {
-            color: var(--primary-color);
-            font-weight: 600;
-            text-decoration: none;
-            display: inline-block;
-            margin-top: 0.5rem;
-            transition: color 0.2s;
+        color: var(--primary-color);
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 0.5rem;
+        transition: color 0.2s;
         }
 
-            .download-link:hover {
-                color: #2a5bd7;
-            }
+        .download-link:hover {
+        color: #2a5bd7;
+        }
 
-        /* Responsive Adjustments */
         @@media (max-width: 768px) {
-            .action-section
-
-        {
-            flex-direction: column;
+        .action-section {
+        flex-direction: column;
         }
 
         .search-input-group {
-            margin-bottom: 1rem;
-            width: 100%;
+        margin-bottom: 1rem;
+        width: 100%;
         }
 
         .download-btn-container {
-            width: 100%;
-            justify-content: flex-start;
+        width: 100%;
+        justify-content: flex-start;
         }
 
+        .date-filter .form-control {
+        max-width: 100%;
+        width: 100%;
+        margin-bottom: 0.5rem;
+        }
         }
     </style>
 </head>
@@ -188,108 +219,443 @@
     <div class="container-fluid py-4">
         <h2>Order History</h2>
 
+        <!-- Action Section -->
         <div class="action-section d-flex gap-2 flex-wrap justify-content-between align-items-center">
             <div class="search-input-group w-50">
                 <i class="bi bi-search"></i>
-                <input type="text" id="searchOrder" class="form-control" placeholder="Search by order ID...">
+                <input type="text" id="searchOrder" class="form-control" placeholder="Search by order ID or customer name...">
             </div>
             <div class="download-btn-container">
-                <button class="btn btn-primary" id="downloadBtn">
-                    <i class="bi bi-download me-2"></i>Download Report
+                <button class="btn btn-primary me-2" id="downloadExcelBtn">
+                    <i class="bi bi-file-earmark-excel me-2"></i>Excel
+                </button>
+                <button class="btn btn-danger" id="downloadPdfBtn">
+                    <i class="bi bi-file-earmark-pdf me-2"></i>PDF
                 </button>
             </div>
         </div>
-
-        <div class="download-toast" id="popup">
-            <div class="download-icon">
-                <i class="bi bi-cloud-arrow-down-fill"></i>
-            </div>
-            <h5 class="mb-3">Download Report</h5>
-            <p class="text-muted mb-3">
-                Download order history from <strong>1st Nov</strong> to <strong>3rd Nov</strong>
-            </p>
-            <a href="#" class="download-link">
-                <i class="bi bi-file-earmark-arrow-down me-2"></i>Download Now
-            </a>
-        </div>
-
-        <div class="order-list">
-            @foreach (var ord in Model)
-            {
-                listprice = 0; // Reset for each order
-                <div class="card order-card @(ord.food_status == "completed" ? "delivered" : "rejected")">
-                    <div class="card-body">
-                        <div class="order-header">
-                            <span class="badge @(ord.food_status == "completed" ? "bg-success" : "bg-danger")">
-                                @(ord.food_status == "completed" ? "Completed" : "Rejected")
-                            </span>
-                            <span class="order-time">
-                                <i class="bi bi-clock me-1"></i>9:29 PM | 1 Nov
-                            </span>
-                        </div>
-
-                        <h5 class="order-id">Order #@ord.order_id</h5>
-
-                        <div class="order-items mb-3">
-                            @foreach (var menu in ord.Dishes)
-                            {
-                                listprice += menu.list_price;
-                                <p class="order-detail">
-                                    <i class="bi bi-check-circle-fill text-success me-2"></i>
-                                    <strong>@menu.quantity x @menu.menu_name</strong>
-                                </p>
-                            }
-                        </div>
-
-                        <div class="order-footer">
-                            <p class="order-detail">
-                                <i class="bi bi-currency-rupee me-2"></i>
-                                <strong>Total: ₹@listprice</strong>
-                            </p>
-                            <p class="order-detail">
-                                <i class="bi bi-person-fill me-2"></i>
-                                <strong>Customer: @ord.customer_name</strong>
-                            </p>
-                        </div>
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <div class="row d-flex justify-content-between">
+                <div class="col-md-6 mb-3">
+                    <h5>Filter by Status</h5>
+                    <div class="status-filter">
+                        <button class="btn btn-sm btn-outline-primary active filter-btn" data-status="all">All</button>
+                        <button class="btn btn-sm btn-outline-warning filter-btn" data-status="pending">Pending</button>
+                        <button class="btn btn-sm btn-outline-info filter-btn" data-status="accepted">Accepted</button>
+                        <button class="btn btn-sm btn-outline-success filter-btn" data-status="completed">Completed</button>
+                        <button class="btn btn-sm btn-outline-danger filter-btn" data-status="rejected">Rejected</button>
+                        <button class="btn btn-sm btn-outline-secondary filter-btn" data-status="pickup">Ready for Pickup</button>
                     </div>
                 </div>
+                <div class="col-md-6 mb-3">
+                    <h5>Filter by Date</h5>
+                    <form id="dateFilterForm" class="date-filter">
+                        <input type="date" class="form-control form-control-sm" id="fromDate" name="fromDate">
+                        <span class="mx-2">to</span>
+                        <input type="date" class="form-control form-control-sm" id="toDate" name="toDate">
+                        <button type="submit" class="btn btn-sm btn-primary ms-2">Apply</button>
+                        <button type="button" id="resetDate" class="btn btn-sm btn-outline-secondary ms-2">Reset</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order List -->
+        <div class="order-list" id="orderList">
+            @if (!Model.Any())
+            {
+                <div class="alert alert-info">
+                    No orders found for the selected filters.
+                </div>
+            }
+            else
+            {
+                @foreach (var ord in Model)
+                {
+                    listprice = 0; // Reset for each order
+                    var orderClass = "";
+                    var statusText = "";
+                    var badgeClass = "bg-secondary";
+
+                    // Determine status based on order_status and food_status
+                    if (ord.order_status.ToLower() == "paid" && ord.food_status.ToLower() == "pickup")
+                    {
+                        orderClass = "pickup";
+                        statusText = "Ready for Pickup";
+                        badgeClass = "bg-primary";
+                    }
+                    else if (ord.order_status.ToLower() == "paid" && ord.food_status.ToLower() == "waiting")
+                    {
+                        orderClass = "pending";
+                        statusText = "Pending";
+                        badgeClass = "bg-warning";
+                    }
+                    else if (ord.order_status.ToLower() == "completed" || ord.order_status.ToLower() == "delivered")
+                    {
+                        orderClass = "completed";
+                        statusText = "Completed";
+                        badgeClass = "bg-success";
+                    }
+                    else if (ord.order_status.ToLower() == "rejected")
+                    {
+                        orderClass = "rejected";
+                        statusText = "Rejected";
+                        badgeClass = "bg-danger";
+                    }
+                    else if (ord.order_status.ToLower() == "accepted" || ord.order_status.ToLower() == "accepted")
+                    {
+                        orderClass = "accepted";
+                        statusText = "Accepted";
+                        badgeClass = "bg-info";
+                    }
+                    else
+                    {
+                        orderClass = "pending";
+                        statusText = ord.order_status + " / " + ord.food_status;
+                        badgeClass = "bg-secondary";
+                    }
+
+                    <div class="card order-card @orderClass"
+                         data-status="@orderClass"
+                         data-orderid="@ord.order_id"
+                         data-customer="@ord.customer_name.ToLower()"
+                         data-orderdate="@ord.order_date.ToString("yyyy-MM-dd")">
+                        <div class="card-body">
+                            <div class="order-header">
+                                <span class="badge @badgeClass">
+                                    @statusText
+                                </span>
+                                <span class="order-time">
+                                    <i class="bi bi-clock me-1"></i>@ord.order_date.ToString("h:mm tt") | @ord.order_date.ToString("d MMM yyyy")
+                                </span>
+                            </div>
+
+                            <h5 class="order-id">Order #@ord.order_id</h5>
+
+                            <div class="order-items mb-3">
+                                @foreach (var menu in ord.Dishes)
+                                {
+                                    listprice += menu.list_price * menu.quantity - (menu.list_price * menu.quantity * menu.discount / 100);
+                                    <p class="order-detail">
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                        <strong>@menu.quantity x @menu.menu_name</strong> - ₹@(menu.list_price * menu.quantity)
+                                        @if (menu.discount > 0)
+                                        {
+                                            <span class="text-danger">(@menu.discount% off)</span>
+                                        }
+                                    </p>
+                                }
+                            </div>
+
+                            <div class="order-footer">
+                                <p class="order-detail">
+                                    <i class="bi bi-currency-rupee me-2"></i>
+                                    <strong>Total: ₹@listprice.ToString("0.00")</strong>
+                                </p>
+                                <p class="order-detail">
+                                    <i class="bi bi-person-fill me-2"></i>
+                                    <strong>Customer: @ord.customer_name</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                }
+
             }
         </div>
     </div>
 
+    <!-- JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+
     <script>
-        // Search functionality
-        function searchOrder() {
-            var searchValue = document.getElementById("searchOrder").value.toLowerCase();
-            document.querySelectorAll(".order-card").forEach(order => {
-                order.style.display = order.innerText.toLowerCase().includes(searchValue) ? "block" : "none";
+        $(document).ready(function() {
+            // Initialize date inputs with default values (last 30 days)
+            const today = new Date();
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+
+            $('#fromDate').val(thirtyDaysAgo.toISOString().split('T')[0]);
+            $('#toDate').val(today.toISOString().split('T')[0]);
+
+            // Filter orders by status
+            $('.filter-btn').click(function() {
+                $('.filter-btn').removeClass('active');
+                $(this).addClass('active');
+
+                const status = $(this).data('status');
+                if (status === 'all') {
+                    $('.order-card').show();
+                } else {
+                    $('.order-card').hide();
+                    $(`.order-card[data-status="${status}"]`).show();
+                }
             });
-        }
 
-        // Add event listener to search input for Enter key
-        document.getElementById("searchOrder").addEventListener("keyup", function(event) {
-            if (event.key === "Enter") {
-                searchOrder();
+            // Search functionality
+            $('#searchOrder').on('keyup', function() {
+                const searchText = $(this).val().toLowerCase();
+                $('.order-card').each(function() {
+                    const orderId = $(this).data('orderid').toString();
+                    const customerName = $(this).data('customer');
+                    if (orderId.includes(searchText) || customerName.includes(searchText)) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            // Date filter form submission
+            $('#dateFilterForm').submit(function(e) {
+                e.preventDefault();
+                const fromDate = $('#fromDate').val();
+                const toDate = $('#toDate').val();
+
+                $('.order-card').each(function() {
+                    const orderDate = $(this).data('orderdate');
+
+                    if ((fromDate === '' || orderDate >= fromDate) &&
+                        (toDate === '' || orderDate <= toDate)) {
+                        $(this).show();
+                    } else {
+                        $(this).hide();
+                    }
+                });
+            });
+
+            // Reset date filter
+            $('#resetDate').click(function() {
+                $('#fromDate').val('');
+                $('#toDate').val('');
+                $('.order-card').show();
+            });
+
+            // Export to Excel
+            $('#downloadExcelBtn').click(function() {
+                exportToExcel();
+            });
+
+            // Export to PDF
+            $('#downloadPdfBtn').click(function() {
+                exportToPDF();
+            });
+
+            function getVisibleOrders() {
+                return $('.order-card:visible');
             }
-        });
 
-        // Download popup functionality
-        document.getElementById("downloadBtn").addEventListener("click", function() {
-            document.getElementById("popup").style.display = "block";
-            setTimeout(() => {
-                document.getElementById("popup").style.display = "none";
-            }, 5000);
-        });
+            function showNoDataMessage(doc, exportType) {
+                doc.setFontSize(14);
+                doc.text(`No orders found for the current filters`, 105, 30, { align: 'center' });
+                doc.setFontSize(10);
+                doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 40, { align: 'center' });
+                return doc;
+            }
 
-        // Close popup when clicking outside
-        document.addEventListener('click', function(event) {
-            const popup = document.getElementById('popup');
-            const downloadBtn = document.getElementById('downloadBtn');
-            if (popup.style.display === 'block' &&
-                !popup.contains(event.target) &&
-                event.target !== downloadBtn &&
-                !downloadBtn.contains(event.target)) {
-                popup.style.display = 'none';
+            //Export To Excel Function
+            function exportToExcel() {
+                const visibleOrders = getVisibleOrders();
+
+                if (visibleOrders.length === 0) {
+                    alert('No orders to export with the current filters.');
+                    return;
+                }
+
+                try {
+                    const wb = XLSX.utils.book_new();
+                    const data = [
+                        ["Order ID", "Status", "Customer", "Date", "Time", "Item Name", "Quantity", "Price", "Discount", "Total"]
+                    ];
+
+                    visibleOrders.each(function() {
+                        const $order = $(this);
+                        const orderId = $order.data('orderid') || '';
+                        const status = $order.find('.badge').text().trim() || '';
+                        const customer = $order.find('.order-footer p:nth-child(2) strong').text().replace('Customer: ', '').trim() || '';
+                        const dateTimeParts = $order.find('.order-time').text().split('|');
+                        const date = dateTimeParts[1] ? dateTimeParts[1].trim() : '';
+                        const time = dateTimeParts[0] ? dateTimeParts[0].trim() : '';
+                        const total = $order.find('.order-footer p:nth-child(1) strong').text().replace('Total: ₹', '').trim() || '';
+
+                        $order.find('.order-items p').each(function() {
+                            const $item = $(this);
+                            const itemText = $item.find('strong').text().trim();
+
+                            // Parse item details - format: "2x Chicken Burger - ₹100 (10% off)"
+                            const match = itemText.match(/^(\d+)x\s+(.+?)\s*-\s*₹([\d.]+)(?:\s*\((\d+)%\s+off\))?/);
+
+                            if (match) {
+                                const quantity = match[1];
+                                const itemName = match[2];
+                                const price = match[3];
+                                const discount = match[4] || '0';
+
+                                data.push([
+                                    orderId,
+                                    status,
+                                    customer,
+                                    date,
+                                    time,
+                                    itemName,
+                                    quantity,
+                                    price,
+                                    discount + '%',
+                                    total
+                                ]);
+                            } else {
+                                // Fallback for unexpected format
+                                data.push([
+                                    orderId,
+                                    status,
+                                    customer,
+                                    date,
+                                    time,
+                                    itemText,
+                                    '1',
+                                    '0',
+                                    '0%',
+                                    total
+                                ]);
+                            }
+                        });
+                    });
+
+                    const ws = XLSX.utils.aoa_to_sheet(data);
+                    XLSX.utils.book_append_sheet(wb, ws, "Order History");
+
+                    // Format filename with filter info
+                    let filterInfo = '';
+                    const activeFilter = $('.filter-btn.active').data('status');
+                    if (activeFilter && activeFilter !== 'all') {
+                        filterInfo = `_${activeFilter}`;
+                    }
+
+                    const fromDate = $('#fromDate').val();
+                    const toDate = $('#toDate').val();
+                    if (fromDate || toDate) {
+                        filterInfo += `_${fromDate || 'start'}-${toDate || 'end'}`;
+                    }
+
+                    // Generate filename with current date
+                    const today = new Date().toISOString().split('T')[0];
+                    XLSX.writeFile(wb, `OrderHistory${filterInfo}_${today}.xlsx`);
+
+                } catch (error) {
+                    console.error('Error exporting to Excel:', error);
+                    alert('Failed to export to Excel. Please check console for details.');
+                }
+            }
+
+            //Export To PDF Function
+            function exportToPDF() {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                const visibleOrders = getVisibleOrders();
+
+                if (visibleOrders.length === 0) {
+                    showNoDataMessage(doc, 'PDF');
+                    doc.save('No_Orders_Found.pdf');
+                    return;
+                }
+
+                // Add title
+                doc.setFontSize(18);
+                doc.text('Order History Report', 105, 15, { align: 'center' });
+
+                // Add filter info
+                doc.setFontSize(10);
+
+                // Add status filter info if not "all"
+                const activeFilter = $('.filter-btn.active').data('status');
+                if (activeFilter && activeFilter !== 'all') {
+                    doc.text(`Status: ${activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)}`, 105, 22, { align: 'center' });
+                }
+
+                // Add date range
+                const fromDate = $('#fromDate').val() || 'Beginning';
+                const toDate = $('#toDate').val() || 'Today';
+                doc.text(`Date Range: ${fromDate} to ${toDate}`, 105, activeFilter && activeFilter !== 'all' ? 28 : 22, { align: 'center' });
+
+                // Add current date
+                doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, activeFilter && activeFilter !== 'all' ? 34 : 28, { align: 'center' });
+
+                // Prepare data for the table
+                const data = [
+                    ["Order ID", "Status", "Customer", "Date", "Items", "Total"]
+                ];
+
+                visibleOrders.each(function() {
+                    const orderId = $(this).data('orderid');
+                    const status = $(this).find('.badge').text().trim();
+                    const customer = $(this).find('.order-footer p:nth-child(2) strong').text().replace('Customer: ', '');
+                    const date = $(this).find('.order-time').text().split('|')[1].trim();
+                    const total = $(this).find('.order-footer p:nth-child(1) strong').text().replace('Total: ₹', '');
+
+                    let items = '';
+                    $(this).find('.order-items p').each(function() {
+                        items += $(this).find('strong').text() + '\n';
+                    });
+
+                    data.push([
+                        orderId,
+                        status,
+                        customer,
+                        date,
+                        items.trim(),
+                        '₹' + total
+                    ]);
+                });
+
+                // Add table
+                doc.autoTable({
+                    head: [data[0]],
+                    body: data.slice(1),
+                    startY: activeFilter && activeFilter !== 'all' ? 40 : 35,
+                    styles: {
+                        fontSize: 8,
+                        cellPadding: 2,
+                        valign: 'middle'
+                    },
+                    columnStyles: {
+                        0: { cellWidth: 20 },
+                        1: { cellWidth: 20 },
+                        2: { cellWidth: 30 },
+                        3: { cellWidth: 20 },
+                        4: { cellWidth: 60 },
+                        5: { cellWidth: 20 }
+                    },
+                    didDrawPage: function(data) {
+                        // Footer
+                        doc.setFontSize(10);
+                        doc.setTextColor(150);
+                        doc.text(`Page ${doc.internal.getNumberOfPages()}`,
+                            doc.internal.pageSize.getWidth() / 2,
+                            doc.internal.pageSize.getHeight() - 10,
+                            { align: 'center' });
+                    }
+                });
+
+                // Get current filter info for filename
+                let filterInfo = '';
+                if (activeFilter && activeFilter !== 'all') {
+                    filterInfo = `_${activeFilter}`;
+                }
+
+                if (fromDate || toDate) {
+                    filterInfo += `_${fromDate || 'start'}-${toDate || 'end'}`;
+                }
+
+                // Save the PDF
+                doc.save(`OrderHistory${filterInfo}_${new Date().toISOString().split('T')[0]}.pdf`);
             }
         });
     </script>

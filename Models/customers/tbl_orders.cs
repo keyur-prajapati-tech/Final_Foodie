@@ -18,6 +18,7 @@ namespace Foodie.Models.customers
         public string customer_name { get; set; }
         public string delivery_address { get; set; }
         public int restaurant_id { get; set; }
+        public string customer_phone { get; set; }
         public List<tbl_order_items> OrderItems { get; set; } = new List<tbl_order_items>();
         public List<tbl_menu_items> MenuItems { get; set; } = new List<tbl_menu_items>();
     }
