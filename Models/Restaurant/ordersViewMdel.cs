@@ -7,8 +7,10 @@ namespace Foodie.Models.Restaurant
         public int order_items_id { get; set; }
         public int order_id { get; set; }
         public int restaurant_id { get; set; }
+        public string order_status { get; set; }
+        public DateTime order_date { get; set; }
 
-       
+
         public string food_status { get; set; }
 
         public string customer_name { get; set; }

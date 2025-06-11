@@ -2,21 +2,21 @@
 @{
     ViewData["Title"] = "Delivery Partner Dashboard";
     Layout = ViewBag.Layout ?? "_DeliveryPartnerLayout";
-    // Get user data from session
     var fullName = Context.Session.GetString("FullName");
     var onlineStatus = Context.Session.GetInt32("isOnline") ?? 0;
     var currentRequestStatus = ViewBag.RequestStatus as string ?? "Pending";
-    
-    // Dynamic coordinates passed from the controller
-    var restaurantLatitude = Model.RestaurantLat; // e.g. "28.6270"
-    var restaurantLongitude = Model.RestaurantLng; // e.g. "77.2167"
-    var customerLatitude = Model.CustomerLat;  // e.g. "28.6353"
-    var customerLongitude = Model.CustomerLng;  // e.g. "77.2250"
+
+    // Dynamic coordinates
+    var restaurantLatitude = Model.RestaurantLat;
+    var restaurantLongitude = Model.RestaurantLng;
+    var customerLatitude = Model.CustomerLat;
+    var customerLongitude = Model.CustomerLng;
 }
 
 <!-- Bootstrap 5 CSS and Chart.js -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <!-- Mapbox CSS & JS -->
 <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
@@ -26,112 +26,650 @@
 <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.css" type="text/css" />
 
 <style>
+    :root {
+        --primary-color: #4e73df;
+        --success-color: #1cc88a;
+        --info-color: #36b9cc;
+        --warning-color: #f6c23e;
+        --danger-color: #e74a3b;
+        --dark-color: #5a5c69;
+    }
+
     body {
-    background-color: #f1f3f5;
-    font-family: 'Segoe UI', sans-serif;
+        background-color: #f8f9fc;
+        font-family: 'Nunito', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     }
 
     .dashboard-header {
-    text-align: center;
-    margin-bottom: 30px;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #e3e6f0;
     }
 
-    .card-metric {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    border-radius: 16px;
-    transition: transform 0.3s ease;
+    .card {
+        border: none;
+        border-radius: 0.35rem;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+        margin-bottom: 1.5rem;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    .card-metric:hover {
-    transform: translateY(-5px);
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 2rem 0 rgba(58, 59, 69, 0.2);
+        }
+
+    .card-header {
+        background-color: #f8f9fc;
+        border-bottom: 1px solid #e3e6f0;
+        padding: 1rem 1.35rem;
+        font-weight: 600;
+        color: var(--dark-color);
     }
 
-    .map-container,
-    .chart-container {
-    border-radius: 16px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
-    margin-top: 30px;
+    .metric-card {
+        border-left: 0.25rem solid;
     }
+
+        .metric-card.primary {
+            border-left-color: var(--primary-color);
+        }
+
+        .metric-card.success {
+            border-left-color: var(--success-color);
+        }
+
+        .metric-card.info {
+            border-left-color: var(--info-color);
+        }
+
+        .metric-card.warning {
+            border-left-color: var(--warning-color);
+        }
+
+        .metric-card .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .metric-card .metric-label {
+            font-size: 0.875rem;
+            color: var(--dark-color);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
 
     .status-badge {
-    padding: 6px 10px;
-    border-radius: 5px;
-    font-size: 0.9rem;
-    font-weight: bold;
+        padding: 0.35rem 0.65rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
     }
 
     .status-pending {
-    background-color: #ffc107;
-    color: #212529;
+        background-color: var(--warning-color);
+        color: #fff;
     }
 
     .status-delivered {
-    background-color: #28a745;
-    color: white;
+        background-color: var(--success-color);
+        color: #fff;
     }
 
     .status-out-for-delivery {
-    background-color: #17a2b8;
-    color: white;
+        background-color: var(--info-color);
+        color: #fff;
     }
+
+    .status-cancelled {
+        background-color: var(--danger-color);
+        color: #fff;
+    }
+
+    .map-container {
+        height: 500px;
+        width: 100%;
+        border-radius: 0.35rem;
+        overflow: hidden;
+        position: relative;
+    }
+
+    .map-overlay {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1;
+        background: white;
+        padding: 10px;
+        border-radius: 5px;
+        box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+    }
+
+    .online-toggle {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 30px;
+    }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: .4s;
+        border-radius: 34px;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+    input:checked + .slider {
+        background-color: var(--success-color);
+    }
+
+        input:checked + .slider:before {
+            transform: translateX(30px);
+        }
+
+    .delivery-progress {
+        margin-top: 1rem;
+    }
+
+    .progress-step {
+        display: flex;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .step-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #e3e6f0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 10px;
+        font-size: 0.875rem;
+        color: var(--dark-color);
+    }
+
+        .step-icon.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .step-icon.completed {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+    .step-text {
+        flex: 1;
+    }
+
+        .step-text.active {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .step-text.completed {
+            color: var(--success-color);
+        }
+
+    .order-card {
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+        .order-card:hover {
+            border-left-color: var(--primary-color) !important;
+        }
+
+        .order-card .order-details {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .order-card .order-meta {
+            font-size: 0.875rem;
+            color: var(--dark-color);
+        }
+
+        .order-card .order-price {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .order-card .order-status {
+            font-size: 0.75rem;
+        }
+
+    .notification-badge {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background-color: var(--danger-color);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.65rem;
+        font-weight: 700;
+    }
+
+    /* Static content styles */
+    .static-content {
+        background-color: #fff;
+        border-radius: 0.35rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+    }
+
+        .static-content h4 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .static-content ul {
+            padding-left: 1.5rem;
+        }
+
+        .static-content li {
+            margin-bottom: 0.5rem;
+        }
 </style>
 
-<div class="container py-4">
+<div class="container-fluid py-4">
     <!-- Dashboard Header -->
-    <div class="dashboard-header">
-        <h2 class="fw-bold">Welcome, @fullName 👋</h2>
-        @if (onlineStatus == 0)
-        {
-            <div class="alert alert-warning">
-                <p class="mb-0"><strong>You are currently offline.</strong> Go online to view your earnings, delivery routes, and order statistics.</p>
+    <div class="d-sm-flex align-items-center justify-content-between mb-4 dashboard-header">
+        <h1 class="h3 mb-0 text-gray-800">Delivery Dashboard</h1>
+        <div class="online-toggle">
+            <span>Status: <strong>@(onlineStatus == 1 ? "Online" : "Offline")</strong></span>
+            <label class="toggle-switch">
+                <input type="checkbox" id="onlineToggle" @(onlineStatus == 1 ? "checked" : "")>
+                <span class="slider"></span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Welcome Alert -->
+    <div class="alert alert-primary d-flex align-items-center" role="alert">
+        <i class="bi bi-info-circle-fill me-2"></i>
+        <div>
+            Welcome back, <strong>@fullName</strong>! @(onlineStatus == 1 ? "You're currently online and ready to accept deliveries." : "Go online to start receiving delivery requests.")
+        </div>
+    </div>
+
+    <!-- Static Content Section -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="static-content">
+                <h4><i class="bi bi-info-circle"></i> Delivery Guidelines</h4>
+                <ul>
+                    <li>Always wear your delivery partner ID while on duty</li>
+                    <li>Maintain food at proper temperature during transit</li>
+                    <li>Verify order details with restaurant before pickup</li>
+                    <li>Contact customer if you encounter any delays</li>
+                    <li>Follow all traffic rules and safety guidelines</li>
+                </ul>
             </div>
-        }
-        else
-        {
-            <p class="text-muted">Here's your delivery performance today.</p>
-        }
+        </div>
+        <div class="col-md-6">
+            <div class="static-content">
+                <h4><i class="bi bi-headset"></i> Support Information</h4>
+                <ul>
+                    <li>Customer Support: 1800-123-4567 (24/7)</li>
+                    <li>Emergency Contact: 1800-765-4321</li>
+                    <li>Email: support@foodie.com</li>
+                    <li>Office Hours: 9AM - 6PM (Mon-Sat)</li>
+                    <li>WhatsApp Support: +91 9876543210</li>
+                </ul>
+            </div>
+        </div>
     </div>
 
     <!-- Summary Cards -->
-    <div class="row g-4">
-        <div class="col-md-6 col-xl-3">
-            <div class="card card-metric border-0 text-center p-3">
-                <h5 class="text-muted">Orders Delivered Today</h5>
-                <h2 class="fw-bold text-primary">@Model.OrdersDelivered</h2>
-            </div>
-        </div>
-        @if (onlineStatus == 1)
-        {
-            <div class="col-md-6 col-xl-3">
-                <div class="card card-metric border-0 text-center p-3">
-                    <h5 class="text-muted">Today's Earnings</h5>
-                    <h2 class="fw-bold text-success">₹ @Model.TotalEarnings.ToString("F2")</h2>
+    <div class="row">
+        <!-- Orders Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card metric-card primary h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="metric-label">Orders Today</div>
+                            <div class="metric-value text-primary">@Model.OrdersDelivered</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-cart-check fs-1 text-gray-300"></i>
+                        </div>
+                    </div>
                 </div>
             </div>
-        }
+        </div>
+
+        <!-- Earnings Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card metric-card success h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="metric-label">Today's Earnings</div>
+                            <div class="metric-value text-success">₹@Model.TotalEarnings.ToString("F2")</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-currency-rupee fs-1 text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Average Time Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card metric-card info h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="metric-label">Avg. Delivery Time</div>
+                            <div class="metric-value text-info">AverageDeliveryTime min</div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-clock-history fs-1 text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rating Card -->
+        <div class="col-xl-3 col-md-6 mb-4">
+            <div class="card metric-card warning h-100 py-2">
+                <div class="card-body">
+                    <div class="row no-gutters align-items-center">
+                        <div class="col mr-2">
+                            <div class="metric-label">Customer Rating</div>
+                            <div class="metric-value text-warning">AverageRating.ToString("F1")/5</div>
+                            <div class="mt-1">
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <i class="bi @(i <= Model.AvgDeliveryTime ? "bi-star-fill" : "bi-star") text-warning"></i>
+                                }
+                            </div>
+                        </div>
+                        <div class="col-auto">
+                            <i class="bi bi-star-half fs-1 text-gray-300"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     @if (onlineStatus == 1)
     {
-        <!-- Map Section - Only shown when online -->
-        <div class="map-container bg-white p-3 mt-4">
-            <h5 class="mb-3">📍 Your Delivery Route</h5>
-            <div id="map" style="height: 500px; width: 100%; border-radius: 12px;"></div>
-        </div>
-
-        <!-- Charts Section - Only shown when online -->
-        <div class="row g-4 mt-4">
-            <div class="col-md-6">
-                <div class="card chart-container border-0 p-3">
-                    <h5 class="mb-3">📊 Weekly Earnings</h5>
-                    <canvas id="earningsChart" height="200"></canvas>
+        <!-- Current Delivery Section -->
+        <div class="row">
+            <div class="col-lg-8 mb-4">
+                <!-- Map Card -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Delivery Route</h6>
+                        <div class="dropdown no-arrow">
+                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-three-dots-vertical text-gray-400"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow animated--fade-in"
+                                aria-labelledby="dropdownMenuLink">
+                                <li><a class="dropdown-item" href="#" id="refreshMap">Refresh Map</a></li>
+                                <li><a class="dropdown-item" href="#" id="showDirections">Show Directions</a></li>
+                                <li><a class="dropdown-item" href="#" id="reportIssue">Report Issue</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="map-container" id="map">
+                            <div class="map-overlay">
+                                <button class="btn btn-sm btn-primary" id="centerMap">
+                                    <i class="bi bi-geo-alt"></i> Center on Me
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card chart-container border-0 p-3">
-                    <h5 class="mb-3">🧾 Order Status Summary</h5>
-                    <canvas id="ordersPieChart" height="200"></canvas>
+
+            <div class="col-lg-4 mb-4">
+                <!-- Delivery Progress Card -->
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Delivery Progress</h6>
+                        <span class="badge bg-primary">Active</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="delivery-progress">
+                            <div class="progress-step">
+                                <div class="step-icon completed"><i class="bi bi-check"></i></div>
+                                <div class="step-text completed">Order Received</div>
+                            </div>
+                            <div class="progress-step">
+                                <div class="step-icon @(currentRequestStatus == "Preparing" || currentRequestStatus == "On the way" || currentRequestStatus == "Delivered" ? "completed" : "active")">
+                                    <i class="bi @(currentRequestStatus == "Preparing" || currentRequestStatus == "On the way" || currentRequestStatus == "Delivered" ? "bi-check" : "bi-arrow-right")"></i>
+                                </div>
+                                <div class="step-text @(currentRequestStatus == "Preparing" || currentRequestStatus == "On the way" || currentRequestStatus == "Delivered" ? "completed" : "active")">
+                                    Restaurant Preparing
+                                </div>
+                            </div>
+                            <div class="progress-step">
+                                <div class="step-icon @(currentRequestStatus == "On the way" || currentRequestStatus == "Delivered" ? "completed" : "") @(currentRequestStatus == "On the way" ? "active" : "")">
+                                    <i class="bi @(currentRequestStatus == "On the way" || currentRequestStatus == "Delivered" ? "bi-check" : "bi-arrow-right")"></i>
+                                </div>
+                                <div class="step-text @(currentRequestStatus == "On the way" || currentRequestStatus == "Delivered" ? "completed" : "") @(currentRequestStatus == "On the way" ? "active" : "")">
+                                    On the way to customer
+                                </div>
+                            </div>
+                            <div class="progress-step">
+                                <div class="step-icon @(currentRequestStatus == "Delivered" ? "completed" : "")">
+                                    <i class="bi @(currentRequestStatus == "Delivered" ? "bi-check" : "bi-arrow-right")"></i>
+                                </div>
+                                <div class="step-text @(currentRequestStatus == "Delivered" ? "completed" : "")">
+                                    Delivered
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h6 class="font-weight-bold mb-0">Current Order</h6>
+                            <span class="badge bg-primary">#CurrentOrderId</span>
+                        </div>
+
+                        <div class="mb-3">
+                            <p class="mb-1"><strong>Restaurant:</strong> CurrentRestaurantName</p>
+                            <p class="mb-1"><strong>Customer:</strong> CurrentCustomerName</p>
+                            <p class="mb-1"><strong>Delivery Address:</strong> CurrentDeliveryAddress</p>
+                            <p class="mb-1"><strong>Items:</strong> CurrentOrderItemCount</p>
+                            <p class="mb-0"><strong>Total:</strong> CurrentOrderTotal.ToString("F2")</p>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-success" id="markAsPickedUp" @(currentRequestStatus != "Preparing" ? "disabled" : "")>
+                                <i class="bi bi-check-circle"></i> Mark as Picked Up
+                            </button>
+                            <button class="btn btn-primary" id="markAsDelivered" @(currentRequestStatus != "On the way" ? "disabled" : "")>
+                                <i class="bi bi-check2-all"></i> Mark as Delivered
+                            </button>
+                            <button class="btn btn-outline-danger" id="reportProblem">
+                                <i class="bi bi-exclamation-triangle"></i> Report Problem
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="row">
+            <!-- Earnings Chart -->
+            <div class="col-xl-8 col-lg-7">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Earnings Overview</h6>
+                        <div class="dropdown no-arrow">
+                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-three-dots-vertical text-gray-400"></i>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow animated--fade-in"
+                                aria-labelledby="dropdownMenuLink">
+                                <li><a class="dropdown-item" href="#" data-period="week">This Week</a></li>
+                                <li><a class="dropdown-item" href="#" data-period="month">This Month</a></li>
+                                <li><a class="dropdown-item" href="#" data-period="year">This Year</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-area">
+                            <canvas id="earningsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Orders Pie Chart -->
+            <div class="col-xl-4 col-lg-5">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Order Status</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-pie pt-4 pb-2">
+                            <canvas id="ordersPieChart"></canvas>
+                        </div>
+                        <div class="mt-4 text-center small">
+                            <span class="me-2">
+                                <i class="bi bi-circle-fill text-success"></i> Delivered
+                            </span>
+                            <span class="me-2">
+                                <i class="bi bi-circle-fill text-primary"></i> In Transit
+                            </span>
+                            <span class="me-2">
+                                <i class="bi bi-circle-fill text-warning"></i> Pending
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Orders -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                        <h6 class="m-0 font-weight-bold text-primary">Recent Orders</h6>
+                        <div class="dropdown no-arrow position-relative">
+                            <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell fs-5"></i>
+                                <span class="notification-badge">3</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow animated--fade-in"
+                                aria-labelledby="dropdownMenuLink">
+                                <li><h6 class="dropdown-header">New Delivery Requests</h6></li>
+                                <li><a class="dropdown-item" href="#">Order #4521 - 1.2km away</a></li>
+                                <li><a class="dropdown-item" href="#">Order #4522 - 0.8km away</a></li>
+                                <li><a class="dropdown-item" href="#">Order #4523 - 2.1km away</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#">View all requests</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered" id="recentOrdersTable" width="100%" cellspacing="0">
+                                <thead>
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Restaurant</th>
+                                        <th>Customer</th>
+                                        <th>Items</th>
+                                        <th>Amount</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>1</td>
+                                        <td>Royal Dine</td>
+                                        <td>Kevin Prajapati</td>
+                                        <td>
+                                            <ul>
+                                                <li>ABC</li>
+                                                <li>XYZ</li>
+                                                <li>PQR</li>
+                                                <li>WXYZ</li>
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Offline Content -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Go Online to Start Earning</h6>
+                    </div>
+                    <div class="card-body text-center py-5">
+                        <i class="bi bi-truck fs-1 text-gray-400 mb-3"></i>
+                        <h4 class="text-gray-800 mb-3">You're Currently Offline</h4>
+                        <p class="text-gray-600 mb-4">Switch to online mode to receive delivery requests and start earning.</p>
+                        <button class="btn btn-primary btn-lg" id="goOnlineBtn">
+                            <i class="bi bi-power"></i> Go Online Now
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -140,186 +678,248 @@
 
 @if (onlineStatus == 1)
 {
-    <!-- Chart Initialization - Only include when online -->
+    <!-- Chart Initialization -->
     <script>
         // Chart data passed from the server via DashboardViewModel
         const weeklyLabels = @Html.Raw(Json.Serialize(Model.WeeklyLabels));
         const weeklyData = @Html.Raw(Json.Serialize(Model.WeeklyEarnings));
         const statusLabels = @Html.Raw(Json.Serialize(Model.OrderStatusLabels));
         const statusData = @Html.Raw(Json.Serialize(Model.OrderStatusCounts));
+        const statusColors = ['#1cc88a', '#4e73df', '#f6c23e', '#e74a3b'];
 
-        // Initialize Weekly Earnings Chart
-        new Chart(document.getElementById("earningsChart"), {
-            type: "bar",
+        // Initialize Earnings Chart
+        const earningsCtx = document.getElementById('earningsChart').getContext('2d');
+        const earningsChart = new Chart(earningsCtx, {
+            type: 'line',
             data: {
                 labels: weeklyLabels,
                 datasets: [{
-                    label: "Earnings (₹)",
+                    label: 'Earnings',
                     data: weeklyData,
-                    backgroundColor: "#0d6efd",
-                    borderRadius: 6
+                    backgroundColor: 'rgba(78, 115, 223, 0.05)',
+                    borderColor: 'rgba(78, 115, 223, 1)',
+                    pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                    pointBorderColor: '#fff',
+                    pointHoverBackgroundColor: '#fff',
+                    pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
+                    pointRadius: 4,
+                    pointHoverRadius: 6,
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: true
                 }]
             },
             options: {
-                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    legend: { display: false },
                     tooltip: {
                         callbacks: {
-                            label: ctx => `₹ ${ctx.parsed.y.toFixed(2)}`
+                            label: function(context) {
+                                return '₹' + context.parsed.y.toFixed(2);
+                            }
                         }
+                    },
+                    legend: {
+                        display: false
                     }
                 },
                 scales: {
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    },
                     y: {
                         beginAtZero: true,
                         ticks: {
-                            callback: value => '₹' + value
+                            callback: function(value) {
+                                return '₹' + value;
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
                         }
                     }
                 }
             }
         });
 
-        // Initialize Order Status Pie Chart
-        new Chart(document.getElementById("ordersPieChart"), {
-            type: "pie",
+        // Initialize Orders Pie Chart
+        const ordersCtx = document.getElementById('ordersPieChart').getContext('2d');
+        const ordersChart = new Chart(ordersCtx, {
+            type: 'doughnut',
             data: {
                 labels: statusLabels,
                 datasets: [{
                     data: statusData,
-                    backgroundColor: [
-                        "#28a745", // Delivered
-                        "#ffc107", // In Transit
-                        "#dc3545", // Cancelled
-                        "#17a2b8"  // Others
-                    ],
-                    borderWidth: 1
+                    backgroundColor: statusColors,
+                    hoverBackgroundColor: statusColors.map(c => c + 'cc'),
+                    hoverBorderColor: 'rgba(234, 236, 244, 1)',
                 }]
             },
             options: {
-                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
-                    legend: { position: "bottom" }
-                }
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = Math.round((value / total) * 100);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    },
+                    legend: {
+                        display: false
+                    }
+                },
+                cutout: '70%',
             }
         });
     </script>
 
+    <!-- Map Initialization -->
     <script>
         mapboxgl.accessToken = 'pk.eyJ1IjoicmlzaGk4MTAyIiwiYSI6ImNtOTFpbXpjeDAxZGwybHNjdjljdnlpZ2UifQ.lwfPOwA0QilljmyDYiUV6A';
+        let map;
+        let directions;
+        let userMarker;
 
+        // Initialize map when geolocation is available
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(async position => {
                 const userLat = position.coords.latitude;
                 const userLng = position.coords.longitude;
-                const deliveryPartner = [userLng, userLat]; 
+                const deliveryPartner = [userLng, userLat];
 
-                const restaurantLat = parseFloat('@restaurantLatitude' || '21.1903');
-                const restaurantLng = parseFloat('@restaurantLongitude' || '72.8644');
-                const customerLat = parseFloat('@customerLatitude' || '21.1521');
-                const customerLng = parseFloat('@customerLongitude' || '72.8717');
+                const restaurantLat = parseFloat('@restaurantLatitude' || userLat + 0.01);
+                const restaurantLng = parseFloat('@restaurantLongitude' || userLng + 0.01);
+                const customerLat = parseFloat('@customerLatitude' || userLat + 0.02);
+                const customerLng = parseFloat('@customerLongitude' || userLng + 0.02);
 
                 const restaurant = [restaurantLng, restaurantLat];
                 const customer = [customerLng, customerLat];
 
-                const map = new mapboxgl.Map({
+                // Initialize map
+                map = new mapboxgl.Map({
                     container: 'map',
                     style: 'mapbox://styles/mapbox/streets-v11',
                     center: deliveryPartner,
                     zoom: 13
                 });
 
-                // Partner marker
-                new mapboxgl.Marker({ color: 'blue' })
-                    .setLngLat(deliveryPartner)
-                    .setPopup(new mapboxgl.Popup().setText("You are here"))
-                    .addTo(map);
+                // Add geolocate control
+                map.addControl(new mapboxgl.GeolocateControl({
+                    positionOptions: {
+                        enableHighAccuracy: true
+                    },
+                    trackUserLocation: true,
+                    showUserLocation: true,
+                    showAccuracyCircle: false
+                }));
+
+                // Add zoom and rotation controls to the map.
+                map.addControl(new mapboxgl.NavigationControl());
+
+                // Initialize directions
+                directions = new MapboxDirections({
+                    accessToken: mapboxgl.accessToken,
+                    unit: 'metric',
+                    profile: 'mapbox/driving',
+                    controls: {
+                        inputs: false,
+                        instructions: false,
+                        profileSwitcher: false
+                    }
+                });
+
+                map.addControl(directions, 'top-left');
+                directions.setOrigin(deliveryPartner);
+                directions.setDestination(customer);
+                directions.addWaypoint(0, restaurant);
+
+                // Custom markers
+                userMarker = new mapboxgl.Marker({
+                    element: createCustomMarkerElement('blue', 'DP'),
+                    anchor: 'bottom'
+                })
+                .setLngLat(deliveryPartner)
+                .setPopup(new mapboxgl.Popup().setHTML(`
+                    <div class="p-2">
+                        <h6 class="fw-bold mb-1">Your Location</h6>
+                        <p class="mb-0 small">Last updated: ${new Date().toLocaleTimeString()}</p>
+                    </div>
+                `))
+                .addTo(map);
 
                 // Restaurant marker
-                new mapboxgl.Marker({ color: 'red' })
-                    .setLngLat(restaurant)
-                    .setPopup(new mapboxgl.Popup().setText("Restaurant"))
-                    .addTo(map);
+                new mapboxgl.Marker({
+                    element: createCustomMarkerElement('red', 'R'),
+                    anchor: 'bottom'
+                })
+                .setLngLat(restaurant)
+                .setPopup(new mapboxgl.Popup().setHTML(`
+                    <div class="p-2">
+                        <h6 class="fw-bold mb-1">CurrentRestaurantName</h6>
+                        <p class="mb-1 small">Order #CurrentOrderId</p>
+                        <button class="btn btn-sm btn-success w-100 mt-1" onclick="markAsPickedUp()">
+                            <i class="bi bi-check-circle"></i> Picked Up
+                        </button>
+                    </div>
+                `))
+                .addTo(map);
 
                 // Customer marker
-                new mapboxgl.Marker({ color: 'green' })
-                    .setLngLat(customer)
-                    .setPopup(new mapboxgl.Popup().setText("Customer"))
-                    .addTo(map);
+                new mapboxgl.Marker({
+                    element: createCustomMarkerElement('green', 'C'),
+                    anchor: 'bottom'
+                })
+                .setLngLat(customer)
+                .setPopup(new mapboxgl.Popup().setHTML(`
+                    <div class="p-2">
+                        <h6 class="fw-bold mb-1">CurrentCustomerName</h6>
+                        <p class="mb-1 small">CurrentDeliveryAddress</p>
+                        <button class="btn btn-sm btn-primary w-100 mt-1" onclick="markAsDelivered()">
+                            <i class="bi bi-check2-all"></i> Delivered
+                        </button>
+                    </div>
+                `))
+                .addTo(map);
 
-                // Draw route
-                async function drawRoute() {
-                    const query = `https://api.mapbox.com/directions/v5/mapbox/driving/${deliveryPartner.join(',')};${restaurant.join(',')};${customer.join(',')}?geometries=geojson&access_token=${mapboxgl.accessToken}`;
-                    try {
-                        const response = await fetch(query);
-                        const data = await response.json();
-                        if (data.routes && data.routes.length > 0) {
-                            const route = data.routes[0].geometry;
-                            map.addSource('route', {
-                                type: 'geojson',
-                                data: {
-                                    type: 'Feature',
-                                    properties: {},
-                                    geometry: route
-                                }
-                            });
-                            map.addLayer({
-                                id: 'route',
-                                type: 'line',
-                                source: 'route',
-                                layout: {
-                                    'line-join': 'round',
-                                    'line-cap': 'round'
-                                },
-                                paint: {
-                                    'line-color': '#007bff',
-                                    'line-width': 5
-                                }
-                            });
-                        }
-                    } catch (error) {
-                        console.error('Error drawing route:', error);
-                    }
-                }
-
-                map.on('load', drawRoute);
-
-                // Fetch available restaurants
-                fetch('/d/GetAvailableRestaurants')
-                    .then(response => response.json())
-                    .then(restaurants => {
-                        restaurants.forEach(rest => {
-                            const lat = parseFloat(rest.restaurant_lat);
-                            const lng = parseFloat(rest.restaurant_lag);
-
-                            new mapboxgl.Marker({ color: 'red' })
-                                .setLngLat([lng, lat])
-                                .setPopup(new mapboxgl.Popup().setHTML(`
-                                    <strong>${rest.restaurant_name}</strong><br/>
-                                    <button class="btn btn-sm btn-success mt-2" onclick="acceptOrderFromMap(${rest.restaurant_id})">
-                                        ✅ Accept Order
-                                    </button>
-                                `))
-                                .addTo(map);
-                        });
+                // Center map button
+                document.getElementById('centerMap').addEventListener('click', () => {
+                    map.flyTo({
+                        center: deliveryPartner,
+                        zoom: 15,
+                        essential: true
                     });
+                });
 
-                // Accept order function
-                window.acceptOrderFromMap = function (restaurantId) {
-                    if (confirm("Are you sure you want to accept this order?")) {
-                        fetch('/DeliverSignup/AssignOrder?restaurantId=' + restaurantId, {
-                            method: 'POST'
-                        }).then(res => {
-                            if (res.ok) {
-                                alert("✅ Order Assigned Successfully!");
-                                window.location.reload();
-                            } else {
-                                alert("❌ Could not assign order.");
-                            }
-                        });
-                    }
-                };
+                // Show directions button
+                document.getElementById('showDirections').addEventListener('click', () => {
+                    directions.setInputVisibility(true);
+                    directions.showInput('origin');
+                    directions.showInput('destination');
+                });
+
+                // Update user location periodically
+                setInterval(() => {
+                    navigator.geolocation.getCurrentPosition(pos => {
+                        const newPos = [pos.coords.longitude, pos.coords.latitude];
+                        userMarker.setLngLat(newPos);
+                        directions.setOrigin(newPos);
+
+                        // Update popup with new time
+                        userMarker.getPopup().setHTML(`
+                            <div class="p-2">
+                                <h6 class="fw-bold mb-1">Your Location</h6>
+                                <p class="mb-0 small">Last updated: ${new Date().toLocaleTimeString()}</p>
+                            </div>
+                        `);
+                    });
+                }, 30000); // Update every 30 seconds
 
             }, (error) => {
                 console.error("Geolocation Error:", error);
@@ -329,14 +929,168 @@
             showLocationError("Geolocation is not supported by your browser.");
         }
 
+        // Helper function to create custom marker elements
+        function createCustomMarkerElement(color, text) {
+            const el = document.createElement('div');
+            el.className = 'custom-marker';
+            el.style.backgroundColor = color;
+            el.style.width = '30px';
+            el.style.height = '30px';
+            el.style.borderRadius = '50%';
+            el.style.display = 'flex';
+            el.style.alignItems = 'center';
+            el.style.justifyContent = 'center';
+            el.style.color = 'white';
+            el.style.fontWeight = 'bold';
+            el.style.border = '2px solid white';
+            el.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
+            el.textContent = text;
+            return el;
+        }
+
         // Helper function to show location errors
         function showLocationError(message) {
             const mapContainer = document.getElementById('map');
             if (mapContainer) {
-                mapContainer.innerHTML = `<div class="alert alert-danger">${message}</div>`;
+                mapContainer.innerHTML = `
+                    <div class="alert alert-danger d-flex align-items-center" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                        <div>${message}</div>
+                    </div>
+                `;
             } else {
                 console.error(message);
             }
         }
+
+        // Button functions
+        function markAsPickedUp() {
+            // Implement API call to update order status
+            console.log("Marking order as picked up");
+            fetch('/Delivery/UpdateOrderStatus', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    orderId: CurrentOrderId,
+                    status: 'On the way'
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Order marked as picked up successfully!');
+                    window.location.reload();
+                } else {
+                    alert('Failed to update order status');
+                }
+            });
+        }
+
+        function markAsDelivered() {
+            // Implement API call to update order status
+            console.log("Marking order as delivered");
+            fetch('/Delivery/UpdateOrderStatus', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    orderId: CurrentOrderId,
+                    status: 'Delivered'
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    alert('Order marked as delivered successfully!');
+                    window.location.reload();
+                } else {
+                    alert('Failed to update order status');
+                }
+            });
+        }
+
+        // Event listeners for buttons
+        document.getElementById('markAsPickedUp')?.addEventListener('click', markAsPickedUp);
+        document.getElementById('markAsDelivered')?.addEventListener('click', markAsDelivered);
+
+        // Online toggle switch
+        document.getElementById('onlineToggle')?.addEventListener('change', function() {
+            const isOnline = this.checked;
+            fetch('/Delivery/UpdateOnlineStatus', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    isOnline: isOnline
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to update online status');
+                    this.checked = !isOnline; // Revert the toggle
+                }
+            });
+        });
+
+        // Go online button for offline state
+        document.getElementById('goOnlineBtn')?.addEventListener('click', function() {
+            fetch('/Delivery/UpdateOnlineStatus', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    isOnline: true
+                })
+            })
+            .then(response => {
+                if (response.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Failed to go online');
+                }
+            });
+        });
+
+        // Report problem button
+        document.getElementById('reportProblem')?.addEventListener('click', function() {
+            const problem = prompt("Please describe the problem you're facing:");
+            if (problem) {
+                fetch('/Delivery/ReportProblem', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        orderId: CurrentOrderId,
+                        description: problem
+                    })
+                })
+                .then(response => {
+                    if (response.ok) {
+                        alert('Problem reported successfully! Support will contact you soon.');
+                    } else {
+                        alert('Failed to report problem');
+                    }
+                });
+            }
+        });
     </script>
+}
+
+@functions {
+    public string GetStatusClass(string status)
+    {
+        return status switch
+        {
+            "Delivered" => "status-delivered",
+            "On the way" => "status-out-for-delivery",
+            "Cancelled" => "status-cancelled",
+            _ => "status-pending"
+        };
+    }
 }

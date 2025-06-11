@@ -37,6 +37,7 @@ namespace Foodie.Repositories
         void RemoveCartItem(int cartItemId);
         decimal GetCartTotal(int customerId);
 
+
         void AddToCart(tbl_cart_item tbl_Cart_Item);
         tbl_cart GetOrCreateCart(int customerId);
 
@@ -67,6 +68,8 @@ namespace Foodie.Repositories
 
         List<MenuItemViewModel> GetInspirationItems();
         MenuItemViewModel GetInspireMenuItemById(int menuid);
+        List<MenuItemViewModel> GetDeliveryItemsByOrderId(int orderId);
+
         List<AvailableDishViewModel> GetDeliveryFoods(int menuId);
 
         int PlaceOrder(RazorPayViewModel model);
@@ -80,6 +83,7 @@ namespace Foodie.Repositories
         //update quantity
         bool UpdateCartItemQuantity(int cartItemId, int newQuantity);
         tbl_cart_item GetCartItemById(int cartItemId);
+        bool ClearCustomerCart(int customerId);
 
         //Customer Feedback IRepository
         CustomerFeedbackViewModel GetCustomerFeedbacks(int pageNumber, int pageSize, string sortField, string sortDirection);
@@ -100,5 +104,35 @@ namespace Foodie.Repositories
 
         MenuItemViewModel GetMenuViewModelAsync(int restaurantId, int? cuisineId = null);
         List<tbl_cuisine_master> GetCuisinesWithCountAsync(int restaurantId);
+
+        List<SimilarRestaurantDtoViewModel> GetSimilarRestaurants(
+        string currentRestaurantName,
+        List<string> cuisines,
+        List<string> pincodes);
+
+        //Menu Image based on restaurantname
+        List<MenuItemViewModel> GetMenuItemsImageByRestaurant(string restaurantName);
+        List<tbl_cuisine_master> GetAllCuisines();
+
+        List<MenuItemViewModel> GetMenuItems(string restaurantName);
+        List<MenuItemViewModel> GetMenuItemsByCuisine(string restaurantName, int cuisineId);
+
+        /*Rating Section Irepository here*/
+        List<CustomerRatingViewModel> GetRatingByRestaurant(string restaurantName);
+        bool AddRating(CustomerRatingViewModel model);
+        bool UpdateRating(CustomerRatingViewModel model);
+        CustomerRatingViewModel GetRatingById(int ratingId, int customerId);
+        void ClearCartAfterOrder(int customer_id);
+
+        /*All Deliverd Food Will be display IRepo*/
+        List<RestaurantViewModel> GetRecommendedRestaurants(int count = 6);
+        List<RestaurantViewModel> GetRestaurantsByCuisine(int cuisineId);
+        List<RestaurantViewModel> SearchRestaurants(string searchTerm);
+
+        //ORDER HISTORY
+        List<tbl_orders> GetUserOrdersWithItemsAndImages(int userId);
+        bool SubmitReview(tbl_ratings ratings);
+        byte[] GenerateBill(int orderId); //Restaurant is pendding
+        List<tbl_orders> FilterOrders(int userId, string status, int? days);
     }
 }

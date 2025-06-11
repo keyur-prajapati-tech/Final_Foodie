@@ -9,7 +9,7 @@
     <div class="row">
         <div class="col-md-4">
             <img src="data:image/png;base64,@Convert.ToBase64String(Model.Restaurant_img)"
-                 class="img-fluid rounded" alt="@Model.Restaurant_name" style="max-height: 300px;">
+                 class="img-fluid rounded" alt="@Model.Restaurant_name" style="max-height: 300px;width: 100%;">
         </div>
         <div class="col-md-8">
             <h1>@Model.Restaurant_name</h1>
@@ -42,10 +42,10 @@
             <button class="nav-link" id="menu-tab" data-bs-toggle="tab" data-bs-target="#menu" type="button" role="tab">Menu</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="menu-tab" data-bs-toggle="tab" data-bs-target="#photos" type="button" role="tab">Photos</button>
+            <button class="nav-link" id="photos-tab" data-bs-toggle="tab" data-bs-target="#photos" type="button" role="tab">Photos</button>
         </li>
         <li class="nav-item" role="presentation">
-            <button class="nav-link" id="menu-tab" data-bs-toggle="tab" data-bs-target="#review" type="button" role="tab">Review</button>
+            <button class="nav-link" id="review-tab" data-bs-toggle="tab" data-bs-target="#review" type="button" role="tab">Review</button>
         </li>
     </ul>
 
@@ -89,28 +89,37 @@
                     <div class="similar-restaurants">
                         <h2>Similar Restaurants</h2>
                         <div class="restaurant-carousel">
-                            <div class="restaurant-card">
-                                <img src="restaurant1.jpg" alt="Vishala Garden">
-                                <h3>Vishala Garden R...</h3>
-                                <p><span class="rating">3.0 ⭐</span> DINING | <span class="rating">3.9 ⭐</span> DELIVERY</p>
-                                <p>North Indian, Chinese, Gujarati</p>
-                                <p>Katargam, Surat</p>
+                            <div class="restaurant-card" style="border: 3px solid #000;border-radius: 5px;margin:5px;padding:2px;">
+                                <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/18/d5/0b/cd/restaurant.jpg?w=600&h=-1&s=1" alt="Vishala Garden" style="width:100%;">
+                                <h3 class="text-uppercase">Vishala Garden R...</h3>
+                                <p class="ratings">
+                                    <span style="color:#ff9900;">3.0 ⭐</span> DINING |
+                                    <span style="color:#28a745;">3.9 ⭐</span> DELIVERY
+                                </p>
+                                <p style="font-weight:800">North Indian, Chinese, Gujarati</p>
+                                <p style="font-weight:500;color:gray">Katargam, Surat</p>
                             </div>
 
-                            <div class="restaurant-card">
-                                <img src="restaurant2.jpg" alt="Super Seek Paratha">
-                                <h3>Super Seek Parat...</h3>
-                                <p><span class="rating">4.1 ⭐</span> DINING | <span class="rating">4.0 ⭐</span> DELIVERY</p>
-                                <p>North Indian, Biryani</p>
-                                <p>Shahpore, Surat</p>
+                            <div class="restaurant-card" style="border: 3px solid #000;border-radius: 5px;margin:5px;padding:2px;">
+                                <img src="https://b.zmtcdn.com/data/dish_photos/5e0/20afda3d5fbbae1892c288a15c39a5e0.jpg" alt="Super Seek Paratha" style="width:100%;">
+                                <h3 class="text-uppercase">Super Seek Parat...</h3>
+                                <p class="ratings">
+                                    <span style="color:#ff9900;">3.0 ⭐</span> DINING |
+                                    <span style="color:#28a745;">3.9 ⭐</span> DELIVERY
+                                </p>
+                                <p style="font-weight:800">North Indian, Biryani</p>
+                                <p style="font-weight:500;color:gray">Shahpore, Surat</p>
                             </div>
 
-                            <div class="restaurant-card">
-                                <img src="restaurant3.jpg" alt="Swaminarayan Khichdi">
-                                <h3>Swaminarayan Khi...</h3>
-                                <p><span class="rating">3.9 ⭐</span> DINING | <span class="rating">3.9 ⭐</span> DELIVERY</p>
-                                <p>Gujarati, North Indian</p>
-                                <p>Kapodra, Surat</p>
+                            <div class="restaurant-card" style="border: 3px solid #000;border-radius: 5px;margin:5px;padding:2px;">
+                                <img src="https://b.zmtcdn.com/data/pictures/0/20730160/9c546ddc8db22e2c68e83132714df86e_o2_featured_v2.jpg?fit=around|750:500&crop=750:500;*,*" alt="Swaminarayan Khichdi" style="width:100%;">
+                                <h3 class="text-uppercase">Swaminarayan Khi...</h3>
+                                <p class="ratings">
+                                    <span style="color:#ff9900;">3.0 ⭐</span> DINING |
+                                    <span style="color:#28a745;">3.9 ⭐</span> DELIVERY
+                                </p>
+                                <p style="font-weight:800">Gujarati, North Indian</p>
+                                <p style="font-weight:500;color:gray">Kapodra, Surat</p>
                             </div>
                         </div>
                     </div>
@@ -172,7 +181,7 @@
             </div>
         </div>
 
-        <!-- Menu Tab -->
+        <!-- Update the Menu Tab section to include the product info button with data attributes -->
         <div class="tab-pane fade" id="menu" role="tabpanel">
             @if (menuItems != null && menuItems.Count > 0)
             {
@@ -213,10 +222,18 @@
                                                     }
                                                     <div class="card-body">
                                                         <h5 class="card-title">@item.MenuName</h5>
-                                                        <p class="card-text">@item.MenuDescription</p>
+                                                        <p class="card-text description-truncate">@item.MenuDescription</p>
                                                         <div class="d-flex justify-content-between align-items-center">
                                                             <span class="text-danger fw-bold">₹@item.Amount</span>
-                                                            <button class="btn btn-sm btn-outline-primary">Add to Cart</button>
+                                                            <button class="btn btn-sm btn-outline-primary product-info-btn"
+                                                                    data-bs-toggle="modal" data-bs-target="#productInfoModal"
+                                                                    data-name="@item.MenuName"
+                                                                    data-description="@item.MenuDescription"
+                                                                    data-price="@item.Amount"
+                                                                    data-image="@item.MenuImageBase64"
+                                                                    data-cuisine="@item.cuisine_name">
+                                                                PRODUCT INFO
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -234,10 +251,192 @@
                 <div class="alert alert-info">No menu items available for this restaurant.</div>
             }
         </div>
+
+        <!-- Photo Tab -->
+        <div class="tab-pane fade" id="photos" role="tabpanel">
+            <div class="container mt-4">
+                <h3 class="mb-3">Restaurant Dishes...😛</h3>
+
+                <!-- Filter Section -->
+                <div class="container py-3">
+                    <div class="row justify-content-center">
+                        <div class="col-md-8 col-lg-6">
+                            <div class="input-group shadow-sm rounded">
+                                <span class="input-group-text bg-white border-end-0">
+                                    <i class="fas fa-search text-muted"></i>
+                                </span>
+                                <input type="text" id="photoSearch" class="form-control border-start-0" placeholder="Search dishes..." aria-label="Search dishes">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="col-md-12">
+                    <div class="d-flex flex-wrap gap-2" id="cuisineContainer">
+                        <!-- Cuisine filters will be loaded here -->
+                    </div>
+                </div>
+                <!-- Loading Indicator -->
+                <div id="photosLoading" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading photos...</p>
+                </div>
+
+                <!-- Photos Grid -->
+                <div id="photosContainer" class="row">
+                    <!-- Photos will be loaded here dynamically -->
+                </div>
+
+                <!-- Empty State -->
+                <div id="noPhotos" class="text-center py-5" style="display: none;">
+                    <i class="fas fa-camera fa-4x text-muted mb-3"></i>
+                    <h4>No photos available</h4>
+                    <p class="text-muted">This restaurant hasn't uploaded any photos yet.</p>
+                </div>
+            </div>
+        </div>
+
+        <!--Review Tab-->
+        <div class="tab-pane fade" id="review" role="tabpanel">
+            <div class="d-flex justify-content-between align-items-center mt-4 mb-3">
+                <h5 class="mb-0">Customer Reviews</h5>
+                <button id="refreshReviewsBtn" class="btn btn-sm btn-outline-primary">
+                    <i class="fas fa-sync-alt me-1"></i> Refresh
+                </button>
+            </div>
+
+            <!-- Loading State -->
+            <div id="ratingsLoading" class="text-center py-4 d-none">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Loading reviews...</p>
+            </div>
+
+            <!-- Reviews Container -->
+            <div id="ratingsContainer" class="mt-2"></div>
+
+            <!-- No Reviews Message -->
+            <div id="noReviewsMessage" class="alert alert-info text-center d-none">
+                <i class="fas fa-info-circle me-2"></i>
+                No reviews yet for this restaurant. Be the first to share your experience!
+            </div>
+
+            <!-- Error Message -->
+            <div id="ratingsError" class="alert alert-danger text-center d-none">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                <span id="errorMessage">Failed to load reviews. Please try again later.</span>
+            </div>
+
+            <!-- Add Review Button -->
+            <div class="text-center mt-4">
+                <button class="btn btn-primary" id="addReviewBtn">
+                    <i class="fas fa-plus me-1"></i> Add Your Review
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
-    <style>
+
+<!-- Add this modal at the bottom of your page, just before the closing </div> tag -->
+<div class="modal fade" id="productInfoModal" tabindex="-1" aria-labelledby="productInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="productInfoModalLabel">Product Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <img id="modalProductImage" src="" class="img-fluid rounded" alt="Product Image" style="max-height: 300px;">
+                    </div>
+                    <div class="col-md-6">
+                        <h3 id="modalProductName"></h3>
+                        <p id="modalProductDescription" class="text-muted"></p>
+
+                        <div class="details-section mt-3">
+                            <ul class="list-unstyled">
+                                <li><strong>Price:</strong> ₹<span id="modalProductPrice"></span></li>
+                                <li><strong>Cuisine:</strong> <span id="modalProductCuisine"></span></li>
+                                <li><strong>Calories:</strong> <span id="modalProductCalories">Not specified</span> kcal</li>
+                                <li><strong>Allergens:</strong> <span id="modalProductAllergens">None</span></li>
+                                <li><strong>Dietary:</strong> <span id="modalProductVegetarian">Vegetarian</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+    <!-- Add Review Modal -->
+    <div class="modal fade" id="addReviewModal" tabindex="-1" aria-labelledby="addReviewModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addReviewModalLabel">Add Your Review</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="reviewForm">
+                    <div class="modal-body">
+                        <input type="hidden" id="restaurantId" value="@Model.RestaurantId" />
+                        <input type="hidden" id="restaurantName" value="@Model.Restaurant_name" />
+
+                        <div class="mb-3">
+                            <label class="form-label">Your Rating</label>
+                            <div class="rating-stars mb-2">
+                                <i class="far fa-star star" data-value="1"></i>
+                                <i class="far fa-star star" data-value="2"></i>
+                                <i class="far fa-star star" data-value="3"></i>
+                                <i class="far fa-star star" data-value="4"></i>
+                                <i class="far fa-star star" data-value="5"></i>
+                                <input type="hidden" id="ratingValue" name="rating" required />
+                            </div>
+                            <div class="invalid-feedback">Please select a rating</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="reviewDescription" class="form-label">Your Review</label>
+                            <textarea class="form-control" id="reviewDescription" name="description" rows="4" required></textarea>
+                            <div class="invalid-feedback">Please write your review</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Submit Review</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+<style>
+        .description-truncate {
+            position: relative;
+            max-height: 3.6em; /* 2 lines (1.8em per line) */
+            overflow: hidden;
+            line-height: 1.8em;
+            margin-bottom: 0.5rem;
+        }
+
+        .description-truncate::after {
+            content: '...';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            padding-left: 5px;
+            background: linear-gradient(to right, transparent, white 50%);
+        }
         .restaurant-detail {
             max-width: 1200px;
             margin: 0 auto;
@@ -298,6 +497,38 @@
                     border-bottom: 2px solid #d23c3c;
                     background-color: transparent;
                 }
+
+    /*Navigation cuisine style*/
+    .cuisine-btn {
+        border-radius: 5px;
+        padding: 6px 16px;
+        margin: 5px;
+        border: 3px solid #333;
+        background-color: #f8f9fa;
+        color: #000;
+        cursor: pointer;
+        transition: 0.2s;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+        .cuisine-btn:hover {
+            background-color: #e2e6ea;
+        }
+
+        .cuisine-btn.active {
+            background-color: #ff6f61;
+            color: #fff;
+            border: none;
+            position: relative;
+        }
+
+            .cuisine-btn.active::after {
+                content: " ×";
+                margin-left: 6px;
+                font-weight: bold;
+                cursor: pointer;
+            }
 
     /* Layout */
     .res-container {
@@ -411,7 +642,161 @@
         background: red;
         color: white;
     }
-    </style>
+
+    /* ===== Search & Filter Section ===== */
+    .container.py-3 {
+        margin-bottom: 1.5rem;
+    }
+
+    /* Search Bar Styling */
+    .input-group {
+        border-radius: 50px !important;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+
+        .input-group:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+    .input-group-text {
+        background-color: #f8f9fa !important;
+        border: none !important;
+        padding: 0.6rem 1rem;
+    }
+
+    #photoSearch {
+        border: none !important;
+        background-color: #f8f9fa !important;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+    }
+
+        #photoSearch:focus {
+            outline: none;
+            box-shadow: none;
+            background-color: white !important;
+        }
+
+    /* Cuisine Filter Buttons */
+    #cuisineContainer {
+        margin-top: 1rem;
+        justify-content: center;
+    }
+
+    .cuisine-filter {
+        padding: 0.5rem 1.25rem;
+        border-radius: 50px;
+        background-color: #f8f9fa;
+        color: #333;
+        font-weight: 500;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin: 0.25rem;
+        font-size: 0.9rem;
+    }
+
+        .cuisine-filter:hover {
+            background-color: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .cuisine-filter.active {
+            background-color: #0d6efd;
+            color: white;
+            box-shadow: 0 4px 8px rgba(13, 110, 253, 0.3);
+        }
+
+    /* Photo Gallery Items */
+    .photo-item {
+        transition: all 0.3s ease;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
+    }
+
+        .photo-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+        }
+
+    .photo-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+    }
+
+        .photo-image:hover {
+            transform: scale(1.05);
+        }
+
+    #photoSearch:focus {
+        box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25);
+    }
+
+    /* Review Section Styles */
+    #ratingsContainer .card {
+        transition: all 0.3s ease;
+        border-radius: 8px;
+        border: 1px solid rgba(0,0,0,0.05);
+    }
+
+        #ratingsContainer .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+    .text-warning {
+        color: #ffc107 !important;
+    }
+
+    #refreshReviewsBtn {
+        transition: all 0.3s ease;
+    }
+
+        #refreshReviewsBtn:hover {
+            transform: rotate(15deg);
+        }
+
+    #ratingsLoading {
+        display: none;
+    }
+
+    #noReviewsMessage, #ratingsError {
+        border-radius: 8px;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* Review Modal Styles */
+    .rating-stars {
+        font-size: 24px;
+        color: #ffc107;
+        cursor: pointer;
+    }
+
+        .rating-stars .star {
+            margin-right: 5px;
+        }
+
+            .rating-stars .star:hover,
+            .rating-stars .star.active {
+                color: #ffc107;
+            }
+
+    #reviewForm .was-validated .form-control:invalid,
+    #reviewForm .was-validated .form-control:invalid + .invalid-feedback {
+        display: block;
+    }
+
+    #reviewForm .invalid-feedback {
+        display: none;
+        color: #dc3545;
+    }
+</style>
 
 
 <script>
@@ -422,11 +807,258 @@
                 $(this).tab('show');
             });
 
-            // Add to cart functionality
-            $('.btn-outline-primary').click(function() {
-                const menuItemId = $(this).closest('.card').data('menu-id');
-                // Implement your add to cart logic here
-                alert('Added to cart: ' + menuItemId);
+              // Product Info Modal Handler
+            $(document).on('click', '.product-info-btn', function() {
+                // Get data from the button's data attributes
+                const name = $(this).data('name');
+                const description = $(this).data('description');
+                const price = $(this).data('price');
+                const image = $(this).data('image');
+                const cuisine = $(this).data('cuisine');
+
+                // Set modal content
+                $('#modalProductName').text(name);
+                $('#modalProductDescription').text(description);
+                $('#modalProductPrice').text(price);
+                $('#modalProductCuisine').text(cuisine);
+
+                // Set image if available
+                if (image) {
+                    $('#modalProductImage').attr('src', 'data:image/jpeg;base64,' + image);
+                } else {
+                    $('#modalProductImage').attr('src', 'https://via.placeholder.com/300x200?text=No+Image');
+                }
+
+                // Show the modal
+                $('#productInfoModal').modal('show');
             });
+
+                // Initialize when photos tab is clicked
+            $('#photos-tab').on('click', function() {
+                loadRestaurantPhotos();
+            });
+
+            function loadRestaurantPhotos() {
+                const restaurantName = '@Model.Restaurant_name';
+
+                // Show loading state
+                $('#photosLoading').show();
+                $('#photosContainer').empty();
+                $('#noPhotos').hide();
+
+                // Load photos
+                $.getJSON('/TBrands/GetMenuImages', { restaurantName: restaurantName })
+                    .done(function(response) {
+                        $('#photosLoading').hide();
+
+                        if (response.success && response.data.length > 0) {
+                            // Load cuisines
+                            const cuisines = [...new Set(response.data.map(p => p.cuisineName).filter(Boolean))];
+                            loadCuisineFilters(cuisines);
+
+                            // Render photos
+                            renderPhotos(response.data);
+                        } else {
+                            $('#noPhotos').show();
+                        }
+                    })
+                    .fail(function() {
+                        $('#photosLoading').hide();
+                        $('#photosContainer').html(`
+                            <div class="col-12">
+                                <div class="alert alert-danger">
+                                    Failed to load photos. Please try again later.
+                                </div>
+                            </div>
+                        `);
+                    });
+            }
+
+            function loadCuisineFilters(cuisines) {
+                $('#cuisineContainer').empty();
+
+                // Add "All" filter
+                $('#cuisineContainer').append(`
+                    <button class="btn btn-sm btn-outline-primary active cuisine-filter" data-cuisine="all">
+                        All
+                    </button>
+                `);
+
+                // Add cuisine filters
+                cuisines.forEach(cuisine => {
+                    $('#cuisineContainer').append(`
+                        <button class="btn btn-sm btn-outline-primary cuisine-filter" data-cuisine="${cuisine}">
+                            ${cuisine}
+                        </button>
+                    `);
+                });
+
+                // Add filter event handlers
+                $('.cuisine-filter').on('click', function() {
+                    $('.cuisine-filter').removeClass('active');
+                    $(this).addClass('active');
+                    filterPhotos($(this).data('cuisine'));
+                });
+            }
+
+            function renderPhotos(photos) {
+                $('#photosContainer').empty();
+
+                photos.forEach(photo => {
+                    if (photo.imageBase64) {
+                        $('#photosContainer').append(`
+                            <div class="col-md-4 col-sm-6 mb-4 photo-item" data-cuisine="${photo.cuisineName || ''}">
+                                <div class="card h-100 shadow-sm">
+                                    <img src="data:image/jpeg;base64,${photo.imageBase64}"
+                                         class="card-img-top photo-image"
+                                         alt="${photo.menuName || 'Restaurant photo'}"
+                                         style="height: 200px; object-fit: cover;">
+                                    <div class="card-body">
+                                        <h6 class="card-title">${photo.menuName || ''}</h6>
+                                        ${photo.cuisineName ? `<span class="badge bg-light text-dark">${photo.cuisineName}</span>` : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        `);
+                    }
+                });
+
+                // Initialize search functionality
+                $('#photoSearch').on('keyup', function() {
+                    const searchTerm = $(this).val().toLowerCase();
+                    $('.photo-item').each(function() {
+                        const text = $(this).text().toLowerCase();
+                        $(this).toggle(text.includes(searchTerm));
+                    });
+                });
+            }
+
+            function filterPhotos(cuisine) {
+                if (cuisine === 'all') {
+                    $('.photo-item').show();
+                } else {
+                    $('.photo-item').each(function() {
+                        $(this).toggle($(this).data('cuisine') === cuisine);
+                    });
+                }
+            }
+    });
+
+    function renderMenu(items) {
+        $('#menuContainer').html('');
+        items.forEach(function (item) {
+            $('#menuContainer').append(`
+                <div class="card menu-card shadow-sm">
+                    <img src="data:image/png;base64,${item.MenuImageBase64}" class="card-img-top menu-image" />
+                    <div class="card-body p-2">
+                        <h6 class="card-title mb-0">${item.MenuName}</h6>
+                    </div>
+                </div>
+            `);
         });
+    }
+
+        function truncateDescriptions() {
+        $('.description-truncate').each(function() {
+            const $el = $(this);
+            const lineHeight = parseInt($el.css('line-height'));
+            const maxHeight = lineHeight * 2; // 2 lines
+
+            if ($el.height() > maxHeight) {
+                // If text is overflowing, add ellipsis
+                let text = $el.text();
+                while ($el.height() > maxHeight && text.length > 0) {
+                    text = text.substr(0, text.length - 1);
+                    $el.text(text + '...');
+                }
+            }
+        });
+
+        const restaurantName = '@Model.Restaurant_name';
+
+        // Initialize when review tab is clicked
+        $('#review-tab').on('click', function() {
+            loadRatings();
+        });
+
+         // Add review button handler
+        $('#addReviewBtn').click(function() {
+            // You can implement the review form here
+            alert("Implement your review form logic here");
+        });
+
+        function loadRatings() {
+            // Reset UI
+            $('#ratingsLoading').removeClass('d-none').show();
+            $('#noReviewsMessage').addClass('d-none');
+            $('#ratingsError').addClass('d-none');
+            $('#ratingsContainer').empty();
+
+            $.ajax({
+                url: '/TBrands/GetUserRating',
+                type: 'GET',
+                data: { restaurantName: restaurantName },
+                dataType: 'json',
+                success: function(response) {
+                    $('#ratingsLoading').addClass('d-none');
+
+                    if (response.success) {
+                        if (response.isEmpty || response.count === 0) {
+                            $('#noReviewsMessage').removeClass('d-none');
+                        } else {
+                            renderReviews(response.data);
+                        }
+                    } else {
+                        showReviewError(response.message || "Failed to load reviews");
+                    }
+                },
+                error: function(xhr) {
+                    $('#ratingsLoading').addClass('d-none');
+
+                    let errorMsg = "Failed to load reviews. Please try again.";
+                    if (xhr.responseJSON && xhr.responseJSON.message) {
+                        errorMsg = xhr.responseJSON.message;
+                    }
+
+                    showReviewError(errorMsg);
+                }
+            });
+        }
+
+        function renderReviews(reviews) {
+            let html = '';
+
+            reviews.forEach((review) => {
+                const stars = '★'.repeat(review.Rating) + '☆'.repeat(5 - review.Rating);
+                const date = new Date(review.CreatedAt);
+                const formattedDate = date.toLocaleDateString() + ' at ' +
+                                     date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+                html += `
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h6 class="card-title mb-0">${review.CustomerName}</h6>
+                            <div>
+                                <span class="text-warning fs-5">${stars}</span>
+                                <small class="text-muted ms-2">${review.Rating}.0</small>
+                            </div>
+                        </div>
+                        <p class="card-text">${review.Description}</p>
+                        <small class="text-muted">${formattedDate}</small>
+                    </div>
+                </div>`;
+            });
+
+            $('#ratingsContainer').html(html);
+        }
+
+        function showReviewError(message) {
+            $('#errorMessage').text(message);
+            $('#ratingsError').removeClass('d-none');
+        }
+        }
+
+    // Call it on load and window resize
+    $(window).on('load resize', truncateDescriptions);
 </script>

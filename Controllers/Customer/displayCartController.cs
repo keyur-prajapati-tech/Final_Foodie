@@ -418,5 +418,38 @@ namespace Foodie.Controllers.Customer
             }
         }
 
+        public IActionResult ThankYou()
+        {
+            return View();
+        }
+
+        public IActionResult CustomerOrderhistory()
+        {
+            int customerId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+
+            var orders = _repository.GetUserOrdersWithItemsAndImages(customerId);
+            return View(orders);
+        }
+
+        [HttpPost]
+        public IActionResult SubmitRating([FromBody] tbl_ratings rating)
+        {
+            // Get customer ID from session
+            rating.CustomerId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+
+            bool success = _repository.SubmitReview(rating);
+            return Json(new { success = success });
+        }
+
+        public IActionResult GenerateBill(int orderId)
+        {
+            var pdfBytes = _repository.GenerateBill(orderId);
+            return File(pdfBytes, "application/pdf", $"Bill_{orderId}.pdf");
+        }
+
+        public IActionResult TrackOrder(int id)
+        {
+            return View();
+        }
     }
 }

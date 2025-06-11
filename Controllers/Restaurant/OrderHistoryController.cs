@@ -22,11 +22,19 @@ namespace Foodie.Controllers.Restaurant
             _env = env;
         }
 
-        public IActionResult OrdHistory()
+        public IActionResult OrdHistory(DateTime? fromDate,DateTime? toDate)
         {
             var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));  // Replace with the actual restaurant ID
 
             var orderHistory = _restaurantRepository.tbl_Orders_History(restaurantId);
+
+            // Apply date filtering if dates are provided
+            if (fromDate.HasValue && toDate.HasValue)
+            {
+                orderHistory = orderHistory.Where(o => o.order_date >= fromDate.Value.Date &&
+                                                     o.order_date.Date <= toDate.Value.Date)
+                                          .ToList();
+            }
 
             return View(orderHistory);
         }
@@ -267,6 +275,17 @@ namespace Foodie.Controllers.Restaurant
         {
             var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
             var data = _restaurantRepository.GetWeeklySalesByMonth(year, month, restaurantId);
+
+            // Add logging to check the data
+            Console.WriteLine($"Returning {data?.Count ?? 0} records for {month}/{year}");
+            if (data != null)
+            {
+                foreach (var item in data)
+                {
+                    Console.WriteLine($"Week {item.WeekNumber}: {item.TotalAmount}");
+                }
+            }
+
             return Json(data);
         }
 

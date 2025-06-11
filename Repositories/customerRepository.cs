@@ -9,6 +9,13 @@ using Foodie.Models.Admin;
 using Foodie.Models;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
+using System.Text;
+using Microsoft.Extensions.Configuration;
+using Foodie.ViewModels;
+using PdfSharpCore.Drawing;
+using PdfSharpCore.Pdf;
+using Razorpay.Api;
+using Microsoft.EntityFrameworkCore.Infrastructure.Internal;
 
 namespace Foodie.Repositories
 {
@@ -204,7 +211,7 @@ namespace Foodie.Repositories
 
         public void AddUser(tbl_customer tbl_Customer, byte[] profilepic)
         {
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string query = @"insert into customers.tbl_customer (email,phone,Gender,profilepic,DOB,created_at,updated_at,customer_name,password) values (@email,@phone,@gender,@profilepic,@DOB,@created_at,@updated_at,@customer_name,@passwords)";
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -256,7 +263,7 @@ namespace Foodie.Repositories
         [HttpPost]
         public void AddToCart(tbl_cart_item tbl_Cart_Item)
         {
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string query = @"INSERT INTO customers.tbl_cart_item (cart_id, quantity, price, menu_id, coupone_id) 
                                  VALUES (@cart_id, @quantity, @price, @menu_id, @coupone_id)";
@@ -274,7 +281,7 @@ namespace Foodie.Repositories
         [HttpGet]
         public tbl_cart GetOrCreateCart(int customerId)
         {
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string query = "SELECT * FROM customers.tbl_cart WHERE customer_id = @customerId";
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -408,7 +415,7 @@ namespace Foodie.Repositories
         //                var insertOrderItemQuery = @"INSERT INTO tbl_order_items 
         //                (order_id, menu_id, quantity, list_price, discount, created_at) 
         //                VALUES (@order_id, @menu_id, @qty, @price, 0.10, @created)";
-                        
+
         //                SqlCommand insertCommand = new SqlCommand(insertOrderItemQuery, conn, transaction);
         //                insertCommand.Parameters.AddWithValue("@order_id", orderId);
         //                insertCommand.Parameters.AddWithValue("@menu_id", item.menu_id);
@@ -573,7 +580,7 @@ namespace Foodie.Repositories
         {
             tbl_customer customer = null;
 
-            using (SqlConnection conn = new SqlConnection(_connectionstring)) 
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string query = @"SELECT customer_name,phone FROM customers.tbl_customer WHERE customer_id=@customerid";
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -656,7 +663,7 @@ namespace Foodie.Repositories
 
                 int newQty = currentQty + delta;
 
-                if(newQty <= 0)
+                if (newQty <= 0)
                 {
                     //Delete Item form Cart
                     string deleteQuery = @"DELETE FROM customers.tbl_cart_|item where cart_item_id=@id";
@@ -681,7 +688,7 @@ namespace Foodie.Repositories
         {
             List<tbl_coupone> allcouponse = new List<tbl_coupone>();
 
-            using (SqlConnection conn = new SqlConnection(_connectionstring)) 
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 SqlCommand cmd = new SqlCommand("GetAllCoupons", conn);
                 cmd.CommandType = CommandType.StoredProcedure;
@@ -689,7 +696,7 @@ namespace Foodie.Repositories
 
                 SqlDataReader rd = cmd.ExecuteReader();
 
-                while (rd.Read()) 
+                while (rd.Read())
                 {
                     allcouponse.Add(new tbl_coupone
                     {
@@ -823,7 +830,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
         {
             List<tbl_special_offers> offers = new List<tbl_special_offers>();
 
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string query = "SELECT * FROM vendores.tbl_special_offers WHERE is_Active = 1";
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -891,7 +898,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 string query = "SELECT * FROM vendores.tbl_special_offers WHERE so_id = @OfferId";
                 SqlCommand cmd = new SqlCommand(query, con);
                 cmd.Parameters.AddWithValue("@OfferId", offerId);
-                
+
                 con.Open();
 
                 var reader = cmd.ExecuteReader();
@@ -1195,7 +1202,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
         {
             MenuItemViewModel menuItem = null;
 
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string query = @"SELECT * FROM vendores.tbl_menu_items WHERE menu_id = @menuId";
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -1255,7 +1262,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 {
                     string base64Image = string.Empty;
 
-                    if(reader["Restaurant_menu_img"] != DBNull.Value)
+                    if (reader["Restaurant_menu_img"] != DBNull.Value)
                     {
                         byte[] imgBytes = (byte[])reader["Restaurant_menu_img"];
                         base64Image = Convert.ToBase64String(imgBytes);
@@ -1317,7 +1324,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                 cmd.ExecuteNonQuery();
             }
         }
-        public tbl_orders CreateOrder(int customerId, decimal grandTotal, string razorpayOrderId, List<tbl_order_items> items, int addressId,int res_id)
+        public tbl_orders CreateOrder(int customerId, decimal grandTotal, string razorpayOrderId, List<tbl_order_items> items, int addressId, int res_id)
         {
             using (var connection = new SqlConnection(_connectionstring))
             {
@@ -1350,7 +1357,20 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
                         itemCmd.Parameters.AddWithValue("@EstimatedTime", DateTime.Now.AddHours(1));
                         itemCmd.ExecuteNonQuery();
                     }
-                    transaction.Commit();
+
+                    // After successfully creating order and items, clear the cart
+                    string clearCartSql = @"
+                    DELETE ci 
+                    FROM customers.tbl_cart_item ci
+                    JOIN customers.tbl_cart c ON ci.cart_id = c.cart_id
+                    WHERE c.customer_id = @CustomerId";
+
+                        SqlCommand clearCartCmd = new SqlCommand(clearCartSql, connection, transaction);
+                        clearCartCmd.Parameters.AddWithValue("@CustomerId", customerId);
+                        clearCartCmd.ExecuteNonQuery();
+
+                        transaction.Commit();
+                    //transaction.Commit();
 
                     return new tbl_orders
                     {
@@ -1509,8 +1529,8 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
 
         public void InsertFeedback(tbl_customer_feedback feedback)
         {
-            using(SqlConnection con = new SqlConnection(_connectionstring))
-        {
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
                 SqlCommand cmd = new SqlCommand("INSERT INTO admins.tbl_customer_feedback (customer_id, restaurant_id, rating, feedback_description,createdAt) VALUES (@CustomerId, @RestaurantId, @Rating, @Description,@createdAt)", con);
                 cmd.Parameters.AddWithValue("@CustomerId", feedback.customer_id);
                 cmd.Parameters.AddWithValue("@RestaurantId", feedback.restaurant_id);
@@ -1649,7 +1669,7 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
             return menuItems;
         }
 
-  
+
         public RestaurantInfo GetRestaurantByName(string restaurantName)
         {
             try
@@ -1839,50 +1859,832 @@ WHERE ci.cart_id = (SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @
             throw new NotImplementedException();
         }
 
-        //List<tbl_cuisine_master> IcustomerRepository.GetCuisinesWithCountAsync(int restaurantId)
-        //{
-        //    List<MenuItemViewModel> items = new List<MenuItemViewModel>();
+        public List<SimilarRestaurantDtoViewModel> GetSimilarRestaurants(
+            string currentRestaurantName,
+            List<string> cuisines,
+            List<string> pincodes)
+        {
+            var similarRestaurants = new List<SimilarRestaurantDtoViewModel>();
 
-        //    using (SqlConnection conn = new SqlConnection(_connectionstring))
-        //    {
-        //        string query = @"SELECT * FROM vendores.tbl_menu_items WHERE Restaurant_id = @restaurantId";
+            using (var connection = new SqlConnection(_connectionstring))
+            {
+                var query = new StringBuilder(@"
+            SELECT TOP 3 
+                rs.restaurant_name, 
+                ac.cuisine_name, 
+                rs.restaurant_street + ' ' + rs.restaurant_pincode as address, 
+                vi.Restaurant_img 
+            FROM vendores.tbl_restaurant rs
+            INNER JOIN vendores.tbl_cuisine vc ON rs.restaurant_id = vc.Restaurnat_id
+            INNER JOIN admins.tbl_cuisine_master ac ON ac.cuisine_id = vc.cuisine_id
+            INNER JOIN vendores.tbl_vendores_img vi ON vi.Restaurant_id = rs.restaurant_id
+            WHERE rs.restaurant_name != @CurrentRestaurantName 
+            AND (");
 
-        //        if (cuisine_id.HasValue)
-        //        {
-        //            query += " AND cuisine_id = @cuisineId";
-        //        }
+                // Build cuisine conditions
+                if (cuisines.Any())
+                {
+                    query.Append("(");
+                    for (int i = 0; i < cuisines.Count; i++)
+                    {
+                        if (i > 0) query.Append(" OR ");
+                        query.Append($"ac.cuisine_name LIKE @Cuisine{i}");
+                    }
+                    query.Append(")");
+                }
 
-        //        using (SqlCommand cmd = new SqlCommand(query, conn))
-        //        {
-        //            cmd.Parameters.AddWithValue("@restaurantId", restaurantId);
+                // Add pincode conditions if both cuisines and pincodes are provided
+                if (cuisines.Any() && pincodes.Any())
+                {
+                    query.Append(" OR ");
+                }
 
-        //            if (cuisineId.HasValue)
-        //                cmd.Parameters.AddWithValue("@cuisineId", cuisineId.Value);
+                // Build pincode conditions
+                if (pincodes.Any())
+                {
+                    query.Append("(");
+                    for (int i = 0; i < pincodes.Count; i++)
+                    {
+                        if (i > 0) query.Append(" OR ");
+                        query.Append($"rs.restaurant_pincode = @Pincode{i}");
+                    }
+                    query.Append(")");
+                }
 
-        //            conn.Open();
+                query.Append(") ORDER BY NEWID()");
 
-        //            using (SqlDataReader reader = cmd.ExecuteReader())
-        //            {
-        //                while (reader.Read())
-        //                {
-        //                    items.Add(new MenuItemViewModel
-        //                    {
-        //                        MenuId = Convert.ToInt32(reader["menu_id"]),
-        //                        MenuName = reader["menu_name"].ToString(),
-        //                        cuisine_id = Convert.ToInt32(reader["cuisine_id"]),
-        //                        CuisineName = reader["cuisine_name"].ToString(),
-        //                        MenuDescription = reader["menu_description"].ToString(),
-        //                        Amount = Convert.ToDecimal(reader["amount"]),
-        //                        IsAvailable = Convert.ToBoolean(reader["isAvailable"]),
-        //                        RestaurantId = Convert.ToInt32(reader["RestaurantId"])
-        //                        // Add other fields as needed
-        //                    });
-        //                }
-        //            }
-        //        }
-        //    }
+                using (var command = new SqlCommand(query.ToString(), connection))
+                {
+                    command.Parameters.AddWithValue("@CurrentRestaurantName", currentRestaurantName);
 
-        //    return items;
-        //}
+                    // Add cuisine parameters
+                    for (int i = 0; i < cuisines.Count; i++)
+                    {
+                        command.Parameters.AddWithValue($"@Cuisine{i}", $"%{cuisines[i]}%");
+                    }
+
+                    // Add pincode parameters
+                    for (int i = 0; i < pincodes.Count; i++)
+                    {
+                        command.Parameters.AddWithValue($"@Pincode{i}", pincodes[i]);
+                    }
+
+                    connection.Open();
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            similarRestaurants.Add(new SimilarRestaurantDtoViewModel
+                            {
+                                restaurant_name = reader["restaurant_name"].ToString(),
+                                cuisine_name = reader["cuisine_name"].ToString(),
+                                address = reader["address"].ToString(),
+                                Restaurant_img = reader["Restaurant_img"] == DBNull.Value
+                                    ? "/images/default-restaurant.jpg"
+                                    : reader["Restaurant_img"].ToString()
+                            });
+                        }
+                    }
+                }
+            }
+
+            return similarRestaurants;
+
+        }
+
+        public List<MenuItemViewModel> GetMenuItemsImageByRestaurant(string restaurantName)
+        {
+            var menuImages = new List<MenuItemViewModel>();
+
+            using (var connection = new SqlConnection(_connectionstring))
+            {
+                var query = @"
+            SELECT 
+                mi.menu_id,
+                mi.menu_name,
+                mi.menu_img,
+                cm.cuisine_name
+            FROM vendores.tbl_restaurant r
+            JOIN vendores.tbl_menu_items mi ON r.restaurant_id = mi.Restaurant_id
+            JOIN vendores.tbl_cuisine vc ON r.restaurant_id = vc.Restaurnat_id
+            JOIN admins.tbl_cuisine_master cm ON vc.cuisine_id = cm.cuisine_id
+            WHERE r.restaurant_name = @RestaurantName
+            AND mi.menu_img IS NOT NULL";
+
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@RestaurantName", restaurantName);
+                    connection.Open();
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            menuImages.Add(new MenuItemViewModel
+                            {
+                                MenuId = reader.GetInt32(0),
+                                MenuName = reader.GetString(1),
+                                MenuImg = reader["menu_img"] as byte[],
+                                cuisine_name = reader.GetString(3)
+                            });
+                        }
+                    }
+                }
+            }
+
+            return menuImages;
+
+        }
+
+        public List<tbl_cuisine_master> GetAllCuisines()
+        {
+            List<tbl_cuisine_master> cuisines = new List<tbl_cuisine_master>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT cuisine_id, cuisine_name FROM admins.tbl_cuisine_master";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    cuisines.Add(new tbl_cuisine_master
+                    {
+                        cuisine_id = (int)reader["cuisine_id"],
+                        cuisine_name = reader["cuisine_name"].ToString()
+                    });
+                }
+            }
+
+            return cuisines;
+        }
+
+        public List<MenuItemViewModel> GetMenuItems(string restaurantName)
+        {
+            var list = new List<MenuItemViewModel>();
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT menu_id, menu_name, cuisine_id, menu_img FROM vendores.tbl_menu_items vmi INNER JOIN vendores.tbl_restaurant rs ON vmi.Restaurant_id = rs.restaurant_id WHERE rs.restaurant_name = @restaurantName";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@restaurantName", restaurantName);
+                con.Open();
+                SqlDataReader rdr = cmd.ExecuteReader();
+                while (rdr.Read())
+                {
+                    list.Add(new MenuItemViewModel
+                    {
+                        MenuId = Convert.ToInt32(rdr["menu_id"]),
+                        MenuName = rdr["menu_name"].ToString(),
+                        cuisine_id = Convert.ToInt32(rdr["cuisine_id"]),
+                        MenuImageBase64 = Convert.ToBase64String((byte[])rdr["menu_image"])
+                    });
+                }
+            }
+            return list;
+        }
+
+        public List<MenuItemViewModel> GetMenuItemsByCuisine(string restaurantName, int cuisineId)
+        {
+            var list = new List<MenuItemViewModel>();
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT menu_id, menu_name, cuisine_id, menu_img FROM vendores.tbl_menu_items  vmi INNER JOIN vendores.tbl_restaurant rs ON vmi.Restaurant_id = rs.restaurant_id WHERE restaurant_name = @restaurantName AND cuisine_id = @cuisineId ";
+                SqlCommand cmd = new SqlCommand(query, con);
+                cmd.Parameters.AddWithValue("@restaurantName", restaurantName);
+                cmd.Parameters.AddWithValue("@cuisineId", cuisineId);
+                con.Open();
+                SqlDataReader rdr = cmd.ExecuteReader();
+                while (rdr.Read())
+                {
+                    list.Add(new MenuItemViewModel
+                    {
+                        MenuId = Convert.ToInt32(rdr["menu_id"]),
+                        MenuName = rdr["menu_name"].ToString(),
+                        cuisine_id = Convert.ToInt32(rdr["cuisine_id"]),
+                        MenuImageBase64 = Convert.ToBase64String((byte[])rdr["menu_image"])
+                    });
+                }
+            }
+            return list;
+        }
+
+        // Repository - Updated with better debugging
+        public List<CustomerRatingViewModel> GetRatingByRestaurant(string restaurantName)
+        {
+            var list = new List<CustomerRatingViewModel>();
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_connectionstring))
+                {
+                    string query = @"SELECT r.rating_id, r.customer_id, r.restaurant_id, r.order_id, r.rating,r.discription, r.created_at, c.customer_name
+                            FROM customers.tbl_rating r
+                            INNER JOIN customers.tbl_customer c ON r.customer_id = c.customer_id
+                            INNER JOIN vendores.tbl_restaurant rest ON r.restaurant_id = rest.restaurant_id
+                            WHERE rest.restaurant_name = @restaurantName
+                            ORDER BY r.created_at DESC";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@restaurantName", restaurantName);
+
+                    conn.Open();
+                    using (SqlDataReader rdr = cmd.ExecuteReader())
+                    {
+                        while (rdr.Read())
+                        {
+                            var review = new CustomerRatingViewModel
+                            {
+                                RatingId = rdr["rating_id"] != DBNull.Value ? Convert.ToInt32(rdr["rating_id"]) : 0,
+                                CustomerId = rdr["customer_id"] != DBNull.Value ? Convert.ToInt32(rdr["customer_id"]) : 0,
+                                RestaurantId = rdr["restaurant_id"] != DBNull.Value ? Convert.ToInt32(rdr["restaurant_id"]) : 0,
+                                OrderId = rdr["order_id"] != DBNull.Value ? Convert.ToInt32(rdr["order_id"]) : 0,
+                                Rating = rdr["rating"] != DBNull.Value ? Convert.ToInt32(rdr["rating"]) : 0,
+                                Description = rdr["discription"] != DBNull.Value ? rdr["discription"].ToString() : string.Empty,
+                                CreatedAt = rdr["created_at"] != DBNull.Value ? Convert.ToDateTime(rdr["created_at"]) : DateTime.MinValue,
+                                CustomerName = rdr["customer_name"] != DBNull.Value ? rdr["customer_name"].ToString() : "Anonymous"
+                            };
+
+                            // Debug output
+                            Console.WriteLine($"Found review: {review.RatingId} by {review.CustomerName}");
+
+                            list.Add(review);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetRatingByRestaurant: {ex.Message}");
+                Console.WriteLine(ex.StackTrace);
+            }
+
+            return list;
+        }
+
+        public bool AddRating(CustomerRatingViewModel model)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_connectionstring))
+                {
+                    string query = @"INSERT INTO customers.tbl_rating 
+                               (customer_id, restaurant_id, order_id, rating, description, created_at)
+                               VALUES (@customerId, @restaurantId, @orderId, @rating, @description, GETDATE())";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@customerId", model.CustomerId);
+                    cmd.Parameters.AddWithValue("@restaurantId", model.RestaurantId);
+                    cmd.Parameters.AddWithValue("@orderId", model.OrderId);
+                    cmd.Parameters.AddWithValue("@rating", model.Rating);
+                    cmd.Parameters.AddWithValue("@description", model.Description ?? string.Empty);
+
+                    conn.Open();
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in AddRating: {ex.Message}");
+                return false;
+            }
+        }
+
+        public bool UpdateRating(CustomerRatingViewModel model)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_connectionstring))
+                {
+                    string query = @"UPDATE customers.tbl_rating 
+                               SET rating = @rating, 
+                                   description = @description,
+                                   created_at = GETDATE()
+                               WHERE rating_id = @ratingId AND customer_id = @customerId";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@ratingId", model.RatingId);
+                    cmd.Parameters.AddWithValue("@customerId", model.CustomerId);
+                    cmd.Parameters.AddWithValue("@rating", model.Rating);
+                    cmd.Parameters.AddWithValue("@description", model.Description ?? string.Empty);
+
+                    conn.Open();
+                    int rowsAffected = cmd.ExecuteNonQuery();
+                    return rowsAffected > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in UpdateRating: {ex.Message}");
+                return false;
+            }
+        }
+
+        public CustomerRatingViewModel GetRatingById(int ratingId, int customerId)
+        {
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_connectionstring))
+                {
+                    string query = @"SELECT rating_id, customer_id, restaurant_id, order_id, 
+                               rating, description, created_at
+                               FROM customers.tbl_rating
+                               WHERE rating_id = @ratingId AND customer_id = @customerId";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@ratingId", ratingId);
+                    cmd.Parameters.AddWithValue("@customerId", customerId);
+
+                    conn.Open();
+                    using (SqlDataReader rdr = cmd.ExecuteReader())
+                    {
+                        if (rdr.Read())
+                        {
+                            return new CustomerRatingViewModel
+                            {
+                                RatingId = rdr["rating_id"] != DBNull.Value ? Convert.ToInt32(rdr["rating_id"]) : 0,
+                                CustomerId = rdr["customer_id"] != DBNull.Value ? Convert.ToInt32(rdr["customer_id"]) : 0,
+                                RestaurantId = rdr["restaurant_id"] != DBNull.Value ? Convert.ToInt32(rdr["restaurant_id"]) : 0,
+                                OrderId = rdr["order_id"] != DBNull.Value ? Convert.ToInt32(rdr["order_id"]) : 0,
+                                Rating = rdr["rating"] != DBNull.Value ? Convert.ToInt32(rdr["rating"]) : 0,
+                                Description = rdr["description"] != DBNull.Value ? rdr["description"].ToString() : string.Empty,
+                                CreatedAt = rdr["created_at"] != DBNull.Value ? Convert.ToDateTime(rdr["created_at"]) : DateTime.MinValue
+                            };
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in GetRatingById: {ex.Message}");
+            }
+
+            return null;
+        }
+
+
+        public void ClearCartAfterOrder(int customer_id)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+
+                SqlCommand cmd = new SqlCommand("SELECT cart_id FROM customers.tbl_cart WHERE customer_id = @CustomerId", conn);
+                cmd.Parameters.AddWithValue("@CustomerId", customer_id);
+                object result = cmd.ExecuteScalar();
+
+                if(result != null)
+                {
+                    int cartId = Convert.ToInt32(result);
+
+                    SqlCommand deleteItemsCmd = new SqlCommand("DELETE FROM customers.tbl_cart_item WHERE cart_id = @CartId", conn);
+                    deleteItemsCmd.Parameters.AddWithValue("@CartId", cartId);
+                    deleteItemsCmd.ExecuteNonQuery();
+
+                    SqlCommand deleteCartCmd = new SqlCommand("DELETE FROM customers.tbl_cart WHERE customer_id = @CustomerId", conn);
+                    deleteCartCmd.Parameters.AddWithValue("@CustomerId", customer_id);
+                    deleteCartCmd.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public List<MenuItemViewModel> GetDeliveryItemsByOrderId(int orderId)
+        {
+            var menuItems = new List<MenuItemViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"  SELECT mi.menu_id, mi.menu_name, mi.menu_img, mi.amount, mi.menu_descripation, r.restaurant_name
+        FROM vendores.tbl_menu_items mi
+        INNER JOIN customers.tbl_order_items oi ON mi.menu_id = oi.menu_id
+        INNER JOIN vendores.tbl_restaurant r ON mi.restaurant_id = r.restaurant_id
+        WHERE oi.order_id = @OrderId";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@OrderId", orderId);
+
+                conn.Open();
+
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    string base64Image = string.Empty;
+
+                    if (reader["menu_img"] != DBNull.Value)
+                    {
+                        byte[] imgBytes = (byte[])reader["menu_img"];
+                        base64Image = Convert.ToBase64String(imgBytes);
+                    }
+
+                    menuItems.Add(new MenuItemViewModel
+                    {
+                        MenuId = Convert.ToInt32(reader["menu_id"]),
+                        MenuName = reader["menu_name"].ToString(),
+                        MenuImageBase64 = base64Image,
+                        Amount = Convert.ToDecimal(reader["amount"]),
+                        MenuDescription = reader["menu_descripation"].ToString(),
+                        RestaurantName = reader["restaurant_name"].ToString()
+                    });
+                }
+                conn.Close();
+            }
+            return menuItems;
+        }
+
+        public List<RestaurantViewModel> GetRecommendedRestaurants(int count = 6)
+        {
+            var restaurants = new List<RestaurantViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT TOP (@count) 
+                            r.restaurant_id, 
+                            r.restaurant_name, 
+                            r.restaurant_street,
+                            r.restaurant_pincode,
+                            AVG(cr.rating) AS average_rating,
+                            vi.Restaurant_menu_img,
+                            STRING_AGG(cm.cuisine_name, ', ') AS cuisines
+                        FROM vendores.tbl_restaurant r
+                        INNER JOIN vendores.tbl_vendores_img vi ON r.restaurant_id = vi.Restaurant_id
+                        INNER JOIN vendores.tbl_cuisine tc ON r.restaurant_id = tc.Restaurnat_id
+                        INNER JOIN admins.tbl_cuisine_master cm ON tc.cuisine_id = cm.cuisine_id
+                        INNER JOIN customers.tbl_rating cr ON cr.restaurant_id = r.restaurant_id
+                        WHERE r.restaurant_isApprov = 1
+                        GROUP BY 
+                            r.restaurant_id, 
+                            r.restaurant_name, 
+                            r.restaurant_street,
+                            r.restaurant_pincode,
+                            vi.Restaurant_menu_img
+                        ORDER BY average_rating DESC";
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                cmd.Parameters.AddWithValue("@count", count);
+
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+
+                while (rd.Read()) { 
+                    restaurants.Add(new RestaurantViewModel
+                    {
+                        RestaurantId = Convert.ToInt32(rd["restaurant_id"]),
+                        RestaurantName = rd["restaurant_name"].ToString(),
+                        Address = $"{rd["restaurant_street"]} {rd["restaurant_pincode"]}",
+                        Rating = rd["average_rating"] != DBNull.Value ? Convert.ToDecimal(rd["average_rating"]) : 0,
+                        RestaurantImageBase64 = rd["Restaurant_menu_img"] != DBNull.Value ? Convert.ToBase64String((byte[])rd["Restaurant_menu_img"]) : string.Empty,
+                        CuisineName = rd["cuisines"] != DBNull.Value ? rd["cuisines"].ToString() : string.Empty
+                    });
+                }
+                conn.Close();
+            }
+            return restaurants;
+        }
+
+        public List<RestaurantViewModel> GetRestaurantsByCuisine(int cuisineId)
+        {
+            var restaurants = new List<RestaurantViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT 
+                            r.restaurant_id, 
+                            r.restaurant_name, 
+                            r.restaurant_street, 
+                            r.restaurant_pincode, 
+                            AVG(cr.rating) AS average_rating,
+                            vi.Restaurant_menu_img,
+                            cm.cuisine_name
+                        FROM vendores.tbl_restaurant r
+                        INNER JOIN vendores.tbl_vendores_img vi ON r.restaurant_id = vi.Restaurant_id
+                        INNER JOIN vendores.tbl_cuisine tc ON r.restaurant_id = tc.Restaurnat_id
+                        INNER JOIN admins.tbl_cuisine_master cm ON tc.cuisine_id = cm.cuisine_id
+                        INNER JOIN customers.tbl_rating cr ON cr.restaurant_id = r.restaurant_id
+                        WHERE r.restaurant_isApprov = 1 AND cm.cuisine_id = @cuisineId
+                        GROUP BY
+                            r.restaurant_id, 
+                            r.restaurant_name, 
+                            r.restaurant_street, 
+                            r.restaurant_pincode,
+                            vi.Restaurant_menu_img,
+                            cm.cuisine_name
+                        ORDER BY average_rating DESC";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@cuisineId", cuisineId);
+
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+
+                while (rd.Read())
+                {
+                    restaurants.Add(new RestaurantViewModel
+                    {
+                        RestaurantId = Convert.ToInt32(rd["restaurant_id"]),
+                        RestaurantName = rd["restaurant_name"].ToString(),
+                        Address = $"{rd["restaurant_street"]} {rd["restaurant_pincode"]}",
+                        Rating = rd["average_rating"] != DBNull.Value ? Convert.ToDecimal(rd["average_rating"]) : 0,
+                        RestaurantImageBase64 = rd["Restaurant_menu_img"] != DBNull.Value ? Convert.ToBase64String((byte[])rd["Restaurant_menu_img"]) : string.Empty,
+                        CuisineName = rd["cuisine_name"] != DBNull.Value ? rd["cuisine_name"].ToString() : string.Empty
+                    });
+                }
+                conn.Close();
+            }
+            return restaurants;
+        }
+
+        public List<RestaurantViewModel> SearchRestaurants(string searchTerm)
+        {
+            var restaurants = new List<RestaurantViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT 
+                            r.restaurant_id, 
+                            r.restaurant_name, 
+                            r.restaurant_street, 
+                            r.restaurant_pincode, 
+                            AVG(cr.rating) AS average_rating,
+                            vi.Restaurant_menu_img,
+                            STRING_AGG(cm.cuisine_name, ', ') AS cuisines
+                        FROM vendores.tbl_restaurant r
+                        INNER JOIN vendores.tbl_vendores_img vi ON r.restaurant_id = vi.Restaurant_id
+                        INNER JOIN vendores.tbl_cuisine tc ON r.restaurant_id = tc.Restaurnat_id
+                        INNER JOIN admins.tbl_cuisine_master cm ON tc.cuisine_id = cm.cuisine_id
+                        INNER JOIN customers.tbl_rating cr ON cr.restaurant_id = r.restaurant_id
+                        WHERE r.restaurant_isApprov = 1 AND (r.restaurant_name LIKE @searchTerm OR cm.cuisine_name LIKE @searchTerm)
+                        GROUP BY 
+                            r.restaurant_id, 
+                            r.restaurant_name, 
+                            r.restaurant_street, 
+                            r.restaurant_pincode,
+                            vi.Restaurant_menu_img
+                        ORDER BY average_rating DESC";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@searchTerm", "%" + searchTerm + "%");
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+                while (rd.Read())
+                {
+                    restaurants.Add(new RestaurantViewModel
+                    {
+                        RestaurantId = Convert.ToInt32(rd["restaurant_id"]),
+                        RestaurantName = rd["restaurant_name"].ToString(),
+                        Address = $"{rd["restaurant_street"]} {rd["restaurant_pincode"]}",
+                        Rating = rd["average_rating"] != DBNull.Value ? Convert.ToDecimal(rd["average_rating"]) : 0,
+                        RestaurantImageBase64 = rd["Restaurant_menu_img"] != DBNull.Value ? Convert.ToBase64String((byte[])rd["Restaurant_menu_img"]) : string.Empty,
+                        CuisineName = rd["cuisines"] != DBNull.Value ? rd["cuisines"].ToString() : string.Empty
+                    });
+                }
+                conn.Close();
+            }
+            return restaurants;
+        }
+
+        public bool ClearCustomerCart(int customerId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+                using (SqlTransaction transaction = conn.BeginTransaction())
+                {
+                    try
+                    {
+                        // Delete all cart items for this customer
+                        string sql = @"
+                DELETE ci
+                FROM customers.tbl_cart_item ci
+                INNER JOIN customers.tbl_cart c ON ci.cart_id = c.cart_id
+                WHERE c.customer_id = @CustomerId";
+
+                        SqlCommand cmd = new SqlCommand(sql, conn, transaction);
+                        cmd.Parameters.AddWithValue("@CustomerId", customerId);
+
+                        int rowsAffected = cmd.ExecuteNonQuery();
+                        transaction.Commit();
+
+                        return rowsAffected >= 0; // Returns true even if cart was empty
+                    }
+                    catch (Exception ex)
+                    {
+                        transaction.Rollback();
+                        // Log error (ex)
+                        throw; // Or return false if you prefer
+                    }
+                }
+            }
+        }
+
+        public List<tbl_orders> GetUserOrdersWithItemsAndImages(int userId)
+        {
+            var orders = new List<tbl_orders>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+
+                // Get orders
+                string orderQuery = @"
+                    SELECT co.*,cc.*,ca.address+' , '+ca.landmark+' | Romm No '+ca.door_no as address FROM customers.tbl_orders co
+inner join customers.tbl_customer cc on co.customer_id = cc.customer_id
+inner join customers.tbl_address ca on ca.customer_id = co.customer_id
+WHERE cc.customer_id = @CustomerId
+ORDER BY order_date DESC";
+
+                SqlCommand orderCmd = new SqlCommand(orderQuery, conn);
+                orderCmd.Parameters.AddWithValue("@CustomerId", userId);
+
+                using (var reader = orderCmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var order = new tbl_orders
+                        {
+                            order_id = Convert.ToInt32(reader["order_id"]),
+                            customer_id = Convert.ToInt32(reader["customer_id"]),
+                            order_date = Convert.ToDateTime(reader["order_date"]),
+                            order_status = reader["order_status"].ToString(),
+                            grand_total = Convert.ToDecimal(reader["grand_total"]),
+                            razorpay_payment_id = reader["razorpay_payment_id"].ToString(),
+                            razorpay_order_id = reader["razorpay_order_id"].ToString(),
+                            razorpay_signature = reader["razorpay_signature"].ToString(),
+                            address_id = Convert.ToInt32(reader["addressid"]),
+                            customer_name = reader["customer_name"].ToString(), // adjust column name
+                            delivery_address = reader["address"].ToString()
+                        };
+                        orders.Add(order);
+                    }
+                }
+
+                // Get order items for each order
+                foreach (var order in orders)
+                {
+                    string itemQuery = @"
+                        SELECT oi.order_items_id, oi.order_id, oi.menu_id, oi.quantity, 
+                           oi.list_price, oi.discount, oi.estimated_DATETIME,
+                           mi.menu_name, mi.menu_img 
+                            FROM customers.tbl_order_items oi
+                            JOIN vendores.tbl_menu_items mi ON oi.menu_id = mi.menu_id
+                            WHERE oi.order_id = @OrderId";
+
+                    SqlCommand itemCmd = new SqlCommand(itemQuery, conn);
+                    itemCmd.Parameters.AddWithValue("@OrderId", order.order_id);
+
+                    using (var itemReader = itemCmd.ExecuteReader())
+                    {
+                        while (itemReader.Read())
+                        {
+                            order.OrderItems.Add(new tbl_order_items
+                            {
+                                order_item_id = Convert.ToInt32(itemReader["order_items_id"]),
+                                order_id = Convert.ToInt32(itemReader["order_id"]),
+                                menu_id = Convert.ToInt32(itemReader["menu_id"]),
+                                quantity = Convert.ToInt32(itemReader["quantity"]),
+                                list_price = Convert.ToDecimal(itemReader["list_price"]),
+                                discount = Convert.ToDecimal(itemReader["discount"]),
+                                estimated_time = Convert.ToDateTime(itemReader["estimated_DATETIME"]),
+                                menu_name = itemReader["menu_name"].ToString(),
+                                menu_img = itemReader["menu_img"] as byte[]
+                            });
+                        }
+                    }
+                }
+            }
+
+            return orders;
+        }
+
+        public bool SubmitReview(tbl_ratings ratings)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+
+                string query = @"
+                    INSERT INTO customers.tbl_rating 
+                (customer_id, restaurant_id, order_id, rating, discription, created_at)
+                VALUES (@Customer_Id, @RestaurantId, @OrderId ,@Rating, @Discription, GETDATE())";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Customer_Id", ratings.CustomerId);
+                cmd.Parameters.AddWithValue("@RestaurantId", ratings.RestaurantId);
+                cmd.Parameters.AddWithValue("@OrderId", ratings.OrderId);
+                cmd.Parameters.AddWithValue("@Rating", ratings.RatingValue);
+                cmd.Parameters.AddWithValue("@Discription", ratings.discription ?? string.Empty);
+
+                return cmd.ExecuteNonQuery() > 0;
+            }
+        }
+
+        //Generate Billing Based in Order
+        public byte[] GenerateBill(int orderId)
+        {
+            var order = GetUserOrdersWithItemsAndImages(2) // Replace with dynamic customer ID
+        .FirstOrDefault(o => o.order_id == orderId);
+
+            if (order == null) return null;
+
+            using (MemoryStream ms = new MemoryStream())
+            {
+                using (PdfDocument document = new PdfDocument())
+                {
+                    PdfPage page = document.AddPage();
+                    XGraphics gfx = XGraphics.FromPdfPage(page);
+
+                    XFont headerFont = new XFont("Arial", 18, XFontStyle.Bold);
+                    XFont subHeaderFont = new XFont("Arial", 12, XFontStyle.Bold);
+                    XFont normalFont = new XFont("Arial", 12, XFontStyle.Regular);
+
+                    double y = 30;
+
+                    // Restaurant Name
+                    gfx.DrawString("Foodie Express", headerFont, XBrushes.Black, new XRect(0, y, page.Width, 0), XStringFormats.TopCenter);
+                    y += 25;
+                    gfx.DrawString("123 Main Street, Mumbai, India", normalFont, XBrushes.Black, new XRect(0, y, page.Width, 0), XStringFormats.TopCenter);
+                    y += 15;
+                    gfx.DrawString("Phone: +91 9876543210 | GSTIN: 27AABCU9603R1ZV", normalFont, XBrushes.Black, new XRect(0, y, page.Width, 0), XStringFormats.TopCenter);
+
+                    // Line
+                    y += 30;
+                    gfx.DrawLine(XPens.Black, 40, y, page.Width - 40, y);
+                    y += 10;
+
+                    // Invoice Header
+                    gfx.DrawString($"Invoice for Order #{order.order_id}", subHeaderFont, XBrushes.Black, 40, y);
+                    y += 25;
+
+                    // Customer & Order Info
+                    gfx.DrawString($"Customer: {order.customer_name}", normalFont, XBrushes.Black, 40, y);
+                    y += 20;
+                    gfx.DrawString($"Order Date: {order.order_date:dd MMM yyyy}", normalFont, XBrushes.Black, 40, y);
+                    y += 20;
+                    gfx.DrawString($"Order Status: {order.order_status}", normalFont, XBrushes.Black, 40, y);
+                    y += 20;
+                    gfx.DrawString($"Delivery Address: {order.delivery_address}", normalFont, XBrushes.Black, 40, y);
+                    y += 30;
+
+                    // Table Header
+                    gfx.DrawString("Item", subHeaderFont, XBrushes.Black, 40, y);
+                    gfx.DrawString("Qty", subHeaderFont, XBrushes.Black, 280, y);
+                    gfx.DrawString("Price", subHeaderFont, XBrushes.Black, 340, y);
+                    gfx.DrawString("Total", subHeaderFont, XBrushes.Black, 420, y);
+                    y += 10;
+                    gfx.DrawLine(XPens.Gray, 40, y, page.Width - 40, y);
+                    y += 15;
+
+                    // Items Loop
+                    foreach (var item in order.OrderItems)
+                    {
+                        string itemName = item.menu_name.Length > 40 ? item.menu_name.Substring(0, 37) + "..." : item.menu_name;
+                        gfx.DrawString(itemName, normalFont, XBrushes.Black, 40, y);
+                        gfx.DrawString(item.quantity.ToString(), normalFont, XBrushes.Black, 280, y);
+                        gfx.DrawString("₹" + item.list_price.ToString("0.00"), normalFont, XBrushes.Black, 340, y);
+                        gfx.DrawString("₹" + (item.quantity * item.list_price).ToString("0.00"), normalFont, XBrushes.Black, 420, y);
+                        y += 20;
+
+                        if (y > page.Height - 100)
+                        {
+                            page = document.AddPage();
+                            gfx = XGraphics.FromPdfPage(page);
+                            y = 30;
+                        }
+                    }
+
+                    // Line
+                    y += 10;
+                    gfx.DrawLine(XPens.Black, 40, y, page.Width - 40, y);
+                    y += 20;
+
+                    // Total
+                    gfx.DrawString("Grand Total:", subHeaderFont, XBrushes.Black, 340, y);
+                    gfx.DrawString("₹" + order.grand_total.ToString("0.00"), subHeaderFont, XBrushes.Black, 420, y);
+
+                    // Footer
+                    y += 40;
+                    gfx.DrawString("Thank you for ordering with Foodie Express!", normalFont, XBrushes.Black, new XRect(0, y, page.Width, 0), XStringFormats.TopCenter);
+
+                    document.Save(ms);
+                }
+
+                return ms.ToArray();
+            }
+        }
+
+        public List<tbl_orders> FilterOrders(int userId, string status, int? days)
+        {
+            var orders = GetUserOrdersWithItemsAndImages(userId);
+
+            if (!string.IsNullOrEmpty(status))
+            {
+                orders = orders.Where(o => o.order_status.Equals(status, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            if(days.HasValue)
+            {
+                DateTime cutoffDate = DateTime.Now.AddDays(-days.Value);
+                orders = orders.Where(o => o.order_date >= cutoffDate).ToList();
+            }
+            return orders;
+        }
     }
 }

@@ -659,11 +659,11 @@ namespace Foodie.Repositories
             {
                 conn.Open();
 
-                string orderQuery = @"SELECT  co.order_id, co.food_status, cc.customer_name
+                string orderQuery = @"SELECT  co.order_id, co.order_status, co.food_status, cc.customer_name
                                     FROM customers.tbl_orders co
                                     INNER JOIN customers.tbl_customer cc ON co.customer_id = cc.customer_id
                                     INNER JOIN vendores.tbl_restaurant vs ON co.resturant_id = vs.restaurant_id
-                                    AND co.resturant_id =@RestaurantId";
+                                    AND co.resturant_id =@RestaurantId  ORDER BY co.order_date DESC";
 
                 using (SqlCommand orderCmd = new SqlCommand(orderQuery, conn))
                 {
@@ -676,6 +676,7 @@ namespace Foodie.Repositories
                             orders.Add(new ordersViewMdel
                             {
                                 order_id = Convert.ToInt32(reader["order_id"]),
+                                order_status = reader["order_status"].ToString(),
                                 food_status = reader["food_status"].ToString(),
                                 customer_name = reader["customer_name"].ToString(),
                                 Dishes = new List<orderNotiViewModel>()
@@ -692,10 +693,11 @@ namespace Foodie.Repositories
                 conn.Open();
                 foreach (var order in orders)
                 {
-                    string itemQuery = @"SELECT quantity,estimated_DATETIME, list_price, discount ,vm.menu_name
-                                            FROM customers.tbl_order_items coi
-                                            inner join vendores.tbl_menu_items vm
-                                            on coi.menu_id = vm.menu_id WHERE order_id = @OrderId";
+                    string itemQuery = @"SELECT quantity, estimated_DATETIME, list_price, discount, vm.menu_name
+                                FROM customers.tbl_order_items coi
+                                INNER JOIN vendores.tbl_menu_items vm
+                                ON coi.menu_id = vm.menu_id 
+                                WHERE order_id = @OrderId";
 
                     using (SqlCommand itemCmd = new SqlCommand(itemQuery, conn))
                     {
@@ -722,6 +724,8 @@ namespace Foodie.Repositories
 
             return orders;
         }
+
+
 
         public OutletInfo GetOutletInfo(int id)
         {
@@ -771,8 +775,6 @@ namespace Foodie.Repositories
             cmd.ExecuteNonQuery();
         }
 
-
-
         public List<tbl_ratings> GetAllRatings(int restaurant_id)
             {
             var ratings = new List<tbl_ratings>();
@@ -806,11 +808,10 @@ namespace Foodie.Repositories
             return ratings;
         }
 
-
         public IEnumerable<tbl_cust_vendor_complaints> GetComplaintsByRestaurantId(int restaurantId)
         {
             var complaints = new List<tbl_cust_vendor_complaints>();
-
+            
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 SqlCommand cmd = new SqlCommand("admins.sp_get_complaints_by_restaurant_id", conn);
@@ -1358,7 +1359,7 @@ namespace Foodie.Repositories
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@Year", year);
                 cmd.Parameters.AddWithValue("@Month", month);
-                cmd.Parameters.AddWithValue("@res_id", resId);
+                cmd.Parameters.AddWithValue("@res_id", 1);
 
                 conn.Open();
                 using (var reader = cmd.ExecuteReader())
@@ -1385,28 +1386,71 @@ namespace Foodie.Repositories
                 connection.Open();
 
                 var query = @"
-                            WITH DateRange AS (
-                                SELECT DATEADD(DAY, n, DATEFROMPARTS(@Year, @Month, 1)) AS Date
-                                FROM (SELECT TOP (31) ROW_NUMBER() OVER (ORDER BY object_id) - 1 AS n FROM sys.objects) AS Numbers
-                                WHERE DATEADD(DAY, n, DATEFROMPARTS(@Year, @Month, 1)) < DATEADD(MONTH, 1, DATEFROMPARTS(@Year, @Month, 1))
-                            )
                             SELECT 
-                                CONCAT(
-                                    MIN(DAY(d.Date)), '–', 
-                                    MAX(DAY(d.Date)), ' ', 
-                                    DATENAME(MONTH, MIN(d.Date))
-                                ) AS WeekRange,
-                                ISNULL(SUM(o.grand_total), 0) AS OrderValue,
-                                ISNULL(SUM(o.grand_total), 0) * 0.10 AS Commission,
-                                ISNULL(SUM(o.grand_total), 0) * 0.18 AS GST,
-                                ISNULL(SUM(o.grand_total), 0) - (ISNULL(SUM(o.grand_total), 0) * 0.10 + ISNULL(SUM(o.grand_total), 0) * 0.18) AS NetPayout,
-                                CONVERT(VARCHAR, MAX(p.payment_date), 106) AS PaymentDate
-                            FROM customers.tbl_orders o
-                            JOIN DateRange d ON CAST(o.order_date AS DATE) = d.Date
-                            LEFT JOIN customers.payments p ON o.order_id = p.order_id AND p.payment_status = 'paid'
-                            WHERE o.resturant_id = @RestaurantId
-                            GROUP BY DATEPART(WEEK, d.Date) - DATEPART(WEEK, DATEFROMPARTS(@Year, @Month, 1)) + 1
-                            ORDER BY DATEPART(WEEK, d.Date) - DATEPART(WEEK, DATEFROMPARTS(@Year, @Month, 1)) + 1";
+                    DATEPART(WEEK, o.order_date) - DATEPART(WEEK, DATEFROMPARTS(YEAR(o.order_date), MONTH(o.order_date), 1)) + 1 AS WeekNumber,
+                    CONCAT(
+                        MIN(DATEPART(DAY, o.order_date)), '–', 
+                        MAX(DATEPART(DAY, o.order_date)), ' ', 
+                        DATENAME(MONTH, MIN(o.order_date))
+                    ) AS WeekRange,
+                    SUM(o.grand_total) AS OrderValue,
+                    SUM(o.grand_total) * 0.10 AS Commission, -- Assuming 10% commission
+                    SUM(o.grand_total) * 0.18 AS GST,        -- Assuming 18% GST on commission
+                    SUM(o.grand_total) - (SUM(o.grand_total) * 0.10 + SUM(o.grand_total) * 0.18) AS NetPayout,
+                    MAX(p.payment_date) AS PaymentDate
+                FROM customers.tbl_orders o
+                LEFT JOIN customers.payments p ON o.order_id = p.order_id AND p.payment_status = 'pendding'
+                WHERE o.resturant_id = 1
+                GROUP BY DATEPART(WEEK, o.order_date), 
+                         DATEPART(YEAR, o.order_date), 
+                         DATEPART(MONTH, o.order_date)
+                ORDER BY MIN(o.order_date) DESC;
+
+                WITH OrderWeekData AS (
+                    SELECT 
+                        o.order_id,
+                        o.order_date,
+                        CEILING(DATEPART(DAY, o.order_date) / 7.0) AS WeekNumber,
+                        CONCAT(
+                            (CEILING(DATEPART(DAY, o.order_date) / 7.0) - 1) * 7 + 1, 
+                            '–', 
+                            CASE 
+                                WHEN CEILING(DATEPART(DAY, o.order_date) / 7.0) * 7 > DAY(EOMONTH(o.order_date)) 
+                                THEN DAY(EOMONTH(o.order_date))
+                                ELSE CEILING(DATEPART(DAY, o.order_date) / 7.0) * 7 
+                            END,
+                            ' ',
+                            DATENAME(MONTH, o.order_date)
+                        ) AS WeekRange,
+                        o.grand_total,
+                        DATENAME(MONTH, o.order_date) AS MonthName,
+                        MONTH(o.order_date) AS MonthNumber,
+                        YEAR(o.order_date) AS YearNumber,
+                        p.payment_date
+                    FROM customers.tbl_orders o
+                    LEFT JOIN customers.payments p 
+                        ON o.order_id = p.order_id AND p.payment_status = 'Pending'
+                    WHERE o.resturant_id = 7
+                )
+
+                SELECT 
+                    WeekNumber,
+                    WeekRange,
+                    SUM(grand_total) AS OrderValue,
+                    SUM(grand_total) * 0.10 AS Commission,
+                    SUM(grand_total) * 0.10 * 0.18 AS GST,
+                    SUM(grand_total) - (SUM(grand_total) * 0.10 * 1.18) AS NetPayout,
+                    MAX(payment_date) AS PaymentDate
+                FROM OrderWeekData
+                GROUP BY 
+                    WeekNumber,
+                    WeekRange,
+                    MonthNumber,
+                    YearNumber
+                ORDER BY 
+                    YearNumber DESC,
+                    MonthNumber DESC,
+                    WeekNumber DESC;";
 
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -1655,6 +1699,36 @@ namespace Foodie.Repositories
                 return package.GetAsByteArray();
             }
         }
-       
+
+        public string GetMenuItemName(int menuId)
+        {
+            string menuName = "Unknown Item";
+
+            using (SqlConnection connection = new SqlConnection(_connectionstring))
+            {
+                string query = "SELECT menu_name FROM vendores.tbl_menu_items WHERE menu_id = @MenuId";
+
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@MenuId", menuId);
+
+                try
+                {
+                    connection.Open();
+                    var result = command.ExecuteScalar();
+                    if (result != null)
+                    {
+                        menuName = result.ToString();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log error if needed
+                    Console.WriteLine($"Error getting menu name: {ex.Message}");
+                }
+            }
+
+            return menuName;
+
+        }
     }
 }
