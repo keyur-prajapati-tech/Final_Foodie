@@ -2,6 +2,7 @@
 using Foodie.Models.Admin;
 using Foodie.Models.customers;
 using Foodie.Models.Restaurant;
+using static Azure.Core.HttpHeader;
 using static Foodie.Models.customers.tbl_coupone;
 
 namespace Foodie.Repositories
@@ -50,7 +51,12 @@ namespace Foodie.Repositories
 
         tbl_customer GetCustomerNameAndPhone(int customerId);
 
+
+        //coupone Section Repository
         List<tbl_coupone> GetAllCoupons();
+        tbl_coupone GetCouponByCode(string code);
+        CouponApplicationResult ApplyCoupon(string couponCode, decimal grandTotal);
+        bool IsCouponValidForAmount(string couponCode, decimal grandTotal);
         tbl_coupone GetAutoApplicableCoupon(decimal grandTotal);
 
         decimal CalculateGrandTotal(int customer_id);
