@@ -12,212 +12,457 @@
     <title>Order History</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap5.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    
     <style>
         :root {
-        --primary-color: #4e73df;
-        --success-color: #1cc88a;
-        --danger-color: #e74a3b;
-        --warning-color: #f6c23e;
-        --info-color: #36b9cc;
-        --light-bg: #f8f9fc;
-        --card-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.15);
+            --primary-color: #4e73df;
+            --primary-light: #e6e9f9;
+            --success-color: #1cc88a;
+            --success-light: #e2f7ee;
+            --danger-color: #e74a3b;
+            --danger-light: #fbe9e8;
+            --warning-color: #f6c23e;
+            --warning-light: #fef8e6;
+            --info-color: #36b9cc;
+            --info-light: #e8f6f9;
+            --dark-color: #2e3a4d;
+            --gray-color: #858796;
+            --light-gray: #f8f9fc;
+            --border-color: #e3e6f0;
+            --card-shadow: 0 0.15rem 1.75rem 0 rgba(58, 59, 69, 0.1);
+            --transition: all 0.3s ease;
         }
 
         body {
-        background-color: #f8f9fc;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--light-gray);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--dark-color);
+            line-height: 1.6;
         }
 
         .container-fluid {
-        max-width: 1200px;
-        padding: 0 20px;
+            max-width: 1400px;
+            padding: 0 30px;
         }
 
+        /* Typography */
         h2 {
-        color: #2e3a4d;
-        font-weight: 600;
-        margin-bottom: 1.5rem;
-        padding-bottom: 0.5rem;
-        border-bottom: 1px solid #e3e6f0;
+            color: var(--dark-color);
+            font-weight: 700;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 1.75rem;
         }
 
+        h3, h4, h5 {
+            font-weight: 600;
+        }
+
+        /* Cards */
+        .stats-card {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            border: 1px solid var(--border-color);
+        }
+
+            .stats-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 0.5rem 1.5rem rgba(58, 59, 69, 0.15);
+            }
+
+            .stats-card h5 {
+                color: var(--gray-color);
+                font-size: 0.9rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 1rem;
+            }
+
+        /* Charts */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-bottom: 1rem;
+        }
+
+        /* Action Section */
         .action-section {
-        background: white;
-        border-radius: 0.35rem;
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-        box-shadow: var(--card-shadow);
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
         }
 
         .search-input-group {
-        position: relative;
-        flex-grow: 1;
+            position: relative;
+            flex-grow: 1;
         }
 
-        .search-input-group input {
-        padding-left: 2.5rem;
-        border-radius: 0.35rem;
-        border: 1px solid #d1d3e2;
-        }
+            .search-input-group input {
+                padding-left: 2.5rem;
+                border-radius: 0.5rem;
+                border: 1px solid var(--border-color);
+                transition: var(--transition);
+            }
 
-        .search-input-group i {
-        position: absolute;
-        left: 1rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #b7b9cc;
-        }
+                .search-input-group input:focus {
+                    border-color: var(--primary-color);
+                    box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.25);
+                }
 
+            .search-input-group i {
+                position: absolute;
+                left: 1rem;
+                top: 50%;
+                transform: translateY(-50%);
+                color: var(--gray-color);
+            }
+
+        /* Order Cards */
         .order-card {
-        border: none;
-        border-radius: 0.35rem;
-        margin-bottom: 1.25rem;
-        box-shadow: var(--card-shadow);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        overflow: hidden;
+            border: none;
+            border-radius: 0.5rem;
+            margin-bottom: 1.25rem;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            overflow: hidden;
+            border-left: 4px solid transparent;
+            border: 1px solid var(--border-color);
         }
 
-        .order-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 0.5rem 1.5rem rgba(58, 59, 69, 0.2);
-        }
+            .order-card:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 0.5rem 1.5rem rgba(58, 59, 69, 0.15);
+            }
 
-        .order-card .card-body {
-        padding: 1.5rem;
-        }
+            .order-card .card-body {
+                padding: 1.5rem;
+            }
 
-        .order-card.pending {
-        border-left: 4px solid var(--warning-color);
-        }
+            /* Status Colors */
+            .order-card.pending {
+                border-left-color: var(--warning-color);
+                background-color: var(--warning-light);
+            }
 
-        .order-card.completed {
-        border-left: 4px solid var(--success-color);
-        }
+            .order-card.completed {
+                border-left-color: var(--success-color);
+                background-color: var(--success-light);
+            }
 
-        .order-card.rejected {
-        border-left: 4px solid var(--danger-color);
-        }
+            .order-card.rejected {
+                border-left-color: var(--danger-color);
+                background-color: var(--danger-light);
+            }
 
-        .order-card.accepted {
-        border-left: 4px solid var(--info-color);
-        }
+            .order-card.accepted {
+                border-left-color: var(--info-color);
+                background-color: var(--info-light);
+            }
 
-        .order-card.pickup {
-        border-left: 4px solid var(--primary-color);
-        }
+            .order-card.pickup {
+                border-left-color: var(--primary-color);
+                background-color: var(--primary-light);
+            }
 
         .order-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
         .order-time {
-        color: #858796;
-        font-size: 0.85rem;
+            color: var(--gray-color);
+            font-size: 0.85rem;
         }
 
         .badge {
-        font-weight: 500;
-        padding: 0.35em 0.65em;
-        font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.5em 0.8em;
+            font-size: 0.75rem;
+            border-radius: 0.25rem;
+            letter-spacing: 0.5px;
         }
 
         .order-id {
-        font-weight: 600;
-        color: #2e3a4d;
-        margin-bottom: 1rem;
+            font-weight: 700;
+            color: var(--dark-color);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
         }
 
         .order-detail {
-        margin-bottom: 0.5rem;
-        color: #5a5c69;
+            margin-bottom: 0.5rem;
+            color: var(--gray-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
-        .order-detail strong {
-        color: #2e3a4d;
+            .order-detail strong {
+                color: var(--dark-color);
+            }
+
+        .order-items {
+            margin-bottom: 1.5rem;
         }
 
+            .order-items p {
+                padding: 0.5rem 0;
+                border-bottom: 1px dashed var(--border-color);
+                margin-bottom: 0;
+            }
+
+                .order-items p:last-child {
+                    border-bottom: none;
+                }
+
+        /* Filter Section */
         .filter-section {
-        background: white;
-        border-radius: 0.35rem;
-        padding: 1rem;
-        margin-bottom: 1.5rem;
-        box-shadow: var(--card-shadow);
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
         }
 
         .status-filter .btn {
-        margin-right: 0.5rem;
-        margin-bottom: 0.5rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 0.4rem 0.8rem;
+            transition: var(--transition);
         }
 
         .date-filter .form-control {
-        max-width: 200px;
-        display: inline-block;
+            border-radius: 0.25rem;
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            height: calc(1.5em + 0.75rem + 2px);
         }
 
-        .download-toast {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 1050;
-        background: white;
-        border-radius: 0.35rem;
-        box-shadow: 0 0.5rem 1.5rem rgba(58, 59, 69, 0.3);
-        padding: 1.5rem;
-        text-align: center;
-        width: 320px;
-        display: none;
+        .date-filter .btn {
+            border-radius: 0.25rem;
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
         }
 
-        .download-icon {
-        font-size: 2.5rem;
-        color: var(--success-color);
-        margin-bottom: 1rem;
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
         }
 
-        .download-link {
-        color: var(--primary-color);
-        font-weight: 600;
-        text-decoration: none;
-        display: inline-block;
-        margin-top: 0.5rem;
-        transition: color 0.2s;
+        .stats-item {
+            background: white;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            text-align: center;
+            transition: var(--transition);
         }
 
-        .download-link:hover {
-        color: #2a5bd7;
+            .stats-item:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 0.5rem 1.5rem rgba(58, 59, 69, 0.15);
+            }
+
+            .stats-item h3 {
+                font-size: 1.75rem;
+                margin: 0.5rem 0;
+                color: var(--dark-color);
+            }
+
+            .stats-item h5 {
+                color: var(--gray-color);
+                font-size: 0.9rem;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+                margin-bottom: 0.5rem;
+            }
+
+            .stats-item p {
+                color: var(--gray-color);
+                font-size: 0.9rem;
+                margin-bottom: 0;
+            }
+
+        /* Buttons */
+        .btn {
+            border-radius: 0.25rem;
+            font-weight: 500;
+            padding: 0.5rem 1rem;
+            transition: var(--transition);
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+            .btn-primary:hover {
+                background-color: #2e59d9;
+                border-color: #2653d4;
+            }
+
+        /* Responsive Adjustments */
+        @@media (max-width: 992px) {
+            .stats-grid
+
+        {
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        }
+
         }
 
         @@media (max-width: 768px) {
+            .container-fluid
+
+        {
+            padding: 0 15px;
+        }
+
         .action-section {
-        flex-direction: column;
+            flex-direction: column;
+            gap: 1rem;
         }
 
         .search-input-group {
-        margin-bottom: 1rem;
-        width: 100%;
+            width: 100%;
+            margin-bottom: 1rem;
         }
 
-        .download-btn-container {
-        width: 100%;
-        justify-content: flex-start;
+        .stats-grid {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .order-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        }
+
+        @@media (max-width: 576px) {
+            .stats-grid
+
+        {
+            grid-template-columns: 1fr;
+        }
+
+        .filter-section .row > div {
+            margin-bottom: 1rem;
         }
 
         .date-filter .form-control {
-        max-width: 100%;
-        width: 100%;
-        margin-bottom: 0.5rem;
+            width: 100%;
+            margin-bottom: 0.5rem;
         }
+
+        .date-filter .btn {
+            width: 100%;
+            margin-bottom: 0.5rem;
+        }
+
         }
     </style>
 </head>
 <body>
     <div class="container-fluid py-4">
         <h2>Order History</h2>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            @{
+                var statusCounts = ViewBag.StatusCounts as Dictionary<string, int>;
+                var statusRevenue = ViewBag.StatusRevenue as Dictionary<string, decimal>;
+
+                var statuses = new[] {
+            new { Key = "pending", Name = "Pending", Color = "warning", Icon = "clock" },
+            new { Key = "accepted", Name = "Accepted", Color = "info", Icon = "check-circle" },
+            new { Key = "pickup", Name = "Ready", Color = "primary", Icon = "box-seam" },
+            new { Key = "completed", Name = "Completed", Color = "success", Icon = "check2-all" },
+            new { Key = "rejected", Name = "Rejected", Color = "danger", Icon = "x-circle" }
+            };
+            }
+
+            @foreach (var status in statuses)
+            {
+                var count = statusCounts != null && statusCounts.ContainsKey(status.Key) ? statusCounts[status.Key] : 0;
+                var revenue = statusRevenue != null && statusRevenue.ContainsKey(status.Key) ? statusRevenue[status.Key] : 0;
+
+                <div class="stats-item">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h5 class="mb-0">@status.Name</h5>
+                        <span class="badge bg-@status.Color">
+                            <i class="bi bi-@status.Icon"></i>
+                        </span>
+                    </div>
+                    <h3>@count</h3>
+                    <p class="text-muted">Orders</p>
+                    <p class="text-dark fw-bold mb-0">₹@revenue.ToString("0.00")</p>
+                    <small class="text-muted">Revenue</small>
+                </div>
+            }
+
+            <!-- Total Stats Card -->
+            <div class="stats-item bg-primary text-white">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h5 class="mb-0 text-white">Total</h5>
+                    <span class="badge bg-white text-primary">
+                        <i class="bi bi-graph-up"></i>
+                    </span>
+                </div>
+                @{
+                    var totalOrders = statusCounts?.Values.Sum() ?? 0;
+                    var totalRevenue = statusRevenue?.Values.Sum() ?? 0;
+                }
+                <h3 class="text-white">@totalOrders</h3>
+                <p class="text-white-50">Orders</p>
+                <p class="text-white fw-bold mb-0">₹@totalRevenue.ToString("0.00")</p>
+                <small class="text-white-50">Total Revenue</small>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="stats-card">
+                    <h5>Daily Orders</h5>
+                    <div class="chart-container">
+                        <canvas id="dailyOrdersChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="stats-card">
+                    <h5>Order Status Distribution</h5>
+                    <div class="chart-container">
+                        <canvas id="statusDistributionChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Action Section -->
         <div class="action-section d-flex gap-2 flex-wrap justify-content-between align-items-center">
@@ -234,6 +479,7 @@
                 </button>
             </div>
         </div>
+
         <!-- Filter Section -->
         <div class="filter-section">
             <div class="row d-flex justify-content-between">
@@ -254,8 +500,10 @@
                         <input type="date" class="form-control form-control-sm" id="fromDate" name="fromDate">
                         <span class="mx-2">to</span>
                         <input type="date" class="form-control form-control-sm" id="toDate" name="toDate">
-                        <button type="submit" class="btn btn-sm btn-primary ms-2">Apply</button>
-                        <button type="button" id="resetDate" class="btn btn-sm btn-outline-secondary ms-2">Reset</button>
+                        <div class="d-flec gap-3 mt-2">
+                            <button type="submit" class="btn btn-sm btn-primary ms-2">Apply</button>
+                            <button type="button" id="resetDate" class="btn btn-sm btn-outline-secondary ms-2">Reset</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -361,7 +609,6 @@
                         </div>
                     </div>
                 }
-
             }
         </div>
     </div>
@@ -384,6 +631,10 @@
 
             $('#fromDate').val(thirtyDaysAgo.toISOString().split('T')[0]);
             $('#toDate').val(today.toISOString().split('T')[0]);
+
+            // Initialize charts
+            initDailyOrdersChart();
+            initStatusDistributionChart();
 
             // Filter orders by status
             $('.filter-btn').click(function() {
@@ -448,6 +699,296 @@
                 exportToPDF();
             });
 
+                function initDailyOrdersChart() {
+            var dailyData = @Html.Raw(Json.Serialize(ViewBag.DailyCounts));
+            var labels = [];
+            var data = [];
+
+            // Convert to array and sort by date
+            var entries = [];
+            for (var date in dailyData) {
+                entries.push({
+                    date: new Date(date),
+                    count: dailyData[date]
+                });
+            }
+
+            entries.sort(function(a, b) {
+                return a.date - b.date;
+            });
+
+            // Format for chart
+            entries.forEach(function(entry) {
+                labels.push(entry.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+                data.push(entry.count);
+            });
+
+            var ctx = document.getElementById('dailyOrdersChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Daily Orders',
+                        data: data,
+                        backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                        borderColor: 'rgba(78, 115, 223, 1)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: 'rgba(78, 115, 223, 1)',
+                        pointBorderWidth: 2,
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        fill: true,
+                        tension: 0.4,
+                        borderJoinStyle: 'round',
+                        borderCapStyle: 'round'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                color: '#6c757d',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                },
+                                padding: 20,
+                                usePointStyle: true,
+                                pointStyle: 'circle'
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            backgroundColor: 'rgba(0,0,0,0.8)',
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            padding: 12,
+                            cornerRadius: 6,
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + ' orders';
+                                },
+                                labelColor: function(context) {
+                                    return {
+                                        borderColor: 'transparent',
+                                        backgroundColor: 'rgba(78, 115, 223, 0.8)',
+                                        borderRadius: 2
+                                    };
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                precision: 0,
+                                color: '#6c757d',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                display: true,
+                                drawOnChartArea: true,
+                                color: "rgba(0, 0, 0, 0.05)",
+                                lineWidth: 1
+                            },
+                            border: {
+                                display: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            },
+                            ticks: {
+                                color: '#6c757d',
+                                font: {
+                                    weight: 'bold'
+                                }
+                            },
+                            border: {
+                                display: false
+                            }
+                        }
+                    },
+                    elements: {
+                        line: {
+                            cubicInterpolationMode: 'monotone'
+                        }
+                    }
+                }
+            });
+        }
+
+                function initStatusDistributionChart() {
+            var statusData = @Html.Raw(Json.Serialize(ViewBag.StatusCounts));
+            var revenueData = @Html.Raw(Json.Serialize(ViewBag.StatusRevenue));
+
+            const ctx = document.getElementById('statusDistributionChart').getContext('2d');
+            const statusOrder = ['completed', 'pickup', 'accepted', 'pending', 'rejected'];
+            const colors = ['#1cc88a', '#4e73df', '#36b9cc', '#f6c23e', '#e74a3b'];
+            const hoverColors = ['#17a673', '#3e5dbf', '#2c9faf', '#dda20a', '#c0352b'];
+
+            // Prepare data
+            const labels = statusOrder
+                .filter(status => statusData[status] > 0)
+                .map(status => status.charAt(0).toUpperCase() + status.slice(1));
+
+            const counts = statusOrder
+                .filter(status => statusData[status] > 0)
+                .map(status => statusData[status]);
+
+            const revenues = statusOrder
+                .filter(status => statusData[status] > 0)
+                .map(status => revenueData[status] || 0);
+
+            const backgroundColors = statusOrder
+                .filter(status => statusData[status] > 0)
+                .map((status, i) => colors[i]);
+
+            // Create the 3D effect dataset
+            const data = {
+                labels: labels,
+                datasets: [{
+                    data: counts,
+                    backgroundColor: backgroundColors,
+                    borderWidth: 0,
+                    weight: 0.8,
+                    borderRadius: 12,
+                    spacing: 3,
+                    rotation: -30,
+                    hoverBackgroundColor: hoverColors
+                }, {
+                    data: counts.map(() => 1),
+                    backgroundColor: backgroundColors.map(color => color + '80'),
+                    borderWidth: 0,
+                    weight: 8,
+                    borderRadius: 12
+                }]
+            };
+
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: data,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '70%',
+                    plugins: {
+                        legend: {
+                            position: 'right',
+                            labels: {
+                                boxWidth: 14,
+                                padding: 16,
+                                usePointStyle: true,
+                                pointStyle: 'circle',
+                                font: {
+                                    size: 12,
+                                    weight: 'bold',
+                                    family: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif"
+                                },
+                                color: '#4a4a4a'
+                            },
+                            onHover: function(e, legendItem) {
+                                e.native.target.style.cursor = 'pointer';
+                            },
+                            onLeave: function(e, legendItem) {
+                                e.native.target.style.cursor = 'default';
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0,0,0,0.85)',
+                            titleFont: {
+                                size: 14,
+                                weight: 'bold'
+                            },
+                            bodyFont: {
+                                size: 13
+                            },
+                            padding: 12,
+                            cornerRadius: 6,
+                            displayColors: true,
+                            usePointStyle: true,
+                            callbacks: {
+                                label: function(context) {
+                                    const label = context.label || '';
+                                    const count = context.raw;
+                                    const revenue = revenues[context.dataIndex];
+                                    return [
+                                        `${label}: ${count} orders`,
+                                        `Revenue: ₹${revenue.toFixed(2)}`
+                                    ];
+                                },
+                                labelColor: function(context) {
+                                    return {
+                                        borderColor: 'transparent',
+                                        backgroundColor: backgroundColors[context.dataIndex],
+                                        borderRadius: 2
+                                    };
+                                }
+                            }
+                        }
+                    },
+                    rotation: -30,
+                    circumference: 250,
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
+                    }
+                },
+                plugins: [{
+                    id: 'customCenterText',
+                    afterDraw(chart) {
+                        const { ctx, chartArea: { width, height } } = chart;
+
+                        // Draw count numbers on segments
+                        ctx.font = 'bold 12px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+
+                        chart.getDatasetMeta(0).data.forEach((segment, i) => {
+                            const angle = segment.startAngle + (segment.endAngle - segment.startAngle) / 2;
+                            const radius = segment.outerRadius * 0.7;
+
+                            const x = Math.cos(angle) * radius + segment.x;
+                            const y = Math.sin(angle) * radius + segment.y;
+
+                            ctx.fillStyle = '#fff';
+                            ctx.shadowColor = 'rgba(0,0,0,0.3)';
+                            ctx.shadowBlur = 3;
+                            ctx.shadowOffsetX = 1;
+                            ctx.shadowOffsetY = 1;
+                            ctx.fillText(counts[i], x, y);
+                            ctx.shadowColor = 'transparent';
+                        });
+
+                        // Draw total in center
+                        const total = counts.reduce((a, b) => a + b, 0);
+                        ctx.font = 'bold 16px Arial';
+                        ctx.fillStyle = '#4a4a4a';
+                        ctx.fillText('Total Orders', width / 2, height / 2 - 15);
+                        ctx.font = 'bold 24px Arial';
+                        ctx.fillStyle = '#2e3a4d';
+                        ctx.fillText(total.toString(), width / 2, height / 2 + 15);
+                    }
+                }]
+            });
+        }
+
             function getVisibleOrders() {
                 return $('.order-card:visible');
             }
@@ -460,7 +1001,6 @@
                 return doc;
             }
 
-            //Export To Excel Function
             function exportToExcel() {
                 const visibleOrders = getVisibleOrders();
 
@@ -554,7 +1094,6 @@
                 }
             }
 
-            //Export To PDF Function
             function exportToPDF() {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();

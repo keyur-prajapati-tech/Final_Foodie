@@ -43,8 +43,9 @@ namespace Foodie.Repositories
 
         //MANAGES THE ORDER HISTORY
         public List<ordersViewMdel> tbl_Orders_History(int restaurant_id);
-
-
+        Dictionary<string, int> GetOrderStatusCounts(int restaurantId);
+        Dictionary<DateTime, int> GetDailyOrderCounts(int restaurantId, int days = 30);
+        Dictionary<string, decimal> GetOrderStatusRevenue(int restaurantId);
 
 
         //isOnline

@@ -2686,5 +2686,52 @@ ORDER BY order_date DESC";
             }
             return orders;
         }
+
+        public IEnumerable<TopSellingMenuViewModel> topSellingMenuViewModels(int restaurantId, int count = 5)
+        {
+            var topMenus = new List<TopSellingMenuViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                var query = @"SELECT TOP (@Count)
+                            mi.menu_id,
+                            mi.menu_name,
+                            ISNULL(SUM(oi.quantity), 0) AS TotalQuantitySold,
+                            ISNULL(SUM(oi.quantity * oi.list_price), 0) AS TotalRevenue,
+                            mi.menu_img,
+                            r.restaurant_name AS restaurant_name
+                        FROM customers.tbl_order_items oi
+                        INNER JOIN customers.tbl_orders o ON oi.order_id = o.order_id
+                        INNER JOIN vendores.tbl_menu_items mi ON oi.menu_id = mi.menu_id
+                        INNER JOIN vendores.tbl_restaurant r ON o.resturant_id = r.restaurant_id
+                        WHERE o.resturant_id = @RestaurantId
+                        GROUP BY mi.menu_id, mi.menu_name, mi.menu_img, r.restaurant_name
+                        ORDER BY TotalQuantitySold DESC";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@RestaurantId", restaurantId);
+                cmd.Parameters.AddWithValue("@Count", count);
+
+                conn.Open();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        topMenus.Add(new TopSellingMenuViewModel
+                        {
+                            MenuId = Convert.ToInt32(reader["menu_id"]),
+                            MenuName = reader["menu_name"].ToString(),
+                            TotalQuantitySold = Convert.ToInt32(reader["TotalQuantitySold"]),
+                            TotalRevenue = Convert.ToDecimal(reader["TotalRevenue"]),
+                            ImageUrl = reader["menu_img"] != DBNull.Value ? Convert.ToBase64String((byte[])reader["menu_img"]) : string.Empty,
+                            RestaurantName = reader["restaurant_name"].ToString(),
+                            RestaurantId = restaurantId
+                        });
+                    }
+                }
+            }
+            return topMenus;
+        }
     }
 }

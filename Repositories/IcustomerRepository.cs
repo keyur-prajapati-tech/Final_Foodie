@@ -134,5 +134,7 @@ namespace Foodie.Repositories
         bool SubmitReview(tbl_ratings ratings);
         byte[] GenerateBill(int orderId); //Restaurant is pendding
         List<tbl_orders> FilterOrders(int userId, string status, int? days);
+
+        IEnumerable<TopSellingMenuViewModel> topSellingMenuViewModels(int restaurantId, int count = 5);
     }
 }

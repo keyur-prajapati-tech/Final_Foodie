@@ -36,6 +36,15 @@ namespace Foodie.Controllers.Restaurant
                                           .ToList();
             }
 
+            // Get data for charts
+            var statusCounts = _restaurantRepository.GetOrderStatusCounts(restaurantId);
+            var dailyCounts = _restaurantRepository.GetDailyOrderCounts(restaurantId);
+            var statusRevenue = _restaurantRepository.GetOrderStatusRevenue(restaurantId);
+
+            ViewBag.StatusCounts = statusCounts;
+            ViewBag.DailyCounts = dailyCounts;
+            ViewBag.StatusRevenue = statusRevenue;
+
             return View(orderHistory);
         }
 

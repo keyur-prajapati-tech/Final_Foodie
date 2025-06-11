@@ -1730,5 +1730,140 @@ namespace Foodie.Repositories
             return menuName;
 
         }
+
+        public Dictionary<string, int> GetOrderStatusCounts(int restaurantId)
+        {
+            var statusCounts = new Dictionary<string, int>();
+
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                var query = @"SELECT 
+	                            CASE 
+		                            WHEN o.order_status = 'paid' AND o.food_status = 'pickup' THEN 'pickup'
+		                            WHEN o.order_status = 'paid' AND o.food_status = 'waiting' THEN 'pending'
+                                    WHEN o.order_status IN ('completed', 'delivered') THEN 'completed'
+                                    WHEN o.order_status = 'rejected' THEN 'rejected'
+                                    WHEN o.order_status = 'accepted' THEN 'accepted'
+                                    ELSE 'other'
+                                    END AS status_group,
+                                    COUNT(*) as count
+                            FROM customers.tbl_orders o
+                            WHERE o.resturant_id = @RestaurantId
+                            GROUP BY 
+	                            CASE 
+		                            WHEN o.order_status = 'paid' AND o.food_status = 'pickup' THEN 'pickup'
+                                    WHEN o.order_status = 'paid' AND o.food_status = 'waiting' THEN 'pending'
+                                    WHEN o.order_status IN ('completed', 'delivered') THEN 'completed'
+                                    WHEN o.order_status = 'rejected' THEN 'rejected'
+                                    WHEN o.order_status = 'accepted' THEN 'accepted'
+                                    ELSE 'other'
+                                END";
+                var result = new SqlCommand(query, conn);
+                result.Parameters.AddWithValue("@RestaurantId", restaurantId);
+
+                conn.Open();
+                using (var reader = result.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var status = reader["status_group"].ToString();
+                        var count = reader.GetInt32("count");
+                        if (statusCounts.ContainsKey(status))
+                        {
+                            statusCounts[status] += count;
+                        }
+                        else
+                        {
+                            statusCounts[status] = count;
+                        }
+                    }
+                }
+                conn.Close();
+            }
+            return statusCounts;
+        }
+
+        public Dictionary<DateTime, int> GetDailyOrderCounts(int restaurantId, int days = 30)
+        {
+            var dailyCounts = new Dictionary<DateTime, int>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT 
+	                                CAST(order_date AS DATE) as order_day,
+                                    COUNT(*) as count
+                                FROM customers.tbl_orders
+                                WHERE resturant_id = @restaurantId AND order_date >= DATEADD(day, -@days, GETDATE())
+                                GROUP BY CAST(order_date AS DATE)
+                                ORDER BY order_day";
+                var result = new SqlCommand(query, conn);
+                result.Parameters.AddWithValue("@restaurantId", restaurantId);
+                result.Parameters.AddWithValue("@days", days);
+
+                conn.Open();
+                using (var reader = result.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var orderDay = reader.GetDateTime("order_day");
+                        var count = reader.GetInt32("count");
+                        dailyCounts[orderDay] = count;
+                    }
+                }
+                conn.Close();
+            }
+            return dailyCounts;
+        }
+
+        public Dictionary<string, decimal> GetOrderStatusRevenue(int restaurantId)
+        {
+            var statusRevenue = new Dictionary<string, decimal>();
+
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT 
+                                    CASE 
+                                        WHEN o.order_status = 'paid' AND o.food_status = 'pickup' THEN 'pickup'
+                                        WHEN o.order_status = 'paid' AND o.food_status = 'waiting' THEN 'pending'
+                                        WHEN o.order_status IN ('completed', 'delivered') THEN 'completed'
+                                        WHEN o.order_status = 'rejected' THEN 'rejected'
+                                        WHEN o.order_status = 'accepted' THEN 'accepted'
+                                        ELSE 'other'
+                                    END AS status_group,
+                                    SUM(o.grand_total) as total_revenue
+                                FROM customers.tbl_orders o
+                                WHERE o.resturant_id = @RestaurantId
+                                GROUP BY 
+                                    CASE 
+                                        WHEN o.order_status = 'paid' AND o.food_status = 'pickup' THEN 'pickup'
+                                        WHEN o.order_status = 'paid' AND o.food_status = 'waiting' THEN 'pending'
+                                        WHEN o.order_status IN ('completed', 'delivered') THEN 'completed'
+                                        WHEN o.order_status = 'rejected' THEN 'rejected'
+                                        WHEN o.order_status = 'accepted' THEN 'accepted'
+                                        ELSE 'other'
+                                    END";
+                var result = new SqlCommand(query, conn);
+                result.Parameters.AddWithValue("@RestaurantId", restaurantId);
+                conn.Open();
+                using (var reader = result.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var status = reader["status_group"].ToString();
+                        var revenue = reader.GetDecimal("total_revenue");
+                        if (statusRevenue.ContainsKey(status))
+                        {
+                            statusRevenue[status] += revenue;
+                        }
+                        else
+                        {
+                            statusRevenue[status] = revenue;
+                        }
+                    }
+                }
+                conn.Close();
+            }
+            return statusRevenue;
+        }
     }
 }

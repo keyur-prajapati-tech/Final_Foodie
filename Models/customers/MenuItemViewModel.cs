@@ -23,5 +23,11 @@ namespace Foodie.Models.customers
         public IEnumerable<tbl_menu_items> MenuItems { get; set; }
         public int? SelectedCuisineId { get; set; }
         public string RestaurantName { get; set; }
+        public string restaurant_phone { get; set; }
+        public string restaurant_email { get; set; }
+
+        //For displaying Top Selling Menu Items
+        public int TotalQuantitySold { get; set; }
+        public decimal TotalRevenue { get; set; }
     }
 }

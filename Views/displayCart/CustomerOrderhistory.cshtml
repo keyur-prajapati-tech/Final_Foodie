@@ -119,6 +119,96 @@
             animation: pulse 1.5s infinite;
         }
 
+        /* Tracking Timeline Styles */
+        .tracking-timeline {
+            position: relative;
+            padding-left: 2.5rem;
+        }
+
+        .tracking-step {
+            position: relative;
+            padding-bottom: 2rem;
+        }
+
+            .tracking-step:last-child {
+                padding-bottom: 0;
+            }
+
+            .tracking-step::before {
+                content: '';
+                position: absolute;
+                left: 1.25rem;
+                top: 2rem;
+                bottom: 0;
+                width: 2px;
+                background-color: #e9ecef;
+            }
+
+            .tracking-step.completed::before {
+                background-color: #198754;
+            }
+
+            .tracking-step.active::before {
+                background-color: #0d6efd;
+            }
+
+        .tracking-icon {
+            position: absolute;
+            left: 0;
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #e9ecef;
+            color: #6c757d;
+            border: 3px solid white;
+        }
+
+        .tracking-step.completed .tracking-icon {
+            background-color: #198754;
+            color: white;
+        }
+
+        .tracking-step.active .tracking-icon {
+            background-color: #0d6efd;
+            color: white;
+            animation: pulse 1.5s infinite;
+        }
+
+        .tracking-content {
+            margin-left: 3.5rem;
+        }
+
+        @@keyframes pulse {
+            0%
+
+        {
+            box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7);
+        }
+
+        70% {
+            box-shadow: 0 0 0 10px rgba(13, 110, 253, 0);
+        }
+
+        100% {
+            box-shadow: 0 0 0 0 rgba(13, 110, 253, 0);
+        }
+
+        }
+
+        /* Responsive adjustments */
+        @@media (max-width: 768px) {
+            .col-md-5, .col-md-7
+
+        {
+            border-right: none !important;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        }
+
         @@keyframes pulse {
             0% {
                 box-shadow: 0 0 0 0 rgba(13, 110, 253, 0.7);
@@ -353,103 +443,153 @@
     </div>
 
     <!-- Tracking Modal -->
+    <!-- Tracking Modal -->
     <div class="modal fade" id="trackingModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Order Tracking</h5>
+                    <h5 class="modal-title">Order Tracking <span class="badge bg-white text-primary ms-2">#ORD-12345</span></h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="card mb-3">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0">Order Details</h6>
+                <div class="modal-body p-0">
+                    <div class="row g-0">
+                        <!-- Left Side - Order Details -->
+                        <div class="col-md-5 p-4 border-end">
+                            <div class="d-flex align-items-center mb-4">
+                                <div class="flex-shrink-0">
+                                    <img src="https://via.placeholder.com/80" class="rounded-3" width="80" height="80" alt="Restaurant">
                                 </div>
-                                <div class="card-body">
-                                    <ul class="list-unstyled">
-                                        <li><strong>Order ID:</strong> <span id="trackOrderId">#12345</span></li>
-                                        <li><strong>Placed On:</strong> <span id="trackOrderDate">12 May 2024</span></li>
-                                        <li><strong>Total Amount:</strong> <span id="trackOrderTotal">₹450.00</span></li>
-                                        <li><strong>Payment Method:</strong> <span id="trackPaymentMethod">Credit Card</span></li>
-                                    </ul>
+                                <div class="flex-grow-1 ms-3">
+                                    <h6 class="mb-1">Burger King</h6>
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge bg-success bg-opacity-10 text-success fs-6">Preparing</span>
+                                        <small class="text-muted ms-2">Estimated: 25 min</small>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="card">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0">Delivery Address</h6>
-                                </div>
+                            <div class="card border-0 shadow-sm mb-3">
                                 <div class="card-body">
-                                    <address>
-                                        <strong id="trackCustomerName">John Doe</strong><br>
-                                        <span id="trackAddressLine1">123 Main Street</span><br>
-                                        <span id="trackAddressLine2">Apt 4B</span><br>
-                                        <span id="trackCityState">New York, NY 10001</span><br>
-                                        <span id="trackPhone">Phone: (123) 456-7890</span>
+                                    <h6 class="card-title mb-3"><i class="bi bi-list-check text-primary me-2"></i>Order Items</h6>
+                                    <ul class="list-group list-group-flush">
+                                        <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 border-0">
+                                            <div>
+                                                <h6 class="mb-0">Chicken Burger</h6>
+                                                <small class="text-muted">Qty: 1 × ₹199</small>
+                                            </div>
+                                            <span>₹199</span>
+                                        </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 border-0">
+                                            <div>
+                                                <h6 class="mb-0">French Fries</h6>
+                                                <small class="text-muted">Qty: 2 × ₹99</small>
+                                            </div>
+                                            <span>₹198</span>
+                                        </li>
+                                    </ul>
+                                    <hr class="my-2">
+                                    <div class="d-flex justify-content-between fw-bold">
+                                        <span>Total</span>
+                                        <span>₹397</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-body">
+                                    <h6 class="card-title mb-3"><i class="bi bi-geo-alt text-primary me-2"></i>Delivery Address</h6>
+                                    <address class="mb-0">
+                                        <strong>John Doe</strong><br>
+                                        123 Main Street, Apt 4B<br>
+                                        New York, NY 10001<br>
+                                        <i class="bi bi-telephone me-1"></i>(123) 456-7890
                                     </address>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header bg-light">
-                                    <h6 class="mb-0">Delivery Status</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="timeline">
-                                        <div class="timeline-step completed">
-                                            <div class="timeline-content">
-                                                <div class="inner-circle"></div>
-                                                <p class="h6 mt-3 mb-1">Order Placed</p>
-                                                <p class="text-muted mb-0">12 May, 10:30 AM</p>
-                                            </div>
-                                        </div>
-                                        <div class="timeline-step completed">
-                                            <div class="timeline-content">
-                                                <div class="inner-circle"></div>
-                                                <p class="h6 mt-3 mb-1">Order Confirmed</p>
-                                                <p class="text-muted mb-0">12 May, 10:45 AM</p>
-                                            </div>
-                                        </div>
-                                        <div class="timeline-step completed">
-                                            <div class="timeline-content">
-                                                <div class="inner-circle"></div>
-                                                <p class="h6 mt-3 mb-1">Preparing Food</p>
-                                                <p class="text-muted mb-0">12 May, 11:00 AM</p>
-                                            </div>
-                                        </div>
-                                        <div class="timeline-step active">
-                                            <div class="timeline-content">
-                                                <div class="inner-circle"></div>
-                                                <p class="h6 mt-3 mb-1">On the Way</p>
-                                                <p class="text-muted mb-0">Expected by 12:30 PM</p>
-                                            </div>
-                                        </div>
-                                        <div class="timeline-step">
-                                            <div class="timeline-content">
-                                                <div class="inner-circle"></div>
-                                                <p class="h6 mt-3 mb-1">Delivered</p>
-                                                <p class="text-muted mb-0">--</p>
-                                            </div>
-                                        </div>
+                        <!-- Right Side - Tracking Timeline -->
+                        <div class="col-md-7 p-4">
+                            <div class="tracking-timeline">
+                                <div class="tracking-step completed">
+                                    <div class="tracking-icon">
+                                        <i class="bi bi-cart-check"></i>
                                     </div>
+                                    <div class="tracking-content">
+                                        <h6>Order Placed</h6>
+                                        <p class="text-muted mb-0">Today, 10:30 AM</p>
+                                    </div>
+                                </div>
 
-                                    <div class="mt-4">
-                                        <div class="d-flex align-items-center mb-2">
+                                <div class="tracking-step completed">
+                                    <div class="tracking-icon">
+                                        <i class="bi bi-check-circle"></i>
+                                    </div>
+                                    <div class="tracking-content">
+                                        <h6>Order Confirmed</h6>
+                                        <p class="text-muted mb-0">Today, 10:35 AM</p>
+                                    </div>
+                                </div>
+
+                                <div class="tracking-step completed">
+                                    <div class="tracking-icon">
+                                        <i class="bi bi-egg-fried"></i>
+                                    </div>
+                                    <div class="tracking-content">
+                                        <h6>Preparing Food</h6>
+                                        <p class="text-muted mb-0">Today, 10:45 AM</p>
+                                        <small class="text-success">Restaurant is preparing your order</small>
+                                    </div>
+                                </div>
+
+                                <div class="tracking-step active">
+                                    <div class="tracking-icon">
+                                        <i class="bi bi-bicycle"></i>
+                                    </div>
+                                    <div class="tracking-content">
+                                        <h6>On the Way</h6>
+                                        <p class="text-muted mb-0">Today, 11:15 AM</p>
+                                        <div class="d-flex align-items-center mt-2">
                                             <div class="flex-shrink-0">
-                                                <img src="https://via.placeholder.com/50" class="rounded-circle" width="50" height="50" alt="Driver">
+                                                <img src="https://via.placeholder.com/40" class="rounded-circle" width="40" height="40" alt="Driver">
                                             </div>
-                                            <div class="flex-grow-1 ms-3">
-                                                <h6 class="mb-0" id="trackDriverName">Robert Johnson</h6>
+                                            <div class="flex-grow-1 ms-2">
+                                                <h6 class="mb-0">Robert Johnson</h6>
                                                 <small class="text-muted">Your delivery partner</small>
                                             </div>
+                                            <a href="tel:+1234567890" class="btn btn-sm btn-outline-primary ms-3">
+                                                <i class="bi bi-telephone"></i> Call
+                                            </a>
                                         </div>
-                                        <button class="btn btn-sm btn-outline-primary w-100">
-                                            <i class="bi bi-telephone"></i> Call Driver
-                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="tracking-step">
+                                    <div class="tracking-icon">
+                                        <i class="bi bi-house-check"></i>
+                                    </div>
+                                    <div class="tracking-content">
+                                        <h6>Delivered</h6>
+                                        <p class="text-muted mb-0">--</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mt-4">
+                                <div class="card border-0 shadow-sm">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <h6 class="mb-1">Delivery Progress</h6>
+                                                <small class="text-muted">Your food is on the way</small>
+                                            </div>
+                                            <div class="text-end">
+                                                <div class="h4 mb-0">75%</div>
+                                            </div>
+                                        </div>
+                                        <div class="progress mt-3" style="height: 8px;">
+                                            <div class="progress-bar bg-primary" role="progressbar" style="width: 75%"></div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -457,9 +597,9 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" class="btn btn-primary">
-                        <i class="bi bi-share"></i> Share Status
+                        <i class="bi bi-share me-1"></i> Share Status
                     </button>
                 </div>
             </div>
@@ -536,23 +676,24 @@
                         console.error(err);
                     }
                 });
-            });
+
+                // Initialize filters on page load
+                $('.form-select').first().val('All Status').trigger('change');
+                    });
 
             // Tracking modal setup
-            $('.btn-outline-secondary').filter(':contains("Track")').on('click', function() {
-                // In a real implementation, you would fetch this data from the server
-                // For now, we'll use dummy data
+                // Initialize tracking modal with real data
+            $(document).on('click', '.track-btn', function() {
                 const orderCard = $(this).closest('.order-card');
                 const orderId = orderCard.find('.card-body .text-end strong:first').text().trim();
                 const orderDate = orderCard.find('.card-body strong:contains("Order Placed:")').parent().text().replace('Order Placed:', '').trim();
                 const orderTotal = orderCard.find('.card-body strong:contains("Total:")').parent().text().replace('Total:', '').trim();
 
-                // Set the modal data
-                $('#trackOrderId').text(orderId);
-                $('#trackOrderDate').text(orderDate);
-                $('#trackOrderTotal').text(orderTotal);
+                // Set modal data (in a real app, you would fetch this from your backend)
+                $('#trackingModal .modal-title .badge').text(orderId);
+                $('#trackingModal .text-muted:contains("Estimated:")').text('Estimated: 25 min');
 
-                // Show the modal
+                // Show modal
                 $('#trackingModal').modal('show');
             });
         });
@@ -563,15 +704,25 @@
 
         // Filter functionality
         $('.form-select').change(function() {
-            const statusFilter = $('.form-select').eq(0).val().toLowerCase();
-            const timeFilter = $('.form-select').eq(1).val();
+            const statusFilter = $('.form-select').first().val().toLowerCase();
+            const timeFilter = $('.form-select').last().val().toLowerCase();
 
             $('.order-card').each(function() {
-                const cardStatus = $(this).attr('class').match(/paid|delivered|pending|rejected|accepted/)[0];
-                const showStatus = statusFilter === 'all status' || cardStatus === statusFilter;
+                const card = $(this);
+                const cardStatus = card.attr('class').match(/\b(paid|delivered|pending|rejected|accepted)\b/);
+                const status = cardStatus ? cardStatus[0] : '';
 
-                // Add time filter logic if needed
-                $(this).toggle(showStatus);
+                // Status filter
+                const showStatus = statusFilter === 'all status' || status === statusFilter.toLowerCase();
+
+                // Time filter - basic implementation (you'll need to enhance this)
+                const showTime = true;
+                if (timeFilter !== 'last 30 days') {
+                    // Implement your date comparison logic here
+                    // You'll need to get the order date from each card and compare
+                }
+
+                card.toggle(showStatus && showTime);
             });
         });
     </script>
