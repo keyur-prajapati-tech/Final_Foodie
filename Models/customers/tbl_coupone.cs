@@ -9,5 +9,6 @@
             public decimal discount { get; set; }
             public decimal application_order_amount { get; set; }
             public DateTime expiry_date { get; set; }
+            public DateTime created_at { get; set; }
     }
 }

@@ -690,8 +690,8 @@ namespace Foodie.Repositories
 
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                SqlCommand cmd = new SqlCommand("GetAllCoupons", conn);
-                cmd.CommandType = CommandType.StoredProcedure;
+                SqlCommand cmd = new SqlCommand("SELECT * FROM customers.tbl_coupone WHERE expiry_date >= GETDATE()", conn);
+                //cmd.CommandType = CommandType.StoredProcedure;
                 conn.Open();
 
                 SqlDataReader rd = cmd.ExecuteReader();
@@ -2734,6 +2734,21 @@ ORDER BY order_date DESC";
                 }
             }
             return topMenus;
+        }
+
+        public tbl_coupone GetCouponByCode(string code)
+        {
+            throw new NotImplementedException();
+        }
+
+        public CouponApplicationResult ApplyCoupon(string couponCode, decimal grandTotal)
+        {
+            throw new NotImplementedException();
+        }
+
+        public bool IsCouponValidForAmount(string couponCode, decimal grandTotal)
+        {
+            throw new NotImplementedException();
         }
     }
 }
