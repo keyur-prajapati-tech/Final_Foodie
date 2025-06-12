@@ -2696,6 +2696,7 @@ ORDER BY order_date DESC";
                 var query = @"SELECT TOP (@Count)
                             mi.menu_id,
                             mi.menu_name,
+                            mi.menu_descripation,
                             ISNULL(SUM(oi.quantity), 0) AS TotalQuantitySold,
                             ISNULL(SUM(oi.quantity * oi.list_price), 0) AS TotalRevenue,
                             mi.menu_img,
@@ -2705,7 +2706,7 @@ ORDER BY order_date DESC";
                         INNER JOIN vendores.tbl_menu_items mi ON oi.menu_id = mi.menu_id
                         INNER JOIN vendores.tbl_restaurant r ON o.resturant_id = r.restaurant_id
                         WHERE o.resturant_id = @RestaurantId
-                        GROUP BY mi.menu_id, mi.menu_name, mi.menu_img, r.restaurant_name
+                        GROUP BY mi.menu_id, mi.menu_name, mi.menu_img, r.restaurant_name, mi.menu_descripation
                         ORDER BY TotalQuantitySold DESC";
 
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -2722,6 +2723,7 @@ ORDER BY order_date DESC";
                         {
                             MenuId = Convert.ToInt32(reader["menu_id"]),
                             MenuName = reader["menu_name"].ToString(),
+                            MenuDescription = reader["menu_descripation"].ToString(),
                             TotalQuantitySold = Convert.ToInt32(reader["TotalQuantitySold"]),
                             TotalRevenue = Convert.ToDecimal(reader["TotalRevenue"]),
                             ImageUrl = reader["menu_img"] != DBNull.Value ? Convert.ToBase64String((byte[])reader["menu_img"]) : string.Empty,
