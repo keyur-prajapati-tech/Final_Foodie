@@ -15,6 +15,14 @@ namespace Foodie.Controllers.Restaurant
             _repository = repository;
         }
 
+        [Route("Dashboard")]
+        public IActionResult Dashboard()
+        {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+            ViewBag.RestaurantId = restaurantId;
+            return View();
+        }
+
         [Route("OrderNoti")]
         public IActionResult OrderNoti()
         {

@@ -345,6 +345,10 @@
                                     <button class="btn btn-sm btn-success me-2" onclick="generateBill(@order.order_id)">
                                         <i class="bi bi-download"></i> Download Bill
                                     </button>
+                                    <button class="btn btn-sm btn-outline-secondary me-2 rate-btn" data-bs-toggle="modal"
+                                            data-bs-target="#trackingModal">
+                                        <i class="bi bi-geo-alt"></i> Track
+                                    </button>
                                 }
 
                                 <!-- Track button - only for delivered or accepted orders -->
@@ -362,13 +366,6 @@
                                 {
                                     <button class="btn btn-sm btn-outline-danger me-2">
                                         <i class="bi bi-x-circle"></i> Cancel
-                                    </button>
-                                }
-
-                                @if (order.order_status.Equals("Pending", StringComparison.OrdinalIgnoreCase))
-                                {
-                                    <button class="btn btn-sm btn-outline-dark me-2">
-                                        <i class="bi bi-circle"></i> Compliant
                                     </button>
                                 }
 

@@ -2738,17 +2738,97 @@ ORDER BY order_date DESC";
 
         public tbl_coupone GetCouponByCode(string code)
         {
-            throw new NotImplementedException();
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT coupone_id, coupone_code, description, discount, application_order_amount,          expiry_date, createdAt
+                                FROM customers.tbl_coupone 
+                                WHERE coupone_code = @couponecode AND expiry_date >= GETDATE()";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@couponecode", code);
+
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+
+                if (rd.Read())
+                {
+                    return new tbl_coupone
+                    {
+                        coupone_id = Convert.ToInt32(rd["coupone_id"]),
+                        coupone_code = rd["Messages"].ToString(),
+                        description = rd["Description"].ToString(),
+                        discount = Convert.ToDecimal(rd["discount"]),
+                        application_order_amount = Convert.ToDecimal(rd["application_order_amount"]),
+                        expiry_date = Convert.ToDateTime(rd["expiry_date"]),
+                        created_at = Convert.ToDateTime(rd["createdM"])
+                    };
+                }
+            }
+            return null;
         }
 
         public CouponApplicationResult ApplyCoupon(string couponCode, decimal grandTotal)
         {
-            throw new NotImplementedException();
+            var coupon = GetCouponByCode(couponCode);
+            var result = new CouponApplicationResult();
+
+            if (coupon == null)
+            {
+                result.Success = false;
+                result.Message = "Coupon code is invalid or expired";
+                return result;
+            }
+
+            if (grandTotal < coupon.application_order_amount)
+            {
+                result.Success = false;
+                result.Message = $"Minimum order amount of ₹{coupon.application_order_amount} required for this coupon";
+                return result;
+            }
+
+            result.Success = true;
+            result.Message = "Coupon applied successfully";
+            result.DiscountAmount = coupon.discount;
+            result.GrandTotal = grandTotal;
+            result.FinalTotal = grandTotal - coupon.discount;
+
+            return result;
         }
 
         public bool IsCouponValidForAmount(string couponCode, decimal grandTotal)
         {
-            throw new NotImplementedException();
+            var coupon = GetCouponByCode(couponCode);
+            return coupon != null && grandTotal >= coupon.application_order_amount;
+        }
+
+        public void UpdateCartWithCoupon(int customerId, string couponCode, decimal discountAmount)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+                var command = new SqlCommand(
+                    "UPDATE customers.tbl_cart SET coupon_code = @CouponCode, discount_amount = @DiscountAmount WHERE customer_id = @CustomerId",
+                    conn);
+
+                command.Parameters.AddWithValue("@CouponCode", couponCode);
+                command.Parameters.AddWithValue("@DiscountAmount", discountAmount);
+                command.Parameters.AddWithValue("@CustomerId", customerId);
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void RemoveCouponFromCart(int customerId)
+        {
+            using (var connection = new SqlConnection(_connectionstring))
+            {
+                connection.Open();
+                var command = new SqlCommand(
+                    "UPDATE customers.tbl_cart SET coupon_code = NULL, discount_amount = 0 WHERE customer_id = @CustomerId",
+                    connection);
+
+                command.Parameters.AddWithValue("@CustomerId", customerId);
+                command.ExecuteNonQuery();
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ using Foodie.Models.customers;
 using Foodie.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
 using Razorpay.Api;
 
 namespace Foodie.Controllers.Customer
@@ -120,9 +121,176 @@ namespace Foodie.Controllers.Customer
 
         public IActionResult GetAllCoupons()
         {
-            var coupons = _repository.GetAllCoupons();
-            return PartialView("_CouponListPartial", coupons);
+            //var coupons = _repository.GetAllCoupons();
+
+            //return PartialView("_CouponListPartial", coupons);
+            try
+            {
+                var coupons = _repository.GetAllCoupons();
+                var grandTotal = GetGrandTotal();
+
+                var couponViewModels = coupons.Select(c => new CouponeViewModel
+                {
+                    coupone_code = c.coupone_code,
+                    description = c.description,
+                    discount = c.discount,
+                    MinimumOrderAmount = c.application_order_amount,
+                    ExpiryDate = c.expiry_date,
+                    IsApplicable = grandTotal >= c.application_order_amount,
+                    ApplicabilityMessage = grandTotal >= c.application_order_amount
+                        ? "Applicable to your order"
+                        : $"Add ₹{(c.application_order_amount - grandTotal):0.00} more to use this coupon"
+                }).ToList();
+
+                return PartialView("_CouponListPartial", coupons);
+            }
+            catch (Exception ex)
+            {
+                // Log error
+                return PartialView("_CouponListPartial", new List<CouponeViewModel>());
+            }
         }
+
+        private decimal GetGrandTotal()
+        {
+            try
+            {
+                var customerId = HttpContext.Session.GetString("UserId");
+                if (string.IsNullOrEmpty(customerId))
+                    return 0;
+
+                var cartItems = _repository.GetCartItems(int.Parse(customerId));
+                if (cartItems == null || !cartItems.Any())
+                    return 0;
+
+                decimal grandTotal = 0;
+                foreach (var item in cartItems)
+                {
+                    grandTotal += item.quantity * item.amount;
+                }
+
+                return grandTotal;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        [HttpPost]
+        public IActionResult ApplyCoupon(string couponCode)
+        {
+            try
+            {
+                var grandTotal = GetGrandTotal();
+                var result = _repository.ApplyCoupon(couponCode, grandTotal);
+
+                if (result.Success)
+                {
+                    HttpContext.Session.SetString("AppliedCoupon", couponCode);
+                    HttpContext.Session.SetString("DiscountAmount", result.DiscountAmount.ToString());
+
+                    TempData["Discount"] = result.DiscountAmount;
+                    TempData["CouponCode"] = couponCode;
+                    TempData["successmessage"] = result.Message;
+
+                    // Update the cart with coupon details
+                    UpdateCartWithCoupon(couponCode, result.DiscountAmount);
+                }
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(new CouponApplicationResult
+                {
+                    Success = false,
+                    Message = "An error occurred while applying coupon"
+                });
+            }
+        }
+
+        public IActionResult UpdateCartWithCoupon(string couponCode, decimal discountAmount)
+        {
+            var customerId = HttpContext.Session.GetString("CustomerId");
+            if (!string.IsNullOrEmpty(customerId))
+            {
+                using (var connection = new SqlConnection())
+                {
+                    _repository.UpdateCartWithCoupon(int.Parse(customerId), couponCode, discountAmount);
+                    return Json(new { success = true });
+                }
+            }
+            return Json(new { success = false, message = "Customer ID not found in session." });
+        }
+
+        [HttpPost]
+        public JsonResult RemoveCoupon()
+        {
+            try
+            {
+                var couponCode = HttpContext.Session.GetString("AppliedCoupon");
+
+                if (!string.IsNullOrEmpty(couponCode))
+                {
+                    // Remove coupon from cart
+                    RemoveCouponFromCart();
+                }
+
+                HttpContext.Session.Remove("AppliedCoupon");
+                HttpContext.Session.Remove("DiscountAmount");
+
+                TempData.Remove("Discount");
+                TempData.Remove("CouponCode");
+
+                return Json(new { success = true, message = "Coupon removed successfully" });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = "Error removing coupon" });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult RemoveCouponFromCart()
+        {
+            var customerId = HttpContext.Session.GetString("CustomerId");
+
+            if (!string.IsNullOrEmpty(customerId) && int.TryParse(customerId, out int customerIdInt))
+            {
+                _repository.RemoveCouponFromCart(customerIdInt);
+                return Json(new { success = true });
+            }
+
+            return Json(new { success = false, message = "Customer ID not found in session." });
+        }
+
+        [HttpGet]
+        public IActionResult GetCurrentCouponStatus()
+        {
+            try
+            {
+                var couponCode = HttpContext.Session.GetString("AppliedCoupon");
+                var discountAmount = HttpContext.Session.GetString("DiscountAmount");
+
+                if (!string.IsNullOrEmpty(couponCode) && !string.IsNullOrEmpty(discountAmount))
+                {
+                    return Json(new
+                    {
+                        HasCoupon = true,
+                        Code = couponCode,
+                        Discount = decimal.Parse(discountAmount)
+                    });
+                }
+
+                return Json(new { HasCoupon = false });
+            }
+            catch
+            {
+                return Json(new { HasCoupon = false });
+            }
+        }
+
 
         public IActionResult GetGrandTotalWithCoupon(int customer_id)
         {

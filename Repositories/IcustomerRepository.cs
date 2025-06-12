@@ -52,14 +52,20 @@ namespace Foodie.Repositories
         tbl_customer GetCustomerNameAndPhone(int customerId);
 
 
-        //coupone Section Repository
+        /*-----------coupone Section Repository--------------*/
         List<tbl_coupone> GetAllCoupons();
         tbl_coupone GetCouponByCode(string code);
         CouponApplicationResult ApplyCoupon(string couponCode, decimal grandTotal);
         bool IsCouponValidForAmount(string couponCode, decimal grandTotal);
         tbl_coupone GetAutoApplicableCoupon(decimal grandTotal);
+        void UpdateCartWithCoupon(int customerId, string couponCode, decimal discountAmount);
+        void RemoveCouponFromCart(int customerId);
+
+
 
         decimal CalculateGrandTotal(int customer_id);
+
+
 
         IEnumerable<tbl_special_offers> GetAllActiveOffers();
         IEnumerable<tbl_special_offers> GetOffers();
