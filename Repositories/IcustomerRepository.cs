@@ -148,5 +148,10 @@ namespace Foodie.Repositories
         List<tbl_orders> FilterOrders(int userId, string status, int? days);
 
         IEnumerable<TopSellingMenuViewModel> topSellingMenuViewModels(int restaurantId, int count = 5);
+
+        /*-------------Tracking Order History----------------*/
+        UserOrder GetOrderTrackingDetails(int orderId, int userId);
+        List<OrderStatusHistoryViewModel> GetOrderStatusHistory(int orderId);
+        DeliveryPartnerInfo GetDeliveryPartnerInfo(int orderId);
     }
 }

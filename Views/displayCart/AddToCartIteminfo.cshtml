@@ -241,16 +241,11 @@
                             </a>
                         </div>
 
-                        <!-- Show Order History button if user has previous orders -->
-                        @if (ViewBag.HasOrderHistory != null && ViewBag.HasOrderHistory)
-                        {
                             <div class="mt-3">
-                                <a asp-controller="Order" asp-action="OrderHistory"
-                                   class="btn btn-outline-secondary w-100">
+                            <a asp-controller="displayCart" asp-action="CustomerOrderhistory" class="btn btn-outline-secondary w-100">
                                     <i class="fas fa-history"></i> View Order History
                                 </a>
                             </div>
-                        }
                     </div>
                 }
             </div>

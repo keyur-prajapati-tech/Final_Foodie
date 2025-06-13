@@ -615,9 +615,88 @@ namespace Foodie.Controllers.Customer
             return File(pdfBytes, "application/pdf", $"Bill_{orderId}.pdf");
         }
 
-        public IActionResult TrackOrder(int id)
+
+        //-----------------------------Track Order Item----------------------
+        //public IActionResult TrackOrder(int id)
+        //{
+        //    int userId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+
+        //    if(userId == 0)
+        //    {
+        //        return RedirectToAction("Locality", "Locality");
+        //    }
+
+        //    var order = _repository.GetOrderTrackingDetails(id, userId);
+
+        //    if(order == null)
+        //    {
+        //        return NotFound("Order not found");
+        //    }
+
+        //    var statusHistory = _repository.GetOrderStatusHistory(id);
+        //    var deliveryPartnerInfo = _repository.GetDeliveryPartnerInfo(id);
+
+        //    var viewModel = new OrderTrackingViewModel
+        //    {
+        //        order = order,
+        //        orderStatusHistory = statusHistory,
+        //        deliveryPartner = deliveryPartnerInfo
+        //    };
+
+        //    return View(viewModel);
+        //}
+        public ActionResult GetOrderTrackingDetails(int orderId)
         {
-            return View();
+            // Get the current user ID from session
+            int userId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+
+            // Get order details
+            var order = _repository.GetOrderTrackingDetails(orderId, userId);
+            if (order == null) return Json(new { success = false, message = "Order not found" });
+
+            // Get status history
+            var statusHistory = _repository.GetOrderStatusHistory(orderId);
+
+            // Get delivery partner info if order is on the way
+            DeliveryPartnerInfo deliveryPartner = null;
+            if (order.AssignmentStatus == "OnTheWay" || order.AssignmentStatus == "Accepted")
+            {
+                deliveryPartner = _repository.GetDeliveryPartnerInfo(orderId);
+            }
+
+            return Json(new
+            {
+                success = true,
+                order = new
+                {
+                    Id = order.order_id,
+                    Status = order.order_status,
+                    CreatedDate = order.order_date.ToString("dd MMM yyyy hh:mm tt"),
+                    GrandTotal = order.grand_total,
+                    CustomerName = order.customer_name,
+                    DeliveryAddress = order.delivery_address,
+                    RestaurantName = order.restaurant_name,
+                    RestaurantAddress = order.restaurant_street
+                },
+                statusHistory = statusHistory.Select(sh => new {
+                    Status = sh.order_status,
+                    StatusDate = sh.order_date.ToString("dd MMM yyyy hh:mm tt")
+                }),
+                deliveryPartner = deliveryPartner != null ? new
+                {
+                    PartnerName = deliveryPartner.delivery_partner_name,
+                    PhoneNumber = deliveryPartner.delivery_partner_phone,
+                    VehicleNumber = deliveryPartner.vehicle_number,
+                    PhotoUrl = deliveryPartner.PhotoUrl
+                } : null
+            });
+        }
+
+        [HttpGet]
+        public IActionResult GetOrderStatusUpdates(int orderId)
+        {
+            var statusHistory = _repository.GetOrderStatusHistory(orderId);
+            return Json(statusHistory);
         }
     }
 }

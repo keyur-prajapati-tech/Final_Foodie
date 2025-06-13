@@ -2830,5 +2830,122 @@ ORDER BY order_date DESC";
                 command.ExecuteNonQuery();
             }
         }
+
+        public UserOrder GetOrderTrackingDetails(int orderId, int userId)
+        {
+            UserOrder order = null;
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT o.order_id, o.order_status, o.order_date,
+                            o.deliver_dateTime , o.grand_total, ad.address, da.AssignmentStatus,
+                            cr.customer_name,
+                            r.restaurant_name, r.restaurant_street+' '+r.restaurant_pincode AS [Restaurant Address]
+                     FROM customers.tbl_orders o
+                     INNER JOIN customers.tbl_customer cr ON o.customer_id = cr.customer_id
+                     INNER JOIN vendores.tbl_restaurant r ON o.resturant_id = r.restaurant_id
+					 INNER JOIN customers.tbl_address ad ON cr.customer_id = ad.customer_id
+					 INNER JOIN admins.tbl_deliveryassignments da ON da.order_id = o.order_id
+                     WHERE o.order_id = @orderId AND o.customer_id = @CustomerId";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                cmd.Parameters.AddWithValue("@orderId", orderId);
+                cmd.Parameters.AddWithValue("@CustomerId",userId); // Replace with dynamic customer ID
+
+                conn.Open();
+
+                SqlDataReader rd = cmd.ExecuteReader();
+
+                if (rd != null)
+                {
+                    order = new UserOrder
+                    {
+                        order_id = Convert.ToInt32(rd["order_id"]),
+                        order_status = rd["order_status"].ToString(),
+                        order_date = Convert.ToDateTime(rd["order_date"]),
+                        AssignmentStatus = rd["AssignmentStatus"].ToString(),
+                        delivered_date = Convert.ToDateTime(rd["deliver_dateTime"]),
+                        grand_total = Convert.ToDecimal(rd["grand_total"]),
+                        delivery_address = rd[""].ToString(),
+                        customer_name = rd["customer_name"].ToString(),
+                        restaurant_name = rd["restaurant_name"].ToString(),
+                        restaurant_street = rd["Restaurant_street"].ToString(),
+                        restaurant_pincode = rd["Restaurant_pincode"].ToString()
+                    };
+                }
+                return order;
+            }
+        }
+
+        public List<OrderStatusHistoryViewModel> GetOrderStatusHistory(int orderId)
+        {
+            var statusHistory = new List<OrderStatusHistoryViewModel>();
+
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT order_status, order_date, deliver_dateTime, coi.*
+                     FROM customers.tbl_orders co
+					 INNER JOIN customers.tbl_order_items coi ON co.order_id = coi.order_id
+                     WHERE co.order_id = @OrderId
+                     ORDER BY order_date,order_status, deliver_dateTime";
+
+                SqlCommand cm = new SqlCommand(query, con);
+
+                cm.Parameters.AddWithValue("@OrderId", orderId);
+
+                con.Open();
+                using (SqlDataReader reader = cm.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        statusHistory.Add(new OrderStatusHistoryViewModel
+                        {
+                            order_status = reader["order_status"].ToString(),
+                            order_date = Convert.ToDateTime(reader["order_date"]),
+                            delivered_date = reader["deliver_date"] != DBNull.Value ? Convert.ToDateTime(reader["deliver_date"]) : (DateTime?)null
+                        });
+                    }
+                }
+            }
+            return statusHistory;
+        }
+
+        public DeliveryPartnerInfo GetDeliveryPartnerInfo(int orderId)
+        {
+            DeliveryPartnerInfo deliveryPartnerInfo = null;
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT dp.partner_id, dp.FullName AS PartnerName,
+                                        dp.ContactNumber, dv.vehicle_id, dv.VehicleType, dpd.ProfilePicture
+                                 FROM deliverypartner.tbl_deliveryPartners dp
+                                 INNER JOIN admins.tbl_deliveryassignments da ON dp.partner_id = da.partner_id
+					             INNER JOIN deliverypartner.tbl_deliveryVehicle dv ON dv.partner_id = dp.partner_id
+					             INNER JOIN deliverypartner.tbl_deliveryPartnerDetails dpd ON dpd.partner_id = da.partner_id
+                                 WHERE da.order_id = @orderId";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@orderId", orderId);
+
+                conn.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        deliveryPartnerInfo = new DeliveryPartnerInfo
+                        {
+                            delivery_partner_id = Convert.ToInt32(reader["partner_id"]),
+                            delivery_partner_name = reader["PartnerName"].ToString(),
+                            delivery_partner_phone = reader["ContactNumber"].ToString(),
+                            vehicle_number = reader["vehicle_id"].ToString(),
+                            vehicle_type = reader["VehicleType"].ToString(),
+                            delivery_partner_image = reader["ProfilePicture"].ToString() ?? DBNull.Value.ToString()
+                        };
+                    }
+                }
+            }
+            return deliveryPartnerInfo;
+        }
     }
 }
