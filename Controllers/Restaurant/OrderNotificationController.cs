@@ -1,5 +1,7 @@
 ﻿using Foodie.Models;
+using Foodie.Models.Restaurant;
 using Foodie.Repositories;
+using Foodie.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 
@@ -21,6 +23,33 @@ namespace Foodie.Controllers.Restaurant
             var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
             ViewBag.RestaurantId = restaurantId;
             return View();
+        }
+
+        [HttpGet]
+        public IActionResult GetDashboardData()
+        {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+
+            var viewModel = new RestaurantDashboardViewModel
+            {
+                Stats = _repository.GetDashboardStats(restaurantId),
+                RecentOrders = _repository.GetRecentOrders(restaurantId),
+                CuisineStats = _repository.GetCuisineStats(restaurantId),
+                PopularItems = _repository.GetPopularItems(restaurantId),
+                Cuisines = _repository.GetCuisines(restaurantId)
+            };
+
+            return Json(viewModel);
+        }
+
+        private int? GetCurrentRestaurantId()
+        {
+            var restaurantIdString = HttpContext.Session.GetString("RestaurantId");
+            if (string.IsNullOrEmpty(restaurantIdString) || !int.TryParse(restaurantIdString, out int restaurantId))
+            {
+                return null;
+            }
+            return restaurantId;
         }
 
         [Route("OrderNoti")]
