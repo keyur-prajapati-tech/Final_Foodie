@@ -104,5 +104,8 @@ namespace Foodie.Repositories
         List<CuisineStats> GetCuisineStats(int restaurantId);
         List<PopularItem_ViewModel> GetPopularItems(int restaurantId, int count = 4);
         List<tbl_cuisine_master> GetCuisines(int restaurantId);
+
+        List<tbl_menu_items> GetMenuItems(int res_id);
+        void UpdateStockStatus(int menuId, bool isAvailable);
     }
 }

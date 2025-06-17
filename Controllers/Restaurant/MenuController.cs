@@ -125,6 +125,24 @@ namespace Foodie.Controllers.Restaurant
             return View();
         }
 
+        [HttpGet]
+        [Route("getmenu")]
+        public IActionResult GetMenuItems()
+        {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+            var items = _restaurantRepository.GetMenuItems(restaurantId);
+            return Json(items);
+        }
+
+        // AJAX: update stock status
+        [HttpPost]
+        [Route("changestock")]
+        public IActionResult UpdateStock(int id, bool isAvailable)
+        {
+            _restaurantRepository.UpdateStockStatus(id, isAvailable);
+            return Json(new { success = true });
+        }
+
         [Route("InvDishes")]
         public IActionResult Dishes()
         {
