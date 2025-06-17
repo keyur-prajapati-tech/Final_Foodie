@@ -8,15 +8,18 @@ using iTextSharp.text.pdf;
 using Microsoft.Extensions.Configuration;
 using System.Reflection.Metadata;
 using Foodie.Models.DeliveryPartner;
+using Foodie.Repositories;
 
 [Route("deliverymoney")]
 public class DeliveryMoney : Controller
 {
     private readonly string _connStr;
+    private readonly IDeliveryPatnerRepository _deliveryrepository;
 
-    public DeliveryMoney(IConfiguration configuration)
+    public DeliveryMoney(IConfiguration configuration, IDeliveryPatnerRepository deliveryrepository)
     {
         _connStr = configuration.GetConnectionString("DefaultConnection");
+        _deliveryrepository = deliveryrepository;
     }
 
     [Route("m/wallet")]
@@ -25,90 +28,41 @@ public class DeliveryMoney : Controller
     [Route("m/earn")]
     public IActionResult Earnings() => View();
 
+    private int? PartnerId => HttpContext?.Session.GetInt32("PartnerId");
+
     [HttpGet("m/order")]
     public IActionResult Assigned_Orders()
     {
-        var orders = GetStaticAssignedOrders();
+        if (PartnerId == null) return Unauthorized();
+
+        var orders = _deliveryrepository.GetAssignedOrdersAsync(PartnerId.Value);
         return View(orders);
     }
 
-    //private List<AssignedOrderViewModel> GetAssignedOrders()
-    //{
-    //    List<AssignedOrderViewModel> orders = new List<AssignedOrderViewModel>();
-
-    //    using (SqlConnection conn = new SqlConnection(_connStr))
-    //    {
-    //        using (SqlCommand cmd = new SqlCommand("deliverypartner.sp_GetAssignedOrders", conn))
-    //        {
-    //            cmd.CommandType = CommandType.StoredProcedure;
-    //            conn.Open();
-    //            using (SqlDataReader reader = cmd.ExecuteReader())
-    //            {
-    //                while (reader.Read())
-    //                {
-    //                    var restaurantLat = reader["restaurant_lat"].ToString();
-    //                    var restaurantLng = reader["restaurant_lag"].ToString();
-    //                    var customerLat = reader["customer_latitude"].ToString();
-    //                    var customerLng = reader["customer_longitude"].ToString();
-
-    //                    double.TryParse(restaurantLat, out double restLat);
-    //                    double.TryParse(restaurantLng, out double restLng);
-    //                    double.TryParse(customerLat, out double custLat);
-    //                    double.TryParse(customerLng, out double custLng);
-
-    //                    var distance = CalculateDistanceInKm(restLat, restLng, custLat, custLng);
-    //                    var estimatedTime = EstimateDeliveryTime(distance);
-
-    //                    orders.Add(new AssignedOrderViewModel
-    //                    {
-    //                        OrderId = Convert.ToInt32(reader["order_id"]),
-    //                        OrderStatus = reader["order_status"].ToString(),
-    //                        FoodStatus = reader["food_status"].ToString(),
-    //                        OrderDate = Convert.ToDateTime(reader["order_date"]),
-    //                        RestaurantName = reader["restaurant_name"].ToString(),
-    //                        RestaurantLat = restaurantLat,
-    //                        RestaurantLag = restaurantLng,
-    //                        CustomerId = Convert.ToInt32(reader["customer_id"]),
-    //                        CustomerLatitude = customerLat,
-    //                        CustomerLongitude = customerLng,
-    //                        AddressType = reader["addresses_type"].ToString(),
-    //                        CityId = Convert.ToInt32(reader["CityId"]),
-    //                        StateId = Convert.ToInt32(reader["StateId"]),
-    //                        DistrictId = Convert.ToInt32(reader["DistrictId"]),
-    //                        DistanceInKm = distance,
-    //                        EstimatedDeliveryTime = estimatedTime
-    //                    });
-    //                }
-    //            }
-    //        }
-    //    }
-
-    //    return orders;
-    //}
     private List<AssignedOrderViewModel> GetStaticAssignedOrders()
     {
         return new List<AssignedOrderViewModel>
-    {
-        new AssignedOrderViewModel
         {
-            OrderId = 101,
-            OrderStatus = "Pending",
-            FoodStatus = "Preparing",
-            OrderDate = DateTime.Now.AddMinutes(-15),
-            RestaurantName = "Pizza Palace",
-            RestaurantLat = "21.125313987662086",
-            RestaurantLag = "73.10879020537718",
-            CustomerId = 201,
-            CustomerLatitude = "21.126115860318098",
-            CustomerLongitude = "73.11893968428953",
-            AddressType = "Hotel",
-            CityId = 1,
-            StateId = 1,
-            DistrictId = 1,
-            DistanceInKm = 2.5,
-            EstimatedDeliveryTime = "10 mins"
-        },
-        new AssignedOrderViewModel
+            new AssignedOrderViewModel
+            {
+                OrderId = 101,
+                OrderStatus = "Pending",
+                FoodStatus = "Preparing",
+                OrderDate = DateTime.Now.AddMinutes(-15),
+                RestaurantName = "Pizza Palace",
+                RestaurantLat = "21.125313987662086",
+                RestaurantLag = "73.10879020537718",
+                CustomerId = 201,
+                CustomerLatitude = "21.126115860318098",
+                CustomerLongitude = "73.11893968428953",
+                AddressType = "Hotel",
+                CityId = 1,
+                StateId = 1,
+                DistrictId = 1,
+                DistanceInKm = 2.5,
+                EstimatedDeliveryTime = "10 mins"
+            },
+            new AssignedOrderViewModel
         {
             OrderId = 102,
             OrderStatus = "Assigned",
@@ -127,8 +81,9 @@ public class DeliveryMoney : Controller
             DistanceInKm = 3.1,
             EstimatedDeliveryTime = "12 mins"
         }
-    };
+        };
     }
+
     public double CalculateDistanceInKm(double lat1, double lon1, double lat2, double lon2)
     {
         double R = 6371; // km

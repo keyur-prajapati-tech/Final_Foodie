@@ -17,6 +17,7 @@ namespace Foodie
             builder.Services.AddScoped<IAdminRepository, AdminRepository>();
             builder.Services.AddScoped<IcustomerRepository, customerRepository>();
             builder.Services.AddScoped<IRestaurantRepository, RestaurantRepository>();
+            builder.Services.AddScoped<IDeliveryPatnerRepository, DeliveryPatnerRepository>();
 
             builder.Services.AddSession(options =>
             {
