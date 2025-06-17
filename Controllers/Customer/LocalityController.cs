@@ -35,11 +35,16 @@ namespace Foodie.Controllers.Customer
             var name = HttpContext.Session.GetString("CustomerName");
             var customer = _repository.GetTbl_Customer(email);
 
+            int restaurantId = 2;
+            var topSellingMenus = _repository.topSellingMenuViewModels(restaurantId);
+
             string districtName = DisrictName;
             var model = new RegisterViewModel
             {
                 Customer = customer,
-                Cities = (List<tbl_city>)cities
+                Cities = (List<tbl_city>)cities,
+                topSellingMenus = topSellingMenus.ToList()
+
             };
 
             return View(model);

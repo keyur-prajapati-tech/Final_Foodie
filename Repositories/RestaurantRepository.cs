@@ -14,6 +14,8 @@ using iTextFont = iTextSharp.text.Font;
 using iTextFontFactory = iTextSharp.text.FontFactory;
 using iTextBaseColor = iTextSharp.text.BaseColor;
 using Microsoft.AspNetCore.Mvc;
+using Razorpay.Api;
+using Foodie.Models.Admin;
 
 
 namespace Foodie.Repositories
@@ -31,7 +33,7 @@ namespace Foodie.Repositories
         {
             return r_id;
         }
-        public RestaurantRepository(IConfiguration configuration,IWebHostEnvironment webHost)
+        public RestaurantRepository(IConfiguration configuration, IWebHostEnvironment webHost)
         {
             _connectionstring = configuration.GetConnectionString("Defaultconnection");
         }
@@ -776,7 +778,7 @@ namespace Foodie.Repositories
         }
 
         public List<tbl_ratings> GetAllRatings(int restaurant_id)
-            {
+        {
             var ratings = new List<tbl_ratings>();
 
             using (SqlConnection conn = new SqlConnection(_connectionstring))
@@ -811,7 +813,7 @@ namespace Foodie.Repositories
         public IEnumerable<tbl_cust_vendor_complaints> GetComplaintsByRestaurantId(int restaurantId)
         {
             var complaints = new List<tbl_cust_vendor_complaints>();
-            
+
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 SqlCommand cmd = new SqlCommand("admins.sp_get_complaints_by_restaurant_id", conn);
@@ -925,7 +927,7 @@ namespace Foodie.Repositories
         {
             tbl_special_offers offer = null;
 
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 string query = @"SELECT * FROM vendores.tbl_special_offers where so_id = @id";
                 SqlCommand cmd = new SqlCommand(query, conn);
@@ -934,7 +936,7 @@ namespace Foodie.Repositories
                 conn.Open();
                 SqlDataReader reader = cmd.ExecuteReader();
 
-                if(reader.Read())
+                if (reader.Read())
                 {
                     offer = new tbl_special_offers
                     {
@@ -1026,7 +1028,7 @@ namespace Foodie.Repositories
             }
         }
 
-        
+
 
         public void SaveOTP(string email, string otp)
         {
@@ -1115,9 +1117,9 @@ namespace Foodie.Repositories
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@restaurantid", restaurantid);
                     conn.Open();
-                    using (SqlDataReader reader =  cmd.ExecuteReader())
+                    using (SqlDataReader reader = cmd.ExecuteReader())
                     {
-                        while ( reader.Read())
+                        while (reader.Read())
                         {
                             var stat = new OrderViewModel
                             {
@@ -1146,10 +1148,10 @@ namespace Foodie.Repositories
 
                 cmd.CommandType = CommandType.StoredProcedure;
                 cmd.Parameters.AddWithValue("@restaurantid", restaurantid);
-                 conn.Open();
-                using (var reader =  cmd.ExecuteReader())
+                conn.Open();
+                using (var reader = cmd.ExecuteReader())
                 {
-                    while ( reader.Read())
+                    while (reader.Read())
                     {
                         result.Add(new OrderViewModel
                         {
@@ -1483,7 +1485,7 @@ namespace Foodie.Repositories
         {
             var summary = new EarningSummaryViewModel();
 
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 conn.Open();
 
@@ -1543,7 +1545,7 @@ namespace Foodie.Repositories
         {
             var payments = new List<payments>();
 
-            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
                 conn.Open();
                 string query = @"SELECT payment_id, order_id, amount, payment_date, payment_status FROM customers.payments";
@@ -1729,6 +1731,530 @@ namespace Foodie.Repositories
 
             return menuName;
 
+        }
+
+        public Dictionary<string, int> GetOrderStatusCounts(int restaurantId)
+        {
+            var statusCounts = new Dictionary<string, int>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                var query = @"SELECT 
+	                            CASE 
+		                            WHEN o.order_status = 'paid' AND o.food_status = 'pickup' THEN 'pickup'
+		                            WHEN o.order_status = 'paid' AND o.food_status = 'waiting' THEN 'pending'
+                                    WHEN o.order_status IN ('completed', 'delivered') THEN 'completed'
+                                    WHEN o.order_status = 'rejected' THEN 'rejected'
+                                    WHEN o.order_status = 'accepted' THEN 'accepted'
+                                    ELSE 'other'
+                                    END AS status_group,
+                                    COUNT(*) as count
+                            FROM customers.tbl_orders o
+                            WHERE o.resturant_id = @RestaurantId
+                            GROUP BY 
+	                            CASE 
+		                            WHEN o.order_status = 'paid' AND o.food_status = 'pickup' THEN 'pickup'
+                                    WHEN o.order_status = 'paid' AND o.food_status = 'waiting' THEN 'pending'
+                                    WHEN o.order_status IN ('completed', 'delivered') THEN 'completed'
+                                    WHEN o.order_status = 'rejected' THEN 'rejected'
+                                    WHEN o.order_status = 'accepted' THEN 'accepted'
+                                    ELSE 'other'
+                                END";
+                var result = new SqlCommand(query, conn);
+                result.Parameters.AddWithValue("@RestaurantId", restaurantId);
+
+                conn.Open();
+                using (var reader = result.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var status = reader["status_group"].ToString();
+                        var count = reader.GetInt32("count");
+                        if (statusCounts.ContainsKey(status))
+                        {
+                            statusCounts[status] += count;
+                        }
+                        else
+                        {
+                            statusCounts[status] = count;
+                        }
+                    }
+                }
+                conn.Close();
+            }
+            return statusCounts;
+        }
+
+        public Dictionary<DateTime, int> GetDailyOrderCounts(int restaurantId, int days = 30)
+        {
+            var dailyCounts = new Dictionary<DateTime, int>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT 
+	                                CAST(order_date AS DATE) as order_day,
+                                    COUNT(*) as count
+                                FROM customers.tbl_orders
+                                WHERE resturant_id = @restaurantId AND order_date >= DATEADD(day, -@days, GETDATE())
+                                GROUP BY CAST(order_date AS DATE)
+                                ORDER BY order_day";
+                var result = new SqlCommand(query, conn);
+                result.Parameters.AddWithValue("@restaurantId", restaurantId);
+                result.Parameters.AddWithValue("@days", days);
+
+                conn.Open();
+                using (var reader = result.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var orderDay = reader.GetDateTime("order_day");
+                        var count = reader.GetInt32("count");
+                        dailyCounts[orderDay] = count;
+                    }
+                }
+                conn.Close();
+            }
+            return dailyCounts;
+        }
+
+        public Dictionary<string, decimal> GetOrderStatusRevenue(int restaurantId)
+        {
+            var statusRevenue = new Dictionary<string, decimal>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT 
+                                    CASE 
+                                        WHEN o.order_status = 'paid' AND o.food_status = 'pickup' THEN 'pickup'
+                                        WHEN o.order_status = 'paid' AND o.food_status = 'waiting' THEN 'pending'
+                                        WHEN o.order_status IN ('completed', 'delivered') THEN 'completed'
+                                        WHEN o.order_status = 'rejected' THEN 'rejected'
+                                        WHEN o.order_status = 'accepted' THEN 'accepted'
+                                        ELSE 'other'
+                                    END AS status_group,
+                                    SUM(o.grand_total) as total_revenue
+                                FROM customers.tbl_orders o
+                                WHERE o.resturant_id = @RestaurantId
+                                GROUP BY 
+                                    CASE 
+                                        WHEN o.order_status = 'paid' AND o.food_status = 'pickup' THEN 'pickup'
+                                        WHEN o.order_status = 'paid' AND o.food_status = 'waiting' THEN 'pending'
+                                        WHEN o.order_status IN ('completed', 'delivered') THEN 'completed'
+                                        WHEN o.order_status = 'rejected' THEN 'rejected'
+                                        WHEN o.order_status = 'accepted' THEN 'accepted'
+                                        ELSE 'other'
+                                    END";
+                var result = new SqlCommand(query, conn);
+                result.Parameters.AddWithValue("@RestaurantId", restaurantId);
+                conn.Open();
+                using (var reader = result.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        var status = reader["status_group"].ToString();
+                        var revenue = reader.GetDecimal("total_revenue");
+                        if (statusRevenue.ContainsKey(status))
+                        {
+                            statusRevenue[status] += revenue;
+                        }
+                        else
+                        {
+                            statusRevenue[status] = revenue;
+                        }
+                    }
+                }
+                conn.Close();
+            }
+            return statusRevenue;
+        }
+
+        //private int getActiveOrdersCount(int Restaurantd)
+        //{
+        //    using (SqlConnection conn = new SqlConnection(_connectionstring))
+        //    {
+        //        string query = @"SELECT COUNT(*) 
+        //                    FROM customers.tbl_orders 
+        //                    WHERE resturant_id = @restaurantid
+        //                      AND order_status IN ('Paid', 'Delivered', 'Accepted')
+        //                      AND food_status IN ('waiting', 'PickUp')";
+
+        //        SqlCommand cmd = new SqlCommand(query, conn);
+        //        cmd.Parameters.AddWithValue("@restaurantid", Restaurantd); // Replace with actual restaurant ID
+
+        //        conn.Open();
+        //        int count = (int)cmd.ExecuteScalar();
+        //        conn.Close();
+        //        return count;
+        //    }
+        //}
+
+        private decimal GetTotalRevenue(int RestaurantId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT ISNULL(SUM(o.grand_total), 0) 
+                  FROM customers.tbl_orders o
+				  JOIN customers.tbl_order_items oi ON o.order_id = oi.order_id
+                  JOIN vendores.tbl_menu_items m ON oi.menu_id = m.menu_id
+                  WHERE CAST(o.order_date AS DATE) = CAST(GETDATE() AS DATE)
+                  AND o.food_status IN ('completed','ACCEPT','PickUp')
+                  AND o.restaurat_id = @restauranid";
+
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@restaurantid", RestaurantId);
+
+                conn.Open();
+                var result = cmd.ExecuteScalar();
+                conn.Close();
+                return result != DBNull.Value ? Convert.ToDecimal(result) : 0;
+            }
+        }
+
+        private int GetNewCustomersToday()
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT COUNT(*) 
+                  FROM customers.tbl_customer
+                  WHERE CAST(created_at AS DATE) = CAST(GETDATE() AS DATE)";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+                int count = (int)cmd.ExecuteScalar();
+                conn.Close();
+                return count;
+            }
+        }
+
+        private int GetTotalMenuItems(int restaurant_id)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT COUNT(*) FROM vendores.tbl_menu_items WHERE isAvalable = 1 WHERE Restaurant_id = @restaurant_id";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@restaurant_id", restaurant_id);
+                conn.Open();
+                int count = (int)cmd.ExecuteScalar();
+                conn.Close();
+
+                return count;
+            }
+        }
+
+        private int GetLowStockIemCount(int restaurant_id)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT COUNT(*) FROM vendores.tbl_menu_items WHERE isAvalable = 0 WHERE Restaurant_id = @restaurant_id";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@restaurant_id", restaurant_id);
+                conn.Open();
+                int count = (int)cmd.ExecuteScalar();
+                conn.Close();
+
+                return count;
+            }
+        }
+
+        private int GetNewOrdersToday(int restaurant_id)
+        {
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT COUNT(*) FROM customers.tbl_orders WHERE CAST(order_date AS DATE) = CAST(GETDATE() AS DATE) AND resturant_id = @restaurant_id";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@restaurant_id", restaurant_id);
+
+                conn.Open();
+                int count = (int)cmd.ExecuteScalar();
+                conn.Close();
+
+                return count;
+            }
+        }
+
+        private decimal GetRevenueChangePercentage(SqlConnection connection, int restaurat_id)
+        {
+            decimal todaysRevenue = GetRevenueByDate(DateTime.Today, restaurat_id);
+            decimal yesterdaysRevenue = GetRevenueByDate(DateTime.Today.AddDays(-1), restaurat_id);
+
+            if (yesterdaysRevenue == 0)
+                return 0;
+
+            return ((todaysRevenue - yesterdaysRevenue) / yesterdaysRevenue) * 100;
+        }
+
+        private decimal GetRevenueByDate(DateTime date, int restaurantId)
+        {
+            decimal revenue = 0;
+            string query = @"SELECT ISNULL(SUM(o.grand_total), 0) 
+                              FROM customers.tbl_orders o
+				              JOIN customers.tbl_order_items oi ON o.order_id = oi.order_id
+                              JOIN vendores.tbl_menu_items m ON oi.menu_id = m.menu_id
+                              WHERE CAST(o.order_date AS DATE) = CAST(GETDATE() AS DATE)
+                              AND o.food_status IN ('completed','ACCEPT','PickUp') AND o.resturant_id = @restaurant_id";
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                using (SqlCommand cmd = new SqlCommand(query, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Date", date.Date);
+                    cmd.Parameters.AddWithValue("@restaurant_id", restaurantId);
+                    conn.Open();
+                    var result = cmd.ExecuteScalar();
+                    revenue = result != null ? Convert.ToDecimal(result) : 0;
+                }
+            }
+
+            return revenue;
+        }
+
+        private int GetNewCustomersThisWeek(SqlConnection connection)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT COUNT(*) 
+                                FROM customers.tbl_customer
+                                WHERE created_at >= DATEADD(DAY, -DATEPART(WEEKDAY, GETDATE()) + 1, CAST(GETDATE() AS DATE))";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                conn.Open();
+                int count = (int)cmd.ExecuteScalar();
+                conn.Close();
+                return count;
+            }
+        }
+
+        public DashboardStats GetDashboardStats(int restaurantId)
+        {
+            var stats = new DashboardStats();
+
+            using (var connection = new SqlConnection(_connectionstring))
+            {
+                connection.Open();
+
+                // Active Orders
+                var activeOrdersCmd = new SqlCommand(
+                    @"SELECT COUNT(*) 
+                            FROM customers.tbl_orders 
+                            WHERE resturant_id = @restaurantid
+                              AND order_status IN ('Paid', 'Delivered', 'Accepted')
+                              AND food_status IN ('waiting', 'PickUp')",
+                    connection);
+                activeOrdersCmd.Parameters.AddWithValue("@RestaurantId", restaurantId);
+                stats.ActiveOrders = (int)activeOrdersCmd.ExecuteScalar();
+
+                // Today's Revenue
+                var revenueCmd = new SqlCommand(
+                    @"SELECT ISNULL(SUM(o.grand_total), 0) 
+                      FROM customers.tbl_orders o
+				      JOIN customers.tbl_order_items oi ON o.order_id = oi.order_id
+                      JOIN vendores.tbl_menu_items m ON oi.menu_id = m.menu_id
+                      WHERE CAST(o.order_date AS DATE) = CAST(GETDATE() AS DATE)
+                      AND o.food_status IN ('completed','ACCEPT','PickUp') AND o.resturant_id = 7",
+                    connection);
+                revenueCmd.Parameters.AddWithValue("@RestaurantId", restaurantId);
+                stats.TodaysRevenue = (decimal)revenueCmd.ExecuteScalar();
+
+                // New Customers (this week)
+                var newCustomersCmd = new SqlCommand(
+                    @"SELECT COUNT(DISTINCT customer_id) FROM customers.tbl_orders 
+                  WHERE resturant_id = @RestaurantId 
+                  AND order_date >= DATEADD(DAY, -7, GETDATE())",
+                    connection);
+                newCustomersCmd.Parameters.AddWithValue("@RestaurantId", restaurantId);
+                stats.NewCustomers = (int)newCustomersCmd.ExecuteScalar();
+
+                // Menu Items
+                var menuItemsCmd = new SqlCommand(
+                    @"SELECT COUNT(*) FROM vendores.tbl_menu_items 
+                  WHERE Restaurant_id = @RestaurantId",
+                    connection);
+                menuItemsCmd.Parameters.AddWithValue("@RestaurantId", restaurantId);
+                stats.MenuItems = (int)menuItemsCmd.ExecuteScalar();
+
+                // Low Stock Items
+                var lowStockCmd = new SqlCommand(
+                    @"SELECT COUNT(*) FROM vendores.tbl_menu_items 
+                  WHERE Restaurant_id = 7 
+                  AND isAvalable >= 0",
+                    connection);
+                lowStockCmd.Parameters.AddWithValue("@RestaurantId", restaurantId);
+                stats.LowStockItems = (int)lowStockCmd.ExecuteScalar();
+            }
+
+            return stats;
+        }
+
+        public List<tbl_orders> GetRecentOrders(int restaurantId, int count = 5)
+        {
+            var orders = new List<tbl_orders>();
+
+            using (var connection = new SqlConnection(_connectionstring))
+            {
+                connection.Open();
+
+                var cmd = new SqlCommand(
+                    @"SELECT TOP (5) o.order_id, c.customer_name AS CustomerName, o.grand_total,(select count(*) from customers.tbl_orders where resturant_id = 7) AS [Item Count], o.order_status, o.order_date
+                      FROM customers.tbl_orders o
+                      JOIN customers.tbl_customer c ON o.customer_id = c.customer_id
+                      WHERE o.resturant_id = 7
+                      ORDER BY o.order_date DESC",
+                    connection);
+
+                cmd.Parameters.AddWithValue("@RestaurantId", restaurantId);
+                cmd.Parameters.AddWithValue("@Count", count);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        orders.Add(new tbl_orders
+                        {
+                            order_id = Convert.ToInt32(reader["order_id"].ToString()),
+                            customer_name = reader["customer_name"].ToString(),
+                            ItemCount = Convert.ToInt32(reader["ItemCount"]),
+                            grand_total = Convert.ToDecimal(reader["grand_total"]),
+                            order_status = reader["order_status"].ToString(),
+                            order_date = Convert.ToDateTime(reader["order_date"])
+                        });
+                    }
+                }
+            }
+
+            return orders;
+        }
+
+        public List<CuisineStats> GetCuisineStats(int restaurantId)
+        {
+            var stats = new List<CuisineStats>();
+
+            using (var connection = new SqlConnection(_connectionstring))
+            {
+                connection.Open();
+
+                var cmd = new SqlCommand(
+                    @"SELECT c.cuisine_name AS CuisineName,
+                        COUNT(o.order_id) AS OrderCount,
+                        ISNULL(SUM(mi.amount), 0) AS Revenue,
+                        CASE WHEN COUNT(o.order_id) > 0 
+                             THEN ISNULL(SUM(o.grand_total), 0) / COUNT(o.order_id) 
+                             ELSE 0 END AS AvgOrderValue
+                      FROM admins.tbl_cuisine_master c
+				      INNER JOIN vendores.tbl_cuisine vc ON vc.cuisine_id = c.cuisine_id
+                      LEFT JOIN vendores.tbl_menu_items mi ON c.cuisine_id = mi.cuisine_id
+                      LEFT JOIN customers.tbl_order_items oi ON mi.menu_id = oi.menu_id
+                      LEFT JOIN customers.tbl_orders o ON oi.order_id = o.order_id
+                      WHERE o.resturant_id = @RestaurantId
+                      GROUP BY c.cuisine_name",
+                    connection);
+
+                cmd.Parameters.AddWithValue("@RestaurantId", restaurantId);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        stats.Add(new CuisineStats
+                        {
+                            CuisineName = reader["CuisineName"].ToString(),
+                            OrderCount = Convert.ToInt32(reader["OrderCount"]),
+                            Revenue = Convert.ToDecimal(reader["Revenue"]),
+                            AvgOrderValue = Convert.ToDecimal(reader["AvgOrderValue"])
+                        });
+                    }
+                }
+
+                // Calculate percentages
+                var totalRevenue = stats.Sum(s => s.Revenue);
+                if (totalRevenue > 0)
+                {
+                    foreach (var stat in stats)
+                    {
+                        stat.PercentageOfTotal = (stat.Revenue / totalRevenue) * 100;
+                    }
+                }
+            }
+
+            return stats;
+        }
+
+        public List<PopularItem_ViewModel> GetPopularItems(int restaurantId, int count = 4)
+        {
+            var items = new List<PopularItem_ViewModel>();
+
+            using (var connection = new SqlConnection(_connectionstring))
+            {
+                connection.Open();
+
+                var cmd = new SqlCommand(
+                    @"SELECT TOP (@Count) 
+                        i.menu_name AS ItemName,
+                        c.cuisine_name AS Cuisine,
+                        COUNT(oi.order_id) AS OrderCount,
+                        i.amount,
+                        i.menu_img
+                      FROM vendores.tbl_menu_items i
+                      JOIN admins.tbl_cuisine_master c ON i.cuisine_id = c.cuisine_id
+                      JOIN customers.tbl_order_items oi ON i.menu_id = oi.menu_id
+                      WHERE i.Restaurant_id = @RestaurantId
+                      GROUP BY i.menu_name, c.cuisine_name, i.amount, i.menu_img
+                      ORDER BY OrderCount DESC",
+                    connection);
+
+                cmd.Parameters.AddWithValue("@RestaurantId", restaurantId);
+                cmd.Parameters.AddWithValue("@Count", count);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        items.Add(new PopularItem_ViewModel
+                        {
+                            ItemName = reader["ItemName"].ToString(),
+                            CuisineName = reader["cuisine_name"].ToString(),
+                            OrderCount = Convert.ToInt32(reader["OrderCount"]),
+                            Price = Convert.ToDecimal(reader["Price"]),
+                            ImageBase64 = reader["menu_img"].ToString()
+                        });
+                    }
+                }
+            }
+
+            return items;
+        }
+
+        public List<tbl_cuisine_master> GetCuisines(int restaurantId)
+        {
+            var cuisines = new List<tbl_cuisine_master>();
+
+            using (var connection = new SqlConnection(_connectionstring))
+            {
+                connection.Open();
+
+                var cmd = new SqlCommand(
+                    @"SELECT DISTINCT c.cuisine_id, c.cuisine_name 
+                  FROM admins.tbl_cuisine_master c
+                  JOIN vendores.tbl_menu_items i ON c.cuisine_id = i.cuisine_id
+                  WHERE i.Restaurant_id = @RestaurantId",
+                    connection);
+
+                cmd.Parameters.AddWithValue("@RestaurantId", restaurantId);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        cuisines.Add(new tbl_cuisine_master
+                        {
+                            cuisine_id = Convert.ToInt32(reader["cuisine_id"]),
+                            cuisine_name = reader["cuisine_name"].ToString()
+                        });
+                    }
+                }
+            }
+
+            return cuisines;
         }
     }
 }

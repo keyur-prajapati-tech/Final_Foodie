@@ -1,4 +1,5 @@
 ﻿using Foodie.Models;
+using Foodie.Models.Admin;
 using Foodie.Models.customers;
 using Foodie.Models.Restaurant;
 using Foodie.ViewModels;
@@ -43,8 +44,9 @@ namespace Foodie.Repositories
 
         //MANAGES THE ORDER HISTORY
         public List<ordersViewMdel> tbl_Orders_History(int restaurant_id);
-
-
+        Dictionary<string, int> GetOrderStatusCounts(int restaurantId);
+        Dictionary<DateTime, int> GetDailyOrderCounts(int restaurantId, int days = 30);
+        Dictionary<string, decimal> GetOrderStatusRevenue(int restaurantId);
 
 
         //isOnline
@@ -97,5 +99,10 @@ namespace Foodie.Repositories
         // Add this method to your existing interface
         string GetMenuItemName(int menuId);
 
+        DashboardStats GetDashboardStats(int restaurantId);
+        List<tbl_orders> GetRecentOrders(int restaurantId, int count = 5);
+        List<CuisineStats> GetCuisineStats(int restaurantId);
+        List<PopularItem_ViewModel> GetPopularItems(int restaurantId, int count = 4);
+        List<tbl_cuisine_master> GetCuisines(int restaurantId);
     }
 }

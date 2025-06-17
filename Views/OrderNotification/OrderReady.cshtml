@@ -259,33 +259,32 @@
     </style>
 </head>
 <body>
-
-    <nav class="navbar navbar-expand-lg mb-4">
-        <div class="container-fluid">
-            <div class="d-flex align-items-center">
-                <span class="navbar-brand mb-0 h1 fw-bold" style="color: var(--primary-color);">Order Management</span>
-            </div>
-
-            <div class="d-flex align-items-center">
-                <div class="dropdown me-3">
-                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="locationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-map-marker-alt me-2"></i>Katargam
-                    </button>
-                    <ul class="dropdown-menu" aria-labelledby="locationDropdown">
-                        <li><a class="dropdown-item" href="#">Katargam</a></li>
-                        <li><a class="dropdown-item" href="#">Vesu</a></li>
-                    </ul>
+    <div class="container-fluid mt-3">
+        <nav class="navbar navbar-expand-lg mb-4">
+            <div class="container-fluid">
+                <div class="d-flex align-items-center">
+                    <span class="navbar-brand mb-0 h1 fw-bold" style="color: var(--primary-color);">Order Management</span>
                 </div>
 
-                <div class="search-box">
-                    <input class="form-control" type="search" placeholder="Search Order ID" aria-label="Search">
-                    <button type="submit"><i class="fas fa-search"></i></button>
+                <div class="d-flex align-items-center">
+                    <div class="dropdown me-3">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="locationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-map-marker-alt me-2"></i>Katargam
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="locationDropdown">
+                            <li><a class="dropdown-item" href="#">Katargam</a></li>
+                            <li><a class="dropdown-item" href="#">Vesu</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="search-box">
+                        <input class="form-control" type="search" placeholder="Search Order ID" aria-label="Search">
+                        <button type="submit"><i class="fas fa-search"></i></button>
+                    </div>
                 </div>
             </div>
-        </div>
-    </nav>
+        </nav>
 
-    <div class="container-fluid">
         <ul class="nav nav-tabs mb-4" id="orderTabs" role="tablist">
             <li class="nav-item" role="presentation">
                 <button class="nav-link active" id="preparing-tab" data-bs-toggle="tab" data-bs-target="#preparing" type="button" role="tab">

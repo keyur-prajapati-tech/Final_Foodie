@@ -690,8 +690,8 @@ namespace Foodie.Repositories
 
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                SqlCommand cmd = new SqlCommand("GetAllCoupons", conn);
-                cmd.CommandType = CommandType.StoredProcedure;
+                SqlCommand cmd = new SqlCommand("SELECT * FROM customers.tbl_coupone WHERE expiry_date >= GETDATE()", conn);
+                //cmd.CommandType = CommandType.StoredProcedure;
                 conn.Open();
 
                 SqlDataReader rd = cmd.ExecuteReader();
@@ -2685,6 +2685,267 @@ ORDER BY order_date DESC";
                 orders = orders.Where(o => o.order_date >= cutoffDate).ToList();
             }
             return orders;
+        }
+
+        public IEnumerable<TopSellingMenuViewModel> topSellingMenuViewModels(int restaurantId, int count = 5)
+        {
+            var topMenus = new List<TopSellingMenuViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                var query = @"SELECT TOP (@Count)
+                            mi.menu_id,
+                            mi.menu_name,
+                            mi.menu_descripation,
+                            ISNULL(SUM(oi.quantity), 0) AS TotalQuantitySold,
+                            ISNULL(SUM(oi.quantity * oi.list_price), 0) AS TotalRevenue,
+                            mi.menu_img,
+                            r.restaurant_name AS restaurant_name
+                        FROM customers.tbl_order_items oi
+                        INNER JOIN customers.tbl_orders o ON oi.order_id = o.order_id
+                        INNER JOIN vendores.tbl_menu_items mi ON oi.menu_id = mi.menu_id
+                        INNER JOIN vendores.tbl_restaurant r ON o.resturant_id = r.restaurant_id
+                        WHERE o.resturant_id = @RestaurantId
+                        GROUP BY mi.menu_id, mi.menu_name, mi.menu_img, r.restaurant_name, mi.menu_descripation
+                        ORDER BY TotalQuantitySold DESC";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@RestaurantId", restaurantId);
+                cmd.Parameters.AddWithValue("@Count", count);
+
+                conn.Open();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        topMenus.Add(new TopSellingMenuViewModel
+                        {
+                            MenuId = Convert.ToInt32(reader["menu_id"]),
+                            MenuName = reader["menu_name"].ToString(),
+                            MenuDescription = reader["menu_descripation"].ToString(),
+                            TotalQuantitySold = Convert.ToInt32(reader["TotalQuantitySold"]),
+                            TotalRevenue = Convert.ToDecimal(reader["TotalRevenue"]),
+                            ImageUrl = reader["menu_img"] != DBNull.Value ? Convert.ToBase64String((byte[])reader["menu_img"]) : string.Empty,
+                            RestaurantName = reader["restaurant_name"].ToString(),
+                            RestaurantId = restaurantId
+                        });
+                    }
+                }
+            }
+            return topMenus;
+        }
+
+        public tbl_coupone GetCouponByCode(string code)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT coupone_id, coupone_code, description, discount, application_order_amount,          expiry_date, createdAt
+                                FROM customers.tbl_coupone 
+                                WHERE coupone_code = @couponecode AND expiry_date >= GETDATE()";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@couponecode", code);
+
+                conn.Open();
+                SqlDataReader rd = cmd.ExecuteReader();
+
+                if (rd.Read())
+                {
+                    return new tbl_coupone
+                    {
+                        coupone_id = Convert.ToInt32(rd["coupone_id"]),
+                        coupone_code = rd["Messages"].ToString(),
+                        description = rd["Description"].ToString(),
+                        discount = Convert.ToDecimal(rd["discount"]),
+                        application_order_amount = Convert.ToDecimal(rd["application_order_amount"]),
+                        expiry_date = Convert.ToDateTime(rd["expiry_date"]),
+                        created_at = Convert.ToDateTime(rd["createdM"])
+                    };
+                }
+            }
+            return null;
+        }
+
+        public CouponApplicationResult ApplyCoupon(string couponCode, decimal grandTotal)
+        {
+            var coupon = GetCouponByCode(couponCode);
+            var result = new CouponApplicationResult();
+
+            if (coupon == null)
+            {
+                result.Success = false;
+                result.Message = "Coupon code is invalid or expired";
+                return result;
+            }
+
+            if (grandTotal < coupon.application_order_amount)
+            {
+                result.Success = false;
+                result.Message = $"Minimum order amount of ₹{coupon.application_order_amount} required for this coupon";
+                return result;
+            }
+
+            result.Success = true;
+            result.Message = "Coupon applied successfully";
+            result.DiscountAmount = coupon.discount;
+            result.GrandTotal = grandTotal;
+            result.FinalTotal = grandTotal - coupon.discount;
+
+            return result;
+        }
+
+        public bool IsCouponValidForAmount(string couponCode, decimal grandTotal)
+        {
+            var coupon = GetCouponByCode(couponCode);
+            return coupon != null && grandTotal >= coupon.application_order_amount;
+        }
+
+        public void UpdateCartWithCoupon(int customerId, string couponCode, decimal discountAmount)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+                var command = new SqlCommand(
+                    "UPDATE customers.tbl_cart SET coupon_code = @CouponCode, discount_amount = @DiscountAmount WHERE customer_id = @CustomerId",
+                    conn);
+
+                command.Parameters.AddWithValue("@CouponCode", couponCode);
+                command.Parameters.AddWithValue("@DiscountAmount", discountAmount);
+                command.Parameters.AddWithValue("@CustomerId", customerId);
+
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public void RemoveCouponFromCart(int customerId)
+        {
+            using (var connection = new SqlConnection(_connectionstring))
+            {
+                connection.Open();
+                var command = new SqlCommand(
+                    "UPDATE customers.tbl_cart SET coupon_code = NULL, discount_amount = 0 WHERE customer_id = @CustomerId",
+                    connection);
+
+                command.Parameters.AddWithValue("@CustomerId", customerId);
+                command.ExecuteNonQuery();
+            }
+        }
+
+        public UserOrder GetOrderTrackingDetails(int orderId, int userId)
+        {
+            UserOrder order = null;
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT o.order_id, o.order_status, o.order_date,
+                            o.deliver_dateTime , o.grand_total, ad.address, da.AssignmentStatus,
+                            cr.customer_name,
+                            r.restaurant_name, r.restaurant_street+' '+r.restaurant_pincode AS [Restaurant Address]
+                     FROM customers.tbl_orders o
+                     INNER JOIN customers.tbl_customer cr ON o.customer_id = cr.customer_id
+                     INNER JOIN vendores.tbl_restaurant r ON o.resturant_id = r.restaurant_id
+					 INNER JOIN customers.tbl_address ad ON cr.customer_id = ad.customer_id
+					 INNER JOIN admins.tbl_deliveryassignments da ON da.order_id = o.order_id
+                     WHERE o.order_id = @orderId AND o.customer_id = @CustomerId";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                cmd.Parameters.AddWithValue("@orderId", orderId);
+                cmd.Parameters.AddWithValue("@CustomerId",userId); // Replace with dynamic customer ID
+
+                conn.Open();
+
+                SqlDataReader rd = cmd.ExecuteReader();
+
+                if (rd != null)
+                {
+                    order = new UserOrder
+                    {
+                        order_id = Convert.ToInt32(rd["order_id"]),
+                        order_status = rd["order_status"].ToString(),
+                        order_date = Convert.ToDateTime(rd["order_date"]),
+                        AssignmentStatus = rd["AssignmentStatus"].ToString(),
+                        delivered_date = Convert.ToDateTime(rd["deliver_dateTime"]),
+                        grand_total = Convert.ToDecimal(rd["grand_total"]),
+                        delivery_address = rd[""].ToString(),
+                        customer_name = rd["customer_name"].ToString(),
+                        restaurant_name = rd["restaurant_name"].ToString(),
+                        restaurant_street = rd["Restaurant_street"].ToString(),
+                        restaurant_pincode = rd["Restaurant_pincode"].ToString()
+                    };
+                }
+                return order;
+            }
+        }
+
+        public List<OrderStatusHistoryViewModel> GetOrderStatusHistory(int orderId)
+        {
+            var statusHistory = new List<OrderStatusHistoryViewModel>();
+
+            using (SqlConnection con = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT order_status, order_date, deliver_dateTime, coi.*
+                     FROM customers.tbl_orders co
+					 INNER JOIN customers.tbl_order_items coi ON co.order_id = coi.order_id
+                     WHERE co.order_id = @OrderId
+                     ORDER BY order_date,order_status, deliver_dateTime";
+
+                SqlCommand cm = new SqlCommand(query, con);
+
+                cm.Parameters.AddWithValue("@OrderId", orderId);
+
+                con.Open();
+                using (SqlDataReader reader = cm.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        statusHistory.Add(new OrderStatusHistoryViewModel
+                        {
+                            order_status = reader["order_status"].ToString(),
+                            order_date = Convert.ToDateTime(reader["order_date"]),
+                            delivered_date = reader["deliver_date"] != DBNull.Value ? Convert.ToDateTime(reader["deliver_date"]) : (DateTime?)null
+                        });
+                    }
+                }
+            }
+            return statusHistory;
+        }
+
+        public DeliveryPartnerInfo GetDeliveryPartnerInfo(int orderId)
+        {
+            DeliveryPartnerInfo deliveryPartnerInfo = null;
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT dp.partner_id, dp.FullName AS PartnerName,
+                                        dp.ContactNumber, dv.vehicle_id, dv.VehicleType, dpd.ProfilePicture
+                                 FROM deliverypartner.tbl_deliveryPartners dp
+                                 INNER JOIN admins.tbl_deliveryassignments da ON dp.partner_id = da.partner_id
+					             INNER JOIN deliverypartner.tbl_deliveryVehicle dv ON dv.partner_id = dp.partner_id
+					             INNER JOIN deliverypartner.tbl_deliveryPartnerDetails dpd ON dpd.partner_id = da.partner_id
+                                 WHERE da.order_id = @orderId";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@orderId", orderId);
+
+                conn.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        deliveryPartnerInfo = new DeliveryPartnerInfo
+                        {
+                            delivery_partner_id = Convert.ToInt32(reader["partner_id"]),
+                            delivery_partner_name = reader["PartnerName"].ToString(),
+                            delivery_partner_phone = reader["ContactNumber"].ToString(),
+                            vehicle_number = reader["vehicle_id"].ToString(),
+                            vehicle_type = reader["VehicleType"].ToString(),
+                            delivery_partner_image = reader["ProfilePicture"].ToString() ?? DBNull.Value.ToString()
+                        };
+                    }
+                }
+            }
+            return deliveryPartnerInfo;
         }
     }
 }
