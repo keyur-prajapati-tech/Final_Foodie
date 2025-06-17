@@ -2256,5 +2256,55 @@ namespace Foodie.Repositories
 
             return cuisines;
         }
+
+        public List<tbl_menu_items> GetMenuItems(int res_id)
+        {
+            var items = new List<tbl_menu_items>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlCommand cmd = new SqlCommand("vendores.sp_GetMenuItems", conn))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@res_id", res_id);  // 👈 Pass the parameter
+
+                conn.Open();
+
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        items.Add(new tbl_menu_items
+                        {
+                            menu_id = (int)reader["menu_id"],
+                            menu_name = reader["menu_name"].ToString(),
+                            cuisine_id = (int)reader["cuisine_id"],
+                            menu_img = reader["menu_img"] != DBNull.Value ? (byte[])reader["menu_img"] : null,
+                            menu_descripation = reader["menu_descripation"].ToString(),
+                            amount = (decimal)reader["amount"],
+                            isAvailable = (bool)reader["isAvalable"],
+                            Restaurant_id = (int)reader["Restaurant_id"],
+                            is_veg = (bool)reader["is_veg"]
+                        });
+                    }
+                }
+            }
+
+            return items;
+        }
+
+
+        public void UpdateStockStatus(int menuId, bool isAvailable)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            using (SqlCommand cmd = new SqlCommand("vendores.sp_UpdateStockStatus", conn))
+            {
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@MenuId", menuId);
+                cmd.Parameters.AddWithValue("@IsAvailable", isAvailable);
+                conn.Open();
+                cmd.ExecuteNonQuery();
+            }
+        }
+
     }
 }

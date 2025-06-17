@@ -9,298 +9,245 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Food Menu</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
     <style>
         .food-img {
+            width: 100%;
+            height: 180px;
             object-fit: cover;
-            border-radius: 10px;
+        }
+
+        .menu-card {
+            border: none;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease-in-out;
+            height: 100%;
+        }
+
+            .menu-card:hover {
+                transform: translateY(-4px);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            }
+
+        .modal-header {
+            background: linear-gradient(135deg, #a2c4fc, #dee4f5);
+            color: #003366;
+            font-weight: bold;
+        }
+
+        .form-control, .dropdown-toggle {
+            border-radius: 8px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .card-text.price {
+            font-weight: 500;
+            color: #28a745;
+        }
+
+        .equal-btn {
+            width: 48%;
+        }
+
+        .btn-custom {
+            width: 48%;
         }
     </style>
-
 </head>
 <body>
-    <hr />
-    <div class="container-fluid">
-        <div class="row">
-            <!-- Sidebar (Categories) -->
-            <div class="col-md-3 ">
-                <h6 class="mt-3">Categories (8)</h6>
+    <div class="container my-4">
+        <div class="text-end mb-4">
+            <button class="btn btn-primary shadow-sm px-4 py-2" data-bs-toggle="modal" data-bs-target="#addItem">
+                + Add New Item
+            </button>
+        </div>
 
-                <!-- Button trigger modal -->
-                <div class="d-flex justify-content-end my-3">
-                    <button type="button" class="btn btn-outline-info">
-                        <a class="nav-link active" data-bs-toggle="modal" data-bs-target="#addcate" aria-current="page">+ Add Category</a>
-                    </button>
-                </div>
-
-
-
-                <!-- Modal -->
-                <div class="modal fade" id="addcate" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header" style="background-color:#dfe3f3;">
-                                <h5 class="modal-title" id="exampleModalLabel">Add Category</h5>
-                                <button type="button" class="btn-close btn" data-bs-dismiss="modal" aria-label="Close"></button>
+        <!-- Add Modal -->
+        <div class="modal fade" id="addItem" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add Menu Item</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="@Url.Action("Add","Menu")" method="post" enctype="multipart/form-data">
+                            <div class="form-group mb-3">
+                                <label>Item Name</label>
+                                <input type="text" class="form-control" asp-for="@Model.menu_name" placeholder="Enter item name">
                             </div>
-                            <div class="modal-body">
-                                <form>
-                                    <div class="form-group">
-                                        <label for="category-name">Category Name</label>
-                                        <input type="text" class="form-control" id="category-name" placeholder="Enter category name">
-                                    </div>
 
-                                    <div class="d-flex justify-content-end align-items-end mt-3">
-                                        <button type="submit" class="btn btn-outline-success my-3 w-50">Save</button>
-                                    </div>
-                                </form>
+                            <div class="form-group mb-3">
+                                <label>Category</label>
+                                <select class="form-control" name="category">
+                                    <option>Punjabi</option>
+                                    <option>South Indian</option>
+                                    <option>Gujarati Thali</option>
+                                </select>
                             </div>
-                        </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Upload Item Image</label>
+                                <input class="form-control" type="file" name="food_img" accept=".jpg,.jpeg,.png">
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <textarea class="form-control" asp-for="@Model.menu_descripation" style="height: 100px"></textarea>
+                                <label>Item Description</label>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label>Item Price</label>
+                                <input type="text" class="form-control" asp-for="@Model.amount" placeholder="Enter item price">
+                            </div>
+
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-success w-50">Save</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
-
-                <div class="category-list">
-                    <div class="category active">
-                        <span>Litti Chokha (4)</span>
-                        <button class="btn btn-sm btn-light">?</button>
-                    </div>
-
-
-                </div>
-            </div>
-
-            <!-- Main Content (Menu Items) -->
-            <div class="col-md-9 main-content">
-                <div class=" d-flex justify-content-end">
-
-                    <button type="button" class="btn btn-outline-info">
-                        <a class="nav-link active" data-bs-toggle="modal" data-bs-target="#addItem" aria-current="page">+ Add New Item</a>
-                    </button>
-                </div>
-
-                <div class="modal fade" id="addItem" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header" style="background-color:#dfe3f3;">
-                                <h5 class="modal-title" id="exampleModalLabel">Add Item</h5>
-                                <button type="button" class="btn-close btn" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-
-                                <form action="@Url.Action("Add","Menu")" method="post" enctype="multipart/form-data">
-
-                                    <div class="form-group mb-3">
-                                        <label for="category-name">Item Name</label>
-                                        <input type="text" class="form-control" id="itemName" asp-for="@Model.menu_name" placeholder="Enter Item name">
-                                    </div>
-
-                                    <div class="dropdown my-3">
-                                        <button class="btn btn-outline-primary dropdown-toggle form-control" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            Dropdown button
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="#">Punjabi</a></li>
-                                            <li><a class="dropdown-item" href="#">South Indian</a></li>
-                                            <li><a class="dropdown-item" href="#">Gujarati Thali</a></li>
-                                        </ul>
-                                    </div>
-
-                                    <div class="my-3">
-                                        <label for="formFile" class="form-label">Upload Your Item Image</label>
-                                        <input class="form-control" type="file" id="formFile" accept=".jpg,.jpeg,.png" name="food_img">
-                                       
-                                    </div>
-
-                                    <div class="form-floating my-3">
-                                        <textarea class="form-control" id="itemDescripation" asp-for="@Model.menu_descripation"  style="height: 100px"></textarea>
-                                        <label for="floatingTextarea2">Enter Item Decription</label>
-                                    </div>
-
-                                    <div class="form-group my-3">
-                                        <label for="category-name">Item Price</label>
-                                        <input type="text" id="itemAmount" asp-for="@Model.amount" class="form-control"  placeholder="Enter Item Price">
-                                         
-                                    </div>
-
-                                    <div class="d-flex justify-content-end align-items-end">
-                                        <button type="submit" id="btnAdd"class="btn btn-outline-success my-3 w-50">Save</button>
-                                    </div>
-                                </form>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="modal fade" id="updateItem" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header" style="background-color:#dfe3f3;">
-                                <h5 class="modal-title" id="exampleModalLabel">Add Item</h5>
-                                <button type="button" class="btn-close btn" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-
-                                <form action="@Url.Action("UpdateMenu","Menu")" method="post" enctype="multipart/form-data">
-
-                                    <div class="form-group mb-3">
-                                        <label for="category-name">Item Name</label>
-                                        <input type="text" class="form-control" id="item-name" asp-for="@Model.menu_name" placeholder="Enter Item name">
-                                    </div>
-                                        <input type="hidden" class="form-control" id="item-id" asp-for="@Model.menu_id" />
-
-                                    <div class="dropdown my-3">
-                                        <button class="btn btn-outline-primary dropdown-toggle form-control" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                            Dropdown button
-                                        </button>
-                                        <ul class="dropdown-menu">
-                                            <li><a class="dropdown-item" href="#">Punjabi</a></li>
-                                            <li><a class="dropdown-item" href="#">South Indian</a></li>
-                                            <li><a class="dropdown-item" href="#">Gujarati Thali</a></li>
-                                        </ul>
-                                    </div>
-
-                                    <div class="my-3">
-                                        <!-- Hidden base64 old image string -->
-                                            <input type="hidden" name="OldImage" id="old-image" />
-
-                                        <label for="formFile" class="form-label">Upload Your Item Image</label>
-                                        <input class="form-control" type="file" id="formFile" name="food_img">
-                                        
-                                    </div>
-
-                                    <div class="form-floating my-3">
-                                        <textarea class="form-control" asp-for="@Model.menu_descripation" id="item-descripation" style="height: 100px"></textarea>
-                                        <label for="floatingTextarea2">Enter Item Decription</label>
-                                    </div>
-
-                                    <div class="form-group my-3">
-                                        <label for="category-name">Item Price</label>
-                                        <input type="text" asp-for="@Model.amount" class="form-control" id="item-amount" placeholder="Enter Item Price">
-
-                                    </div>
-
-                                    <div class="d-flex justify-content-end align-items-end">
-                                        <button type="submit" class="btn btn-outline-success my-3 w-50">Update</button>
-                                    </div>
-                                </form>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-                <div class="mt-3" id="menulist">
-                    
-                </div>
-
-
             </div>
         </div>
+
+        <!-- Update Modal -->
+        <div class="modal fade" id="updateItem" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Update Menu Item</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="@Url.Action("UpdateMenu","Menu")" method="post" enctype="multipart/form-data">
+                            <input type="hidden" class="form-control" asp-for="@Model.menu_id" id="item-id" />
+
+                            <div class="form-group mb-3">
+                                <label>Item Name</label>
+                                <input type="text" class="form-control" asp-for="@Model.menu_name" id="item-name">
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label>Category</label>
+                                <select class="form-control" name="category">
+                                    <option>Punjabi</option>
+                                    <option>South Indian</option>
+                                    <option>Gujarati Thali</option>
+                                </select>
+                            </div>
+
+                            <input type="hidden" name="OldImage" id="old-image" />
+
+                            <div class="mb-3">
+                                <label class="form-label">Upload New Image</label>
+                                <input class="form-control" type="file" name="food_img">
+                            </div>
+
+                            <div class="form-floating mb-3">
+                                <textarea class="form-control" asp-for="@Model.menu_descripation" id="item-descripation" style="height: 100px"></textarea>
+                                <label>Item Description</label>
+                            </div>
+
+                            <div class="form-group mb-3">
+                                <label>Item Price</label>
+                                <input type="text" class="form-control" asp-for="@Model.amount" id="item-amount">
+                            </div>
+
+                            <div class="text-end">
+                                <button type="submit" class="btn btn-info w-50">Update</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Grid -->
+        <div class="row" id="menulist"></div>
     </div>
 
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script>
 
-        $(document).ready(function () 
-        {
-            function loadMenuList() 
-            {
+    <script>
+        $(document).ready(function () {
+            function loadMenuList() {
                 $.ajax({
                     url: '/Menu/getMenuByRes',
                     type: 'GET',
-                    data : { },
-                    success: function (menu)
-                    {
-                        if (menu.length > 0)
-                        {
-                            var html = "";
-                            $.each(menu, function (i, order)
-                            {
-                            html += `
-                                    <div class="d-flex align-items-center p-3">
-            <img src="data:image/png;base64, ${order.menu_img}"
-                 width="120"
-                 height="80"
-                 class="rounded me-3 food-img"
-                 alt="Menu Image" />
-
-            <div class="w-50 d-flex flex-column align-items-center">
-                <h3 class="m-0 fw-bolder">${order.menu_name}</h3>
-                <p class="m-0 fw-light">${order.amount} | Customisable</p>
-            </div>
-
-            <div class="container-fluid d-flex justify-content-end align-items-end">
-                <button type="submit" data-menuid="${order.menu_id}" id="item-delete" class="btn btn-outline-danger m-3 w-25">Delete</button>
-                <button type="submit" data-menuid="${order.menu_id}" id="item-update" class="btn btn-outline-info m-3 w-25">Update</button>
-            </div>
+                    success: function (menu) {
+                        if (menu.length > 0) {
+                            let html = "";
+                            $.each(menu, function (i, item) {
+                                html += `
+                                    <div class="col-md-4 mb-4">
+                                        <div class="card menu-card h-100">
+                                            <img src="data:image/png;base64, ${item.menu_img}" class="food-img" alt="Menu Image">
+                                            <div class="card-body">
+                                                <h5 class="card-title">${item.menu_name}</h5>
+                                                <p class="card-text price">₹${item.amount}</p>
+                                                <p class="card-text text-muted small">${item.menu_descripation}</p>
+                                            </div>
+                                                    <div class="card-footer bg-transparent border-0 d-flex justify-content-between">
+            <button type="button" data-menuid="${item.menu_id}" id="item-update" class="btn btn-outline-info btn-sm equal-btn">Edit</button>
+            <button type="button" data-menuid="${item.menu_id}" id="item-delete" class="btn btn-outline-danger btn-sm equal-btn">Delete</button>
         </div>
 
-                        <hr />`;
-
+                                        </div>
+                                    </div>`;
                             });
-                        $("#menulist").html(html);
-                        
+                            $("#menulist").html(html);
+                        } else {
+                            $("#menulist").html(`<div class="col-12 text-center text-muted">No items found.</div>`);
                         }
-                    },
+                    }
                 });
-
             }
 
-            loadMenuList(); 
+            loadMenuList();
+
             $(document).on('click', '#item-delete', function () {
                 var menuId = $(this).data('menuid');
-
                 $.ajax({
                     url: '/Menu/DeleteMenu',
                     type: 'POST',
                     data: { menuId: menuId },
-                    success: function (response) {
-               
-                        loadMenuList(); 
-                       console.log(response);
-                       
+                    success: function () {
+                        loadMenuList();
                     },
-                    error: function (xhr, status, error) {
-                        
-                        console.error(error);
+                    error: function (err) {
+                        console.error(err);
                     }
                 });
             });
 
-           
-          
-
             $(document).on('click', '#item-update', function () {
                 var menuId = $(this).data('menuid');
-
                 $.ajax({
                     url: '/Menu/getMenuById',
                     type: 'GET',
                     data: { menuId: menuId },
-                           success: function (menu) {
-            $("#updateItem").modal('show');
-
-            $("#item-id").val(menu.menu_id);
-            $("#item-name").val(menu.menu_name);
-            $("#item-descripation").val(menu.menu_descripation);
-            $("#item-amount").val(menu.amount);
-
-            // Set the hidden field with base64 string of existing image
-            $("#old-image").val(menu.menu_img);
-        },
-                    error: function (xhr, status, error) {
-
-                        console.error(error);
+                    success: function (menu) {
+                        $("#updateItem").modal('show');
+                        $("#item-id").val(menu.menu_id);
+                        $("#item-name").val(menu.menu_name);
+                        $("#item-descripation").val(menu.menu_descripation);
+                        $("#item-amount").val(menu.amount);
+                        $("#old-image").val(menu.menu_img);
+                    },
+                    error: function (err) {
+                        console.error(err);
                     }
                 });
             });
         });
-
-   </script>
-
+    </script>
 </body>
-
 </html>

@@ -1225,13 +1225,5 @@ namespace Foodie.Controllers.DeliveryPartner
 
             return summary;
         }
-
-
     }
-    // Fix for CS0229: Ambiguity between 'DeliveryPartnerProfileViewModel.PartnerId' and 'DeliveryPartnerProfileViewModel.PartnerId'
-
-    // The issue arises because the `DeliveryPartnerProfileViewModel` class has duplicate property definitions for `PartnerId`.
-    // To resolve this, remove the duplicate property definition from the `DeliveryPartnerProfileViewModel` class.
-
-
 }

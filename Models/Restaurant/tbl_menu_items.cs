@@ -10,6 +10,8 @@ namespace Foodie.Models.Restaurant
         public byte[] menu_img { get; set; }
         public string menu_descripation { get; set; }
         public decimal amount { get; set; }
+      
+        public bool is_veg { get; set; }
         public bool isAvailable { get; set; }
         public int Restaurant_id { get; set; }
 
