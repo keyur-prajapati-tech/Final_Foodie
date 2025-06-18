@@ -25,6 +25,38 @@ namespace Foodie.Controllers.Restaurant
             return View();
         }
 
+        [HttpGet("GetMenuHighlights")]
+        public JsonResult GetMenuHighlights()
+        {
+            var menuItems = _repository.GetHighlightMenuItem();
+            return Json(menuItems);
+        }
+
+        [HttpGet("GettopSellingItems")]
+        public JsonResult GettopSellingItems()
+        {
+            var MenuItems = _repository.GetTopSellingMenuItems();
+            return Json(MenuItems);
+        }
+
+        [HttpGet("GetRecentOrders")]
+        public JsonResult GetRecentOrders()
+        {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+
+            var orders = _repository.GetrecentOrders(restaurantId);
+            return Json(new { success = true, data = orders });
+        }
+
+        [HttpGet("GetPopularItems")]
+        public JsonResult GetPopularItems()
+        {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+
+            var items = _repository.GetPopularMenuItems(restaurantId);
+            return Json(new { success = true, data = items });
+        }
+
         [HttpGet]
         public IActionResult GetDashboardData()
         {

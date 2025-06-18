@@ -2213,7 +2213,7 @@ namespace Foodie.Repositories
                         {
                             ItemName = reader["ItemName"].ToString(),
                             CuisineName = reader["cuisine_name"].ToString(),
-                            OrderCount = Convert.ToInt32(reader["OrderCount"]),
+                            OrderCount = Convert.ToInt32(reader["order_id"]),
                             Price = Convert.ToDecimal(reader["Price"]),
                             ImageBase64 = reader["menu_img"].ToString()
                         });
@@ -2306,5 +2306,277 @@ namespace Foodie.Repositories
             }
         }
 
+        public IEnumerable<MenuItemViewModel> GetHighlightMenuItem(int count = 5)
+        {
+            var menuItems = new List<MenuItemViewModel>();
+
+            using(SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                var query = @"SELECT TOP (@count) mi.menu_id, 
+                        mi.menu_name, 
+                        mi.menu_descripation, 
+                        mi.Amount, 
+                        mi.menu_img,
+                        cm.cuisine_name,
+                        r.restaurant_name,
+                        (SELECT SUM(oi.quantity) FROM customers.tbl_order_items oi INNER JOIN customers.tbl_orders o ON oi.order_id = o.order_id WHERE menu_id = mi.menu_id) AS TotalQuantitySold
+                    FROM 
+                        vendores.tbl_menu_items mi
+                        INNER JOIN admins.tbl_cuisine_master cm ON mi.cuisine_id = cm.cuisine_id
+                        INNER JOIN vendores.tbl_restaurant r ON mi.Restaurant_id = r.restaurant_id
+                    WHERE 
+                        mi.IsAvalable = 1
+                    ORDER BY 
+                        mi.menu_id DESC";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                cmd.Parameters.AddWithValue("@count", count);
+
+                conn.Open();
+
+                using (SqlDataReader rd = cmd.ExecuteReader())
+                {
+                    while (rd.Read())
+                    {
+                        menuItems.Add(new MenuItemViewModel
+                        {
+                            MenuId = (int)rd["menu_id"],
+                            MenuName = rd["menu_name"].ToString(),
+                            MenuDescription = rd["menu_descripation"].ToString(),
+                            Amount = (decimal)rd["Amount"],
+                            MenuImageBase64 = rd["menu_img"] != DBNull.Value ? Convert.ToBase64String((byte[])rd["menu_img"]) : null,
+                            TotalQuantitySold = rd["TotalQuantitySold"] != DBNull.Value ? (int)rd["TotalQuantitySold"] : 0,
+                            cuisine_name = rd["cuisine_name"].ToString(),
+                            RestaurantName = rd["restaurant_name"].ToString()
+                        });
+                    }
+                }
+                conn.Close();
+            }
+            return menuItems;
+        }
+
+        public IEnumerable<MenuItemViewModel> GetTopSellingMenuItems(int count = 5)
+        {
+            var menuItems = new List<MenuItemViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT TOP (@Count) 
+                        mi.menu_id, 
+                        mi.menu_name, 
+                        mi.menu_descripation, 
+                        mi.Amount, 
+                        mi.menu_img,
+                        cm.cuisine_name,
+                        r.restaurant_name,
+                        SUM(od.Quantity) AS TotalQuantitySold,
+                        SUM(od.Quantity * od.list_price) AS TotalRevenue
+                    FROM 
+                        vendores.tbl_menu_items mi
+                        INNER JOIN admins.tbl_cuisine_master cm ON mi.cuisine_id = cm.cuisine_id
+                        INNER JOIN vendores.tbl_restaurant r ON mi.Restaurant_id = r.restaurant_id
+                        INNER JOIN customers.tbl_order_items od ON mi.menu_id = od.menu_id
+                    WHERE 
+                        mi.IsAvalable = 1
+                    GROUP BY
+                        mi.menu_id, mi.menu_name, mi.menu_descripation, mi.Amount, 
+                        mi.menu_img, cm.cuisine_name, r.restaurant_name
+                    ORDER BY 
+                        TotalQuantitySold DESC";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Count", count);
+
+                using (SqlDataReader rd = cmd.ExecuteReader())
+                {
+                    while (rd.Read())
+                    {
+                        menuItems.Add(new MenuItemViewModel
+                        {
+                            MenuId = (int)rd["menu_id"],
+                            MenuName = rd["menu_name"].ToString(),
+                            MenuDescription = rd["menu_description"].ToString(),
+                            Amount = (decimal)rd["Amount"],
+                            MenuImageBase64 = rd["menu_img"] != DBNull.Value ? Convert.ToBase64String((byte[])rd["menu_img"]) : null,
+                            TotalRevenue = (decimal)rd["TotalRevenue"],
+                            TotalQuantitySold = rd["TotalQuantitySold"] != DBNull.Value ? (int)rd["TotalQuantitySold"] : 0,
+                            cuisine_name = rd["cuisine_name"].ToString(),
+                            RestaurantName = rd["restaurant_name"].ToString()
+                        });
+                    }
+                }
+            }
+            return menuItems;
+        }
+
+        public int GetActiveOrderCount(int restaurantId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                var query = @"SELECT COUNT(*) 
+                                FROM customers.tbl_orders 
+                                WHERE resturant_id = @restaurantId AND order_status NOT IN ('rejected') AND food_status IN ('completed','ACCEPT','waiting','PickUp')";
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                cmd.Parameters.AddWithValue("@restaurantId", restaurantId);
+
+                conn.Open();
+                int Activeordercount = (int)cmd.ExecuteScalar();
+                conn.Close();
+                return Activeordercount;
+            }
+        }
+
+        public decimal GetTodayRevenue(int restaurantId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                var query = @"SELECT ISNULL(SUM(grand_total), 0) 
+                            FROM customers.tbl_orders 
+                            WHERE resturant_id = @restaurantId AND CONVERT(date, order_date) = CONVERT(date, GETDATE()) AND order_status IN ('Paid','Delivered','completed')";
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                cmd.Parameters.AddWithValue("@restaurantId", restaurantId);
+
+                conn.Open();
+                decimal totalrevenu = (decimal)cmd.ExecuteScalar();
+                conn.Close();
+                return totalrevenu;
+            }
+        }
+
+        public int GetNewCustomerCount(int restaurantId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT COUNT(DISTINCT customer_id) 
+                                    FROM customers.tbl_orders 
+                                    WHERE resturant_id = @restaurantId AND CONVERT(date, order_date) = CONVERT(date, GETDATE())";
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                cmd.Parameters.AddWithValue("@restaurantId", restaurantId);
+
+                conn.Open();
+                int todaycustomercount = (int)cmd.ExecuteScalar();
+                conn.Close();
+
+                return todaycustomercount;
+            }
+        }
+
+        public int GetMenuItemcount(int restaurantId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                var query = @"SELECT COUNT(*) FROM vendores.tbl_menu_items WHERE Restaurant_id = @restaurantId";
+                SqlCommand cmd = new SqlCommand(query, conn);
+
+                cmd.Parameters.AddWithValue("@restaurantId", restaurantId);
+
+                conn.Open();
+                int MenuItemcount = (int)cmd.ExecuteScalar();
+                conn.Close();
+                return MenuItemcount;
+            }
+        }
+
+        public List<tbl_orders> GetrecentOrders(int restaurantId, int count = 7)
+        {
+            var recentOrders = new List<tbl_orders>();
+
+            using(SqlConnection conn  = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT TOP (7) 
+                    o.order_id AS OrderId,
+                    'ORD-' + RIGHT('0000' + CAST(o.order_id AS VARCHAR(4)), 4) AS OrderNumber,
+                    cc.customer_name AS CustomerName,
+                    COUNT(oi.order_items_id) AS ItemCount,
+                    o.grand_total AS TotalAmount,
+                    o.order_status AS Status,
+                    o.order_date AS OrderDate
+                FROM customers.tbl_orders o
+                JOIN customers.tbl_order_items oi ON o.order_id = oi.order_id
+				JOIN customers.tbl_customer cc ON cc.customer_id = o.customer_id
+                WHERE o.resturant_id = @restaurantId
+                GROUP BY o.order_id, cc.customer_name, o.grand_total, o.order_status, o.order_date
+                ORDER BY o.order_date DESC";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@restaurantId", restaurantId);
+
+                conn.Open();
+
+                using(SqlDataReader rd = cmd.ExecuteReader())
+                {
+                    while (rd.Read())
+                    {
+                        recentOrders.Add(new tbl_orders
+                        {
+                            restaurant_id = (int)rd["resturant_id"],
+                            order_id = (int)rd["order_id"],
+                            customer_name = rd["customer_name"].ToString(),
+                            grand_total = (decimal)rd["grand_total"],
+                            order_date = (DateTime)rd["order_date"],
+                            order_status = rd["order_status"].ToString(),
+                            ItemCount = (int)rd["order_items_id"]
+                        });
+                    }
+                }
+                conn.Close();
+            }
+            return recentOrders;
+        }
+
+        public List<MenuItemViewModel> GetPopularMenuItems(int restaurantId, int count = 5)
+        {
+            var popularMenuItems = new List<MenuItemViewModel>();
+
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"SELECT TOP (5)
+                    mi.menu_id AS MenuId,
+                    mi.menu_name AS MenuName,
+                    mi.menu_img AS ImageUrl,
+                    cm.cuisine_name AS Category,
+                    COUNT(oi.order_items_id) AS OrderCount,
+                    mi.amount AS Price
+                FROM customers.tbl_order_items oi
+                JOIN customers.tbl_orders o ON oi.order_id = o.order_id
+                JOIN vendores.tbl_menu_items mi ON oi.menu_id = mi.menu_id
+                JOIN admins.tbl_cuisine_master cm ON mi.cuisine_id = cm.cuisine_id
+                WHERE o.resturant_id = @restaurantId
+                AND o.order_date >= DATEADD(day, -7, GETDATE())
+                GROUP BY mi.menu_id, mi.menu_name, mi.menu_img, cm.cuisine_name, mi.amount
+                ORDER BY OrderCount DESC";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@restaurantId", restaurantId);
+
+                conn.Open();
+
+                using(SqlDataReader rd = cmd.ExecuteReader())
+                {
+                    while (rd.Read())
+                    {
+                        popularMenuItems.Add(new MenuItemViewModel
+                        {
+                            RestaurantId = Convert.ToInt32(rd["Restaurant_id"]),
+                            MenuId = Convert.ToInt32(rd["menu_id"]),
+                            MenuName = rd["menu_name"].ToString(),
+                            cuisine_name = rd["cuisine_name"].ToString(),
+                            MenuImg = (byte[])rd["menu_img"],
+                            MenuDescription = rd["menu_descripation"].ToString(),
+                            Amount = Convert.ToDecimal(rd["amount"]),
+                            IsAvalable = Convert.ToBoolean(rd["isAvalable"]),
+                            OrderItemcount = (int)rd["order_items_id"]
+                        });
+                    }
+                }
+                conn.Close();
+            }
+            return popularMenuItems;
+        }
     }
 }
