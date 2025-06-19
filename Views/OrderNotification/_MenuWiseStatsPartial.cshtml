@@ -1,0 +1,131 @@
+﻿@model Foodie.Models.customers.MenuStatsResponse
+
+@{
+    // Initialize model if null
+    var model = Model ?? new Foodie.Models.customers.MenuStatsResponse
+            {
+                CategoryStats = new List<Foodie.Models.customers.MenuCategoryStatsViewModel>(),
+                Totals = new Foodie.Models.customers.MenuCategoryStatsViewModel
+                {
+                    CuisineName = "Total",
+                    OrderCount = 0,
+                    Revenue = 0,
+                    AvgOrderValue = 0,
+                    PercentageOfTotal = 0
+                },
+                TimePeriod = "week",
+                StartDate = DateTime.Now.AddDays(-7),
+                EndDate = DateTime.Now
+            };
+}
+
+<div class="card" style="border: 3px solid solid;border-radius:5px; box-shadow:0px 0px 5px 5px rgba(0,0,0,.9)">
+    <div class="card-header bg-white d-flex justify-content-between align-items-center border-0">
+        <div>
+            <h5 class="mb-0"><i class="fas fa-chart-pie me-2 text-primary"></i>Menu Wise Order & Revenue</h5>
+            <p class="text-muted mb-0 small">Performance by menu category (@Model.TimePeriod) - @Model.StartDate.ToString("MMM dd, yyyy") to @Model.EndDate.ToString("MMM dd, yyyy")</p>
+        </div>
+        <div class="btn-group" role="group">
+            <button class="btn btn-sm btn-outline-primary time-period-btn @(Model.TimePeriod.ToLower() == "week" ? "active" : "")" data-period="week">This Week</button>
+            <button class="btn btn-sm btn-outline-primary time-period-btn @(Model.TimePeriod.ToLower() == "month" ? "active" : "")" data-period="month">This Month</button>
+            <button class="btn btn-sm btn-outline-primary time-period-btn @(Model.TimePeriod.ToLower() == "year" ? "active" : "")" data-period="year">This Year</button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead class="table-light">
+                    <tr>
+                        <th>Menu Category</th>
+                        <th class="text-end">Orders</th>
+                        <th class="text-end">Revenue</th>
+                        <th class="text-end">Avg. Order Value</th>
+                        <th class="text-end">% of Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (model.CategoryStats != null && model.CategoryStats.Any())
+                    {
+                        @foreach (var item in model.CategoryStats)
+                        {
+                            <tr>
+                                <td>@item.CuisineName</td>
+                                <td class="text-end">@item.OrderCount</td>
+                                <td class="text-end">@item.Revenue.ToString("C")</td>
+                                <td class="text-end">@item.AvgOrderValue.ToString("C")</td>
+                                <td class="text-end">
+                                    <div class="d-flex align-items-center justify-content-end">
+                                        <span class="me-2">@item.PercentageOfTotal.ToString("0")%</span>
+                                        <div class="progress flex-grow-1" style="width: 100px; height: 5px;">
+                                            <div class="progress-bar @GetProgressBarClass(item.CuisineName)" 
+                                                 role="progressbar" 
+                                                 style="width: @item.PercentageOfTotal.ToString("0")%"></div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="5" class="text-center">No data available</td>
+                        </tr>
+                    }
+                    <!-- Totals row -->
+                    <tr class="table-active">
+                        <td class="fw-bold">CategoryName</td>
+                        <td class="text-end fw-bold">OrderCount</td>
+                        <td class="text-end fw-bold">Revenue.ToString("C")</td>
+                        <td class="text-end fw-bold">AvgOrderValue.ToString("C")</td>
+                        <td class="text-end fw-bold">PercentageOfTotal.ToString("0")%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetProgressBarClass(string categoryName)
+    {
+        return categoryName.ToLower() switch
+        {
+            "main course" => "bg-primary",
+            "appetizers" => "bg-success",
+            "desserts" => "bg-warning",
+            "beverages" => "bg-info",
+            _ => "bg-primary"
+        };
+    }
+}
+
+<script>
+    $(document).ready(function() {
+        $('.time-period-btn').click(function() {
+            // Remove active class from all buttons
+            $('.time-period-btn').removeClass('active');
+            // Add active class to clicked button
+            $(this).addClass('active');
+
+            var period = $(this).data('period');
+            loadMenuWiseStats(period);
+        });
+    });
+
+    function loadMenuWiseStats(period) {
+        $.ajax({
+            url: '/Restaurant/GetMenuWiseStats',
+            type: 'GET',
+            data: { timePeriod: period },
+            success: function(result) {
+                $('#menu-wise-stats-container').html(result);
+            },
+            error: function(xhr, status, error) {
+                console.error('Error loading menu stats:', error);
+                // Show error message to user
+                toastr.error('Failed to load menu statistics. Please try again.');
+            }
+        });
+    }
+</script>

@@ -5,6 +5,7 @@ namespace Foodie.Models.customers
 {
     public class MenuItemViewModel
     {
+        public int order_id { get; set; }
         public int MenuId { get; set; }
         public string MenuName { get; set; }
         public byte[] MenuImg { get; set; }

@@ -1,4 +1,5 @@
 ﻿using Foodie.Models;
+using Foodie.Models.customers;
 using Foodie.Models.Restaurant;
 using Foodie.Repositories;
 using Foodie.ViewModels;
@@ -57,7 +58,7 @@ namespace Foodie.Controllers.Restaurant
             return Json(new { success = true, data = items });
         }
 
-        [HttpGet]
+        [HttpGet("GetDashboardData")]
         public IActionResult GetDashboardData()
         {
             var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
@@ -65,13 +66,61 @@ namespace Foodie.Controllers.Restaurant
             var viewModel = new RestaurantDashboardViewModel
             {
                 Stats = _repository.GetDashboardStats(restaurantId),
-                RecentOrders = _repository.GetRecentOrders(restaurantId),
+                RecentOrders = _repository.GetrecentOrders(restaurantId),
                 CuisineStats = _repository.GetCuisineStats(restaurantId),
-                PopularItems = _repository.GetPopularItems(restaurantId),
+                PopularItems = _repository.GetPopularMenuItems(restaurantId)
+                        .Select(item => new PopularItem_ViewModel
+                        {
+                            
+                            MenuId = item.MenuId,
+                            MenuName = item.MenuName,
+                            ImageUrl = item.MenuImageBase64,
+                            Category = item.cuisine_name,
+                            OrderCount = item.TotalQuantitySold,
+                            Price = item.Amount
+                        }).ToList(),
                 Cuisines = _repository.GetCuisines(restaurantId)
             };
 
             return Json(viewModel);
+        }
+
+        [HttpGet("GetMenuWiseStats")]
+        public IActionResult GetMenuWiseStats(string timePeriod = "week")
+        {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+
+            var stats = _repository.GetMenuWiseOrderstats(restaurantId, timePeriod);
+
+            // Initialize model if null
+            if (stats == null)
+            {
+                stats = new MenuStatsResponse
+                {
+                    CategoryStats = new List<MenuCategoryStatsViewModel>(),
+                    Totals = new MenuCategoryStatsViewModel
+                    {
+                        CuisineName = "Total",
+                        OrderCount = 0,
+                        Revenue = 0,
+                        AvgOrderValue = 0,
+                        PercentageOfTotal = 0
+                    },
+                    TimePeriod = timePeriod,
+                    StartDate = DateTime.Now.AddDays(-7),
+                    EndDate = DateTime.Now
+                };
+            }
+
+            return PartialView("_MenuWiseStatsPartial", stats);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetMenuWiseStatsJson(string timePeriod)
+        {
+            var restaurantId = Convert.ToInt32(HttpContext.Session.GetString("UserId"));
+            var stats = _repository.GetMenuWiseOrderstats(restaurantId, timePeriod);
+            return Ok(stats);
         }
 
         private int? GetCurrentRestaurantId()
@@ -210,19 +259,31 @@ namespace Foodie.Controllers.Restaurant
         {
             try
             {
-                var data = _repository.getOnline(restaurantId);
+                if (restaurantId <= 0)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Invalid restaurant ID"
+                    });
+                }
+
+                int onlineStatus = _repository.getOnline(restaurantId);
+
                 return Json(new
                 {
                     success = true,
-                    isOnline = data
+                    isOnline = onlineStatus == 1, // Convert to boolean if that's your expected output
+                    statusCode = onlineStatus    // Optional: include the raw status if needed
                 });
             }
             catch (Exception ex)
             {
+                // Consider logging the error here
                 return Json(new
                 {
                     success = false,
-                    message = $"Error: {ex.Message}"
+                    message = "Unable to check online status" // More user-friendly message
                 });
             }
         }
@@ -233,11 +294,31 @@ namespace Foodie.Controllers.Restaurant
         {
             try
             {
-                var data = _repository.isApprove(restaurantId);
+                // Simple validation
+                if (restaurantId < 1)
+                {
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Restaurant ID must be greater than 0"
+                    });
+                }
+
+                bool data = _repository.isApprove(restaurantId);
+
                 return Json(new
                 {
                     success = true,
-                    isApproved = data
+                    isApproved = data,
+                    message = data ? "Restaurant is approved" : "Restaurant is not approved"
+                });
+            }
+            catch (SqlException sqlEx)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "Database error occurred"
                 });
             }
             catch (Exception ex)
@@ -245,9 +326,27 @@ namespace Foodie.Controllers.Restaurant
                 return Json(new
                 {
                     success = false,
-                    message = $"Error: {ex.Message}"
+                    message = "An error occurred while processing your request"
                 });
             }
+        }
+
+        [HttpPost]
+        [Route("UpdateOnlineStatus")]
+        public IActionResult UpdateOnlineStatus([FromBody] tbl_restaurant request)
+        {
+            if (request == null || request.restaurant_id <= 0)
+            {
+                return BadRequest(new { success = false, message = "Invalid data" });
+            }
+
+            bool updated = _repository.UpdateOnlineStatus(request.restaurant_id, request.restaurant_isOnline);
+
+            return Ok(new
+            {
+                success = updated,
+                message = updated ? "Status updated" : "Update failed"
+            });
         }
 
         [HttpPost]
@@ -280,31 +379,6 @@ namespace Foodie.Controllers.Restaurant
                 });
             }
         }
-        //[HttpGet]
-        //[Route("getOrderReady")]
-        //public JsonResult getOrderReady(int restaurantId)
-        //{
-        //    var orders = _repository.tbl_Orders_Notifis_Ready(restaurantId);
-        //    if (orders == null || orders.Count == 0)
-        //    {
-        //        return Json(new { success = false, message = "No new orders found." });
-        //    }
-        //    return Json(orders);
-        //}
-
-        //[HttpGet]
-        //[Route("getOrderPickedUp")]
-        //public JsonResult getOrderPickedUp(int restaurantId)
-        //{
-        //    var orders = _repository.tbl_Orders_Notifis_Picked(restaurantId);
-        //    if (orders == null || orders.Count == 0)
-        //    {
-        //        return Json(new { success = false, message = "No new orders found." });
-        //    }
-        //    return Json(orders);
-        //}
-
-
 
         [HttpPost]
         public IActionResult InsertFeedback(decimal rating, string feedbackDescription)
