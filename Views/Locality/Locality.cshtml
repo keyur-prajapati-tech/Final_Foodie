@@ -3,296 +3,801 @@
 @* Optional Layout *@
 @* Layout = "~/Views/Shared/_CustomerLayout.cshtml"; *@
 
+<head>
+    <!-- Add these to your head section -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+</head>
+
 <style>
-    .localities-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 15px;
-        margin-top: 15px;
+    :root {
+        --primary: #ff5a5f;
+        --primary-light: #ff7e82;
+        --secondary: #00a699;
+        --dark: #2d2d2d;
+        --gray: #717171;
+        --light-gray: #f7f7f7;
+        --white: #ffffff;
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+        --shadow-md: 0 4px 12px rgba(0,0,0,0.15);
+        --shadow-lg: 0 10px 25px rgba(0,0,0,0.2);
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
     }
 
-    .locality-card {
-        background: white;
-        border: 2px solid #000;
-        padding: 15px;
-        border-radius: 5px;
-        box-shadow: 5px 3px 5px rgba(0, 0, 0, .9);
-        cursor: pointer;
-        transition: 0.3s ease-in-out;
-        text-align: left;
+    /* Base Styles */
+    body {
+        font-family: 'Poppins', sans-serif;
+        color: var(--dark);
+        background-color: var(--white);
     }
 
-        .locality-card:hover {
-            background: #f7f7f7;
+    .section-title {
+        position: relative;
+        margin-bottom: 2rem;
+    }
+
+        .section-title h2 {
+            font-weight: 700;
+            font-size: 1.8rem;
+            position: relative;
+            display: inline-block;
         }
 
-    .hidden {
-        display: none;
-    }
+            .section-title h2::after {
+                content: '';
+                position: absolute;
+                bottom: -10px;
+                left: 0;
+                width: 60px;
+                height: 4px;
+                background: var(--primary);
+                border-radius: 2px;
+            }
 
-    .toggle-btn {
-        margin-top: 15px;
-    }
-
-        .toggle-btn button {
-            background: none;
-            border: none;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            color: #ff5a5f;
-        }
-
-    /* Product Card Styles */
-    .product-card {
-        transition: all 0.3s ease;
-        border-radius: 0.75rem;
-        overflow: hidden;
-    }
-
-        .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
-
-    .hover-zoom:hover .product-img-container img {
-        transform: scale(1.05);
-    }
-
-    .product-img-container img {
-        transition: transform 0.5s ease;
-    }
-
-    /* Modal Styles */
-    .modal-content {
-        border-radius: 1rem;
-        border: none;
-    }
-
-    /* Utility Classes */
-    .object-fit-cover {
-        object-fit: cover;
-    }
-
-    .z-index-1 {
-        z-index: 1;
-    }
-</style>
-
-<!-- Section Header -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2 class="mb-0">Customer Favorites</h2>
-    <small class="text-muted">Click any item for details</small>
-</div>
-
-<!-- Product Grid -->
-<div class="row g-3">
-    @foreach (var menu in Model.topSellingMenus)
-    {
-        <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
-            <div class="card product-card h-100 border-0 shadow-sm hover-zoom"
-                 data-bs-toggle="modal"
-                 data-bs-target="#menuModal-@menu.MenuId">
-                <!-- Product Badge -->
-                @if (Model.topSellingMenus.IndexOf(menu) < 3)
-                {
-                    <span class="position-absolute top-0 start-0 mt-2 ms-2 badge bg-danger">
-                        @(Model.topSellingMenus.IndexOf(menu) + 1) Top
-                    </span>
-                }
-
-                <!-- Product Image -->
-                <div class="product-img-container ratio ratio-1x1">
-                    @if (!string.IsNullOrEmpty(menu.ImageUrl))
-                    {
-                        <img src="data:image/jpeg;base64,@menu.ImageUrl"
-                             class="card-img-top object-fit-cover"
-                             alt="@menu.MenuName"
-                             loading="lazy">
-                    }
-                    else
-                    {
-                        <div class="bg-light d-flex align-items-center justify-content-center">
-                            <i class="fas fa-utensils fa-3x text-muted"></i>
-                        </div>
-                    }
-                </div>
-
-                <!-- Minimal Info -->
-                <div class="card-body p-2 text-center">
-                    <h6 class="card-title mb-0 text-truncate">@menu.MenuName</h6>
-                    <div class="d-flex justify-content-center mt-1">
-                        <small class="text-success fw-bold">@menu.TotalRevenue.ToString("C")</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal -->
-        <div class="modal fade" id="menuModal-@menu.MenuId" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-dialog-centered modal-lg">
-                <div class="modal-content overflow-hidden">
-                    <button type="button" class="btn-close position-absolute top-0 end-0 m-3 z-index-1"
-                            data-bs-dismiss="modal" aria-label="Close"></button>
-
-                    <div class="row g-0">
-                        <!-- Image Column -->
-                        <div class="col-md-6">
-                            <div class="h-100 bg-light">
-                                @if (!string.IsNullOrEmpty(menu.ImageUrl))
-                                {
-                                    <img src="data:image/jpeg;base64,@menu.ImageUrl"
-                                         class="img-fluid w-100 h-100 object-fit-cover"
-                                         alt="@menu.MenuName">
-                                }
-                                else
-                                {
-                                    <div class="d-flex align-items-center justify-content-center h-100">
-                                        <i class="fas fa-utensils fa-5x text-muted"></i>
-                                    </div>
-                                }
-                            </div>
-                        </div>
-
-                        <!-- Details Column -->
-                        <div class="col-md-6">
-                            <div class="p-4 h-100 d-flex flex-column">
-                                <!-- Header -->
-                                <div class="mb-3">
-                                    <h3 class="mb-1">@menu.MenuName</h3>
-                                    <div class="d-flex align-items-center mb-2">
-                                        @if (Model.topSellingMenus.IndexOf(menu) < 3)
-                                        {
-                                            <span class="badge bg-danger me-2">
-                                                Top @(Model.topSellingMenus.IndexOf(menu) + 1) Seller
-                                            </span>
-                                        }
-                                    </div>
-                                </div>
-
-                                <!-- Stats -->
-                                <div class="mb-4">
-                                    <div class="d-flex justify-content-between py-2 border-bottom">
-                                        <span>Total Sold:</span>
-                                        <strong>@menu.TotalQuantitySold</strong>
-                                    </div>
-                                    <div class="d-flex justify-content-between py-2 border-bottom">
-                                        <span>Total Revenue:</span>
-                                        <strong class="text-success">@menu.TotalRevenue.ToString("C")</strong>
-                                    </div>
-                                </div>
-
-                                <!-- Description -->
-                                <div class="mb-4 flex-grow-1">
-                                    <h6 class="small text-uppercase text-muted">Description</h6>
-                                    <p class="small mb-0">@menu.MenuDescription</p>
-                                </div>
-
-                                <!-- Action Buttons -->
-                                <div class="d-grid gap-2">
-                                    <button class="btn btn-primary btn-lg">
-                                        <i class="fas fa-cart-plus me-2"></i> Add to Order
-                                    </button>
-                                    <button class="btn btn-outline-secondary">
-                                        <i class="fas fa-heart me-2"></i> GO TO FOOD DETAIL PAGES
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    }
-</div>
-
-<!-- Special Offers Section -->
-<div class="container py-5">
-    <h2 class="text-center mb-4">
-        🔥 <strong>Special Offers Just for You</strong>
-    </h2>
-
-    <div class="row" id="offerContainer">
-        <!-- Offers will be loaded here by AJAX -->
-    </div>
-
-    <!-- Loading Spinner -->
-    <div id="loadingSpinner" class="text-center my-3" style="display:none;">
-        <div class="spinner-border text-primary"></div>
-    </div>
-
-    <!-- Load More Button -->
-    <div class="text-center mt-4">
-        <button id="loadMoreBtn" class="btn btn-primary">Load More Offers</button>
-    </div>
-</div>
-
-<!-- Styles -->
-<style>
-    .card {
-        border-radius: 12px;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-        }
-
-    .card-img-top {
-        border-top-left-radius: 12px;
-        border-top-right-radius: 12px;
-        height: 180px;
-        object-fit: cover;
-        background-color: #f5f5f5;
-    }
-
-    .card-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-    }
-
-    .card-text {
-        color: #555;
-        font-size: 0.95rem;
-    }
-
-    .text-success {
+    .section-subtitle {
+        color: var(--gray);
         font-size: 1rem;
     }
 
-    .card-body small {
-        color: #999;
+    /* Hero Carousel */
+    .hero-carousel {
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        margin-bottom: 3rem;
+        box-shadow: var(--shadow-md);
     }
 
-    .badge-new {
+        .hero-carousel .carousel-item {
+            height: 400px;
+        }
+
+            .hero-carousel .carousel-item img {
+                object-fit: cover;
+                height: 100%;
+                width: 100%;
+            }
+
+        .hero-carousel .carousel-caption {
+            bottom: 30%;
+            text-align: left;
+            left: 10%;
+            right: 40%;
+            background: rgba(0,0,0,0.6);
+            padding: 2rem;
+            border-radius: var(--radius-sm);
+        }
+
+            .hero-carousel .carousel-caption h3 {
+                font-size: 2.2rem;
+                font-weight: 700;
+                margin-bottom: 1rem;
+            }
+
+            .hero-carousel .carousel-caption p {
+                font-size: 1.1rem;
+            }
+
+    .carousel-control-prev, .carousel-control-next {
+        width: 5%;
+    }
+
+    /* Food Categories */
+    .category-carousel {
+        margin: 3rem 0;
+    }
+
+    .category-card {
+        border: none;
+        border-radius: var(--radius-sm);
+        overflow: hidden;
+        text-align: center;
+        transition: var(--transition);
+        background: var(--white);
+        box-shadow: var(--shadow-sm);
+        padding: 1.5rem 1rem;
+        margin: 0 0.5rem;
+    }
+
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+    .category-icon {
+        font-size: 2rem;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+
+    .category-name {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .category-count {
+        color: var(--gray);
+        font-size: 0.9rem;
+    }
+
+    /* Product Cards */
+    .product-card {
+        border: none;
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        transition: var(--transition);
+        height: 100%;
+        box-shadow: var(--shadow-sm);
+        background: var(--white);
+    }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-lg);
+        }
+
+    .product-badge {
         position: absolute;
         top: 10px;
         left: 10px;
-        background: red;
-        color: white;
+        background: var(--primary);
+        color: var(--white);
         font-size: 0.75rem;
-        padding: 3px 7px;
-        border-radius: 5px;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+        z-index: 2;
+    }
+
+    .product-img-container {
+        height: 180px;
+        overflow: hidden;
+    }
+
+        .product-img-container img {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+    .product-card:hover .product-img-container img {
+        transform: scale(1.05);
+    }
+
+    .product-body {
+        padding: 1.25rem;
+    }
+
+    .product-title {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 1rem;
+    }
+
+    .product-price {
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .product-rating {
+        color: #ffc107;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Offers Section */
+    .offers-section {
+        background: linear-gradient(135deg, #fff5f5 0%, #f5f5ff 100%);
+        padding: 3rem 0;
+        margin: 3rem 0;
+        border-radius: var(--radius-md);
+    }
+
+    .offer-card {
+        border: none;
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        transition: var(--transition);
+        height: 100%;
+        background: var(--white);
+    }
+
+        .offer-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+    .offer-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: var(--secondary);
+        color: var(--white);
+        font-size: 0.8rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+
+    .offer-img-container {
+        height: 160px;
+        overflow: hidden;
+    }
+
+        .offer-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+    .offer-card:hover .offer-img-container img {
+        transform: scale(1.05);
+    }
+
+    .offer-body {
+        padding: 1.25rem;
+    }
+
+    .offer-title {
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+        font-size: 1.1rem;
+    }
+
+    .offer-desc {
+        color: var(--gray);
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+    }
+
+    .offer-discount {
+        color: var(--primary);
+        font-weight: 700;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .offer-valid {
+        color: var(--gray);
+        font-size: 0.8rem;
+    }
+
+    /* Localities Section */
+    .localities-section {
+        margin: 3rem 0;
+    }
+
+    .locality-card {
+        background: var(--white);
+        border: none;
+        padding: 1.5rem;
+        border-radius: var(--radius-sm);
+        box-shadow: var(--shadow-sm);
+        cursor: pointer;
+        transition: var(--transition);
+        text-align: left;
+        position: relative;
+        overflow: hidden;
+    }
+
+        .locality-card::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: var(--primary);
+            transition: var(--transition);
+        }
+
+        .locality-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+            .locality-card:hover::before {
+                width: 100%;
+            }
+
+    .locality-name {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        font-size: 1.1rem;
+    }
+
+    .locality-count {
+        color: var(--gray);
+        font-size: 0.9rem;
+    }
+
+    /* Buttons */
+    .btn-primary {
+        background-color: var(--primary);
+        border-color: var(--primary);
+        padding: 0.5rem 1.5rem;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: var(--transition);
+    }
+
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+            border-color: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(255, 90, 95, 0.3);
+        }
+
+    .btn-outline {
+        border: 2px solid var(--primary);
+        color: var(--primary);
+        background: transparent;
+        padding: 0.5rem 1.5rem;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: var(--transition);
+    }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: var(--white);
+            transform: translateY(-2px);
+        }
+
+    /* Load More Button */
+    .load-more-btn {
+        background: var(--primary);
+        color: var(--white);
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 30px;
+        font-weight: 600;
+        transition: var(--transition);
+        box-shadow: 0 4px 10px rgba(255, 90, 95, 0.3);
+        margin-top: 2rem;
+    }
+
+        .load-more-btn:hover {
+            background: var(--primary-light);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(255, 90, 95, 0.4);
+        }
+
+    /* Toggle Button */
+    .toggle-btn {
+        text-align: center;
+        margin-top: 2rem;
+    }
+
+        .toggle-btn button {
+            background: rgba(255, 90, 95, 0.1);
+            border: none;
+            color: var(--primary);
+            font-weight: 600;
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            transition: var(--transition);
+        }
+
+            .toggle-btn button:hover {
+                background: rgba(255, 90, 95, 0.2);
+            }
+
+    /* Responsive Adjustments */
+    @@media (max-width: 768px) {
+        .hero-carousel .carousel-item {
+            height: 300px;
+        }
+
+        .hero-carousel .carousel-caption {
+            bottom: 20%;
+            left: 5%;
+            right: 5%;
+            padding: 1rem;
+        }
+
+            .hero-carousel .carousel-caption h3 {
+                font-size: 1.5rem;
+            }
+
+            .hero-carousel .carousel-caption p {
+                font-size: 0.9rem;
+            }
+
+        .section-title h2 {
+            font-size: 1.5rem;
+        }
     }
 </style>
 
-<!-- Script -->
-<script>
-    let page = 1;
+<!-- Hero Carousel -->
+<div id="heroCarousel" class="carousel slide hero-carousel" data-bs-ride="carousel">
+    <div class="carousel-indicators">
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1"></button>
+        <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2"></button>
+    </div>
+    <div class="carousel-inner">
+        <div class="carousel-item active">
+            <img src="https://images.unsplash.com/photo-1504674900247-0877df9cc836?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="d-block w-100" alt="Delicious Food">
+            <div class="carousel-caption d-none d-md-block">
+                <h3>Discover Amazing Flavors</h3>
+                <p>Order from your favorite restaurants with just a few clicks.</p>
+                <button class="btn btn-primary mt-2">Order Now</button>
+            </div>
+        </div>
+        <div class="carousel-item">
+            <img src="https://images.unsplash.com/photo-1544025162-d76694265947?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="d-block w-100" alt="Special Offers">
+            <div class="carousel-caption d-none d-md-block">
+                <h3>Exclusive Offers</h3>
+                <p>Get 30% off on your first order with us.</p>
+                <button class="btn btn-primary mt-2">View Offers</button>
+            </div>
+        </div>
+        <div class="carousel-item">
+            <img src="https://images.unsplash.com/photo-1559847844-5315695dadae?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80" class="d-block w-100" alt="Fast Delivery">
+            <div class="carousel-caption d-none d-md-block">
+                <h3>Lightning Fast Delivery</h3>
+                <p>Get your food delivered in under 30 minutes.</p>
+                <button class="btn btn-primary mt-2">Order Now</button>
+            </div>
+        </div>
+    </div>
+    <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+    </button>
+</div>
 
-    function formatDate(dateStr) {
-        const d = new Date(dateStr);
-        if (isNaN(d)) return 'N/A';
-        return d.toLocaleDateString('en-IN', {
-            day: '2-digit',
-            month: 'short',
-            year: 'numeric'
-        });
+<!-- Food Categories Carousel -->
+<div class="container category-carousel">
+    <div class="section-title">
+        <h2>Food Categories</h2>
+        <p class="section-subtitle">Browse by your favorite cuisine</p>
+    </div>
+
+    <div class="owl-carousel owl-theme">
+        <div class="category-card">
+            <div class="category-icon">
+                <i class="fas fa-hamburger"></i>
+            </div>
+            <h5 class="category-name">Burgers</h5>
+            <p class="category-count">120+ options</p>
+        </div>
+        <div class="category-card">
+            <div class="category-icon">
+                <i class="fas fa-pizza-slice"></i>
+            </div>
+            <h5 class="category-name">Pizza</h5>
+            <p class="category-count">85+ options</p>
+        </div>
+        <div class="category-card">
+            <div class="category-icon">
+                <i class="fas fa-fish"></i>
+            </div>
+            <h5 class="category-name">Seafood</h5>
+            <p class="category-count">60+ options</p>
+        </div>
+        <div class="category-card">
+            <div class="category-icon">
+                <i class="fas fa-leaf"></i>
+            </div>
+            <h5 class="category-name">Vegetarian</h5>
+            <p class="category-count">95+ options</p>
+        </div>
+        <div class="category-card">
+            <div class="category-icon">
+                <i class="fas fa-ice-cream"></i>
+            </div>
+            <h5 class="category-name">Desserts</h5>
+            <p class="category-count">110+ options</p>
+        </div>
+        <div class="category-card">
+            <div class="category-icon">
+                <i class="fas fa-coffee"></i>
+            </div>
+            <h5 class="category-name">Beverages</h5>
+            <p class="category-count">65+ options</p>
+        </div>
+    </div>
+</div>
+
+<!-- Customer Favorites Section -->
+<div class="container">
+    <div class="section-title">
+        <h2>Customer Favorites</h2>
+        <p class="section-subtitle">Most loved items in your area</p>
+    </div>
+
+    <div class="row g-4">
+        @foreach (var menu in Model.topSellingMenus)
+        {
+            <div class="col-xl-2 col-lg-3 col-md-4 col-sm-6">
+                <div class="product-card"
+                     data-bs-toggle="modal"
+                     data-bs-target="#menuModal-@menu.MenuId">
+                    @if (Model.topSellingMenus.IndexOf(menu) < 3)
+                    {
+                        <span class="product-badge">
+                            Top @(Model.topSellingMenus.IndexOf(menu) + 1)
+                        </span>
+                    }
+
+                    <div class="product-img-container">
+                        @if (!string.IsNullOrEmpty(menu.ImageUrl))
+                        {
+                            <img src="data:image/jpeg;base64,@menu.ImageUrl"
+                                 alt="@menu.MenuName"
+                                 loading="lazy">
+                        }
+                        else
+                        {
+                            <div class="bg-light d-flex align-items-center justify-content-center h-100">
+                                <i class="fas fa-utensils fa-3x text-muted"></i>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="product-body">
+                        <h5 class="product-title">@menu.MenuName</h5>
+                        <div class="product-rating">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                            <span class="ms-1">(42)</span>
+                        </div>
+                        <div class="product-price">@menu.TotalRevenue.ToString("C")</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal -->
+            <div class="modal fade" id="menuModal-@menu.MenuId" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <button type="button" class="btn-close position-absolute top-0 end-0 m-3 z-index-1"
+                                data-bs-dismiss="modal" aria-label="Close"></button>
+
+                        <div class="row g-0">
+                            <div class="col-md-6">
+                                <div class="h-100 bg-light">
+                                    @if (!string.IsNullOrEmpty(menu.ImageUrl))
+                                    {
+                                        <img src="data:image/jpeg;base64,@menu.ImageUrl"
+                                             class="img-fluid w-100 h-100 object-fit-cover"
+                                             alt="@menu.MenuName">
+                                    }
+                                    else
+                                    {
+                                        <div class="d-flex align-items-center justify-content-center h-100">
+                                            <i class="fas fa-utensils fa-5x text-muted"></i>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="p-4 h-100 d-flex flex-column">
+                                    <div class="mb-3">
+                                        <h3 class="mb-1">@menu.MenuName</h3>
+                                        <div class="d-flex align-items-center mb-2">
+                                            @if (Model.topSellingMenus.IndexOf(menu) < 3)
+                                            {
+                                                <span class="badge bg-danger me-2">
+                                                    Top @(Model.topSellingMenus.IndexOf(menu) + 1) Seller
+                                                </span>
+                                            }
+                                            <div class="text-warning">
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star"></i>
+                                                <i class="fas fa-star-half-alt"></i>
+                                                <span class="text-dark ms-1">(42 reviews)</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4">
+                                        <div class="d-flex justify-content-between py-2 border-bottom">
+                                            <span>Total Sold:</span>
+                                            <strong>@menu.TotalQuantitySold</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between py-2 border-bottom">
+                                            <span>Total Revenue:</span>
+                                            <strong class="text-success">@menu.TotalRevenue.ToString("C")</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between py-2 border-bottom">
+                                            <span>Average Rating:</span>
+                                            <strong>4.5/5</strong>
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-4 flex-grow-1">
+                                        <h6 class="small text-uppercase text-muted">Description</h6>
+                                        <p class="small mb-0">@menu.MenuDescription</p>
+                                    </div>
+
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-primary btn-lg">
+                                            <i class="fas fa-cart-plus me-2"></i> Add to Order
+                                        </button>
+                                        <button class="btn btn-outline">
+                                            <i class="fas fa-heart me-2"></i> Add to Favorites
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Popular Localities Section -->
+<div class="container localities-section">
+    <div class="section-title">
+        <h2>Popular Localities in <span class="text-primary">@ViewBag.DisrictName</span></h2>
+        <p class="section-subtitle">Find restaurants near you</p>
+    </div>
+
+    <div class="row g-4">
+        @{
+            int count = 0;
+        }
+        @foreach (var item in Model.Cities)
+        {
+            <div class="col-md-3 col-sm-6 @(count >= 8 ? "d-none" : "")">
+                <div class="locality-card">
+                    <h5 class="locality-name">@item.CityName</h5>
+                    <p class="locality-count">525 places</p>
+                    <div class="d-flex align-items-center mt-2">
+                        <div class="text-warning me-1">
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star"></i>
+                            <i class="fas fa-star-half-alt"></i>
+                        </div>
+                        <small class="text-muted">(1,240 reviews)</small>
+                    </div>
+                </div>
+            </div>
+            count++;
+        }
+    </div>
+
+    @if (Model.Cities.Count() > 8)
+    {
+        <div class="toggle-btn">
+            <button id="toggleButton" class="btn btn-outline-primary">Show More Localities</button>
+        </div>
     }
+</div>
+
+<!-- Newsletter Section -->
+<div class="container my-5 py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <div class="p-5 rounded-3" style="background-color: #f8f9fa;">
+                <h2 class="mb-3">Get Exclusive Offers</h2>
+                <p class="mb-4">Subscribe to our newsletter and get 15% off your first order</p>
+                <div class="input-group mb-3 mx-auto" style="max-width: 500px;">
+                    <input type="email" class="form-control" placeholder="Your email address">
+                    <button class="btn btn-primary" type="button">Subscribe</button>
+                </div>
+                <small class="text-muted">We'll never share your email with anyone else.</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add this right before your closing </body> tag -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+
+<script>
+    // Initialize carousels
+    $(document).ready(function(){
+         // Initialize Owl Carousel for categories
+        $('.owl-carousel').owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: true,
+            dots: false,
+            responsive: {
+                0: {
+                    items: 2,
+                    nav: false
+                },
+                600: {
+                    items: 3,
+                    nav: false
+                },
+                1000: {
+                    items: 5,
+                    nav: true
+                }
+            }
+        });
+        // Hero carousel
+        $('#heroCarousel').carousel({
+            interval: 5000,
+            pause: "hover"
+        });
+
+        // Category carousel
+        $('.owl-carousel').owlCarousel({
+            loop: true,
+            margin: 20,
+            nav: true,
+            dots: false,
+            responsive: {
+                0: {
+                    items: 2
+                },
+                600: {
+                    items: 3
+                },
+                1000: {
+                    items: 5
+                }
+            }
+        });
+
+        // Toggle localities visibility
+        $('#toggleButton').click(function(){
+            $('.d-none').toggleClass('d-block');
+            $(this).text(function(i, text){
+                return text === "Show More Localities" ? "Show Less" : "Show More Localities";
+            });
+        });
+
+        // Your existing AJAX code for offers
+        let page = 1;
+        loadOffers();
+
+        $('#loadMoreBtn').click(function(){
+            loadOffers();
+        });
+    });
 
     function loadOffers() {
         $('#loadingSpinner').show();
+        $('#loadMoreBtn').prop('disabled', true);
 
         $.ajax({
             type: 'GET',
@@ -300,41 +805,36 @@
             data: { page: page },
             success: function (data) {
                 $('#loadingSpinner').hide();
+                $('#loadMoreBtn').prop('disabled', false);
 
                 if (data.length === 0) {
                     $('#loadMoreBtn').hide();
                     if (page === 1) {
-                        $('#offerContainer').html('<p class="text-center text-danger">No offers found.</p>');
+                        $('#offerContainer').html('<div class="col-12 text-center py-5"><h5>No offers available at the moment</h5><p class="text-muted">Check back later for new deals!</p></div>');
                     }
                     return;
                 }
-             
-              
+
                 data.forEach(offer => {
-                   
-                    const isNew = new Date(offer.ValidFrom) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000); // 7 days recent
-					console.log(offer)
+                    const isNew = new Date(offer.ValidFrom) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+
                     const card = `
-                    <div class="col-md-6 col-lg-4 col-xl-3 mb-4">
-                        <div class="card shadow-sm border-0 position-relative h-100">
-                            ${isNew ? `<span class="badge-new">NEW</span>` : ""}
-
-                            <img src="${offer.image_}" class="card-img-top"
-     onerror="this.onerror=null;this.src='/images/offer_2.jpg';" style="object-fit: contain;" />
-
-                            <div class="card-body d-flex flex-column justify-content-between">
-                                <div>
-                                    <h5 class="card-title">${offer.offer_title}</h5>
-                                    <p class="card-text">${offer.offer_desc}</p>
+                    <div class="col-md-6 col-lg-4 col-xl-3">
+                        <div class="offer-card h-100">
+                            ${isNew ? `<span class="offer-badge">NEW</span>` : ""}
+                            <div class="offer-img-container">
+                                <img src="${offer.image_}"
+                                     onerror="this.onerror=null;this.src='/images/default-offer.jpg';"
+                                     alt="${offer.offer_title}">
+                            </div>
+                            <div class="offer-body">
+                                <h5 class="offer-title">${offer.offer_title}</h5>
+                                <p class="offer-desc">${offer.offer_desc}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="offer-discount">${offer.percentage_disc}% OFF</span>
+                                    <small class="offer-valid">Expires: ${formatDate(offer.validTo)}</small>
                                 </div>
-                                <div>
-                                    <p class="text-success fw-bold mb-1">${offer.percentage_disc}% OFF</p>
-                                    <p class="text-muted"><small>Valid_From: ${formatDate(offer.validFrom)} </p>
-                                    <p class="text-muted"><small>Valid_To: ${formatDate(offer.validTo)} </p>
-                                </div>
-                                <div class="mt-auto">
-                                    <a href="/Locality/OfferDetails?so_id=${offer.so_id}" class="btn btn-primary read-more-btn">Read More</a>
-                                </div>
+                                <a href="/Locality/OfferDetails?so_id=${offer.so_id}" class="btn btn-primary w-100 mt-3">View Details</a>
                             </div>
                         </div>
                     </div>`;
@@ -345,61 +845,18 @@
             },
             error: function () {
                 $('#loadingSpinner').hide();
-                alert("Error loading offers.");
+                $('#loadMoreBtn').prop('disabled', false);
+                $('#offerContainer').html('<div class="col-12 text-center py-5"><h5>Failed to load offers</h5><p class="text-muted">Please try again later</p></div>');
             }
         });
     }
 
-    $(document).ready(function () {
-        loadOffers();
-
-        $('#loadMoreBtn').click(function () {
-            loadOffers();
+    function formatDate(dateStr) {
+        const d = new Date(dateStr);
+        if (isNaN(d)) return 'N/A';
+        return d.toLocaleDateString('en-IN', {
+            day: '2-digit',
+            month: 'short'
         });
-    });
-</script>
-
-<div class="container-fluid mt-4">
-    <h2>Popular localities in and around <strong>@ViewBag.DisrictName</strong></h2>
-
-    <div class="container-fluid mt-4">
-        <div class="localities-grid">
-            @{
-                int count = 0;
-            }
-            @foreach (var item in Model.Cities)
-            {
-                <div class="locality-card @(count >= 8 ? "hidden" : "")">
-                    <p>@item.CityName</p>
-                    <span>525 places</span>
-                </div>
-                count++;
-            }
-        </div>
-
-        @if (Model.Cities.Count() > 8)
-        {
-            <div class="toggle-btn">
-                <button id="toggleButton">See more ⬇</button>
-            </div>
-        }
-    </div>
-</div>
-
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const toggleButton = document.getElementById("toggleButton");
-        const hiddenLocalities = document.querySelectorAll(".hidden");
-
-        let isExpanded = false;
-
-        toggleButton?.addEventListener("click", function () {
-            hiddenLocalities.forEach(locality => {
-                locality.style.display = isExpanded ? "none" : "block";
-            });
-
-            isExpanded = !isExpanded;
-            toggleButton.innerHTML = isExpanded ? "See less ⬆" : "See more ⬇";
-        });
-    });
+    }
 </script>

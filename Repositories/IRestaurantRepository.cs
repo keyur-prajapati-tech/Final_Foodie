@@ -100,9 +100,7 @@ namespace Foodie.Repositories
         string GetMenuItemName(int menuId);
 
         DashboardStats GetDashboardStats(int restaurantId);
-        List<tbl_orders> GetRecentOrders(int restaurantId, int count = 5);
         List<CuisineStats> GetCuisineStats(int restaurantId);
-        List<PopularItem_ViewModel> GetPopularItems(int restaurantId, int count = 4);
         List<tbl_cuisine_master> GetCuisines(int restaurantId);
 
         List<tbl_menu_items> GetMenuItems(int res_id);
@@ -119,5 +117,8 @@ namespace Foodie.Repositories
 
         List<tbl_orders> GetrecentOrders(int restaurantId, int count = 7);
         List<MenuItemViewModel> GetPopularMenuItems(int restaurantId, int count = 5);
+
+        MenuStatsResponse GetMenuWiseOrderstats(int restaurantId, string timePeriod);
+        bool UpdateOnlineStatus(int restaurantId, bool isOnline);
     }
 }

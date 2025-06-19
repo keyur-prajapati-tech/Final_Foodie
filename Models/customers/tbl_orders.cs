@@ -22,6 +22,6 @@ namespace Foodie.Models.customers
         public List<tbl_order_items> OrderItems { get; set; } = new List<tbl_order_items>();
         public List<tbl_menu_items> MenuItems { get; set; } = new List<tbl_menu_items>();
 
-        public int ItemCount { get; set; }
+        public int itemCount { get; set; }
     }
 }

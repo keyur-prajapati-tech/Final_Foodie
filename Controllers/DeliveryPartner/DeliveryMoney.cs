@@ -35,7 +35,9 @@ public class DeliveryMoney : Controller
     {
         if (PartnerId == null) return Unauthorized();
 
-        var orders = _deliveryrepository.GetAssignedOrdersAsync(PartnerId.Value);
+        var patnerId = HttpContext.Session.GetInt32("PartnerId");
+
+        var orders = _deliveryrepository.GetAssignedOrdersAsync(Convert.ToInt32(patnerId));
         return View(orders);
     }
 

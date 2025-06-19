@@ -607,33 +607,41 @@ namespace Foodie.Repositories
         {
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string qry = "select restaurant_isOnline from vendores.tbl_restaurant where restaurant_id = @resid";
+                string qry = "SELECT restaurant_isOnline FROM vendores.tbl_restaurant WHERE restaurant_id = @restaurant_id";
                 SqlCommand cmd = new SqlCommand(qry, conn);
 
-                cmd.Parameters.AddWithValue("@resid", restaurant_id);
+                cmd.Parameters.AddWithValue("@restaurant_id", restaurant_id);
 
                 conn.Open();
-                int result = Convert.ToInt32(cmd.ExecuteScalar());
+                object result = cmd.ExecuteScalar();
 
+                if (result == null || result == DBNull.Value)
+                {
+                    throw new KeyNotFoundException("Restaurant not found");
+                }
 
-                return result;
-
-
-
+                return Convert.ToInt32(result);
             }
         }
+
         public bool isApprove(int restaurant_id)
         {
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string qry = "select restaurant_isApprov from vendores.tbl_restaurant where  restaurant_id = @restaurant_id";
+                string qry = "SELECT restaurant_isApprov FROM vendores.tbl_restaurant WHERE restaurant_id = @restaurant_id";
                 SqlCommand cmd = new SqlCommand(qry, conn);
 
                 cmd.Parameters.AddWithValue("@restaurant_id", restaurant_id);
+
                 conn.Open();
-                bool result = (bool)cmd.ExecuteScalar();
-                conn.Close();
-                return result;
+                object result = cmd.ExecuteScalar();
+
+                if (result == null || result == DBNull.Value)
+                {
+                    throw new Exception("Restaurant not found");
+                }
+
+                return (bool)result;
             }
         }
 
@@ -2086,45 +2094,6 @@ namespace Foodie.Repositories
             return stats;
         }
 
-        public List<tbl_orders> GetRecentOrders(int restaurantId, int count = 5)
-        {
-            var orders = new List<tbl_orders>();
-
-            using (var connection = new SqlConnection(_connectionstring))
-            {
-                connection.Open();
-
-                var cmd = new SqlCommand(
-                    @"SELECT TOP (5) o.order_id, c.customer_name AS CustomerName, o.grand_total,(select count(*) from customers.tbl_orders where resturant_id = 7) AS [Item Count], o.order_status, o.order_date
-                      FROM customers.tbl_orders o
-                      JOIN customers.tbl_customer c ON o.customer_id = c.customer_id
-                      WHERE o.resturant_id = 7
-                      ORDER BY o.order_date DESC",
-                    connection);
-
-                cmd.Parameters.AddWithValue("@RestaurantId", restaurantId);
-                cmd.Parameters.AddWithValue("@Count", count);
-
-                using (var reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        orders.Add(new tbl_orders
-                        {
-                            order_id = Convert.ToInt32(reader["order_id"].ToString()),
-                            customer_name = reader["customer_name"].ToString(),
-                            ItemCount = Convert.ToInt32(reader["ItemCount"]),
-                            grand_total = Convert.ToDecimal(reader["grand_total"]),
-                            order_status = reader["order_status"].ToString(),
-                            order_date = Convert.ToDateTime(reader["order_date"])
-                        });
-                    }
-                }
-            }
-
-            return orders;
-        }
-
         public List<CuisineStats> GetCuisineStats(int restaurantId)
         {
             var stats = new List<CuisineStats>();
@@ -2177,51 +2146,6 @@ namespace Foodie.Repositories
             }
 
             return stats;
-        }
-
-        public List<PopularItem_ViewModel> GetPopularItems(int restaurantId, int count = 4)
-        {
-            var items = new List<PopularItem_ViewModel>();
-
-            using (var connection = new SqlConnection(_connectionstring))
-            {
-                connection.Open();
-
-                var cmd = new SqlCommand(
-                    @"SELECT TOP (@Count) 
-                        i.menu_name AS ItemName,
-                        c.cuisine_name AS Cuisine,
-                        COUNT(oi.order_id) AS OrderCount,
-                        i.amount,
-                        i.menu_img
-                      FROM vendores.tbl_menu_items i
-                      JOIN admins.tbl_cuisine_master c ON i.cuisine_id = c.cuisine_id
-                      JOIN customers.tbl_order_items oi ON i.menu_id = oi.menu_id
-                      WHERE i.Restaurant_id = @RestaurantId
-                      GROUP BY i.menu_name, c.cuisine_name, i.amount, i.menu_img
-                      ORDER BY OrderCount DESC",
-                    connection);
-
-                cmd.Parameters.AddWithValue("@RestaurantId", restaurantId);
-                cmd.Parameters.AddWithValue("@Count", count);
-
-                using (var reader = cmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        items.Add(new PopularItem_ViewModel
-                        {
-                            ItemName = reader["ItemName"].ToString(),
-                            CuisineName = reader["cuisine_name"].ToString(),
-                            OrderCount = Convert.ToInt32(reader["order_id"]),
-                            Price = Convert.ToDecimal(reader["Price"]),
-                            ImageBase64 = reader["menu_img"].ToString()
-                        });
-                    }
-                }
-            }
-
-            return items;
         }
 
         public List<tbl_cuisine_master> GetCuisines(int restaurantId)
@@ -2488,7 +2412,7 @@ namespace Foodie.Repositories
 
             using(SqlConnection conn  = new SqlConnection(_connectionstring))
             {
-                string query = @"SELECT TOP (7) 
+                string query = @"SELECT TOP (@Count) 
                     o.order_id AS OrderId,
                     'ORD-' + RIGHT('0000' + CAST(o.order_id AS VARCHAR(4)), 4) AS OrderNumber,
                     cc.customer_name AS CustomerName,
@@ -2505,6 +2429,7 @@ namespace Foodie.Repositories
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@restaurantId", restaurantId);
+                cmd.Parameters.AddWithValue("@Count", count);
 
                 conn.Open();
 
@@ -2514,13 +2439,12 @@ namespace Foodie.Repositories
                     {
                         recentOrders.Add(new tbl_orders
                         {
-                            restaurant_id = (int)rd["resturant_id"],
-                            order_id = (int)rd["order_id"],
-                            customer_name = rd["customer_name"].ToString(),
-                            grand_total = (decimal)rd["grand_total"],
-                            order_date = (DateTime)rd["order_date"],
-                            order_status = rd["order_status"].ToString(),
-                            ItemCount = (int)rd["order_items_id"]
+                            order_id = (int)rd["OrderId"],
+                            customer_name = rd["CustomerName"].ToString(),
+                            grand_total = (decimal)rd["TotalAmount"],
+                            order_date = (DateTime)rd["OrderDate"],
+                            order_status = rd["Status"].ToString(),
+                            itemCount = (int)rd["ItemCount"]
                         });
                     }
                 }
@@ -2535,13 +2459,13 @@ namespace Foodie.Repositories
 
             using (SqlConnection conn = new SqlConnection(_connectionstring))
             {
-                string query = @"SELECT TOP (5)
-                    mi.menu_id AS MenuId,
-                    mi.menu_name AS MenuName,
-                    mi.menu_img AS ImageUrl,
-                    cm.cuisine_name AS Category,
+                string query = @"SELECT TOP (@Count)
+                    mi.menu_id,
+                    mi.menu_name,
+                    mi.menu_img,
+                    cm.cuisine_name,
                     COUNT(oi.order_items_id) AS OrderCount,
-                    mi.amount AS Price
+                    mi.amount
                 FROM customers.tbl_order_items oi
                 JOIN customers.tbl_orders o ON oi.order_id = o.order_id
                 JOIN vendores.tbl_menu_items mi ON oi.menu_id = mi.menu_id
@@ -2553,6 +2477,7 @@ namespace Foodie.Repositories
 
                 SqlCommand cmd = new SqlCommand(query, conn);
                 cmd.Parameters.AddWithValue("@restaurantId", restaurantId);
+                cmd.Parameters.AddWithValue("@Count", count);
 
                 conn.Open();
 
@@ -2562,21 +2487,148 @@ namespace Foodie.Repositories
                     {
                         popularMenuItems.Add(new MenuItemViewModel
                         {
-                            RestaurantId = Convert.ToInt32(rd["Restaurant_id"]),
-                            MenuId = Convert.ToInt32(rd["menu_id"]),
+                            MenuId = (int)rd["menu_id"],
                             MenuName = rd["menu_name"].ToString(),
-                            cuisine_name = rd["cuisine_name"].ToString(),
                             MenuImg = (byte[])rd["menu_img"],
-                            MenuDescription = rd["menu_descripation"].ToString(),
-                            Amount = Convert.ToDecimal(rd["amount"]),
-                            IsAvalable = Convert.ToBoolean(rd["isAvalable"]),
-                            OrderItemcount = (int)rd["order_items_id"]
+                            cuisine_name = rd["cuisine_name"].ToString(),
+                            MenuItemsCount = (int)rd["OrderCount"],
+                            Amount = (decimal)rd["amount"]
                         });
                     }
                 }
                 conn.Close();
             }
             return popularMenuItems;
+        }
+
+        public MenuStatsResponse GetMenuWiseOrderstats(int restaurantId, string timePeriod)
+        {
+            var response = new MenuStatsResponse
+            {
+                CategoryStats = new List<MenuCategoryStatsViewModel>(),
+                TimePeriod = timePeriod
+            };
+
+            // Determine date range based on time period
+            (response.StartDate, response.EndDate) = GetDateRange(timePeriod);
+
+            using (var connection = new SqlConnection(_connectionstring))
+            {
+                connection.OpenAsync();
+
+                // Main query to get cuisine/category stats
+                var query = @"
+                WITH CuisineRevenue AS (
+                    SELECT 
+                        c.cuisine_name AS CategoryName,
+                        COUNT(DISTINCT oi.order_id) AS OrderCount,
+                        SUM(oi.quantity * oi.list_price) AS Revenue
+                    FROM customers.tbl_order_items oi
+                    JOIN customers.tbl_orders o ON oi.order_id = o.order_id
+                    JOIN vendores.tbl_menu_items mi ON oi.menu_id = mi.menu_id
+                    JOIN admins.tbl_cuisine_master c ON mi.cuisine_id = c.cuisine_id
+                    WHERE o.resturant_id = @RestaurantId
+                      AND o.order_date BETWEEN @StartDate AND @EndDate
+                    GROUP BY c.cuisine_name
+                )
+                SELECT 
+                    cr.CategoryName,
+                    cr.OrderCount,
+                    cr.Revenue
+                FROM CuisineRevenue cr
+                ORDER BY cr.Revenue DESC";
+
+                var categoryStats = new List<MenuCategoryStatsViewModel>();
+                decimal totalRevenue = 0;
+                int totalOrders = 0;
+
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@RestaurantId", restaurantId);
+                    command.Parameters.AddWithValue("@StartDate", response.StartDate);
+                    command.Parameters.AddWithValue("@EndDate", response.EndDate);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            var stat = new MenuCategoryStatsViewModel
+                            {
+                                CuisineName = reader["cuisine_name"].ToString(),
+                                OrderCount = Convert.ToInt32(reader["OrderCount"]),
+                                Revenue = Convert.ToDecimal(reader["Revenue"])
+                            };
+                            categoryStats.Add(stat);
+                            totalRevenue += stat.Revenue;
+                            totalOrders += stat.OrderCount;
+                        }
+                    }
+                }
+
+                // Calculate averages and percentages
+                foreach (var stat in categoryStats)
+                {
+                    stat.AvgOrderValue = stat.OrderCount > 0 ? stat.Revenue / stat.OrderCount : 0;
+                    stat.PercentageOfTotal = totalRevenue > 0 ? (stat.Revenue / totalRevenue) * 100 : 0;
+                }
+
+                // Create totals row
+                response.Totals = new MenuCategoryStatsViewModel
+                {
+                    CuisineName = "Total",
+                    OrderCount = totalOrders,
+                    Revenue = totalRevenue,
+                    AvgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0,
+                    PercentageOfTotal = 100
+                };
+
+                response.CategoryStats = categoryStats;
+            }
+
+            return response;
+        }
+
+        private (DateTime StartDate, DateTime EndDate) GetDateRange(string timePeriod)
+        {
+            DateTime endDate = DateTime.Now;
+            DateTime startDate;
+
+            switch (timePeriod.ToLower())
+            {
+                case "week":
+                    startDate = endDate.AddDays(-7);
+                    break;
+                case "month":
+                    startDate = endDate.AddMonths(-1);
+                    break;
+                case "year":
+                    startDate = endDate.AddYears(-1);
+                    break;
+                default:
+                    startDate = endDate.AddDays(-7); // Default to week
+                    break;
+            }
+
+            return (startDate, endDate);
+        }
+
+        public bool UpdateOnlineStatus(int restaurantId, bool isOnline)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string qry = @"UPDATE vendores.tbl_restaurant 
+                          SET restaurant_isOnline = @isOnline
+                          WHERE restaurant_id = @restaurantId";
+
+                SqlCommand cmd = new SqlCommand(qry, conn);
+                cmd.Parameters.AddWithValue("@isOnline", isOnline ? 1 : 0);
+                cmd.Parameters.AddWithValue("@restaurantId", restaurantId);
+
+                conn.Open();
+                int rowsAffected = cmd.ExecuteNonQuery();
+
+                return rowsAffected > 0;
+            }
         }
     }
 }

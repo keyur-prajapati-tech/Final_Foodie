@@ -169,35 +169,8 @@
             </div> 
         </div>
 
-        <!-- Recent Orders & Popular Items -->
-        <!-- Recent Orders Table -->
-        <div class="card-body p-0">
-            <div class="table-responsive">
-                <table class="table table-hover mb-0">
-                    <thead>
-                        <tr>
-                            <th>Order #</th>
-                            <th>Customer</th>
-                            <th>Items</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="recentOrdersContainer">
-                        <!-- Orders will be loaded here dynamically -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Popular Items List -->
-        <div class="card-body">
-            <div class="list-group list-group-flush" id="popularItemsContainer">
-                <!-- Popular items will be loaded here dynamically -->
-            </div>
-        </div>
-        @* <div class="row mt-4 g-4">
+        <!--RecentOrder And popular Item display-->
+        <div class="row mt-4 g-4">
             <div class="col-lg-8">
                 <div class="card" style="border: 3px solid solid;border-radius:5px; box-shadow:0px 0px 5px 5px rgba(0,0,0,.9)">
                     <div class="card-header bg-white d-flex justify-content-between align-items-center border-0">
@@ -205,7 +178,7 @@
                             <h5 class="mb-0"><i class="fas fa-list-ul me-2 text-dark"></i>Recent Orders</h5>
                             <p class="text-muted mb-0 small">Latest customer orders that need attention</p>
                         </div>
-                        <a href="@Url.Action("Orders", "Restaurant")" class="btn btn-sm btn-outline-primary">
+                        <a href="/OrderHistory/OrdHistory" class="btn btn-sm btn-outline-primary">
                             View All <i class="fas fa-arrow-right ms-1"></i>
                         </a>
                     </div>
@@ -222,75 +195,8 @@
                                         <th>Action</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="fw-bold">#ORD-1287</td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <img src="https://randomuser.me/api/portraits/men/32.jpg" class="rounded-circle me-2" width="30" height="30" alt="Michael Brown">
-                                                <span>Michael Brown</span>
-                                            </div>
-                                        </td>
-                                        <td>3</td>
-                                        <td class="fw-bold">$32.50</td>
-                                        <td><span class="badge bg-warning bg-opacity-10 text-warning">Pending</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3">
-                                                <i class="fas fa-utensils me-1"></i> Process
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bold">#ORD-1286</td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <img src="https://randomuser.me/api/portraits/women/44.jpg" class="rounded-circle me-2" width="30" height="30" alt="Emily Davis">
-                                                <span>Emily Davis</span>
-                                            </div>
-                                        </td>
-                                        <td>2</td>
-                                        <td class="fw-bold">$24.00</td>
-                                        <td><span class="badge bg-info bg-opacity-10 text-info">Preparing</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-warning rounded-pill px-3">
-                                                <i class="fas fa-clock me-1"></i> Update
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bold">#ORD-1285</td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <img src="https://randomuser.me/api/portraits/men/75.jpg" class="rounded-circle me-2" width="30" height="30" alt="David Wilson">
-                                                <span>David Wilson</span>
-                                            </div>
-                                        </td>
-                                        <td>4</td>
-                                        <td class="fw-bold">$48.75</td>
-                                        <td><span class="badge bg-success bg-opacity-10 text-success">Ready</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-success rounded-pill px-3">
-                                                <i class="fas fa-check me-1"></i> Complete
-                                            </button>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="fw-bold">#ORD-1284</td>
-                                        <td>
-                                            <div class="d-flex align-items-center">
-                                                <img src="https://randomuser.me/api/portraits/women/68.jpg" class="rounded-circle me-2" width="30" height="30" alt="Sarah Johnson">
-                                                <span>Sarah Johnson</span>
-                                            </div>
-                                        </td>
-                                        <td>1</td>
-                                        <td class="fw-bold">$15.99</td>
-                                        <td><span class="badge bg-secondary bg-opacity-10 text-secondary">Delivered</span></td>
-                                        <td>
-                                            <button class="btn btn-sm btn-outline-secondary rounded-pill px-3">
-                                                <i class="fas fa-info-circle me-1"></i> Details
-                                            </button>
-                                        </td>
-                                    </tr>
+                                <tbody id="recentOrdersContainer">
+                                    <!-- Orders will be loaded here -->
                                 </tbody>
                             </table>
                         </div>
@@ -305,69 +211,22 @@
                             <h5 class="mb-0"><i class="fas fa-fire me-2 text-warning"></i>Popular Items</h5>
                             <p class="text-muted mb-0 small">Most ordered items this week</p>
                         </div>
-                        <a href="@Url.Action("Menu", "Restaurant")" class="btn btn-sm btn-outline-primary">
+                        <a href="/Menu/Add" class="btn btn-sm btn-outline-primary">
                             View Menu <i class="fas fa-arrow-right ms-1"></i>
                         </a>
                     </div>
-                    <div class="card-body">
-                        <div class="list-group list-group-flush">
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" class="rounded me-3" width="50" height="50" alt="Margherita Pizza">
-                                        <div>
-                                            <h6 class="mb-0">Margherita Pizza</h6>
-                                            <small class="text-muted">Italian • 28 orders</small>
-                                        </div>
-                                    </div>
-                                    <span class="text-success fw-bold">$12.99</span>
-                                </div>
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" class="rounded me-3" width="50" height="50" alt="Chicken Burger">
-                                        <div>
-                                            <h6 class="mb-0">Chicken Burger</h6>
-                                            <small class="text-muted">Fast Food • 22 orders</small>
-                                        </div>
-                                    </div>
-                                    <span class="text-success fw-bold">$9.99</span>
-                                </div>
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <img src="https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" class="rounded me-3" width="50" height="50" alt="Pasta Carbonara">
-                                        <div>
-                                            <h6 class="mb-0">Pasta Carbonara</h6>
-                                            <small class="text-muted">Italian • 18 orders</small>
-                                        </div>
-                                    </div>
-                                    <span class="text-success fw-bold">$14.50</span>
-                                </div>
-                            </a>
-                            <a href="#" class="list-group-item list-group-item-action">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="d-flex align-items-center">
-                                        <img src="https://images.unsplash.com/photo-1546793665-c74683f339c1?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80" class="rounded me-3" width="50" height="50" alt="Caesar Salad">
-                                        <div>
-                                            <h6 class="mb-0">Caesar Salad</h6>
-                                            <small class="text-muted">Healthy • 15 orders</small>
-                                        </div>
-                                    </div>
-                                    <span class="text-success fw-bold">$8.50</span>
-                                </div>
-                            </a>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush" id="popularItemsContainer">
+                            <!-- Popular items will be loaded here -->
                         </div>
                     </div>
                 </div>
             </div>
-        </div> *@
+        </div>
 
         <!-- Menu Wise Order And Revenue -->
         <div class="row mt-4 g-4">
-            <div class="col-12">
+            <div class="col-12" id="menu-wise-state-container">
                 <div class="card" style="border: 3px solid solid;border-radius:5px; box-shadow:0px 0px 5px 5px rgba(0,0,0,.9)">
                     <div class="card-header bg-white d-flex justify-content-between align-items-center border-0">
                         <div>
@@ -691,10 +550,29 @@
         });
 
         $(document).ready(function(){
+            loadDashboardData();
             loadMenuHighlights();
             loadRecentOrders();
             loadPopularItems();
         });
+
+        function loadDashboardData() {
+            $.ajax({
+                url: '/Restaurant/GetDashboardData',
+                type: 'GET',
+                dataType: 'json',
+                success: function(response) {
+                    console.log("Dashboard Data:", response);
+                    if (response.success) {
+                        renderRecentOrders(response.data.RecentOrders);
+                        renderPopularItems(response.data.PopularItems);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading dashboard data:', error);
+                }
+            });
+        }
 
         function loadMenuHighlights() {
             $.ajax({
@@ -862,6 +740,8 @@
                 type: 'GET',
                 dataType: 'json',
                 success: function (response) {
+                    console.log("Recent Order Data " + response.data);
+
                     if (response.success) {
                         renderRecentOrders(response.data);
                     }
@@ -878,6 +758,7 @@
                 type: 'GET',
                 dataType: 'json',
                 success: function (response) {
+                    console.log("Popular Menu Items Data "+response.data)
                     if (response.success) {
                         renderPopularItems(response.data);
                     }
@@ -903,31 +784,38 @@
                 var actionBtn = '';
 
                 // Determine status styling and action button
-                switch (order.Status.toLowerCase()) {
-                    case 'pending':
+                switch (order.order_status) {
+                    case 'Pending':
                         statusClass = 'bg-warning bg-opacity-10 text-warning';
                         statusText = 'Pending';
                         actionBtn = `<button class="btn btn-sm btn-outline-primary rounded-pill px-3">
                                         <i class="fas fa-utensils me-1"></i> Process
                                       </button>`;
                         break;
-                    case 'preparing':
+                    case 'Paid':
                         statusClass = 'bg-info bg-opacity-10 text-info';
-                        statusText = 'Preparing';
+                        statusText = 'Paid';
                         actionBtn = `<button class="btn btn-sm btn-outline-warning rounded-pill px-3">
                                         <i class="fas fa-clock me-1"></i> Update
                                       </button>`;
                         break;
-                    case 'ready':
+                    case 'completed':
                         statusClass = 'bg-success bg-opacity-10 text-success';
-                        statusText = 'Ready';
+                        statusText = 'completed';
                         actionBtn = `<button class="btn btn-sm btn-success rounded-pill px-3">
+                                        <i class="fas fa-check me-1"></i> Complete
+                                      </button>`;
+                        break;
+                    case 'Accepted':
+                        statusClass = 'bg-success bg-opacity-10 text-success';
+                        statusText = 'Accepted';
+                        actionBtn = `<button class="btn btn-sm btn-info rounded-pill px-3">
                                         <i class="fas fa-check me-1"></i> Complete
                                       </button>`;
                         break;
                     default:
                         statusClass = 'bg-secondary bg-opacity-10 text-secondary';
-                        statusText = order.Status;
+                        statusText = order.order_status;
                         actionBtn = `<button class="btn btn-sm btn-outline-secondary rounded-pill px-3">
                                         <i class="fas fa-info-circle me-1"></i> Details
                                       </button>`;
@@ -935,16 +823,16 @@
 
                 var orderHtml = `
                 <tr>
-                    <td class="fw-bold">${order.OrderNumber}</td>
+                    <td class="fw-bold">#ORD-${order.order_id}</td>
                     <td>
                         <div class="d-flex align-items-center">
-                            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(order.CustomerName)}&background=random"
-                                 class="rounded-circle me-2" width="30" height="30" alt="${order.CustomerName}">
-                            <span>${order.CustomerName}</span>
+                            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(order.customer_name || '')}&background=random"
+                                 class="rounded-circle me-2" width="30" height="30" alt="${order.customer_name || ''}">
+                            <span>${order.customer_name || 'Customer'}</span>
                         </div>
                     </td>
-                    <td>${order.ItemCount}</td>
-                    <td class="fw-bold">RS ${order.TotalAmount.toFixed(2)}</td>
+                    <td>${order.temCount  || 0}</td>
+                    <td class="fw-bold">RS ${(order.grand_total || 0).toFixed(2)}</td>
                     <td><span class="badge ${statusClass}">${statusText}</span></td>
                     <td>${actionBtn}</td>
                 </tr>`;
@@ -962,22 +850,22 @@
                 return;
             }
 
-            $.each(items, function (index, item) {
+            $.each(items, function(index, item) {
                 var itemHtml = `
                 <a href="#" class="list-group-item list-group-item-action">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="d-flex align-items-center">
-                            ${item.ImageUrl ?
-                        `<img src="data:image/jpeg;base64,${item.ImageUrl}" class="rounded me-3" width="50" height="50" alt="${item.MenuName}">` :
-                        `<div class="rounded me-3 bg-light d-flex align-items-center justify-content-center" style="width:50px;height:50px">
+                            ${item.menuImg ?
+                                `<img src="data:image/jpeg;base64,${item.menuImg}" class="rounded me-3" width="50" height="50" alt="${item.MenuName}">` :
+                                `<div class="rounded me-3 bg-light d-flex align-items-center justify-content-center" style="width:50px;height:50px">
                                     <i class="fas fa-utensils text-muted"></i>
                                  </div>`}
                             <div>
-                                <h6 class="mb-0">${item.MenuName}</h6>
-                                <small class="text-muted">${item.Category} • ${item.OrderCount} orders</small>
+                                <h6 class="mb-0">${item.menuName || 'Menu Item'}</h6>
+                                <small class="text-muted">${item.cuisine_name || 'Category'} • ${item.OrderCount || 0} orders</small>
                             </div>
                         </div>
-                        <span class="text-success fw-bold">RS ${item.Price.toFixed(2)}</span>
+                        <span class="text-success fw-bold">RS ${item.amount} /-</span>
                     </div>
                 </a>`;
 
