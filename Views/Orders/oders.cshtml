@@ -153,8 +153,8 @@
                 <button class="btn btn-outline-primary active" data-status="All">All</button>
                 <button class="btn btn-outline-secondary" data-status="Pending">Pending</button>
                 <button class="btn btn-outline-secondary" data-status="Accepted">Accepted</button>
-                <button class="btn btn-outline-secondary" data-status="Out for Delivery">Out for Delivery</button>
-                <button class="btn btn-outline-secondary" data-status="Delivered">Delivered</button>
+                <button class="btn btn-outline-secondary" data-status="Paid">Paid</button>
+                <button class="btn btn-outline-secondary" data-status="completed">Completed</button>
                 <button class="btn btn-outline-danger" data-status="Cancelled">Cancelled</button>
             </div>
         </div>
@@ -289,7 +289,8 @@
             switch (status) {
                 case "Pending": color = "warning"; break;
                 case "Accepted": color = "info"; break;
-                case "Out for Delivery": color = "secondary"; break;
+                case "completed": color = "secondary"; break;
+                case "Paid": color = "secondary"; break;
                 case "Delivered": color = "success"; break;
                 case "Cancelled": color = "danger"; break;
             }

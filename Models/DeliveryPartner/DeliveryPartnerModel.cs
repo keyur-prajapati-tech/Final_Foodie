@@ -113,7 +113,7 @@ namespace Foodie.Models.DeliveryPartner
     {
         [Key]
         public int earning_id { get; set; }
-
+       public int TotalOrders { get; set; }
         public int partner_id { get; set; }
 
         public int request_id { get; set; }
