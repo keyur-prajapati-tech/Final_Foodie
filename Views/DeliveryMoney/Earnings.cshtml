@@ -262,55 +262,8 @@
                             <th>Total</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td>March 10, 2025</td>
-                            <td>5</td>
-                            <td>₹1,200</td>
-                            <td>₹200</td>
-                            <td>₹100</td>
-                            <td class="amount">₹1,500</td>
-                        </tr>
-                        <tr>
-                            <td>March 11, 2025</td>
-                            <td>7</td>
-                            <td>₹1,800</td>
-                            <td>₹200</td>
-                            <td>₹100</td>
-                            <td class="amount">₹2,100</td>
-                        </tr>
-                        <tr>
-                            <td>March 12, 2025</td>
-                            <td>6</td>
-                            <td>₹1,500</td>
-                            <td>₹150</td>
-                            <td>₹150</td>
-                            <td class="amount">₹1,800</td>
-                        </tr>
-                        <tr>
-                            <td>March 13, 2025</td>
-                            <td>8</td>
-                            <td>₹2,000</td>
-                            <td>₹200</td>
-                            <td>₹100</td>
-                            <td class="amount">₹2,300</td>
-                        </tr>
-                        <tr>
-                            <td>March 14, 2025</td>
-                            <td>6</td>
-                            <td>₹1,500</td>
-                            <td>₹100</td>
-                            <td>₹100</td>
-                            <td class="amount">₹1,700</td>
-                        </tr>
-                        <tr class="total-row">
-                            <td>Weekly Total</td>
-                            <td>32</td>
-                            <td>₹8,000</td>
-                            <td>₹850</td>
-                            <td>₹550</td>
-                            <td class="amount">₹9,400</td>
-                        </tr>
+                    <tbody id="earnings-body">
+                       
                     </tbody>
                 </table>
             </div>
@@ -320,86 +273,106 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // Make time filter buttons interactive
-            const timeFilters = document.querySelectorAll('.time-filter');
-            timeFilters.forEach(filter => {
-                filter.addEventListener('click', () => {
-                    timeFilters.forEach(f => f.classList.remove('active'));
-                    filter.classList.add('active');
+            fetch('/deliverymoney/GetWeeklyEarnings')
+                .then(response => response.json())
+                .then(data => {
+                    let tbody = document.getElementById('earnings-body');
+                    tbody.innerHTML = '';
+
+                    let totalOrders = 0;
+                    let totalEarnings = 0;
+
+                    data.forEach(item => {
+                        totalOrders += item.totalOrders; // Use totalOrders field
+                        totalEarnings += item.earnings;
+
+                        tbody.innerHTML += `
+                            <tr>
+                                <td>${new Date(item.paymentDate).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</td>
+                                <td>${item.totalOrders}</td>
+                                <td>₹${item.earnings.toFixed(2)}</td>
+                                <td>₹0.00</td>
+                                <td>₹0.00</td>
+                                <td class="amount">₹${item.earnings.toFixed(2)}</td>
+                            </tr>
+                        `;
+                    });
+
+                    // Total row
+                    tbody.innerHTML += `
+                        <tr class="total-row">
+                            <td>Total</td>
+                            <td>${totalOrders}</td>
+                            <td>₹${totalEarnings.toFixed(2)}</td>
+                            <td>₹0.00</td>
+                            <td>₹0.00</td>
+                            <td class="amount">₹${totalEarnings.toFixed(2)}</td>
+                        </tr>
+                    `;
+
+                    // Chart data
+                    const earningsData = data.map(item => ({
+                        date: new Date(item.paymentDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                        earnings: item.earnings
+                    }));
+
+                    renderChart(earningsData);
                 });
-            });
 
-            // Chart data
-            const earningsData = [
-                { date: "March 10", earnings: 1500 },
-                { date: "March 11", earnings: 2100 },
-                { date: "March 12", earnings: 1800 },
-                { date: "March 13", earnings: 2300 },
-                { date: "March 14", earnings: 1700 }
-            ];
-
-            // Initialize chart
-            const ctx = document.getElementById("earningsChart").getContext("2d");
-            new Chart(ctx, {
-                type: "line",
-                data: {
-                    labels: earningsData.map(d => d.date),
-                    datasets: [{
-                        label: "Daily Earnings (₹)",
-                        data: earningsData.map(d => d.earnings),
-                        backgroundColor: "rgba(37, 99, 235, 0.1)",
-                        borderColor: "#2563eb",
-                        borderWidth: 3,
-                        tension: 0.4,
-                        fill: true,
-                        pointBackgroundColor: "#ffffff",
-                        pointBorderColor: "#2563eb",
-                        pointBorderWidth: 2,
-                        pointRadius: 5,
-                        pointHoverRadius: 7
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            backgroundColor: "#1f2937",
-                            titleColor: "#f3f4f6",
-                            bodyColor: "#f3f4f6",
-                            padding: 12,
-                            displayColors: false,
-                            callbacks: {
-                                label: function(context) {
-                                    return `₹${context.parsed.y.toLocaleString()}`;
-                                }
-                            }
-                        }
+            function renderChart(data) {
+                const ctx = document.getElementById("earningsChart").getContext("2d");
+                new Chart(ctx, {
+                    type: "line",
+                    data: {
+                        labels: data.map(d => d.date),
+                        datasets: [{
+                            label: "Daily Earnings (₹)",
+                            data: data.map(d => d.earnings),
+                            backgroundColor: "rgba(37, 99, 235, 0.1)",
+                            borderColor: "#2563eb",
+                            borderWidth: 3,
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: "#ffffff",
+                            pointBorderColor: "#2563eb",
+                            pointBorderWidth: 2,
+                            pointRadius: 5,
+                            pointHoverRadius: 7
+                        }]
                     },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            grid: {
-                                display: true,
-                                color: "rgba(0, 0, 0, 0.05)"
-                            },
-                            ticks: {
-                                callback: function(value) {
-                                    return '₹' + value;
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: {
+                                backgroundColor: "#1f2937",
+                                titleColor: "#f3f4f6",
+                                bodyColor: "#f3f4f6",
+                                padding: 12,
+                                displayColors: false,
+                                callbacks: {
+                                    label: function(context) {
+                                        return `₹${context.parsed.y.toLocaleString()}`;
+                                    }
                                 }
                             }
                         },
-                        x: {
-                            grid: {
-                                display: false
-                            }
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: function(value) {
+                                        return '₹' + value;
+                                    }
+                                },
+                                grid: { color: "rgba(0,0,0,0.05)" }
+                            },
+                            x: { grid: { display: false } }
                         }
                     }
-                }
-            });
+                });
+            }
         });
     </script>
 </body>

@@ -26,9 +26,83 @@ public class DeliveryMoney : Controller
     public IActionResult Wallet() => View();
 
     [Route("m/earn")]
-    public IActionResult Earnings() => View();
+    public IActionResult Earnings()
+    {
+        return View();
+    }
 
-    private int? PartnerId => HttpContext?.Session.GetInt32("PartnerId");
+    [HttpGet]
+    [Route("GetWeeklyEarnings")]
+    public IActionResult GetWeeklyEarnings()
+    {
+
+        int PartnerId = Convert.ToInt16(HttpContext?.Session.GetInt32("PartnerId"));
+        var earnings = GetTopEarningsByPartner(PartnerId);
+        return Ok(earnings);
+    }
+    public List<tbl_deliveryEarnings> GetTopEarningsByPartner(int partnerId)
+    {
+        List<tbl_deliveryEarnings> list = new List<tbl_deliveryEarnings>();
+
+        using (SqlConnection conn = new SqlConnection(_connStr))
+        {
+            SqlCommand cmd = new SqlCommand("[deliverypartner].[sp_GetTop100EarningsByPartner]", conn);
+            cmd.CommandType = CommandType.StoredProcedure;
+
+            // Add parameter
+            cmd.Parameters.AddWithValue("@PartnerId", partnerId);
+
+            conn.Open();
+            SqlDataReader reader = cmd.ExecuteReader();
+
+            while (reader.Read())
+            {
+                list.Add(new tbl_deliveryEarnings
+                {
+                    earning_id = Convert.ToInt32(reader["earning_id"]),
+                    partner_id = Convert.ToInt32(reader["partner_id"]),
+                    request_id = Convert.ToInt32(reader["request_id"]),
+                    Earnings = Convert.ToDecimal(reader["Earnings"]),
+                    PaymentDate = Convert.ToDateTime(reader["PaymentDate"]),
+                    PaymentStatus = reader["PaymentStatus"].ToString(),
+                    mode_id = Convert.ToInt32(reader["mode_id"]),
+                    TotalOrders = Convert.ToInt32(reader["TotalOrders"]) // new field
+                });
+            }
+        }
+
+        return list;
+    }
+    [HttpPost]
+    public JsonResult GetEarningsData(string filter)
+    {
+        var earningsData = new List<SupportViewModel>();
+
+        using (SqlConnection conn = new SqlConnection(_connStr))
+        using (SqlCommand cmd = new SqlCommand("deliverypartner.GetEarningsSummary", conn))
+        {
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@PartnerId", 1); // Example partner_id
+            cmd.Parameters.AddWithValue("@Filter", filter);
+
+            conn.Open();
+            using (SqlDataReader reader = cmd.ExecuteReader())
+            {
+                while (reader.Read())
+                {
+                    earningsData.Add(new SupportViewModel
+                    {
+                        PeriodLabel = reader["PeriodLabel"].ToString(),
+                        TotalOrders = Convert.ToInt32(reader["TotalOrders"]),
+                        TotalEarnings = Convert.ToDecimal(reader["TotalEarnings"])
+                    });
+                }
+            }
+        }
+
+        return Json(earningsData);
+    }
+     int? PartnerId => HttpContext?.Session.GetInt32("PartnerId");
 
     [HttpGet("m/order")]
     public IActionResult Assigned_Orders()
