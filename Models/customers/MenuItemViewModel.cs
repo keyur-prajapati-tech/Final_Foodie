@@ -32,5 +32,12 @@ namespace Foodie.Models.customers
         //For displaying Top Selling Menu Items
         public int TotalQuantitySold { get; set; }
         public decimal TotalRevenue { get; set; }
+
+        public int ActiveOrders {  get; set; }
+        public decimal TodaysRevenue { get; set; }
+        public int NewCustomers {  get; set; }
+        public int MenuItemsCount {  get; set; }
+
+        public int OrderItemcount {  get; set; }
     }
 }

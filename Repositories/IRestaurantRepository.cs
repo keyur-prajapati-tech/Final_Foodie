@@ -107,5 +107,17 @@ namespace Foodie.Repositories
 
         List<tbl_menu_items> GetMenuItems(int res_id);
         void UpdateStockStatus(int menuId, bool isAvailable);
+
+        //MenuHighlight
+        IEnumerable<MenuItemViewModel> GetHighlightMenuItem(int count = 4);
+        IEnumerable<MenuItemViewModel> GetTopSellingMenuItems(int count = 4);
+
+        int GetActiveOrderCount(int restaurantId);
+        decimal GetTodayRevenue(int restaurantId);
+        int GetNewCustomerCount(int restaurantId);
+        int GetMenuItemcount(int restaurantId);
+
+        List<tbl_orders> GetrecentOrders(int restaurantId, int count = 7);
+        List<MenuItemViewModel> GetPopularMenuItems(int restaurantId, int count = 5);
     }
 }

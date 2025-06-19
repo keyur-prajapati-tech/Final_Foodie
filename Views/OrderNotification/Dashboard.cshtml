@@ -2,6 +2,8 @@
     Layout = "~/Views/Shared/_RestaurantLayout.cshtml";
 }
 
+@model Foodie.Models.customers.MenuItemViewModel
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,6 +16,56 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        .menu-highlights-section {
+            padding: 40px 0;
+        }
+
+            .menu-highlights-section h2 {
+                font-size: 2rem;
+                margin-bottom: 10px;
+            }
+
+        .menu-item-card {
+            height: 100%;
+            transition: transform 0.3s;
+        }
+
+            .menu-item-card:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            }
+
+        .card-img-top {
+            height: 180px;
+            object-fit: cover;
+        }
+
+        .no-image-placeholder {
+            height: 180px;
+            background: #f5f5f5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+        }
+
+        .menu-item-details {
+            display: flex;
+            justify-content: space-between;
+            margin: 15px 0;
+        }
+
+        .price {
+            font-weight: bold;
+            color: #e63946;
+        }
+
+        .rating {
+            color: #666;
+        }
+    </style>
 </head>
 <body>
     <!-- Main Content -->
@@ -118,7 +170,34 @@
         </div>
 
         <!-- Recent Orders & Popular Items -->
-        <div class="row mt-4 g-4">
+        <!-- Recent Orders Table -->
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Customer</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="recentOrdersContainer">
+                        <!-- Orders will be loaded here dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Popular Items List -->
+        <div class="card-body">
+            <div class="list-group list-group-flush" id="popularItemsContainer">
+                <!-- Popular items will be loaded here dynamically -->
+            </div>
+        </div>
+        @* <div class="row mt-4 g-4">
             <div class="col-lg-8">
                 <div class="card" style="border: 3px solid solid;border-radius:5px; box-shadow:0px 0px 5px 5px rgba(0,0,0,.9)">
                     <div class="card-header bg-white d-flex justify-content-between align-items-center border-0">
@@ -284,7 +363,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> *@
 
         <!-- Menu Wise Order And Revenue -->
         <div class="row mt-4 g-4">
@@ -453,101 +532,15 @@
         </div>
 
         <!-- Menu Items Preview -->
-        <div class="row mt-4">
-            <div class="col-12" style="border: 3px solid solid;border-radius:5px; box-shadow:0px 0px 5px 5px rgba(0,0,0,.9)">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-white d-flex justify-content-between align-items-center border-0">
-                        <div>
-                            <h5 class="mb-0"><i class="fas fa-utensils me-2 text-warning"></i>Menu Highlights</h5>
-                            <p class="text-muted mb-0 small">Featured items from your menu</p>
-                        </div>
-                        <a href="@Url.Action("Menu", "Restaurant")" class="btn btn-sm btn-outline-primary">
-                            Manage Menu <i class="fas fa-arrow-right ms-1"></i>
-                        </a>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-4">
-                            <div class="col-xl-3 col-lg-4 col-md-6">
-                                <div class="card h-100 border">
-                                    <div class="    position-relative">
-                                        <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" class="card-img-top" alt="Margherita Pizza" style="height: 150px; object-fit: cover;">
-                                        <span class="badge bg-primary position-absolute top-0 start-0 m-2">Bestseller</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <h5 class="card-title">Margherita Pizza</h5>
-                                        <p class="card-text text-muted small">Classic pizza with tomato sauce, mozzarella, and fresh basil leaves</p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span class="text-success fw-bold">$12.99</span>
-                                            <div>
-                                                <span class="badge bg-light text-dark me-1"><i class="fas fa-clock me-1"></i> 15 min</span>
-                                                <span class="badge bg-light text-dark"><i class="fas fa-star me-1 text-warning"></i> 4.8</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-lg-4 col-md-6">
-                                <div class="card h-100 border">
-                                    <div class="position-relative">
-                                        <img src="https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" class="card-img-top" alt="Pasta Carbonara" style="height: 150px; object-fit: cover;">
-                                        <span class="badge bg-warning text-dark position-absolute top-0 start-0 m-2">Trending</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <h5 class="card-title">Pasta Carbonara</h5>
-                                        <p class="card-text text-muted small">Spaghetti with creamy egg sauce, crispy pancetta, and parmesan cheese</p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span class="text-success fw-bold">$14.50</span>
-                                            <div>
-                                                <span class="badge bg-light text-dark me-1"><i class="fas fa-clock me-1"></i> 20 min</span>
-                                                <span class="badge bg-light text-dark"><i class="fas fa-star me-1 text-warning"></i> 4.9</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-lg-4 col-md-6">
-                                <div class="card h-100 border">
-                                    <div class="position-relative">
-                                        <img src="https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" class="card-img-top" alt="Grilled Salmon" style="height: 150px; object-fit: cover;">
-                                        <span class="badge bg-info position-absolute top-0 start-0 m-2">Seasonal</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <h5 class="card-title">Grilled Salmon</h5>
-                                        <p class="card-text text-muted small">Fresh salmon fillet with lemon butter sauce and seasonal vegetables</p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span class="text-success fw-bold">$18.75</span>
-                                            <div>
-                                                <span class="badge bg-light text-dark me-1"><i class="fas fa-clock me-1"></i> 25 min</span>
-                                                <span class="badge bg-light text-dark"><i class="fas fa-star me-1 text-warning"></i> 4.7</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-lg-4 col-md-6">
-                                <div class="card h-100 border">
-                                    <div class="position-relative">
-                                        <img src="https://images.unsplash.com/photo-1497034825429-c343d7c6a68f?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=80" class="card-img-top" alt="Chocolate Lava Cake" style="height: 150px; object-fit: cover;">
-                                        <span class="badge bg-danger position-absolute top-0 start-0 m-2">Popular</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <h5 class="card-title">Chocolate Lava Cake</h5>
-                                        <p class="card-text text-muted small">Warm chocolate cake with molten center, served with vanilla ice cream</p>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span class="text-success fw-bold">$8.99</span>
-                                            <div>
-                                                <span class="badge bg-light text-dark me-1"><i class="fas fa-clock me-1"></i> 10 min</span>
-                                                <span class="badge bg-light text-dark"><i class="fas fa-star me-1 text-warning"></i> 4.9</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="menu-highlights-section">
+            <h2>Menu Highlights</h2>
+            <p>Featured items from your menu</p>
+
+            <div id="menuHighlightsContainer" class="row">
+                <!-- Menu items will be loaded here dynamically -->
             </div>
         </div>
+
     </div>
 
     <!-- Add Item Modal -->
@@ -696,6 +689,301 @@
                 }
             });
         });
+
+        $(document).ready(function(){
+            loadMenuHighlights();
+            loadRecentOrders();
+            loadPopularItems();
+        });
+
+        function loadMenuHighlights() {
+            $.ajax({
+                url: '/Restaurant/GetMenuHighlights',
+                type: 'GET',
+                dataType: 'json',
+                success: function (data) {
+                    console.log(data);
+                    renderMenuItems(data, '#menuHighlightsContainer');
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error loading menu highlights:', error);
+                }
+            });
+        }
+
+        function renderMenuItems(items, containerSelector) {
+            var container = $(containerSelector);
+            container.empty();
+
+            // Create the full card structure with header
+            var menuHtml = `
+            <div class="row mt-4">
+                <div class="col-12" style="border-radius:5px; box-shadow:0px 0px 5px 5px rgba(0,0,0,.1)">
+                    <div class="card border-0 shadow-sm">
+                        <div class="card-header bg-white d-flex justify-content-between align-items-center border-0">
+                            <div>
+                                <h5 class="mb-0"><i class="fas fa-utensils me-2 text-warning"></i>Menu Highlights</h5>
+                                <p class="text-muted mb-0 small">Featured items from your menu</p>
+                            </div>
+                            <a href="@Url.Action("Menu", "Restaurant")" class="btn btn-sm btn-outline-primary">
+                                View All <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div class="row g-4">
+            `;
+
+            // Add each menu item
+            $.each(items, function (index, item) {
+                // Determine badge type based on sales
+                var badgeType = "";
+                var badgeText = "";
+                if (item.totalQuantitySold > 100) {
+                    badgeType = "bg-primary";
+                    badgeText = "Bestseller";
+                } else if (item.totalQuantitySold > 50) {
+                    badgeType = "bg-warning text-dark";
+                    badgeText = "Trending";
+                } else {
+                    badgeType = "bg-info";
+                    badgeText = "New";
+                }
+
+                // Truncate description to 2 lines
+                var shortDescription = item.menuDescription.length > 100 ?
+                    item.menuDescription.substring(0, 100) + "..." :
+                    item.menuDescription;
+
+                menuHtml += `
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="card h-100 border">
+                        <div class="position-relative">
+                            <a href="#" class="image-modal-trigger" data-bs-toggle="modal" data-bs-target="#menuItemModal"
+                               data-name="${item.menuName}"
+                               data-description="${item.menuDescription}"
+                               data-image="${item.menuImageBase64 ? 'data:image/jpeg;base64,' + item.menuImageBase64 : ''}">
+                                ${item.menuImageBase64 ?
+                        `<img src="data:image/jpeg;base64,${item.menuImageBase64}" class="card-img-top" alt="${item.menuName}" style="height: 150px; object-fit: cover; cursor: pointer;">` :
+                        `<div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 150px; cursor: pointer;">
+                                        <i class="fas fa-utensils fa-3x text-muted"></i>
+                                     </div>`}
+                            </a>
+                            <span class="badge ${badgeType} position-absolute top-0 start-0 m-2">${badgeText}</span>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">${item.menuName || 'Menu Item'}</h5>
+                            <p class="card-text text-muted small" style="display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis;">
+                                ${shortDescription}
+                            </p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-success fw-bold">RS ${item.amount || '0'} /-</span>
+                                <div>
+                                    <span class="badge bg-light text-dark me-1">
+                                        <i class="fas fa-clock me-1"></i> ${item.preparationTime || '15'} min
+                                    </span>
+                                    <span class="badge bg-light text-dark">
+                                        <i class="fas fa-star me-1 text-warning"></i> ${item.rating || '4.5'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                `;
+            });
+
+            // Close all divs
+            menuHtml += `
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bootstrap Modal -->
+            <div class="modal fade" id="menuItemModal" tabindex="-1" aria-labelledby="menuItemModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="menuItemModalLabel">Menu Item Details</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <img id="modalItemImage" src="" class="img-fluid rounded" alt="Menu Item" style="max-height: 400px; width: 100%; object-fit: cover;">
+                                    <div id="modalNoImage" class="bg-light d-flex align-items-center justify-content-center" style="height: 400px; display: none;">
+                                        <i class="fas fa-utensils fa-5x text-muted"></i>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <h3 id="modalItemName" class="mb-3"></h3>
+                                    <p id="modalItemDescription" class="lead"></p>
+                                    <div class="d-flex align-items-center mb-3">
+                                        <span class="badge bg-success me-2">RS <span id="modalItemPrice">0</span> /-</span>
+                                        <span class="badge bg-info me-2"><i class="fas fa-clock me-1"></i> <span id="modalItemTime">15</span> min</span>
+                                        <span class="badge bg-warning"><i class="fas fa-star me-1"></i> <span id="modalItemRating">4.5</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `;
+
+            container.append(menuHtml);
+
+            // Add click handler for modal
+            $(document).on('click', '.image-modal-trigger', function () {
+                var name = $(this).data('name');
+                var description = $(this).data('description');
+                var image = $(this).data('image');
+
+                $('#modalItemName').text(name);
+                $('#modalItemDescription').text(description);
+                $('#modalItemPrice').text($(this).closest('.card').find('.text-success').text().replace('RS ', '').replace(' /-', ''));
+                $('#modalItemTime').text($(this).closest('.card').find('.fa-clock').parent().text().trim().replace('min', '').trim());
+                $('#modalItemRating').text($(this).closest('.card').find('.fa-star').parent().text().trim());
+
+                if (image) {
+                    $('#modalItemImage').attr('src', image).show();
+                    $('#modalNoImage').hide();
+                } else {
+                    $('#modalItemImage').hide();
+                    $('#modalNoImage').show();
+                }
+            });
+        }
+
+        function loadRecentOrders() {
+            $.ajax({
+                url: '/Restaurant/GetrecentOrders',
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.success) {
+                        renderRecentOrders(response.data);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error loading recent orders:', error);
+                }
+            });
+        }
+
+        function loadPopularItems() {
+            $.ajax({
+                url: '/Restaurant/GetPopularItems',
+                type: 'GET',
+                dataType: 'json',
+                success: function (response) {
+                    if (response.success) {
+                        renderPopularItems(response.data);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error loading popular items:', error);
+                }
+            });
+        }
+
+        function renderRecentOrders(orders) {
+            var container = $('#recentOrdersContainer');
+            container.empty();
+
+            if (!orders || orders.length === 0) {
+                container.html('<tr><td colspan="6" class="text-center py-4">No recent orders found</td></tr>');
+                return;
+            }
+
+            $.each(orders, function (index, order) {
+                var statusClass = '';
+                var statusText = '';
+                var actionBtn = '';
+
+                // Determine status styling and action button
+                switch (order.Status.toLowerCase()) {
+                    case 'pending':
+                        statusClass = 'bg-warning bg-opacity-10 text-warning';
+                        statusText = 'Pending';
+                        actionBtn = `<button class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                        <i class="fas fa-utensils me-1"></i> Process
+                                      </button>`;
+                        break;
+                    case 'preparing':
+                        statusClass = 'bg-info bg-opacity-10 text-info';
+                        statusText = 'Preparing';
+                        actionBtn = `<button class="btn btn-sm btn-outline-warning rounded-pill px-3">
+                                        <i class="fas fa-clock me-1"></i> Update
+                                      </button>`;
+                        break;
+                    case 'ready':
+                        statusClass = 'bg-success bg-opacity-10 text-success';
+                        statusText = 'Ready';
+                        actionBtn = `<button class="btn btn-sm btn-success rounded-pill px-3">
+                                        <i class="fas fa-check me-1"></i> Complete
+                                      </button>`;
+                        break;
+                    default:
+                        statusClass = 'bg-secondary bg-opacity-10 text-secondary';
+                        statusText = order.Status;
+                        actionBtn = `<button class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+                                        <i class="fas fa-info-circle me-1"></i> Details
+                                      </button>`;
+                }
+
+                var orderHtml = `
+                <tr>
+                    <td class="fw-bold">${order.OrderNumber}</td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(order.CustomerName)}&background=random"
+                                 class="rounded-circle me-2" width="30" height="30" alt="${order.CustomerName}">
+                            <span>${order.CustomerName}</span>
+                        </div>
+                    </td>
+                    <td>${order.ItemCount}</td>
+                    <td class="fw-bold">RS ${order.TotalAmount.toFixed(2)}</td>
+                    <td><span class="badge ${statusClass}">${statusText}</span></td>
+                    <td>${actionBtn}</td>
+                </tr>`;
+
+                container.append(orderHtml);
+            });
+        }
+
+        function renderPopularItems(items) {
+            var container = $('#popularItemsContainer');
+            container.empty();
+
+            if (!items || items.length === 0) {
+                container.html('<div class="text-center py-4">No popular items found</div>');
+                return;
+            }
+
+            $.each(items, function (index, item) {
+                var itemHtml = `
+                <a href="#" class="list-group-item list-group-item-action">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="d-flex align-items-center">
+                            ${item.ImageUrl ?
+                        `<img src="data:image/jpeg;base64,${item.ImageUrl}" class="rounded me-3" width="50" height="50" alt="${item.MenuName}">` :
+                        `<div class="rounded me-3 bg-light d-flex align-items-center justify-content-center" style="width:50px;height:50px">
+                                    <i class="fas fa-utensils text-muted"></i>
+                                 </div>`}
+                            <div>
+                                <h6 class="mb-0">${item.MenuName}</h6>
+                                <small class="text-muted">${item.Category} • ${item.OrderCount} orders</small>
+                            </div>
+                        </div>
+                        <span class="text-success fw-bold">RS ${item.Price.toFixed(2)}</span>
+                    </div>
+                </a>`;
+
+                container.append(itemHtml);
+            });
+        }
     </script>
 </body>
 </html>

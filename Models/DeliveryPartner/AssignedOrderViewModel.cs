@@ -12,14 +12,12 @@
         public string RestaurantLag { get; set; }
 
         public int CustomerId { get; set; }
+        public string CustomerLatitude { get; set; }
+        public string CustomerLongitude { get; set; }
         public string AddressType { get; set; }
         public int CityId { get; set; }
         public int StateId { get; set; }
         public int DistrictId { get; set; }
-
-        public string CustomerLatitude { get; set; }
-        public string CustomerLongitude { get; set; }
-
         public double DistanceInKm { get; set; }
         public string EstimatedDeliveryTime { get; set; }
 
