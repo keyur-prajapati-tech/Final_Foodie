@@ -18,6 +18,13 @@ namespace Foodie.Controllers.Restaurant
             _repository = repository;
         }
 
+        [Route("Logout")]
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear();
+            return RedirectToAction("Locality", "Locality");
+        }
+
         [Route("Dashboard")]
         public IActionResult Dashboard()
         {

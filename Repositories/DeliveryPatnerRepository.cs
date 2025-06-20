@@ -130,7 +130,7 @@ namespace Foodie.Repositories
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                using (var command = new SqlCommand("sp_GetAssignedOrders", connection))
+                using (var command = new SqlCommand("deliverypartner.sp_GetAssignedOrders", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@PartnerId", partnerId);

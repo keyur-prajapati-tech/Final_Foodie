@@ -811,6 +811,7 @@ namespace Foodie.Controllers.DeliveryPartner
                 using (SqlCommand cmd = new SqlCommand("deliverypartner.sp_GetAssignedOrders", con))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@PartnerId", partnerId); // Use the partnerId from session
                     con.Open();
 
                     using (SqlDataReader rdr = cmd.ExecuteReader())
@@ -819,8 +820,8 @@ namespace Foodie.Controllers.DeliveryPartner
                         {
                             model.RestaurantLat = rdr["restaurant_lat"].ToString();
                             model.RestaurantLng = rdr["restaurant_lag"].ToString();
-                            model.CustomerLat = rdr["customer_latitude"].ToString();
-                            model.CustomerLng = rdr["customer_longitude"].ToString();
+                            model.CustomerLat = rdr["latitude"].ToString();
+                            model.CustomerLng = rdr["longitude"].ToString();
                         }
                     }
                 }
