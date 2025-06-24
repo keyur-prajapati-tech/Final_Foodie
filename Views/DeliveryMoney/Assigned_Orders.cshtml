@@ -296,7 +296,7 @@
             <option value="">All Orders</option>
             <option value="pending">Pending</option>
             <option value="paid">Paid</option>
-            <option value="completed">Completed</option>
+            <option value="completed">Delivery On Way</option>
             <option value="delivered">Delivered</option>
             <option value="Accepted">Accepted</option>
             <option value="rejected">Rejected</option>
@@ -328,6 +328,11 @@
                     <div class="restaurant-name">
                         <i class="fas fa-utensils restaurant-icon"></i>
                         @order.RestaurantName
+                    </div>
+
+                    <div class="order-date">
+                        <i class="fas fa-utensils restaurant-icon"></i>
+                        @order.OrderDate
                     </div>
 
                     <div class="order-info">

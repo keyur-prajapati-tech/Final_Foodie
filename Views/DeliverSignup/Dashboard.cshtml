@@ -402,7 +402,7 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="metric-label">Avg. Delivery Time</div>
-                            <div class="metric-value text-info">AverageDeliveryTime min</div>
+                            <div class="metric-value text-info">@Model.AvgDeliveryTime.ToString("F0") min</div>
                         </div>
                         <div class="col-auto">
                             <i class="bi bi-clock-history fs-1 text-gray-300"></i>
@@ -419,7 +419,8 @@
                     <div class="row no-gutters align-items-center">
                         <div class="col mr-2">
                             <div class="metric-label">Customer Rating</div>
-                            <div class="metric-value text-warning">AverageRating.ToString("F1")/5</div>
+                            <div class="metric-value text-warning">@Model.AvgRating.ToString("F1")/5</div>
+                        </div>
                             <div class="mt-1">
                                 @for (int i = 1; i <= 5; i++)
                                 {

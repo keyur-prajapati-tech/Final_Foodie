@@ -5,6 +5,9 @@
         public int OrdersDelivered { get; set; }
         public decimal TotalEarnings { get; set; }
         public double AvgDeliveryTime { get; set; }
+        public double AvgRating { get; set; }
+        public LatestOrderInfo LatestOrder { get; set; }
+
 
         public List<string> WeeklyLabels { get; set; } = new();
         public List<decimal> WeeklyEarnings { get; set; } = new();

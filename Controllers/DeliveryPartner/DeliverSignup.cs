@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Foodie.Models.DeliveryPartner;
 using Foodie.Models.Admin;
 using Foodie.ViewModels;
+using Foodie.Repositories;
 
 
 
@@ -25,12 +26,15 @@ namespace Foodie.Controllers.DeliveryPartner
         private readonly IWebHostEnvironment _env;
         private readonly string _connStr;
 
-        public DeliverSignup(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
+        private readonly IDeliveryPatnerRepository _deliveryPatnerRepository;
+
+        public DeliverSignup(IConfiguration configuration, IWebHostEnvironment webHostEnvironment, IDeliveryPatnerRepository deliveryPatnerRepository)
         {
             _configuration = configuration;
             _webHostEnvironment = webHostEnvironment;
             _env = webHostEnvironment;
             _connStr = configuration.GetConnectionString("DefaultConnection");
+            _deliveryPatnerRepository = deliveryPatnerRepository;
         }
 
 
