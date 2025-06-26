@@ -490,6 +490,41 @@
         }
 
 
+        .menu-item {
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+            .menu-item:hover {
+                transform: translateY(-5px);
+                box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            }
+
+        .veg-icon {
+            color: green;
+            font-size: 1.2rem;
+        }
+
+        .non-veg-icon {
+            color: red;
+            font-size: 1.2rem;
+        }
+
+        .rating {
+            display: inline-block;
+            background: #ffc107;
+            color: #000;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+
+        .active-category {
+            font-weight: bold;
+            background-color: #0d6efd !important;
+        }
+
 
 
         /* Layout */
@@ -962,127 +997,314 @@
     <!-- Tab Content Sections -->
     <div class="tab-content container mt-3">
         <div id="overview" class="tab-pane fade show active">
-            <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
-                <div class="res-container mt-3">
-                    <!-- Left Side Content -->
-                    <div class="left-content">
-                        <div class="menu-section">
-                            <h2>Menu</h2>
-                            <div class="cuisines">
-                                <span class="tag">North Indian</span>
-                                <span class="tag">Kathiyawadi</span>
-                            </div>
-                            <div class="menu-card">
-                                <img src="https://i.pinimg.com/736x/e0/92/ac/e092ac87d6ff12512795de70ae181331.jpg" alt="Menu">
-                                <p>Menu <br> 2 pages</p>
+            <div class="container-fluid px-0">
+                <div class="row g-4">
+                    <!-- Left Side Content (Main Content) -->
+                    <div class="col-lg-8">
+                        <!-- Menu Section -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body">
+                                <h2 class="fw-bold mb-4">Menu</h2>
+                                <div class="d-flex flex-wrap gap-2 mb-3">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">North Indian</span>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">Kathiyawadi</span>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">Gujarati</span>
+                                </div>
+                                <div class="menu-card bg-light rounded-3 overflow-hidden position-relative" style="height: 200px;">
+                                    <img src="https://i.pinimg.com/736x/e0/92/ac/e092ac87d6ff12512795de70ae181331.jpg"
+                                         alt="Restaurant Menu"
+                                         class="w-100 h-100 object-fit-cover">
+                                    <div class="position-absolute bottom-0 start-0 bg-dark bg-opacity-75 text-white p-3 w-100">
+                                        <p class="mb-0 fw-bold">Menu <span class="text-muted">2 pages</span></p>
+                                        <button class="btn btn-sm btn-outline-light mt-2">View Full Menu</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="average-cost">
-                            <h2>Average Cost</h2>
-                            <p><strong>₹500</strong> for two people (approx.)</p>
-                            <p>Exclusive of taxes & charges, if any</p>
-                            <p>Digital payments accepted</p>
-                        </div>
+                        <!-- Pricing & Info Section -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <div class="card shadow-sm h-100">
+                                    <div class="card-body">
+                                        <h3 class="fw-bold mb-3">Average Cost</h3>
+                                        <p class="fs-4 fw-bold text-success">₹500 for two people</p>
+                                        <p class="text-muted small">(approx.)</p>
+                                        <hr>
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <i class="fas fa-info-circle text-primary"></i>
+                                            <span class="small">Exclusive of taxes & charges</span>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fas fa-money-bill-wave text-primary"></i>
+                                            <span class="small">Digital payments accepted</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-                        <div class="more-info">
-                            <h2>More Info</h2>
-                            <ul>
-                                <li>Takeaway Available</li>
-                                <li>Vegetarian Only</li>
-                                <li>Family Friendly</li>
-                                <li>Outdoor Seating</li>
-                            </ul>
+                            <div class="col-md-6">
+                                <div class="card shadow-sm h-100">
+                                    <div class="card-body">
+                                        <h3 class="fw-bold mb-3">More Info</h3>
+                                        <ul class="list-unstyled">
+                                            <li class="mb-2">
+                                                <i class="fas fa-utensils text-primary me-2"></i>
+                                                Takeaway Available
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="fas fa-leaf text-success me-2"></i>
+                                                Vegetarian Only
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="fas fa-users text-primary me-2"></i>
+                                                Family Friendly
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="fas fa-umbrella-beach text-primary me-2"></i>
+                                                Outdoor Seating
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
 
                         <!-- Similar Restaurants Section -->
-                        <div class="similar-restaurants">
-                            <h2>Similar Restaurants</h2>
-                            <div class="restaurant-carousel">
-                                <div class="restaurant-card">
-                                    <img src="restaurant1.jpg" alt="Vishala Garden">
-                                    <h3>Vishala Garden R...</h3>
-                                    <p><span class="rating">3.0 ⭐</span> DINING | <span class="rating">3.9 ⭐</span> DELIVERY</p>
-                                    <p>North Indian, Chinese, Gujarati</p>
-                                    <p>Katargam, Surat</p>
-                                </div>
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body">
+                                <h2 class="fw-bold mb-4">Similar Restaurants</h2>
+                                <div class="row g-4">
+                                    <div class="col-md-4">
+                                        <div class="card h-100 border-0 shadow-sm hover-shadow">
+                                            <img src="https://lh3.googleusercontent.com/p/AF1QipPBBm9TQwk_UDzBEjZWdLOnA66ePZjnmXutnkaj=s680-w680-h510-rw"
+                                                 class="card-img-top object-fit-cover"
+                                                 style="height: 150px;"
+                                                 alt="Purohit Dhaba">
+                                            <div class="card-body">
+                                                <h5 class="card-title fw-bold">Purohit Dhaba</h5>
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-star"></i> 3.0
+                                                    </span>
+                                                    <small class="text-muted">DINING</small>
+                                                </div>
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-star"></i> 3.9
+                                                    </span>
+                                                    <small class="text-muted">DELIVERY</small>
+                                                </div>
+                                                <p class="card-text small text-muted mb-1">
+                                                    <i class="fas fa-map-marker-alt text-danger"></i> Near Sugar Factory
+                                                </p>
+                                                <p class="card-text small text-muted">Katargam, Surat</p>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                <div class="restaurant-card">
-                                    <img src="restaurant2.jpg" alt="Super Seek Paratha">
-                                    <h3>Super Seek Parat...</h3>
-                                    <p><span class="rating">4.1 ⭐</span> DINING | <span class="rating">4.0 ⭐</span> DELIVERY</p>
-                                    <p>North Indian, Biryani</p>
-                                    <p>Shahpore, Surat</p>
-                                </div>
+                                    <div class="col-md-4">
+                                        <div class="card h-100 border-0 shadow-sm hover-shadow">
+                                            <img src="https://lh3.googleusercontent.com/p/AF1QipMbS_VXDamoSfgdUukehz2WkL3pAzhTOyfkknBi=s680-w680-h510-rw"
+                                                 class="card-img-top object-fit-cover"
+                                                 style="height: 150px;"
+                                                 alt="Madhuli Restaurant">
+                                            <div class="card-body">
+                                                <h5 class="card-title fw-bold">Madhuli Restaurant</h5>
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-star"></i> 4.1
+                                                    </span>
+                                                    <small class="text-muted">DINING</small>
+                                                </div>
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-star"></i> 4.0
+                                                    </span>
+                                                    <small class="text-muted">DELIVERY</small>
+                                                </div>
+                                                <p class="card-text small text-muted mb-1">
+                                                    <i class="fas fa-map-marker-alt text-danger"></i> 5th Floor, Hotel Navchetan
+                                                </p>
+                                                <p class="card-text small text-muted">Shahpore, Surat</p>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                <div class="restaurant-card">
-                                    <img src="restaurant3.jpg" alt="Swaminarayan Khichdi">
-                                    <h3>Swaminarayan Khi...</h3>
-                                    <p><span class="rating">3.9 ⭐</span> DINING | <span class="rating">3.9 ⭐</span> DELIVERY</p>
-                                    <p>Gujarati, North Indian</p>
-                                    <p>Kapodra, Surat</p>
+                                    <div class="col-md-4">
+                                        <div class="card h-100 border-0 shadow-sm hover-shadow">
+                                            <img src="https://lh3.googleusercontent.com/p/AF1QipPWK9Tz18cl6Qf0cHpHFYwQdt5-ml-r-yqrZkbn=s680-w680-h510-rw"
+                                                 class="card-img-top object-fit-cover"
+                                                 style="height: 150px;"
+                                                 alt="Pariwar Restaurant">
+                                            <div class="card-body">
+                                                <h5 class="card-title fw-bold">Pariwar Restaurant</h5>
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-star"></i> 3.9
+                                                    </span>
+                                                    <small class="text-muted">DINING</small>
+                                                </div>
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-star"></i> 3.9
+                                                    </span>
+                                                    <small class="text-muted">DELIVERY</small>
+                                                </div>
+                                                <p class="card-text small text-muted mb-1">
+                                                    <i class="fas fa-map-marker-alt text-danger"></i> National Highway 48
+                                                </p>
+                                                <p class="card-text small text-muted">Gundlav, Surat</p>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <!--Review Highlights-->
-                        <div class="container mt-4" style="background-color:#fff;box-shadow:3px 3px 3px 3px rgba(0,0,0,0);">
-                            <h4>Review Highlights</h4>
-                            <div class="review-container">
-                                <span class="review-pill">Large Servings</span>
-                                <span class="review-pill">Delivery Person</span>
-                                <span class="review-pill">Contactless Delivery</span>
-                                <span class="review-pill">Wonderful Presentation</span>
-                                <span class="review-pill">Nice Food</span>
-                                <span class="review-pill">Student Crowd</span>
-                            </div>
-                        </div>
-                        <!-- Featured Section -->
-                        <div class="featured-section">
-                            <h2>Featured In</h2>
-                            <div class="featured-card">
-                                <img src="featured.jpg" alt="Gujarati Dishes">
-                                <div class="featured-text">
-                                    <h3>Unmissable Gujarati D...</h3>
-                                    <p>11 Places ➜</p>
+
+                        <!-- Review Highlights -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body">
+                                <h2 class="fw-bold mb-4">Review Highlights</h2>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fas fa-utensils me-1 text-primary"></i> Large Servings
+                                    </span>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fas fa-motorcycle me-1 text-primary"></i> Delivery Person
+                                    </span>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fas fa-hands-wash me-1 text-primary"></i> Contactless Delivery
+                                    </span>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fas fa-palette me-1 text-primary"></i> Wonderful Presentation
+                                    </span>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fas fa-heart me-1 text-danger"></i> Nice Food
+                                    </span>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fas fa-user-graduate me-1 text-primary"></i> Student Crowd
+                                    </span>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Help Us Make Zomato Better Section -->
-                        <div class="help-section mt-3">
-                            <h2>HELP US MAKE ZOMATO BETTER</h2>
-
-                            <div class="help-box">
-                                <h3>Report an error in this listing</h3>
-                                <p>Help us make Zomato more updated and relevant for everyone</p>
-                                <a href="#" class="report-link">Report now ➜</a>
-                            </div>
-
-                            <hr> <!-- Horizontal Line -->
-
-                            <div class="help-box">
-                                <h3>Claim this listing</h3>
-                                <p>Claim this listing to get access to a free management and analytics dashboard, where you can edit information, track your page views, and more.</p>
-                                <a href="#" class="claim-link">Claim now ➜</a>
+                        <!-- Featured In Section -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body">
+                                <h2 class="fw-bold mb-4">Featured In</h2>
+                                <div class="card border-0 shadow-sm">
+                                    <img src="https://media.assettype.com/outlooktraveller/import/outlooktraveller/public/uploads/articles/explore/2018/02/Gujarati12_FI.jpg"
+                                         class="card-img-top object-fit-cover"
+                                         style="height: 180px;"
+                                         alt="Gujarati Dishes">
+                                    <div class="card-body">
+                                        <h5 class="card-title fw-bold">Unmissable Gujarati Dishes</h5>
+                                        <p class="card-text text-muted">11 Places to try authentic Gujarati cuisine</p>
+                                        <a href="#" class="btn btn-sm btn-outline-primary">View Article →</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
+                        <!-- Help Section -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body">
+                                <h2 class="fw-bold mb-4">HELP US IMPROVE</h2>
+
+                                <div class="card mb-3 border-primary">
+                                    <div class="card-body">
+                                        <h5 class="card-title fw-bold text-primary">
+                                            <i class="fas fa-exclamation-circle me-2"></i> Report an error
+                                        </h5>
+                                        <p class="card-text">Help us keep information accurate and relevant for everyone</p>
+                                        <a href="#" class="btn btn-sm btn-outline-primary">Report now →</a>
+                                    </div>
+                                </div>
+
+                                <div class="card border-success">
+                                    <div class="card-body">
+                                        <h5 class="card-title fw-bold text-success">
+                                            <i class="fas fa-flag me-2"></i> Claim this listing
+                                        </h5>
+                                        <p class="card-text">Get access to analytics dashboard and manage your listing</p>
+                                        <a href="#" class="btn btn-sm btn-outline-success">Claim now →</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Right Side Fixed Location -->
-                    <div class="right-content">
-                        <div class="location-box">
-                            <h2>Direction</h2>
-                            <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=..." width="100%" height="150"></iframe>
-                            <p>Adajan Hazira Main Road, Opposite Shell Petrol Pump, Bhatha Gam, Pal Gam, Surat</p>
-                            <button class="copy-btn">📋 Copy</button>
-                            <button class="direction-btn">📍 Direction</button>
+                    <!-- Right Side Content (Sticky Sidebar) -->
+                    <div class="col-lg-4">
+                        <div class="sticky-top" style="top: 20px;">
+                            <!-- Location Box -->
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-body">
+                                    <h3 class="fw-bold mb-3">Location & Directions</h3>
+                                    <div class="ratio ratio-16x9 mb-3">
+                                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3721.238983447634!2d72.8542143154026!3d21.14577498593671!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be0517b04000001%3A0x5b5b5b5b5b5b5b5b!2sAdajan%20Hazira%20Main%20Road%2C%20Opposite%20Shell%20Petrol%20Pump%2C%20Bhatha%20Gam%2C%20Pal%20Gam%2C%20Surat!5e0!3m2!1sen!2sin!4v1620000000000!5m2!1sen!2sin"
+                                                allowfullscreen=""
+                                                loading="lazy"
+                                                class="rounded-3"></iframe>
+                                    </div>
+                                    <p class="mb-3">
+                                        <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                        Adajan Hazira Main Road, Opposite Shell Petrol Pump, Bhatha Gam, Pal Gam, Surat
+                                    </p>
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-secondary">
+                                            <i class="far fa-copy me-2"></i> Copy Address
+                                        </button>
+                                        <button class="btn btn-primary">
+                                            <i class="fas fa-directions me-2"></i> Get Directions
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Actions -->
+                            <div class="card shadow-sm">
+                                <div class="card-body">
+                                    <h3 class="fw-bold mb-3">Quick Actions</h3>
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-primary">
+                                            <i class="fas fa-phone-alt me-2"></i> Call Restaurant
+                                        </button>
+                                        <button class="btn btn-outline-success">
+                                            <i class="fas fa-share-alt me-2"></i> Share
+                                        </button>
+                                        <button class="btn btn-outline-danger">
+                                            <i class="far fa-heart me-2"></i> Add to Favorites
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
+
+        <style>
+            .hover-shadow {
+                transition: all 0.3s ease;
+            }
+
+                .hover-shadow:hover {
+                    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+                    transform: translateY(-2px);
+                }
+
+            .object-fit-cover {
+                object-fit: cover;
+            }
+
+            .sticky-top {
+                position: sticky;
+                z-index: 1;
+            }
+        </style>
 
         <!-- RestaurantInfo Modal Container -->
         <div class="modal fade" id="itemInfoModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
@@ -1107,104 +1329,288 @@
 
 
         <div id="order-online" class="tab-pane fade">
-            <a class="btn btn-outline-primary float-end" asp-controller="displayCart" asp-action="AddToCartIteminfo">cart</a>
+            <!-- Floating Cart Button -->
+            <a class="btn btn-primary position-fixed top-0 end-0 m-3 z-3" asp-controller="displayCart" asp-action="AddToCartIteminfo">
+                <i class="fas fa-shopping-cart me-2"></i> Cart
+                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    1
+                </span>
+            </a>
 
-            <div class="row mt-3">
-                 <!-- Sidebar Menu Categories -->
-                @* <div class="left-sidebar col-md-3">
-                    <ul class="list-group" id="cuisineList">
-                        <li class="list-group-item @(!Model.SelectedCuisineId.HasValue ? "active" : "")" 
-                            onclick="loadItemsByCuisine(@Model.restaurant_id, null)">
-                            All Items (@Model.MenuItems.Count)
-                        </li>
-                        @foreach (var cuisine in Model.Cuisines)
-                        {
-                            <li class="list-group-item @(Model.SelectedCuisineId == cuisine.cuisine_id ? "active" : "")" 
-                                onclick="loadItemsByCuisine(@Model.restaurant_id, @cuisine.cuisine_id)">
-                                @cuisine.cuisine_name (@Model.MenuItems.Count(m => m.cuisine_id == cuisine.cuisine_id))
-                            </li>
-                        }
-                    </ul>
-                </div> *@
-                <div class="left-sidebar col-md-3">
-                    <ul class="list-group">
-                        <li class="list-group-item active">Newly Launched (30)</li>
-                        <li class="list-group-item">Group Sharing Combos (27)</li>
-                        <li class="list-group-item">McSaver Combos (71)</li>
-                        <li class="list-group-item">Burger Combos (49)</li>
-                        <li class="list-group-item">Burgers & Wraps (35)</li>
-                        <li class="list-group-item">Fries & Sides (17)</li>
-                        <li class="list-group-item">Coffee & Beverages (44)</li>
-                        <li class="list-group-item">Cakes & Brownies (11)</li>
-                        <li class="list-group-item">Desserts (11)</li>
-                    </ul>
+            <div class="row mt-3 g-4">
+                <!-- Sidebar -->
+                <div class="col-lg-3">
+                    <div class="card shadow-sm sticky-top" style="top: 20px;">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0 fw-bold">Filters</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Food Type</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="foodType" id="allType" value="all" checked>
+                                    <label class="form-check-label" for="allType">All</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="foodType" id="vegType" value="veg">
+                                    <label class="form-check-label" for="vegType">
+                                        <span class="veg-marker me-2">🟢</span> Vegetarian
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="foodType" id="nonVegType" value="non-veg">
+                                    <label class="form-check-label" for="nonVegType">
+                                        <span class="nonveg-marker me-2">🔴</span> Non-Vegetarian
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label for="ratingFilter" class="form-label fw-bold">Minimum Rating</label>
+                                <select class="form-select">
+                                    <option value="0">All Ratings</option>
+                                    <option value="3">3+ <i class="fas fa-star text-warning"></i></option>
+                                    <option value="4">4+ <i class="fas fa-star text-warning"></i></option>
+                                    <option value="4.5">4.5+ <i class="fas fa-star text-warning"></i></option>
+                                </select>
+                            </div>
+
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                    <h3 class="mb-0 fw-bold fs-5">Our Cuisines</h3>
+                                    <button id="refreshBtn" class="btn btn-sm btn-light">
+                                        <i class="fas fa-sync-alt"></i> Refresh
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div id="loadingSpinner" class="text-center my-4">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                        <p class="mt-2">Loading cuisines...</p>
+                                    </div>
+                                    <ul id="cuisineList" class="list-group list-group-flush" style="display: none;">
+                                        <!-- Cuisines will be loaded here via AJAX -->
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-
-
                 <!-- Main Menu Content -->
-                <div class="content-area col-md-9">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3>Order Online</h3>
-                        <input type="text" class="form-control w-50" placeholder="Search within menu">
-                    </div>
-
-                    <h4 class="mt-3">Newly Launched</h4>
-
-                    <!-- Right Content Section -->
-                    <main class="col-md-6 col-lg-12 menu-content">
-
-                        @if (!itemlist.Any())
-                        {
-                            <div class="no-data-box">
-                                <i class="bi bi-exclamation-circle"></i>
-                                <h3>No menu items found for this restaurant.</h3>
-                                <p>Please check back later or choose another restaurant.</p>
-                            </div>
-                        }
-                        else
-                        {
-                            <!-- Menu Item 1 -->
-                            @foreach (var item in Model)
-                            {
-                                <div class="menu-item" style="border: 3px solid #000;border-radius: 5px;padding: 5px;">
-                                    <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)"
-                                         id="itemImage" alt="@item.menu_name" style="width:150px; height:130px; object-fit:cover;border: 3px solid #000;margin-top:-60px;" />
-                                    <div>
-                                        <h2>@item.menu_name</h2>
-                                        <p>@item.menu_descripation</p>
-                                        <p>₹@item.amount</p>
-                                        <a href="#">Read More</a>
-                                        <hr />
-                                        <div>
-                                            <button class="btn btn-outline-info" onclick="loadItemInfo(@item.menu_id)">Item Info</button>
-
-                                            <!-- Using Button for Add to Cart -->
-                                            <button type="button" class="btn btn-outline-danger add-to-cart" data-id="@item.menu_id" data-quantity="1" data-price="@item.amount">
-                                                ADD
-                                            </button>
-                                        </div>
+                <div class="col-lg-9">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h3 class="mb-0 fw-bold">Order Online</h3>
+                                <div class="w-50">
+                                    <div class="input-group">
+                                        <span class="input-group-text bg-primary text-white"><i class="fas fa-search"></i></span>
+                                        <input type="text" class="form-control" placeholder="Search menu items...">
                                     </div>
+                                </div>
+                            </div>
+
+                            <h4 class="mt-3 mb-4 fw-bold border-bottom pb-2">Newly Launched</h4>
+
+                            @if (!itemlist.Any())
+                            {
+                                <div class="text-center py-5">
+                                    <i class="bi bi-exclamation-circle fs-1 text-muted"></i>
+                                    <h3 class="mt-3 fw-bold">No menu items found</h3>
+                                    <p class="text-muted">Please check back later or choose another restaurant.</p>
                                 </div>
                             }
+                            else
+                            {
+                                <div class="row g-4">
+                                    @foreach (var item in Model)
+                                    {
+                                        <div class="col-md-6 col-lg-4">
+                                            <div class="card h-100 border-0 shadow-sm hover-shadow">
+                                                <!-- Image with clickable modal trigger -->
+                                                <div class="position-relative">
+                                                    <img src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)"
+                                                         class="card-img-top cursor-pointer object-fit-cover"
+                                                         style="height: 180px; cursor: pointer;"
+                                                         alt="@item.menu_name"
+                                                         data-bs-toggle="modal"
+                                                         data-bs-target="#imageModal"
+                                                         data-img-src="data:image/png;base64,@Convert.ToBase64String(item.menu_img)"
+                                                         data-img-alt="@item.menu_name">
 
-                            <!-- Modal Container -->
-                            <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content" id="modalContent">
-                                        <!-- AJAX loaded content will appear here -->
-                                    </div>
+                                                    <!-- Veg/Non-Veg Marker -->
+                                                    <div class="position-absolute top-0 start-0 bg-white p-1 rounded-end">
+                                                        @if (item.is_veg)
+                                                        {
+                                                            <span class="veg-marker fs-5">🟢</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="nonveg-marker fs-5">🔴</span>
+                                                        }
+                                                    </div>
+
+                                                    <!-- Price Badge -->
+                                                    <div class="position-absolute bottom-0 end-0 bg-primary text-white px-2 py-1 rounded-top-start">
+                                                        ₹@item.amount
+                                                    </div>
+                                                </div>
+
+                                                <div class="card-body">
+                                                    <h5 class="card-title fw-bold">@item.menu_name</h5>
+                                                    <p class="card-text text-muted small">@item.menu_descripation</p>
+
+                                                    <div class="d-flex justify-content-between align-items-center mt-3">
+                                                        <button class="btn btn-sm btn-outline-primary" onclick="loadItemInfo(@item.menu_id)">
+                                                            <i class="fas fa-info-circle me-1"></i> Details
+                                                        </button>
+
+                                                        <button type="button" class="btn btn-sm btn-danger add-to-cart"
+                                                                data-id="@item.menu_id" data-quantity="1" data-price="@item.amount">
+                                                            <i class="fas fa-plus me-1"></i> ADD
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
                                 </div>
-                            </div>
-                        }
-                    </main>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        <!-- Image Modal -->
+        <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="imageModalLabel">Menu Item</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img id="modalImage" src="" class="img-fluid rounded" alt="">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Item Info Modal -->
+        <div class="modal fade" id="itemModal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content" id="modalContent">
+                    <!-- AJAX loaded content will appear here -->
                 </div>
             </div>
         </div>
 
         <script>
+            // Initialize image modal
+            document.addEventListener('DOMContentLoaded', function() {
+                var imageModal = document.getElementById('imageModal');
+                imageModal.addEventListener('show.bs.modal', function(event) {
+                    var button = event.relatedTarget;
+                    var imgSrc = button.getAttribute('data-img-src');
+                    var imgAlt = button.getAttribute('data-img-alt');
+
+                    var modalImage = imageModal.querySelector('#modalImage');
+                    modalImage.src = imgSrc;
+                    modalImage.alt = imgAlt;
+
+                    var modalTitle = imageModal.querySelector('.modal-title');
+                    modalTitle.textContent = imgAlt;
+                });
+            });
+        </script>
+
+        <style>
+            .veg-marker {
+                color: green;
+            }
+
+            .nonveg-marker {
+                color: red;
+            }
+
+            .hover-shadow:hover {
+                box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+                transform: translateY(-2px);
+                transition: all 0.3s ease;
+            }
+
+            .cursor-pointer {
+                cursor: pointer;
+            }
+
+            .object-fit-cover {
+                object-fit: cover;
+            }
+        </style>
+
+        <script>
             $(document).ready(function () {
+                // Load cuisines on page load
+                loadCuisines();
+
+                // Refresh button click handler
+                $('#refreshBtn').click(function() {
+                    loadCuisines();
+                });
+
+                // Function to load cuisines via AJAX
+                 function loadCuisines() {
+                // Show loading spinner
+                $('#loadingSpinner').show();
+                $('#cuisineList').hide();
+
+                $.ajax({
+                    url: '@Url.Action("GetAllCuisines", "Locality")',
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        renderCuisines(data);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Error loading cuisines:", error);
+                        $('#cuisineList').html(
+                            '<li class="list-group-item text-danger">Error loading cuisines. Please try again.</li>'
+                        ).show();
+                    },
+                    complete: function() {
+                        $('#loadingSpinner').hide();
+                    }
+                });
+            }
+
+            function renderCuisines(cuisines) {
+                const $cuisineList = $('#cuisineList');
+                $cuisineList.empty();
+
+                if (cuisines.length === 0) {
+                    $cuisineList.html(
+                        '<li class="list-group-item text-muted">No cuisines found</li>'
+                    );
+                } else {
+                    $.each(cuisines, function(index, cuisine) {
+                        $cuisineList.append(
+                            `<li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span>${cuisine.cuisine_name}</span>
+                                <span class="badge bg-secondary rounded-pill">${cuisine.cuisine_id}</span>
+                            </li>`
+                        );
+                    });
+                }
+
+                $cuisineList.show();
+            }
+
                 // Handle Add to Cart Button click
                 $(".add-to-cart").click(function () {
                     var menuId = $(this).data("id");
@@ -1264,230 +1670,663 @@
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
         <div id="reviews" class="tab-pane fade">
-            <div class="reviews-header">
-                <div>McDonald's Reviews</div>
-                <div class="filter-dropdown">🔽 Newest First</div>
-            </div>
-            <div class="review-card">
-                <div class="profile-pic"></div>
-                <div class="review-content">
-                    <div class="reviewer-name">Krishi</div>
-                    <div class="review-meta"><span class="delivery-badge">1★ DELIVERY</span> 2 days ago</div>
-                    <div class="review-text">Free item note added</div>
-                    <div class="review-actions">
-                        <span>👍 Helpful</span> <span>💬 Comment</span> <span>🔗 Share</span>
+            <div class="container">
+                <!-- Reviews Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold">McDonald's Reviews</h2>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="reviewSortDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-sort me-2"></i>Newest First
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="reviewSortDropdown">
+                            <li><a class="dropdown-item active" href="#">Newest First</a></li>
+                            <li><a class="dropdown-item" href="#">Highest Rated</a></li>
+                            <li><a class="dropdown-item" href="#">Lowest Rated</a></li>
+                            <li><a class="dropdown-item" href="#">Most Helpful</a></li>
+                        </ul>
                     </div>
                 </div>
-                <button class="follow-btn">Follow</button>
-            </div>
 
-            <div class="review-card">
-                <div class="profile-pic"></div>
-                <div class="review-content">
-                    <div class="reviewer-name">Nisarg Shroff</div>
-                    <div class="review-meta"><span class="delivery-badge" style="background:green;">5★ DELIVERY</span> 3 days ago</div>
-                    <div class="review-text">Great service and fast delivery!</div>
-                    <div class="review-actions">
-                        <span>👍 Helpful</span> <span>💬 Comment</span> <span>🔗 Share</span>
+                <!-- Review Cards -->
+                <div class="review-list">
+                    <!-- Review 1 -->
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="profile-pic rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                        <span class="text-muted fs-5">K</span>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h5 class="mb-1 fw-bold">Krishi</h5>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-danger me-2">
+                                                    <i class="fas fa-star"></i> 1 DELIVERY
+                                                </span>
+                                                <small class="text-muted">2 days ago</small>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-primary align-self-start">Follow</button>
+                                    </div>
+                                    <p class="mb-3">Free item note added</p>
+                                    <div class="review-actions">
+                                        <button class="btn btn-sm btn-outline-secondary me-2">
+                                            <i class="far fa-thumbs-up me-1"></i> Helpful
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary me-2">
+                                            <i class="far fa-comment me-1"></i> Comment
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-share-alt me-1"></i> Share
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Review 2 -->
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="profile-pic rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                        <span class="text-muted fs-5">N</span>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h5 class="mb-1 fw-bold">Nisarg Shroff</h5>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-success me-2">
+                                                    <i class="fas fa-star"></i> 5 DELIVERY
+                                                </span>
+                                                <small class="text-muted">3 days ago</small>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-primary align-self-start">Follow</button>
+                                    </div>
+                                    <p class="mb-3">Great service and fast delivery!</p>
+                                    <div class="review-actions">
+                                        <button class="btn btn-sm btn-outline-secondary me-2">
+                                            <i class="far fa-thumbs-up me-1"></i> Helpful
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary me-2">
+                                            <i class="far fa-comment me-1"></i> Comment
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-share-alt me-1"></i> Share
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Review 3 -->
+                    <div class="card mb-4 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex">
+                                <div class="flex-shrink-0 me-3">
+                                    <div class="profile-pic rounded-circle bg-light d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                        <span class="text-muted fs-5">H</span>
+                                    </div>
+                                </div>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between">
+                                        <div>
+                                            <h5 class="mb-1 fw-bold">Harshit</h5>
+                                            <div class="d-flex align-items-center mb-2">
+                                                <span class="badge bg-danger me-2">
+                                                    <i class="fas fa-star"></i> 1 DELIVERY
+                                                </span>
+                                                <small class="text-muted">3 days ago</small>
+                                            </div>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-primary align-self-start">Follow</button>
+                                    </div>
+                                    <p class="mb-3">Received order after one and half hour</p>
+                                    <div class="review-actions">
+                                        <button class="btn btn-sm btn-outline-secondary me-2">
+                                            <i class="far fa-thumbs-up me-1"></i> Helpful
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary me-2">
+                                            <i class="far fa-comment me-1"></i> Comment
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-secondary">
+                                            <i class="fas fa-share-alt me-1"></i> Share
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Load More Button -->
+                    <div class="text-center mt-4">
+                        <button class="btn btn-primary px-4">
+                            <i class="fas fa-sync-alt me-2"></i>Load More Reviews
+                        </button>
                     </div>
                 </div>
-                <button class="follow-btn">Follow</button>
             </div>
-
-            <div class="review-card">
-                <div class="profile-pic"></div>
-                <div class="review-content">
-                    <div class="reviewer-name">Harshit</div>
-                    <div class="review-meta"><span class="delivery-badge">1★ DELIVERY</span> 3 days ago</div>
-                    <div class="review-text">Received order after one and half hour</div>
-                    <div class="review-actions">
-                        <span>👍 Helpful</span> <span>💬 Comment</span> <span>🔗 Share</span>
-                    </div>
-                </div>
-                <button class="follow-btn">Follow</button>
-            </div>
-
         </div>
 
+        <style>
+            .profile-pic {
+                background-color: #f8f9fa;
+                color: #6c757d;
+                font-weight: bold;
+            }
+
+            .review-actions .btn {
+                padding: 0.25rem 0.5rem;
+                font-size: 0.875rem;
+            }
+
+            .card {
+                transition: transform 0.2s ease;
+            }
+
+                .card:hover {
+                    transform: translateY(-2px);
+                }
+
+            .badge {
+                font-weight: 500;
+                padding: 0.35em 0.65em;
+            }
+        </style>
+
         <div id="photos" class="tab-pane fade">
-            <div class="container">
-                <h4>McDonald's Photos</h4>
+            <div class="container py-4">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2 class="fw-bold">McDonald's Photos</h2>
+                    <button class="btn btn-primary">
+                        <i class="fas fa-camera me-2"></i>Add Photos
+                    </button>
+                </div>
 
                 <!-- Filter Buttons -->
-                <div class="filter-buttons">
-                    <button class="active" onclick="filterImages('all')">All (33)</button>
-                    <button onclick="filterImages('safety')">Safety Practices (14)</button>
-                    <button onclick="filterImages('food')">Food (16)</button>
-                    <button onclick="filterImages('ambience')">Ambience (1)</button>
+                <div class="d-flex flex-wrap gap-2 mb-4">
+                    <button class="btn btn-sm btn-primary active" onclick="filterImages('all')">
+                        <i class="fas fa-images me-1"></i> All (33)
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" onclick="filterImages('safety')">
+                        <i class="fas fa-shield-alt me-1"></i> Safety (14)
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" onclick="filterImages('food')">
+                        <i class="fas fa-utensils me-1"></i> Food (16)
+                    </button>
+                    <button class="btn btn-sm btn-outline-primary" onclick="filterImages('ambience')">
+                        <i class="fas fa-store me-1"></i> Ambience (1)
+                    </button>
                 </div>
 
                 <!-- Image Gallery -->
-                <div class="gallery">
-                    <img src="https://source.unsplash.com/150x150/?burger" alt="Food" class="food">
-                    <img src="https://source.unsplash.com/150x150/?fastfood" alt="Food" class="food">
-                    <img src="https://source.unsplash.com/150x150/?restaurant" alt="Ambience" class="ambience">
-                    <img src="https://source.unsplash.com/150x150/?fries" alt="Food" class="food">
-                    <img src="https://source.unsplash.com/150x150/?drink" alt="Drink" class="food">
-                    <img src="https://source.unsplash.com/150x150/?cooking" alt="Safety" class="safety">
-                    <img src="https://source.unsplash.com/150x150/?chef" alt="Safety" class="safety">
-                    <img src="https://source.unsplash.com/150x150/?mcdonalds" alt="Restaurant" class="ambience">
-                    <img src="https://source.unsplash.com/150x150/?kitchen" alt="Safety" class="safety">
-                    <img src="https://source.unsplash.com/150x150/?meal" alt="Food" class="food">
+                <div class="row g-3 gallery">
+                    <div class="col-6 col-md-4 col-lg-3 food">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <img src="https://source.unsplash.com/600x400/?burger"
+                                 class="card-img-top object-fit-cover"
+                                 alt="Burger"
+                                 style="height: 200px;"
+                                 data-bs-toggle="modal"
+                                 data-bs-target="#imageModal"
+                                 data-img-src="https://source.unsplash.com/600x400/?burger">
+                            <div class="card-footer bg-transparent border-0 small text-muted">
+                                <i class="fas fa-user me-1"></i> John D. · 2 days ago
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-4 col-lg-3 food">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <img src="https://source.unsplash.com/600x400/?fastfood"
+                                 class="card-img-top object-fit-cover"
+                                 alt="Fast Food"
+                                 style="height: 200px;"
+                                 data-bs-toggle="modal"
+                                 data-bs-target="#imageModal"
+                                 data-img-src="https://source.unsplash.com/600x400/?fastfood">
+                            <div class="card-footer bg-transparent border-0 small text-muted">
+                                <i class="fas fa-user me-1"></i> Sarah M. · 1 week ago
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-4 col-lg-3 ambience">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <img src="https://source.unsplash.com/600x400/?restaurant"
+                                 class="card-img-top object-fit-cover"
+                                 alt="Restaurant Ambience"
+                                 style="height: 200px;"
+                                 data-bs-toggle="modal"
+                                 data-bs-target="#imageModal"
+                                 data-img-src="https://source.unsplash.com/600x400/?restaurant">
+                            <div class="card-footer bg-transparent border-0 small text-muted">
+                                <i class="fas fa-user me-1"></i> Restaurant · Official
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-4 col-lg-3 food">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <img src="https://source.unsplash.com/600x400/?fries"
+                                 class="card-img-top object-fit-cover"
+                                 alt="French Fries"
+                                 style="height: 200px;"
+                                 data-bs-toggle="modal"
+                                 data-bs-target="#imageModal"
+                                 data-img-src="https://source.unsplash.com/600x400/?fries">
+                            <div class="card-footer bg-transparent border-0 small text-muted">
+                                <i class="fas fa-user me-1"></i> Mike T. · 3 days ago
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-6 col-md-4 col-lg-3 safety">
+                        <div class="card h-100 border-0 shadow-sm">
+                            <img src="https://source.unsplash.com/600x400/?kitchen"
+                                 class="card-img-top object-fit-cover"
+                                 alt="Kitchen Safety"
+                                 style="height: 200px;"
+                                 data-bs-toggle="modal"
+                                 data-bs-target="#imageModal"
+                                 data-img-src="https://source.unsplash.com/600x400/?kitchen">
+                            <div class="card-footer bg-transparent border-0 small text-muted">
+                                <i class="fas fa-user me-1"></i> Restaurant · Official
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Load More Button -->
+                <div class="text-center mt-4">
+                    <button class="btn btn-outline-primary px-4">
+                        <i class="fas fa-sync-alt me-2"></i>Load More Photos
+                    </button>
+                </div>
+
+                <hr class="my-5">
+
+                <!-- Related Sections -->
+                <div class="row g-4">
+                    <!-- Related to McDonald's -->
+                    <div class="col-md-6">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h3 class="card-title fw-bold mb-3">
+                                    <i class="fas fa-utensils me-2 text-primary"></i>Related to McDonald's
+                                </h3>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Restaurants in Surat</a>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Surat Restaurants</a>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Althan Bhatar restaurants</a>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">McDonald's Menu</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Restaurants Around -->
+                    <div class="col-md-6">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h3 class="card-title fw-bold mb-3">
+                                    <i class="fas fa-map-marker-alt me-2 text-danger"></i>Restaurants Nearby
+                                </h3>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="#" class="btn btn-sm btn-outline-secondary">Pandesar restaurants</a>
+                                    <a href="#" class="btn btn-sm btn-outline-secondary">Athwa restaurants</a>
+                                    <a href="#" class="btn btn-sm btn-outline-secondary">Sagrampura restaurants</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Frequent Searches -->
+                    <div class="col-md-6">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h3 class="card-title fw-bold mb-3">
+                                    <i class="fas fa-search me-2 text-info"></i>Frequent Searches
+                                </h3>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="#" class="btn btn-sm btn-outline-info">mcdonalds althan surat menu</a>
+                                    <a href="#" class="btn btn-sm btn-outline-info">mcdonald menu surat</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Stores -->
+                    <div class="col-md-6">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h3 class="card-title fw-bold mb-3">
+                                    <i class="fas fa-store me-2 text-success"></i>Top Stores
+                                </h3>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="#" class="btn btn-sm btn-outline-success">Magdalla</a>
+                                    <a href="#" class="btn btn-sm btn-outline-success">Dumas</a>
+                                    <a href="#" class="btn btn-sm btn-outline-success">Nana Varachha</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <hr/>
-
-            <div id="menuContainer" class="d-flex flex-wrap"></div>
-
-            <script>
-                function filterImages(category) {
-                    let images = document.querySelectorAll(".gallery img");
-                    images.forEach(img => {
-                        if (category === "all") {
-                            img.style.display = "block";
-                        } else if (img.classList.contains(category)) {
-                            img.style.display = "block";
-                        } else {
-                            img.style.display = "none";
-                        }
-                    });
-
-                    // Remove active class from all buttons
-                    document.querySelectorAll(".filter-buttons button").forEach(btn => btn.classList.remove("active"));
-
-                    // Add active class to clicked button
-                    event.target.classList.add("active");
-                }
-
-                function loadMenu(cuisineId) {
-                    $.getJSON('/Menu/GetMenuItems', { cuisineId: cuisineId }, function (data) {
-                        $('#menuContainer').empty();
-                        if (data.length === 0) {
-                            $('#menuContainer').append('<p>No items found.</p>');
-                        } else {
-                            $.each(data, function (i, item) {
-                                $('#menuContainer').append(`
-                                    <div class="card menu-card">
-                                        <img src="${item.imageDataUrl}" class="card-img-top menu-img" alt="${item.menu_name}">
-                                        <div class="card-body">
-                                            <h5 class="card-title">${item.menu_name}</h5>
-                                            <p class="card-text">${item.menu_descripation}</p>
-                                            <p><strong>₹${item.amount}</strong></p>
-                                        </div>
-                                    </div>
-                                `);
-                            });
-                        }
-                    });
-                }
-
-            </script>
-
-            <div class="related-section">
-
-                <div class="section">
-                    <div class="section-title">Related to McDonald's, Althan Bhatar</div>
-                    <div class="related-links">
-                        <a href="#">Restaurants in Surat</a>,
-                        <a href="#">Surat Restaurants</a>,
-                        <a href="#">Althan Bhatar restaurants</a>,
-                        <a href="#">Best Althan Bhatar restaurants</a>,
-                        <a href="#">McDonald's Menu</a>,
-                        <a href="#">Order food online in Surat</a>
+            <!-- Image Modal -->
+            <div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="imageModalLabel">Photo</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-center">
+                            <img id="modalImage" src="" class="img-fluid rounded" alt="">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-sm btn-outline-secondary">
+                                <i class="far fa-thumbs-up me-1"></i> Like
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-share-alt me-1"></i> Share
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary">
+                                <i class="fas fa-flag me-1"></i> Report
+                            </button>
+                        </div>
                     </div>
                 </div>
-
-                <div class="section">
-                    <div class="section-title">Restaurants Around Althan Bhatar</div>
-                    <div class="related-links">
-                        <a href="#">Pandesar restaurants</a>,
-                        <a href="#">Athwa restaurants</a>,
-                        <a href="#">Sagrampura restaurants</a>,
-                        <a href="#">Nanpura restaurants</a>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <div class="section-title">Frequent Searches Leading to This Page</div>
-                    <div class="related-links">
-                        <a href="#">mcdonalds althan surat menu</a>,
-                        <a href="#">mcdonald menu surat</a>,
-                        <a href="#">mcd in surat bhatar</a>,
-                        <a href="#">mcdonald's menu</a>
-                    </div>
-                </div>
-
-                <div class="section">
-                    <div class="section-title">Top Stores</div>
-                    <div class="related-links">
-                        <a href="#">Magdalla</a>,
-                        <a href="#">Dumas</a>,
-                        <a href="#">Nana Varachha</a>,
-                        <a href="#">Rustampura</a>,
-                        <a href="#">Sarthana</a>,
-                        <a href="#">Piplod</a>
-                    </div>
-                </div>
-
             </div>
-
         </div>
+
+        <script>
+            // Filter images function
+            function filterImages(category) {
+                let imageContainers = document.querySelectorAll(".gallery .col-6");
+                imageContainers.forEach(container => {
+                    if (category === "all") {
+                        container.style.display = "block";
+                    } else if (container.querySelector(`.${category}`)) {
+                        container.style.display = "block";
+                    } else {
+                        container.style.display = "none";
+                    }
+                });
+
+                // Update active button
+                document.querySelectorAll(".filter-buttons button").forEach(btn => btn.classList.remove("active"));
+                event.target.classList.add("active");
+            }
+
+            // Initialize image modal
+            document.addEventListener('DOMContentLoaded', function() {
+                var imageModal = document.getElementById('imageModal');
+                imageModal.addEventListener('show.bs.modal', function(event) {
+                    var button = event.relatedTarget;
+                    var imgSrc = button.getAttribute('data-img-src');
+                    var imgAlt = button.getAttribute('alt');
+
+                    var modalImage = imageModal.querySelector('#modalImage');
+                    modalImage.src = imgSrc;
+                    modalImage.alt = imgAlt;
+
+                    var modalTitle = imageModal.querySelector('.modal-title');
+                    modalTitle.textContent = imgAlt;
+                });
+            });
+        </script>
+
+        <style>
+            .object-fit-cover {
+                object-fit: cover;
+            }
+
+            .gallery .card {
+                transition: transform 0.2s ease;
+            }
+
+                .gallery .card:hover {
+                    transform: translateY(-5px);
+                }
+
+            .btn-outline-primary:hover,
+            .btn-outline-secondary:hover,
+            .btn-outline-info:hover,
+            .btn-outline-success:hover {
+                color: white;
+            }
+
+            .btn-outline-primary:hover {
+                background-color: var(--bs-primary);
+            }
+
+            .btn-outline-secondary:hover {
+                background-color: var(--bs-secondary);
+            }
+
+            .btn-outline-info:hover {
+                background-color: var(--bs-info);
+            }
+
+            .btn-outline-success:hover {
+                background-color: var(--bs-success);
+            }
+        </style>
 
         <div id="menu" class="tab-pane fade">
-            <div class="menu-header">McDonald's Menu</div>
-
-            <div class="menu-container">
-                <div class="menu-image">
-                    <img src="https://b.zmtcdn.com/data/menus/002/1400002/c536631806a44e45c9e07010a94905bb.jpg" alt="McDonald's Menu">
+            <div class="container py-4">
+                <!-- Menu Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1 class="fw-bold">McDonald's Menu</h1>
+                    @* <button class="btn btn-outline-primary">
+                        <i class="fas fa-download me-2"></i>Download Menu
+                    </button> *@
                 </div>
-                <div class="menu-details">
-                    <strong>Menu</strong><br>
-                    9 pages
-                </div>
-            </div> 
 
-            <div class="related-section">
+                <!-- Menu Preview Card -->
+                <div class="card shadow-sm mb-5">
+                    <div class="row g-0">
+                        <div class="col-md-8">
+                            <img src="https://b.zmtcdn.com/data/menus/002/1400002/c536631806a44e45c9e07010a94905bb.jpg"
+                                 class="img-fluid rounded-start h-100 object-fit-cover"
+                                 alt="McDonald's Menu"
+                                 style="max-height: 400px;">
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card-body h-100 d-flex flex-column">
+                                <h5 class="card-title fw-bold">Full Menu</h5>
+                                <p class="card-text text-muted mb-4">Browse our complete menu offerings</p>
 
-                <div class="section">
-                    <div class="section-title">Related to McDonald's, Rustampura</div>
-                    <div class="related-links">
-                        <a href="#">Restaurants in Surat</a>,
-                        <a href="#">Rustampura Restaurants</a>,
-                        <a href="#">Quick Bites in Surat</a>,
-                        <a href="#">McDonald's Menu</a>
+                                <div class="mt-auto">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <i class="fas fa-file-alt fs-3 text-primary me-3"></i>
+                                        <div>
+                                            <p class="mb-0 fw-bold">9 pages</p>
+                                            <small class="text-muted">Detailed menu with all items</small>
+                                        </div>
+                                    </div>
+
+                                    <button class="btn btn-primary w-100 mb-2">
+                                        <i class="fas fa-eye me-2"></i>View Full Menu
+                                    </button>
+                                    <button class="btn btn-outline-secondary w-100">
+                                        <i class="fas fa-print me-2"></i>Print Menu
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="section">
-                    <div class="section-title">Restaurants Around Rustampura</div>
-                    <div class="related-links">
-                        <a href="#">Salabatpura restaurants</a>,
-                        <a href="#">Sagrampura restaurants</a>,
-                        <a href="#">Gopipura restaurants</a>
+                <!-- Related Sections -->
+                <div class="row g-4">
+                    <!-- Related to McDonald's -->
+                    <div class="col-md-6">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h3 class="card-title fw-bold mb-3">
+                                    <i class="fas fa-utensils me-2 text-primary"></i>Related to McDonald's
+                                </h3>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Restaurants in Surat</a>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Rustampura Restaurants</a>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Quick Bites in Surat</a>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">McDonald's Menu</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Restaurants Around -->
+                    <div class="col-md-6">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h3 class="card-title fw-bold mb-3">
+                                    <i class="fas fa-map-marker-alt me-2 text-danger"></i>Restaurants Around Rustampura
+                                </h3>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="#" class="btn btn-sm btn-outline-secondary">Salabatpura restaurants</a>
+                                    <a href="#" class="btn btn-sm btn-outline-secondary">Sagrampura restaurants</a>
+                                    <a href="#" class="btn btn-sm btn-outline-secondary">Gopipura restaurants</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Frequent Searches -->
+                    <div class="col-md-6">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h3 class="card-title fw-bold mb-3">
+                                    <i class="fas fa-search me-2 text-info"></i>Frequent Searches
+                                </h3>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="#" class="btn btn-sm btn-outline-info">mcdonalds surat udhna price list</a>
+                                    <a href="#" class="btn btn-sm btn-outline-info">mcdonald menu rilence mall udhna</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Stores -->
+                    <div class="col-md-6">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+                                <h3 class="card-title fw-bold mb-3">
+                                    <i class="fas fa-store me-2 text-success"></i>Top Stores
+                                </h3>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <a href="#" class="btn btn-sm btn-outline-success">Magdalla</a>
+                                    <a href="#" class="btn btn-sm btn-outline-success">Dumas</a>
+                                    <a href="#" class="btn btn-sm btn-outline-success">Althan Bhatar</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div class="section">
-                    <div class="section-title">Frequent Searches Leading to This Page</div>
-                    <div class="related-links">
-                        <a href="#">mcdonalds surat udhna price list</a>,
-                        <a href="#">mcdonald menu rilence mall udhna</a>
+                <!-- Menu Categories (Additional Section) -->
+                <div class="card shadow-sm mt-5">
+                    <div class="card-body">
+                        <h3 class="fw-bold mb-4">Menu Categories</h3>
+                        <div class="row g-3">
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <a href="#" class="btn btn-outline-primary w-100 text-start">
+                                    <i class="fas fa-hamburger me-2"></i>Burgers
+                                </a>
+                            </div>
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <a href="#" class="btn btn-outline-primary w-100 text-start">
+                                    <i class="fas fa-drumstick-bite me-2"></i>Chicken
+                                </a>
+                            </div>
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <a href="#" class="btn btn-outline-primary w-100 text-start">
+                                    <i class="fas fa-french-fries me-2"></i>Fries
+                                </a>
+                            </div>
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <a href="#" class="btn btn-outline-primary w-100 text-start">
+                                    <i class="fas fa-coffee me-2"></i>Beverages
+                                </a>
+                            </div>
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <a href="#" class="btn btn-outline-primary w-100 text-start">
+                                    <i class="fas fa-ice-cream me-2"></i>Desserts
+                                </a>
+                            </div>
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <a href="#" class="btn btn-outline-primary w-100 text-start">
+                                    <i class="fas fa-morning me-2"></i>Breakfast
+                                </a>
+                            </div>
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <a href="#" class="btn btn-outline-primary w-100 text-start">
+                                    <i class="fas fa-leaf me-2"></i>Salads
+                                </a>
+                            </div>
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <a href="#" class="btn btn-outline-primary w-100 text-start">
+                                    <i class="fas fa-ellipsis-h me-2"></i>More
+                                </a>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <div class="section">
-                    <div class="section-title">Top Stores</div>
-                    <div class="related-links">
-                        <a href="#">Magdalla</a>,
-                        <a href="#">Dumas</a>,
-                        <a href="#">Althan Bhatar</a>
-                    </div>
-                </div>
-
             </div>
-
         </div>
+
+        <style>
+            .object-fit-cover {
+                object-fit: cover;
+            }
+
+            .card {
+                transition: transform 0.2s ease;
+            }
+
+                .card:hover {
+                    transform: translateY(-3px);
+                }
+
+            .btn-outline-primary,
+            .btn-outline-secondary,
+            .btn-outline-info,
+            .btn-outline-success {
+                transition: all 0.2s ease;
+            }
+
+                .btn-outline-primary:hover {
+                    background-color: var(--bs-primary);
+                    color: white;
+                }
+
+                .btn-outline-secondary:hover {
+                    background-color: var(--bs-secondary);
+                    color: white;
+                }
+
+                .btn-outline-info:hover {
+                    background-color: var(--bs-info);
+                    color: white;
+                }
+
+                .btn-outline-success:hover {
+                    background-color: var(--bs-success);
+                    color: white;
+                }
+        </style>
     </div>
 
 

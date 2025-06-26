@@ -299,5 +299,13 @@ namespace Foodie.Controllers.Customer
             var restaurants = _repository.GetApprovedRestaurants();
             return Json(restaurants);
         }
+
+        // GET: Cuisine
+        [HttpGet]
+        public IActionResult GetAllCuisines()
+        {
+            var cuisines = _repository.GetAllCuisines();
+            return Json(cuisines);
+        }
     }
 }
