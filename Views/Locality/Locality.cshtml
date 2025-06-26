@@ -409,6 +409,50 @@
                 background: rgba(255, 90, 95, 0.2);
             }
 
+    /* Add this to your CSS */
+    .owl-carousel .owl-nav button.owl-prev,
+    .owl-carousel .owl-nav button.owl-next {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 40px;
+        height: 40px;
+        border-radius: 50% !important;
+        background: var(--primary) !important;
+        color: white !important;
+        font-size: 1.5rem !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        transition: var(--transition);
+    }
+
+    .owl-carousel .owl-nav button.owl-prev {
+        left: -50px;
+    }
+
+    .owl-carousel .owl-nav button.owl-next {
+        right: -50px;
+    }
+
+        .owl-carousel .owl-nav button.owl-prev:hover,
+        .owl-carousel .owl-nav button.owl-next:hover {
+            background: var(--primary-light) !important;
+        }
+
+    @@media (max-width: 768px) {
+        .owl-carousel .owl-nav button.owl-prev
+
+    {
+        left: -20px;
+    }
+
+    .owl-carousel .owl-nav button.owl-next {
+        right: -20px;
+    }
+
+    }
+
     /* Responsive Adjustments */
     @@media (max-width: 768px) {
         .hero-carousel .carousel-item {

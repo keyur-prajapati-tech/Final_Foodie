@@ -4,6 +4,7 @@ using iTextSharp.text.pdf;
 using iTextSharp.text;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Foodie.Repositories
 {
@@ -21,7 +22,7 @@ namespace Foodie.Repositories
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                using (var command = new SqlCommand("deliverypartner.sp_AssignOrderToPartner", connection))
+                using (var command = new SqlCommand("customers.sp_GetAssignedOrders", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@partner_id", partnerId);
@@ -130,7 +131,7 @@ namespace Foodie.Repositories
             using (var connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                using (var command = new SqlCommand("sp_GetAssignedOrders", connection))
+                using (var command = new SqlCommand("customers.sp_GetAssignedOrders", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@PartnerId", partnerId);
@@ -165,7 +166,6 @@ namespace Foodie.Repositories
             }
             return orders;
         }
-
         public List<tbl_deliveryNotification> GetNotifications(int partnerId)
         {
             var notificatons = new List<tbl_deliveryNotification>();
@@ -183,6 +183,7 @@ namespace Foodie.Repositories
 
                 using(SqlDataReader rd = cmd.ExecuteReader())
                 {
+                    conn.Open();
                     while (rd.Read())
                     {
                         notificatons.Add(new tbl_deliveryNotification
@@ -200,34 +201,188 @@ namespace Foodie.Repositories
             return notificatons;
         }
 
+        public double GetAverageDeliveryTimeAsync(int partnerId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                    string query = @"SELECT ISNULL(AVG(DATEDIFF(MINUTE, o.deliver_dateTime, ad.AssignedAt)), 0)
+                  FROM customers.tbl_orders o
+                  JOIN admins.tbl_deliveryassignments ad on o.order_id = ad.order_id
+                  WHERE ad.partner_id = @PartnerId
+                  AND o.deliver_dateTime > DATEADD(DAY, -30, GETDATE())";
+
+                    SqlCommand cmd = new SqlCommand(query, conn);
+                    cmd.Parameters.AddWithValue("@PartnerId", partnerId);
+
+                    conn.Open();
+                    var result = cmd.ExecuteScalar();
+                    return Convert.ToDouble(result);
+            }
+        }
+
+        public double GetAverageRatingAsync(int partnerId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                string query = @"SELECT ISNULL(AVG(CustomerRating), 0)
+                      FROM deliverypartner.tbl_deliveryRatings dr
+                      JOIN admins.tbl_deliveryassignments ad on ad.partner_id = dr.partner_id
+                      JOIN customers.tbl_orders o on o.order_id = ad.order_id
+                      WHERE o.order_id IN (
+                          SELECT order_id FROM customers.tbl_orders WHERE dr.partner_id = @PartnerId
+                      )";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@PartnerId", partnerId);
+
+                conn.Open();
+                var result = cmd.ExecuteScalar();
+                return Convert.ToDouble(result);
+            }
+        }
+
+        public LatestOrderInfo GetLatestOrderAsync(int partnerId)
+        {
+            using(SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                string query = @"SELECT TOP 1 o.order_date, r.restaurant_name AS RestaurantName, c.customer_name AS CustomerName, 
+                      ca.area+' '+ca.landmark as [Address], COUNT(oi.order_items_id) AS ItemCount, COUNT(o.order_id) AS OrderCount
+                      FROM customers.tbl_orders o
+                      JOIN customers.tbl_order_items oi ON o.order_id = oi.order_id
+                      JOIN vendores.tbl_restaurant r ON o.resturant_id = r.restaurant_id
+                      JOIN customers.tbl_customer c ON o.customer_id = c.customer_id
+                      JOIN admins.tbl_deliveryassignments ad ON ad.order_id = o.order_id
+                      JOIN customers.tbl_address ca ON ca.customer_id = c.customer_id
+                      WHERE ad.partner_id = @PartnerId
+                      GROUP BY o.order_date, r.restaurant_name, c.customer_name, 
+                      ca.area+' '+ca.landmark
+                      ORDER BY o.order_date DESC";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@PartnerId", partnerId);
+
+                conn.Open();
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return new LatestOrderInfo
+                        {
+                            OrderDate = reader.GetDateTime(0),
+                            RestaurantName = reader.GetString(1),
+                            CustomerName = reader.GetString(2),
+                            Address = reader.GetString(3),
+                            ItemCount = reader.GetInt32(4)
+                        };
+                    }
+                }
+                return null;
+            }
+        }
+
+
+        public int GetTodayDeliveriesAsync(int partnerId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                string query = @"SELECT COUNT(o.order_id)
+                  FROM customers.tbl_orders o
+                  JOIN admins.tbl_deliveryassignments da on o.order_id = da.order_id
+                  WHERE da.partner_id = @PartnerId 
+                  AND CAST(o.order_date AS DATE) = CAST(GETDATE() AS DATE)";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@PartnerId", partnerId);
+
+                conn.Open();
+                var result = cmd.ExecuteScalar();
+                return Convert.ToInt32(result);
+            }
+        }
+
+        public decimal GetTodayEarningsAsync(int partnerId)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                string query = @"SELECT ISNULL(SUM(o.grand_total), 0)
+                  FROM customers.tbl_orders o
+                  JOIN admins.tbl_deliveryassignments da on o.order_id = da.order_id
+                  WHERE da.partner_id = @PartnerId 
+                  AND CAST(o.order_date AS DATE) = CAST(GETDATE() AS DATE)";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@PartnerId", partnerId);
+
+                conn.Open();
+                var result = cmd.ExecuteScalar();
+                return Convert.ToDecimal(result);
+            }
+        }
+
         public bool MarkOrderAsDelivered(int orderId)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (SqlConnection connection = new SqlConnection(_connectionString))
             {
-                connection.OpenAsync();
-                using (var command = new SqlCommand("sp_MarkOrderAsDelivered", connection))
+                connection.Open();
+                using (SqlCommand command = new SqlCommand("sp_MarkOrderAsDelivered", connection))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@OrderId", orderId);
-
                     return command.ExecuteNonQuery() > 0;
                 }
             }
         }
 
+        public bool UpdateOnlineStatus(int partnerId, bool isOnline)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionString))
+            {
+                string query = @"UPDATE deliverypartner.tbl_partners
+                    SET is_online = @IsOnline,
+                        last_online_update = GETDATE()
+                    WHERE partner_id = @PartnerId";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@PartnerId", partnerId);
+                cmd.Parameters.AddWithValue("@IsOnline", isOnline);
+
+                conn.Open();
+                int affectedRows = cmd.ExecuteNonQuery();
+                return affectedRows > 0;
+            }
+        }
+
         public bool UpdateOrderStatus(int orderId, string status)
         {
-            using (var connection = new SqlConnection(_connectionString))
+            using (SqlConnection conn = new SqlConnection(_connectionString))
             {
-                connection.OpenAsync();
-                using (var command = new SqlCommand("deliverypartner.sp_UpdateOrderStatus", connection))
-                {
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@OrderId", orderId);
-                    command.Parameters.AddWithValue("@NewStatus", status);
+                conn.Open();
 
-                    return command.ExecuteNonQuery() > 0;
+                // Update order status
+                string updateOrderQuery = @"UPDATE customers.tbl_orders 
+                    SET order_status = @Status, 
+                        deliver_dateTime = CASE WHEN @Status = 'Delivered' THEN GETDATE() ELSE deliver_dateTime END
+                    WHERE order_id = @OrderId";
+
+                using (SqlCommand cmd = new SqlCommand(updateOrderQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Status", status);
+                    cmd.Parameters.AddWithValue("@OrderId", orderId);
+                    cmd.ExecuteNonQuery();
                 }
+
+                // Update delivery assignment
+                string updateAssignmentQuery = @"UPDATE admins.tbl_deliveryassignments
+                    SET status = @Status,
+                        updated_at = GETDATE()
+                    WHERE order_id = @OrderId";
+
+                using (SqlCommand cmd = new SqlCommand(updateAssignmentQuery, conn))
+                {
+                    cmd.Parameters.AddWithValue("@Status", status);
+                    cmd.Parameters.AddWithValue("@OrderId", orderId);
+                    cmd.ExecuteNonQuery();
+                }
+
+                return true;
             }
         }
     }

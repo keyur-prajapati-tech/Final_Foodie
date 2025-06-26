@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Foodie.Models.DeliveryPartner;
 using Foodie.Models.Admin;
 using Foodie.ViewModels;
+using Foodie.Repositories;
 
 
 
@@ -25,12 +26,15 @@ namespace Foodie.Controllers.DeliveryPartner
         private readonly IWebHostEnvironment _env;
         private readonly string _connStr;
 
-        public DeliverSignup(IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
+        private readonly IDeliveryPatnerRepository _deliveryPatnerRepository;
+
+        public DeliverSignup(IConfiguration configuration, IWebHostEnvironment webHostEnvironment, IDeliveryPatnerRepository deliveryPatnerRepository)
         {
             _configuration = configuration;
             _webHostEnvironment = webHostEnvironment;
             _env = webHostEnvironment;
             _connStr = configuration.GetConnectionString("DefaultConnection");
+            _deliveryPatnerRepository = deliveryPatnerRepository;
         }
 
 
@@ -125,8 +129,6 @@ namespace Foodie.Controllers.DeliveryPartner
             ModelState.AddModelError("", "Registration failed. Please try again.");
             return View("DeliveryRegister", partner);
         }
-
-
 
         [Route("d/login")]
         public IActionResult DeliveryLogin()
@@ -755,100 +757,207 @@ namespace Foodie.Controllers.DeliveryPartner
         public IActionResult Dashboard()
         {
             int partnerId = HttpContext.Session.GetInt32("PartnerId") ?? 0;
+            if (partnerId == 0) return RedirectToAction("Login", "Account");
+
             int isOnline = HttpContext.Session.GetInt32("isOnline") ?? 0;
 
-            var model = new DashViewModel();
-
-
-            using (SqlConnection conn = new SqlConnection(_connStr))
+            var model = new DashViewModel
             {
-                conn.Open();
-
-                // ✅ Today Summary
-                SqlCommand todayCmd = new SqlCommand("deliverypartner.sp_GetTodaySummary", conn);
-                todayCmd.CommandType = CommandType.StoredProcedure;
-                todayCmd.Parameters.AddWithValue("@PartnerId", partnerId);
-                using (SqlDataReader reader = todayCmd.ExecuteReader())
-                {
-                    if (reader.Read())
-                    {
-                        model.OrdersDelivered = reader.GetInt32(0);
-                        model.TotalEarnings = reader.GetDecimal(1);
-                    }
-                }
-
-                // ✅ Weekly Earnings
-                SqlCommand weekCmd = new SqlCommand("deliverypartner.sp_GetWeeklyEarnings", conn);
-                weekCmd.CommandType = CommandType.StoredProcedure;
-                weekCmd.Parameters.AddWithValue("@PartnerId", partnerId);
-                using (SqlDataReader reader = weekCmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        model.WeeklyLabels.Add(reader.GetString(0));
-                        model.WeeklyEarnings.Add(reader.GetDecimal(1));
-                    }
-                }
-
-                // ✅ Order Status Breakdown
-                SqlCommand statusCmd = new SqlCommand("deliverypartner.sp_GetOrderStatusSummary", conn);
-                statusCmd.CommandType = CommandType.StoredProcedure;
-                statusCmd.Parameters.AddWithValue("@PartnerId", partnerId);
-                using (SqlDataReader reader = statusCmd.ExecuteReader())
-                {
-                    while (reader.Read())
-                    {
-                        model.OrderStatusLabels.Add(reader.GetString(0));
-                        model.OrderStatusCounts.Add(reader.GetInt32(1));
-                    }
-                }
-
-                conn.Close();
-            }
-
-            using (SqlConnection con = new SqlConnection(_connStr))
-            {
-                using (SqlCommand cmd = new SqlCommand("deliverypartner.sp_GetAssignedOrders", con))
-                {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    con.Open();
-
-                    using (SqlDataReader rdr = cmd.ExecuteReader())
-                    {
-                        if (rdr.Read()) // Get the first assigned order
-                        {
-                            model.RestaurantLat = rdr["restaurant_lat"].ToString();
-                            model.RestaurantLng = rdr["restaurant_lag"].ToString();
-                            model.CustomerLat = rdr["customer_latitude"].ToString();
-                            model.CustomerLng = rdr["customer_longitude"].ToString();
-                        }
-                    }
-                }
-            }
-
-            // ✅ Fetch latest delivery request status (to show/hide customer)
-            using (SqlConnection conn = new SqlConnection(_connStr))
-            {
-                conn.Open();
-                SqlCommand cmd = new SqlCommand(@"
-            SELECT TOP 1 RequestStatus
-            FROM deliverypartner.tbl_deliveryRequest
-            ORDER BY request_id DESC", conn);
-
-                var status = cmd.ExecuteScalar()?.ToString() ?? "Pending";
-                ViewBag.RequestStatus = status;
-            }
-
-            // 🔁 Optional fallback dummy data
-            model.OrdersDelivered = 7;
-            model.TotalEarnings = 2350.50m;
-            model.WeeklyLabels = new List<string> { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
-            model.WeeklyEarnings = new List<decimal> { 200, 300, 150, 400, 450, 500, 350 };
-            model.OrderStatusLabels = new List<string> { "Delivered", "In Transit", "Cancelled" };
-            model.OrderStatusCounts = new List<int> { 12, 3, 1 };
+                OrdersDelivered = _deliveryPatnerRepository.GetTodayDeliveriesAsync(partnerId),
+                TotalEarnings = _deliveryPatnerRepository.GetTodayEarningsAsync(partnerId),
+                AvgDeliveryTime = _deliveryPatnerRepository.GetAverageDeliveryTimeAsync(partnerId),
+                AvgRating = _deliveryPatnerRepository.GetAverageRatingAsync(partnerId),
+                LatestOrder = _deliveryPatnerRepository.GetLatestOrderAsync(partnerId),
+                WeeklyLabels = new List<string> { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" },
+                WeeklyEarnings = new List<decimal> { 200, 300, 150, 400, 450, 500, 350 },
+                OrderStatusLabels = new List<string> { "Delivered", "In Transit", "Cancelled" },
+                OrderStatusCounts = new List<int> { 12, 3, 1 }
+            };
 
             return View("Dashboard", model);
         }
+
+        [HttpPost]
+        public IActionResult UpdateOnlineStatus(bool isOnline)
+        {
+            int partnerId = HttpContext.Session.GetInt32("PartnerId") ?? 0;
+            if (partnerId == 0) return Unauthorized();
+
+            try
+            {
+                bool success = _deliveryPatnerRepository.UpdateOnlineStatus(partnerId, isOnline);
+                if (!success) return BadRequest("Failed to update status");
+
+                HttpContext.Session.SetInt32("isOnline", isOnline ? 1 : 0);
+                return Ok(new { isOnline });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { error = ex.Message });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult UpdateOrderStatus(int orderId, string status)
+        {
+            int partnerId = HttpContext.Session.GetInt32("PartnerId") ?? 0;
+            if (partnerId == 0) return Unauthorized();
+
+            try
+            {
+                bool success = _deliveryPatnerRepository.UpdateOrderStatus(orderId, status);
+                return success
+                    ? Ok(new { success = true, message = "Order status updated successfully" })
+                    : BadRequest(new { success = false, message = "Failed to update order status" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"Error updating order status: {ex.Message}" });
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ReportProblem(int orderId, string description)
+        {
+            int partnerId = HttpContext.Session.GetInt32("PartnerId") ?? 0;
+            if (partnerId == 0) return Unauthorized();
+
+            try
+            {
+                using (var connection = new SqlConnection(_connStr))
+                {
+                    await connection.OpenAsync();
+
+                    // Insert problem report
+                    var insertQuery = @"INSERT INTO deliverypartner.tbl_problem_reports 
+                    (order_id, partner_id, description, reported_at, status)
+                    VALUES (@OrderId, @PartnerId, @Description, GETDATE(), 'Pending')";
+
+                    using (var cmd = new SqlCommand(insertQuery, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@OrderId", orderId);
+                        cmd.Parameters.AddWithValue("@PartnerId", partnerId);
+                        cmd.Parameters.AddWithValue("@Description", description);
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+
+                    // Update order status
+                    var updateQuery = @"UPDATE customers.tbl_orders
+                    SET order_status = 'waiting'
+                    WHERE order_id = @OrderId";
+
+                    using (var cmd = new SqlCommand(updateQuery, connection))
+                    {
+                        cmd.Parameters.AddWithValue("@OrderId", orderId);
+                        await cmd.ExecuteNonQueryAsync();
+                    }
+
+                    return Ok(new { success = true, message = "Problem reported successfully" });
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"Error reporting problem: {ex.Message}" });
+            }
+        }
+        //public IActionResult Dashboard()
+        //{
+        //    int partnerId = HttpContext.Session.GetInt32("PartnerId") ?? 0;
+        //    int isOnline = HttpContext.Session.GetInt32("isOnline") ?? 0;
+
+        //    var model = new DashViewModel();
+
+
+        //    using (SqlConnection conn = new SqlConnection(_connStr))
+        //    {
+        //        conn.Open();
+
+        //        // ✅ Today Summary
+        //        SqlCommand todayCmd = new SqlCommand("deliverypartner.sp_GetTodaySummary", conn);
+        //        todayCmd.CommandType = CommandType.StoredProcedure;
+        //        todayCmd.Parameters.AddWithValue("@PartnerId", partnerId);
+        //        using (SqlDataReader reader = todayCmd.ExecuteReader())
+        //        {
+        //            if (reader.Read())
+        //            {
+        //                model.OrdersDelivered = reader.GetInt32(0);
+        //                model.TotalEarnings = reader.GetDecimal(1);
+        //            }
+        //        }
+
+        //        // ✅ Weekly Earnings
+        //        SqlCommand weekCmd = new SqlCommand("deliverypartner.sp_GetWeeklyEarnings", conn);
+        //        weekCmd.CommandType = CommandType.StoredProcedure;
+        //        weekCmd.Parameters.AddWithValue("@PartnerId", partnerId);
+        //        using (SqlDataReader reader = weekCmd.ExecuteReader())
+        //        {
+        //            while (reader.Read())
+        //            {
+        //                model.WeeklyLabels.Add(reader.GetString(0));
+        //                model.WeeklyEarnings.Add(reader.GetDecimal(1));
+        //            }
+        //        }
+
+        //        // ✅ Order Status Breakdown
+        //        SqlCommand statusCmd = new SqlCommand("deliverypartner.sp_GetOrderStatusSummary", conn);
+        //        statusCmd.CommandType = CommandType.StoredProcedure;
+        //        statusCmd.Parameters.AddWithValue("@PartnerId", partnerId);
+        //        using (SqlDataReader reader = statusCmd.ExecuteReader())
+        //        {
+        //            while (reader.Read())
+        //            {
+        //                model.OrderStatusLabels.Add(reader.GetString(0));
+        //                model.OrderStatusCounts.Add(reader.GetInt32(1));
+        //            }
+        //        }
+
+        //        conn.Close();
+        //    }
+
+        //    using (SqlConnection con = new SqlConnection(_connStr))
+        //    {
+        //        using (SqlCommand cmd = new SqlCommand("deliverypartner.sp_GetAssignedOrders", con))
+        //        {
+        //            cmd.CommandType = CommandType.StoredProcedure;
+        //            cmd.Parameters.AddWithValue("@PartnerId", partnerId); // Use the partnerId from session
+        //            con.Open();
+
+        //            using (SqlDataReader rdr = cmd.ExecuteReader())
+        //            {
+        //                if (rdr.Read()) // Get the first assigned order
+        //                {
+        //                    model.RestaurantLat = rdr["restaurant_lat"].ToString();
+        //                    model.RestaurantLng = rdr["restaurant_lag"].ToString();
+        //                    model.CustomerLat = rdr["latitude"].ToString();
+        //                    model.CustomerLng = rdr["longitude"].ToString();
+        //                }
+        //            }
+        //        }
+        //    }
+
+        //    // ✅ Fetch latest delivery request status (to show/hide customer)
+        //    using (SqlConnection conn = new SqlConnection(_connStr))
+        //    {
+        //        conn.Open();
+        //        SqlCommand cmd = new SqlCommand(@"
+        //    SELECT TOP 1 RequestStatus
+        //    FROM deliverypartner.tbl_deliveryRequest
+        //    ORDER BY request_id DESC", conn);
+
+        //        var status = cmd.ExecuteScalar()?.ToString() ?? "Pending";
+        //        ViewBag.RequestStatus = status;
+        //    }
+
+        //    // 🔁 Optional fallback dummy data
+        //    model.OrdersDelivered = 7;
+        //    model.TotalEarnings = 2350.50m;
+        //    model.WeeklyLabels = new List<string> { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
+        //    model.WeeklyEarnings = new List<decimal> { 200, 300, 150, 400, 450, 500, 350 };
+        //    model.OrderStatusLabels = new List<string> { "Delivered", "In Transit", "Cancelled" };
+        //    model.OrderStatusCounts = new List<int> { 12, 3, 1 };
+
+        //    return View("Dashboard", model);
+        //}
 
 
 
@@ -1148,8 +1257,6 @@ namespace Foodie.Controllers.DeliveryPartner
                 return RedirectToAction("PaySignupFee");
             }
         }
-
-
 
         private async Task CheckAndUpdatePartnerStatusAsync(int partnerId)
         {

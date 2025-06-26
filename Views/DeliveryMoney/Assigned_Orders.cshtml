@@ -223,6 +223,21 @@
         color: #0088cc;
     }
 
+    .status-in-transit {
+        background-color: #e6e6ff;
+        color: #4d4dff;
+    }
+
+    .status-delivered {
+        background-color: #e6ffe6;
+        color: #009900;
+    }
+
+    .status-cancelled {
+        background-color: #ffe6e6;
+        color: #cc0000;
+    }
+
     .map-loading {
         display: flex;
         justify-content: center;
@@ -246,6 +261,38 @@
 
     .mapboxgl-ctrl-logo {
         display: none !important;
+    }
+
+    .status-update-message {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .status-update-success {
+        background-color: #e6ffe6;
+        color: #009900;
+    }
+
+    .status-update-warning {
+        background-color: #fff5e6;
+        color: #ff9800;
+    }
+
+    .status-update-danger {
+        background-color: #ffe6e6;
+        color: #cc0000;
+    }
+
+    .status-update-icon {
+        font-size: 1.5rem;
+    }
+
+    .hidden {
+        display: none;
     }
 
     @@media (max-width: 768px) {
@@ -295,8 +342,10 @@
         <select class="form-select filter-dropdown" style="max-width: 200px;">
             <option value="">All Orders</option>
             <option value="pending">Pending</option>
-            <option value="in-transit">In Transit</option>
+            <option value="assigned">Assigned</option>
+            <option value="in transit">In Transit</option>
             <option value="delivered">Delivered</option>
+            <option value="cancelled">Cancelled</option>
         </select>
     </div>
 
@@ -304,7 +353,7 @@
     {
         foreach (var order in Model)
         {
-            <div class="order-card">
+            <div class="order-card" id="order-card-@order.OrderId">
                 <div class="order-header">
                     <div class="order-id">
                         <i class="fas fa-receipt me-2"></i>Order #@order.OrderId
@@ -322,22 +371,69 @@
                     </span>
                 </div>
                 <div class="order-body">
+                    <!-- Status update messages (hidden by default) -->
+                    <div id="picked-message-@order.OrderId" class="status-update-message status-update-warning hidden">
+                        <i class="fas fa-check-circle status-update-icon"></i>
+                        <div>
+                            <h5 class="mb-1">Order Picked Up Successfully</h5>
+                            <p class="mb-0">You've marked order #@order.OrderId as picked up. Please deliver it within the estimated time.</p>
+                        </div>
+                    </div>
+
+                    <div id="delivered-message-@order.OrderId" class="status-update-message status-update-success hidden">
+                        <i class="fas fa-check-circle status-update-icon"></i>
+                        <div>
+                            <h5 class="mb-1">Order Delivered Successfully</h5>
+                            <p class="mb-0">You've successfully delivered order #@order.OrderId. The customer has been notified.</p>
+                        </div>
+                    </div>
+
+                    <div id="cancelled-message-@order.OrderId" class="status-update-message status-update-danger hidden">
+                        <i class="fas fa-times-circle status-update-icon"></i>
+                        <div>
+                            <h5 class="mb-1">Order Cancelled</h5>
+                            <p class="mb-0">Order #@order.OrderId has been cancelled. Please contact support if this was a mistake.</p>
+                        </div>
+                    </div>
+
                     <div class="restaurant-name">
                         <i class="fas fa-utensils restaurant-icon"></i>
                         @order.RestaurantName
                     </div>
 
+                    <div class="order-date">
+                        <i class="fas fa-calendar-alt me-2"></i>
+                        @order.OrderDate
+                    </div>
+
                     <div class="order-info">
                         <div class="info-item">
                             <span class="info-label">Status</span>
-                            <span class="info-value status-pill @(order.OrderStatus.ToLower() == "pending" ? "status-pending" : "status-assigned")">
+                            <span class="info-value status-pill
+                                  @(order.OrderStatus.ToLower() == "pending" ? "status-pending" :
+                                    order.OrderStatus.ToLower() == "assigned" ? "status-assigned" :
+                                    order.OrderStatus.ToLower() == "in transit" ? "status-in-transit" :
+                                    order.OrderStatus.ToLower() == "delivered" ? "status-delivered" :
+                                    "status-cancelled")">
                                 @if (order.OrderStatus.ToLower() == "pending")
                                 {
                                     <i class="fas fa-clock me-1"></i>
                                 }
+                                else if (order.OrderStatus.ToLower() == "assigned")
+                                {
+                                    <i class="fas fa-user-check me-1"></i>
+                                }
+                                else if (order.OrderStatus.ToLower() == "in transit")
+                                {
+                                    <i class="fas fa-truck me-1"></i>
+                                }
+                                else if (order.OrderStatus.ToLower() == "delivered")
+                                {
+                                    <i class="fas fa-check-circle me-1"></i>
+                                }
                                 else
                                 {
-                                    <i class="fas fa-check me-1"></i>
+                                    <i class="fas fa-times-circle me-1"></i>
                                 }
                                 @order.OrderStatus
                             </span>
@@ -380,24 +476,44 @@
                         </div>
                     </div>
 
-                    <div class="order-actions">
-                        <form method="post" action="/deliverymoney/update-status" style="flex-grow: 1;">
-                            <input type="hidden" name="OrderId" value="@order.OrderId" />
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-action btn-picked flex-grow-1" name="status" value="In Transit">
-                                    <i class="fas fa-box"></i> Picked Up
+                    <div class="order-actions" id="actions-@order.OrderId">
+                        @if (order.OrderStatus.ToLower() != "delivered" && order.OrderStatus.ToLower() != "cancelled")
+                        {
+                            <form method="post" action="/deliverymoney/update-status" style="flex-grow: 1;" onsubmit="return showStatusUpdate('picked', @order.OrderId)">
+                                <input type="hidden" name="OrderId" value="@order.OrderId" />
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-action btn-picked flex-grow-1" name="status" value="In Transit">
+                                        <i class="fas fa-box"></i> Picked Up
+                                    </button>
+                                    <button class="btn btn-action btn-delivered flex-grow-1" name="status" value="Delivered" onclick="return showStatusUpdate('delivered', @order.OrderId)">
+                                        <i class="fas fa-check-circle"></i> Delivered
+                                    </button>
+                                </div>
+                            </form>
+                            <form asp-action="CancelOrder" method="post" style="width: 120px;" onsubmit="return confirmCancel(@order.OrderId)">
+                                <input type="hidden" name="orderId" value="@order.OrderId" />
+                                <button type="submit" class="btn btn-action btn-cancel w-100">
+                                    <i class="fas fa-times-circle"></i> Cancel
                                 </button>
-                                <button class="btn btn-action btn-delivered flex-grow-1" name="status" value="Delivered">
-                                    <i class="fas fa-check-circle"></i> Delivered
-                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <div class="w-100 text-center py-2">
+                                <p class="mb-0 text-muted">
+                                    @if (order.OrderStatus.ToLower() == "delivered")
+                                    {
+                                        <i class="fas fa-check-circle text-success me-2"></i>
+                                        <span>This order was delivered on @DateTime.Now.ToString("MMM dd, yyyy")</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-times-circle text-danger me-2"></i>
+                                        <span>This order was cancelled on @DateTime.Now.ToString("MMM dd, yyyy")</span>
+                                    }
+                                </p>
                             </div>
-                        </form>
-                        <form asp-action="CancelOrder" method="post" style="width: 120px;" onsubmit="return confirm('Are you sure you want to cancel this order?');">
-                            <input type="hidden" name="orderId" value="@order.OrderId" />
-                            <button type="submit" class="btn btn-action btn-cancel w-100">
-                                <i class="fas fa-times-circle"></i> Cancel
-                            </button>
-                        </form>
+                        }
                     </div>
                 </div>
             </div>
@@ -427,7 +543,7 @@
     const markers = {};
     const popups = {};
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Check if there are any orders
         const mapContainers = document.querySelectorAll('[id^="map-"]');
         if (mapContainers.length > 0) {
@@ -435,15 +551,15 @@
     @foreach (var order in Model)
     {
         <text>
-                        initMap(
-                            '@order.OrderId',
-                            [@order.RestaurantLag, @order.RestaurantLat],
-                            [@order.CustomerLongitude, @order.CustomerLatitude],
-                            '@order.RestaurantName'
-                        );
+                    initMap(
+                        '@order.OrderId',
+                        [@order.RestaurantLag, @order.RestaurantLat],
+                        [@order.CustomerLongitude, @order.CustomerLatitude],
+                        '@order.RestaurantName'
+                    );
         </text>
     }
-        } else {
+            } else {
             // If Model is empty or null, there are no orders to display
             console.log("No orders to display");
         }
@@ -462,7 +578,7 @@
                 container: `map-${orderId}`,
                 style: 'mapbox://styles/mapbox/streets-v12',
                 center: [(parseFloat(restaurantCoords[0]) + parseFloat(customerCoords[0])) / 2,
-                         (parseFloat(restaurantCoords[1]) + parseFloat(customerCoords[1])) / 2],
+                (parseFloat(restaurantCoords[1]) + parseFloat(customerCoords[1])) / 2],
                 zoom: 13
             });
 
@@ -676,15 +792,54 @@
                 loadingElement.style.display = 'none';
             }
             mapContainer.innerHTML = `
-                <div class="alert alert-warning text-center" style="height:100%;display:flex;align-items:center;justify-content:center;">
-                    <div>
-                        <i class="fas fa-map-marked-alt fa-2x mb-3"></i>
-                        <p>Unable to load map: ${message}</p>
-                        <small>Please check your connection or try again later</small>
+                    <div class="alert alert-warning text-center" style="height:100%;display:flex;align-items:center;justify-content:center;">
+                        <div>
+                            <i class="fas fa-map-marked-alt fa-2x mb-3"></i>
+                            <p>Unable to load map: ${message}</p>
+                            <small>Please check your connection or try again later</small>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
         }
+    }
+
+    // Status update functions
+    function showStatusUpdate(type, orderId) {
+        // Hide all other messages first
+        document.getElementById(`picked-message-${orderId}`).classList.add('hidden');
+        document.getElementById(`delivered-message-${orderId}`).classList.add('hidden');
+        document.getElementById(`cancelled-message-${orderId}`).classList.add('hidden');
+
+        // Show the appropriate message
+        const messageElement = document.getElementById(`${type}-message-${orderId}`);
+        if (messageElement) {
+            messageElement.classList.remove('hidden');
+
+            // Scroll to the message
+            messageElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            // Hide the actions if delivered or cancelled
+            if (type === 'delivered' || type === 'cancelled') {
+                document.getElementById(`actions-${orderId}`).innerHTML = `
+                        <div class="w-100 text-center py-2">
+                            <p class="mb-0 text-muted">
+                                <i class="fas fa-${type === 'delivered' ? 'check-circle text-success' : 'times-circle text-danger'} me-2"></i>
+                                <span>This order was ${type === 'delivered' ? 'delivered' : 'cancelled'} on ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</span>
+                            </p>
+                        </div>
+                    `;
+            }
+        }
+
+        return true;
+    }
+
+    function confirmCancel(orderId) {
+        if (confirm('Are you sure you want to cancel this order?')) {
+            showStatusUpdate('cancelled', orderId);
+            return true;
+        }
+        return false;
     }
 
     // Filter functionality
