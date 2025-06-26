@@ -31,10 +31,11 @@
                             <th scope="col">Phone</th>
                             <th scope="col">Email</th>
                             <th scope="col">Gender</th>
-                            <th scope="col">Profile</th>
+                            
                             <th scope="col">DOB</th>
                             <th scope="col">Created At</th>
                             <th scope="col">Updated At</th>
+                            <th> Action </th>
                         </tr>
                     </thead>
                     <tbody>
@@ -46,19 +47,11 @@
                                 <td>@emp.phone</td>
                                 <td>@emp.email</td>
                                 <td>@emp.Gender</td>
-                                <td>
-                                    @if (emp.profilepic != null)
-                                    {
-                                        <img src="data:image/png;base64,@Convert.ToBase64String(emp.profilepic)" width="50" height="50" class="rounded-circle" />
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">No profile Img</span>
-                                    }
-                                </td>
+                                
                                 <td>@emp.DOB</td>
                                 <td>@emp.created_at</td>
                                 <td>@emp.updated_at</td>
+                                <td><button btn btn-secodary> Block</button></td>
                             </tr>
                         }
                     </tbody>
