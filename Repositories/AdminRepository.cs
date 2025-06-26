@@ -297,10 +297,10 @@ namespace Foodie.Repositories
                     Delivery_complaints.Add(new tbl_partner_complaints
                     {
                         partner_complaint_id = reader["partner_complaint_id"] != DBNull.Value ? (int)reader["partner_complaint_id"] : 0,
-                        partner_id = reader["partner_id"] != DBNull.Value ? (int)reader["partner_id"] : 0,
+                        Fullname = reader["Fullname"] != DBNull.Value ? reader["Fullname"].ToString() : string.Empty,
                         cmp_Descr = reader["cmp_Descr"] != DBNull.Value ? reader["cmp_Descr"].ToString() : string.Empty,
                         cmp_Status = reader["cmp_Status"] != DBNull.Value ? Convert.ToBoolean(reader["cmp_Status"]) : false,
-                        admin_id = reader["admin_id"] != DBNull.Value ? (int)reader["admin_id"] : 0,
+                        Full_name = reader["Full_name"] != DBNull.Value ? reader["Full_name"].ToString() : string.Empty,
                         ResolutionRemarks = reader["ResolutionRemarks"] != DBNull.Value ? reader["ResolutionRemarks"].ToString() : string.Empty,
                         createdAt = reader["createdAt"] != DBNull.Value ? Convert.ToDateTime(reader["createdAt"]) : DateTime.MinValue,
                         ResolvedAt = reader["ResolvedAt"] != DBNull.Value ? Convert.ToDateTime(reader["ResolvedAt"]) : DateTime.MinValue
