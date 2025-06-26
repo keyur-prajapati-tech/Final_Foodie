@@ -272,7 +272,7 @@
                 contentType: 'application/json',  // Explicitly set content type
                 dataType: 'json',                // Expect JSON response
                 data: JSON.stringify({           // Stringify the payload
-                    RestaurantId: 7,             // Replace with dynamic ID if needed
+                    RestaurantId: restaurantId,             // Replace with dynamic ID if needed
                     IsOnline: isOnline
                 }),
                 success: function(response) {

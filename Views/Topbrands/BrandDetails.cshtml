@@ -52,130 +52,291 @@
     <!-- Tab Content -->
     <div class="tab-content py-4" id="restaurantTabContent">
         <!-- Overview Tab -->
-        <div class="tab-pane fade show active" id="overview" role="tabpanel">
-            <div class="res-container mt-3">
-                <!-- Left Side Content -->
-                <div class="left-content">
-                    <div class="menu-section">
-                        <h2>Menu</h2>
-                        <div class="cuisines">
-                            <span class="tag">North Indian</span>
-                            <span class="tag">Kathiyawadi</span>
-                        </div>
-                        <div class="menu-card">
-                            <img src="https://i.pinimg.com/736x/e0/92/ac/e092ac87d6ff12512795de70ae181331.jpg" alt="Menu">
-                            <p>Menu <br> 2 pages</p>
-                        </div>
-                    </div>
-
-                    <div class="average-cost">
-                        <h2>Average Cost</h2>
-                        <p><strong>₹500</strong> for two people (approx.)</p>
-                        <p>Exclusive of taxes & charges, if any</p>
-                        <p>Digital payments accepted</p>
-                    </div>
-
-                    <div class="more-info">
-                        <h2>More Info</h2>
-                        <ul>
-                            <li>Takeaway Available</li>
-                            <li>Vegetarian Only</li>
-                            <li>Family Friendly</li>
-                            <li>Outdoor Seating</li>
-                        </ul>
-                    </div>
-
-                    <!-- Similar Restaurants Section -->
-                    <div class="similar-restaurants">
-                        <h2>Similar Restaurants</h2>
-                        <div class="restaurant-carousel">
-                            <div class="restaurant-card" style="border: 3px solid #000;border-radius: 5px;margin:5px;padding:2px;">
-                                <img src="https://dynamic-media-cdn.tripadvisor.com/media/photo-o/18/d5/0b/cd/restaurant.jpg?w=600&h=-1&s=1" alt="Vishala Garden" style="width:100%;">
-                                <h3 class="text-uppercase">Vishala Garden R...</h3>
-                                <p class="ratings">
-                                    <span style="color:#ff9900;">3.0 ⭐</span> DINING |
-                                    <span style="color:#28a745;">3.9 ⭐</span> DELIVERY
-                                </p>
-                                <p style="font-weight:800">North Indian, Chinese, Gujarati</p>
-                                <p style="font-weight:500;color:gray">Katargam, Surat</p>
-                            </div>
-
-                            <div class="restaurant-card" style="border: 3px solid #000;border-radius: 5px;margin:5px;padding:2px;">
-                                <img src="https://b.zmtcdn.com/data/dish_photos/5e0/20afda3d5fbbae1892c288a15c39a5e0.jpg" alt="Super Seek Paratha" style="width:100%;">
-                                <h3 class="text-uppercase">Super Seek Parat...</h3>
-                                <p class="ratings">
-                                    <span style="color:#ff9900;">3.0 ⭐</span> DINING |
-                                    <span style="color:#28a745;">3.9 ⭐</span> DELIVERY
-                                </p>
-                                <p style="font-weight:800">North Indian, Biryani</p>
-                                <p style="font-weight:500;color:gray">Shahpore, Surat</p>
-                            </div>
-
-                            <div class="restaurant-card" style="border: 3px solid #000;border-radius: 5px;margin:5px;padding:2px;">
-                                <img src="https://b.zmtcdn.com/data/pictures/0/20730160/9c546ddc8db22e2c68e83132714df86e_o2_featured_v2.jpg?fit=around|750:500&crop=750:500;*,*" alt="Swaminarayan Khichdi" style="width:100%;">
-                                <h3 class="text-uppercase">Swaminarayan Khi...</h3>
-                                <p class="ratings">
-                                    <span style="color:#ff9900;">3.0 ⭐</span> DINING |
-                                    <span style="color:#28a745;">3.9 ⭐</span> DELIVERY
-                                </p>
-                                <p style="font-weight:800">Gujarati, North Indian</p>
-                                <p style="font-weight:500;color:gray">Kapodra, Surat</p>
+        <div id="overview" class="tab-pane fade show active">
+            <div class="container-fluid px-0">
+                <div class="row g-4">
+                    <!-- Left Side Content (Main Content) -->
+                    <div class="col-lg-8">
+                        <!-- Menu Section -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body">
+                                <h2 class="fw-bold mb-4">Menu</h2>
+                                <div class="d-flex flex-wrap gap-2 mb-3">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">North Indian</span>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">Kathiyawadi</span>
+                                    <span class="badge bg-primary bg-opacity-10 text-primary">Gujarati</span>
+                                </div>
+                                <div class="menu-card bg-light rounded-3 overflow-hidden position-relative" style="height: 200px;">
+                                    <img src="https://i.pinimg.com/736x/e0/92/ac/e092ac87d6ff12512795de70ae181331.jpg"
+                                         alt="Restaurant Menu"
+                                         class="w-100 h-100 object-fit-cover">
+                                    <div class="position-absolute bottom-0 start-0 bg-dark bg-opacity-75 text-white p-3 w-100">
+                                        <p class="mb-0 fw-bold">Menu <span class="text-muted">2 pages</span></p>
+                                        <button class="btn btn-sm btn-outline-light mt-2">View Full Menu</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <!--Review Highlights-->
-                    <div class="container mt-4" style="background-color:#fff;box-shadow:3px 3px 3px 3px rgba(0,0,0,0);">
-                        <h4>Review Highlights</h4>
-                        <div class="review-container">
-                            <span class="review-pill">Large Servings</span>
-                            <span class="review-pill">Delivery Person</span>
-                            <span class="review-pill">Contactless Delivery</span>
-                            <span class="review-pill">Wonderful Presentation</span>
-                            <span class="review-pill">Nice Food</span>
-                            <span class="review-pill">Student Crowd</span>
+
+                        <!-- Pricing & Info Section -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <div class="card shadow-sm h-100">
+                                    <div class="card-body">
+                                        <h3 class="fw-bold mb-3">Average Cost</h3>
+                                        <p class="fs-4 fw-bold text-success">₹500 for two people</p>
+                                        <p class="text-muted small">(approx.)</p>
+                                        <hr>
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <i class="fas fa-info-circle text-primary"></i>
+                                            <span class="small">Exclusive of taxes & charges</span>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <i class="fas fa-money-bill-wave text-primary"></i>
+                                            <span class="small">Digital payments accepted</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="card shadow-sm h-100">
+                                    <div class="card-body">
+                                        <h3 class="fw-bold mb-3">More Info</h3>
+                                        <ul class="list-unstyled">
+                                            <li class="mb-2">
+                                                <i class="fas fa-utensils text-primary me-2"></i>
+                                                Takeaway Available
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="fas fa-leaf text-success me-2"></i>
+                                                Vegetarian Only
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="fas fa-users text-primary me-2"></i>
+                                                Family Friendly
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="fas fa-umbrella-beach text-primary me-2"></i>
+                                                Outdoor Seating
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <!-- Featured Section -->
-                    <div class="featured-section">
-                        <h2>Featured In</h2>
-                        <div class="featured-card">
-                            <img src="featured.jpg" alt="Gujarati Dishes">
-                            <div class="featured-text">
-                                <h3>Unmissable Gujarati D...</h3>
-                                <p>11 Places ➜</p>
+
+                        <!-- Similar Restaurants Section -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body">
+                                <h2 class="fw-bold mb-4">Similar Restaurants</h2>
+                                <div class="row g-4">
+                                    <div class="col-md-4">
+                                        <div class="card h-100 border-0 shadow-sm hover-shadow">
+                                            <img src="https://lh3.googleusercontent.com/p/AF1QipPBBm9TQwk_UDzBEjZWdLOnA66ePZjnmXutnkaj=s680-w680-h510-rw"
+                                                 class="card-img-top object-fit-cover"
+                                                 style="height: 150px;"
+                                                 alt="Purohit Dhaba">
+                                            <div class="card-body">
+                                                <h5 class="card-title fw-bold">Purohit Dhaba</h5>
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-star"></i> 3.0
+                                                    </span>
+                                                    <small class="text-muted">DINING</small>
+                                                </div>
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-star"></i> 3.9
+                                                    </span>
+                                                    <small class="text-muted">DELIVERY</small>
+                                                </div>
+                                                <p class="card-text small text-muted mb-1">
+                                                    <i class="fas fa-map-marker-alt text-danger"></i> Near Sugar Factory
+                                                </p>
+                                                <p class="card-text small text-muted">Katargam, Surat</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="card h-100 border-0 shadow-sm hover-shadow">
+                                            <img src="https://lh3.googleusercontent.com/p/AF1QipMbS_VXDamoSfgdUukehz2WkL3pAzhTOyfkknBi=s680-w680-h510-rw"
+                                                 class="card-img-top object-fit-cover"
+                                                 style="height: 150px;"
+                                                 alt="Madhuli Restaurant">
+                                            <div class="card-body">
+                                                <h5 class="card-title fw-bold">Madhuli Restaurant</h5>
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-star"></i> 4.1
+                                                    </span>
+                                                    <small class="text-muted">DINING</small>
+                                                </div>
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-star"></i> 4.0
+                                                    </span>
+                                                    <small class="text-muted">DELIVERY</small>
+                                                </div>
+                                                <p class="card-text small text-muted mb-1">
+                                                    <i class="fas fa-map-marker-alt text-danger"></i> 5th Floor, Hotel Navchetan
+                                                </p>
+                                                <p class="card-text small text-muted">Shahpore, Surat</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-4">
+                                        <div class="card h-100 border-0 shadow-sm hover-shadow">
+                                            <img src="https://lh3.googleusercontent.com/p/AF1QipPWK9Tz18cl6Qf0cHpHFYwQdt5-ml-r-yqrZkbn=s680-w680-h510-rw"
+                                                 class="card-img-top object-fit-cover"
+                                                 style="height: 150px;"
+                                                 alt="Pariwar Restaurant">
+                                            <div class="card-body">
+                                                <h5 class="card-title fw-bold">Pariwar Restaurant</h5>
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-star"></i> 3.9
+                                                    </span>
+                                                    <small class="text-muted">DINING</small>
+                                                </div>
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <span class="badge bg-warning text-dark">
+                                                        <i class="fas fa-star"></i> 3.9
+                                                    </span>
+                                                    <small class="text-muted">DELIVERY</small>
+                                                </div>
+                                                <p class="card-text small text-muted mb-1">
+                                                    <i class="fas fa-map-marker-alt text-danger"></i> National Highway 48
+                                                </p>
+                                                <p class="card-text small text-muted">Gundlav, Surat</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Review Highlights -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body">
+                                <h2 class="fw-bold mb-4">Review Highlights</h2>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fas fa-utensils me-1 text-primary"></i> Large Servings
+                                    </span>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fas fa-motorcycle me-1 text-primary"></i> Delivery Person
+                                    </span>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fas fa-hands-wash me-1 text-primary"></i> Contactless Delivery
+                                    </span>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fas fa-palette me-1 text-primary"></i> Wonderful Presentation
+                                    </span>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fas fa-heart me-1 text-danger"></i> Nice Food
+                                    </span>
+                                    <span class="badge bg-light text-dark border">
+                                        <i class="fas fa-user-graduate me-1 text-primary"></i> Student Crowd
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Featured In Section -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body">
+                                <h2 class="fw-bold mb-4">Featured In</h2>
+                                <div class="card border-0 shadow-sm">
+                                    <img src="https://media.assettype.com/outlooktraveller/import/outlooktraveller/public/uploads/articles/explore/2018/02/Gujarati12_FI.jpg"
+                                         class="card-img-top object-fit-cover"
+                                         style="height: 180px;"
+                                         alt="Gujarati Dishes">
+                                    <div class="card-body">
+                                        <h5 class="card-title fw-bold">Unmissable Gujarati Dishes</h5>
+                                        <p class="card-text text-muted">11 Places to try authentic Gujarati cuisine</p>
+                                        <a href="#" class="btn btn-sm btn-outline-primary">View Article →</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Help Section -->
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-body">
+                                <h2 class="fw-bold mb-4">HELP US IMPROVE</h2>
+
+                                <div class="card mb-3 border-primary">
+                                    <div class="card-body">
+                                        <h5 class="card-title fw-bold text-primary">
+                                            <i class="fas fa-exclamation-circle me-2"></i> Report an error
+                                        </h5>
+                                        <p class="card-text">Help us keep information accurate and relevant for everyone</p>
+                                        <a href="#" class="btn btn-sm btn-outline-primary">Report now →</a>
+                                    </div>
+                                </div>
+
+                                <div class="card border-success">
+                                    <div class="card-body">
+                                        <h5 class="card-title fw-bold text-success">
+                                            <i class="fas fa-flag me-2"></i> Claim this listing
+                                        </h5>
+                                        <p class="card-text">Get access to analytics dashboard and manage your listing</p>
+                                        <a href="#" class="btn btn-sm btn-outline-success">Claim now →</a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Help Us Make Zomato Better Section -->
-                    <div class="help-section mt-3">
-                        <h2>HELP US MAKE ZOMATO BETTER</h2>
+                    <!-- Right Side Content (Sticky Sidebar) -->
+                    <div class="col-lg-4">
+                        <div class="sticky-top" style="top: 20px;">
+                            <!-- Location Box -->
+                            <div class="card shadow-sm mb-4">
+                                <div class="card-body">
+                                    <h3 class="fw-bold mb-3">Location & Directions</h3>
+                                    <div class="ratio ratio-16x9 mb-3">
+                                        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3721.238983447634!2d72.8542143154026!3d21.14577498593671!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be0517b04000001%3A0x5b5b5b5b5b5b5b5b!2sAdajan%20Hazira%20Main%20Road%2C%20Opposite%20Shell%20Petrol%20Pump%2C%20Bhatha%20Gam%2C%20Pal%20Gam%2C%20Surat!5e0!3m2!1sen!2sin!4v1620000000000!5m2!1sen!2sin"
+                                                allowfullscreen=""
+                                                loading="lazy"
+                                                class="rounded-3"></iframe>
+                                    </div>
+                                    <p class="mb-3">
+                                        <i class="fas fa-map-marker-alt text-danger me-2"></i>
+                                        Adajan Hazira Main Road, Opposite Shell Petrol Pump, Bhatha Gam, Pal Gam, Surat
+                                    </p>
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-secondary">
+                                            <i class="far fa-copy me-2"></i> Copy Address
+                                        </button>
+                                        <button class="btn btn-primary">
+                                            <i class="fas fa-directions me-2"></i> Get Directions
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
 
-                        <div class="help-box">
-                            <h3>Report an error in this listing</h3>
-                            <p>Help us make Zomato more updated and relevant for everyone</p>
-                            <a href="#" class="report-link">Report now ➜</a>
+                            <!-- Quick Actions -->
+                            <div class="card shadow-sm">
+                                <div class="card-body">
+                                    <h3 class="fw-bold mb-3">Quick Actions</h3>
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-primary">
+                                            <i class="fas fa-phone-alt me-2"></i> Call Restaurant
+                                        </button>
+                                        <button class="btn btn-outline-success">
+                                            <i class="fas fa-share-alt me-2"></i> Share
+                                        </button>
+                                        <button class="btn btn-outline-danger">
+                                            <i class="far fa-heart me-2"></i> Add to Favorites
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-
-                        <hr> <!-- Horizontal Line -->
-
-                        <div class="help-box">
-                            <h3>Claim this listing</h3>
-                            <p>Claim this listing to get access to a free management and analytics dashboard, where you can edit information, track your page views, and more.</p>
-                            <a href="#" class="claim-link">Claim now ➜</a>
-                        </div>
-                    </div>
-
-                </div>
-
-                <!-- Right Side Fixed Location -->
-                <div class="right-content">
-                    <div class="location-box">
-                        <h2>Direction</h2>
-                        <iframe src="https://www.openstreetmap.org/export/embed.html?bbox=..." width="100%" height="150"></iframe>
-                        <p>Adajan Hazira Main Road, Opposite Shell Petrol Pump, Bhatha Gam, Pal Gam, Surat</p>
-                        <button class="copy-btn">📋 Copy</button>
-                        <button class="direction-btn">📍 Direction</button>
                     </div>
                 </div>
             </div>
