@@ -1,9 +1,12 @@
 ﻿using Foodie.Models;
 using Foodie.Models.customers;
 using Foodie.Repositories;
+using Foodie.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Net.Mail;
+using System.Net;
 
 namespace Foodie.Controllers.Customer
 {
@@ -135,6 +138,7 @@ namespace Foodie.Controllers.Customer
             HttpContext.Session.SetString("CustomerEmail", email);
             HttpContext.Session.SetString("UserName", nameToStore);
             HttpContext.Session.SetString("UserId", existing.customer_id.ToString());
+            HttpContext.Session.SetString("UserEmail", "email");
 
             return Json(new
             {
@@ -162,6 +166,7 @@ namespace Foodie.Controllers.Customer
                 HttpContext.Session.SetString("UserId", customer.customer_id.ToString());
                 HttpContext.Session.SetString("UserName", customer.customer_name);
                 HttpContext.Session.SetString("UserRole", "customer");
+                HttpContext.Session.SetString("UserEmail", "email");
 
                 return Json(new
                 {
@@ -306,6 +311,62 @@ namespace Foodie.Controllers.Customer
         {
             var cuisines = _repository.GetAllCuisines();
             return Json(cuisines);
+        }
+
+        [HttpPost]
+        public IActionResult sendemailpage(OTPViewModel model)
+        {
+            if (string.IsNullOrEmpty(model.Email))
+                return Json(new { success = false, message = "Email is required." });
+
+            string otp = GenerateOTP();
+            HttpContext.Session.SetString("UserEmail", model.Email);
+            _repository.SaveOTP(model.Email, otp);
+            SendEmail(model.Email, otp);
+
+            return Json(new { success = true, message = "OTP sent to your email.", email = model.Email });
+        }
+
+        private string GenerateOTP()
+        {
+            return new Random().Next(100000, 999999).ToString();
+        }
+
+        private void SendEmail(string toEmail, string otp)
+        {
+            var fromEmail = "keyurprajapati1402@gmail.com";
+            var fromPassword = "lzcegjbyudtzxlvt";
+
+            var message = new MailMessage(fromEmail, toEmail)
+            {
+                Subject = "Your OTP Code",
+                Body = $"<h3>Your OTP is: {otp}</h3><p>Valid for 1 minute only.</p>",
+                IsBodyHtml = true
+            };
+
+            var smtp = new SmtpClient("smtp.gmail.com", 587)
+            {
+                Credentials = new NetworkCredential(fromEmail, fromPassword),
+                EnableSsl = true
+            };
+
+            smtp.Send(message);
+        }
+
+        [HttpPost]
+        public IActionResult Verify(string otp, string email)
+        {
+            if (string.IsNullOrEmpty(email))
+                email = HttpContext.Session.GetString("UserEmail");
+
+            if (_repository.isValidateOTP(email, otp))
+            {
+                return Json(new { success = true, message = "OTP verified successfully.", redirectUrl = Url.Action("Registerres", "Addrestaurant") });
+            }
+            else
+            {
+                return Json(new { success = false, message = "Invalid or expired OTP." });
+            }
         }
     }
 }

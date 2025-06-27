@@ -2947,5 +2947,54 @@ ORDER BY order_date DESC";
             }
             return deliveryPartnerInfo;
         }
+
+        public void SaveOTP(string email, string otp)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                string query = @"INSERT INTO customers.tbl_email_otp (email, otp_code) VALUES (@Email, @OTP)";
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Email", email);
+                cmd.Parameters.AddWithValue("@OTP", otp);
+
+                conn.Open();
+                cmd.ExecuteNonQuery();
+                conn.Close();
+            }
+        }
+
+        public bool isValidateOTP(string email, string otp)
+        {
+            using (SqlConnection conn = new SqlConnection(_connectionstring))
+            {
+                conn.Open();
+                string query = @"SELECT created_at FROM customers.tbl_email_otp 
+                         WHERE email = @Email AND otp_code = @OTP AND is_verified = 0 
+                         ORDER BY created_at DESC";
+
+                SqlCommand cmd = new SqlCommand(query, conn);
+                cmd.Parameters.AddWithValue("@Email", email);
+                cmd.Parameters.AddWithValue("@OTP", otp);
+                SqlDataReader reader = cmd.ExecuteReader();
+
+                if (reader.Read())
+                {
+                    DateTime createdAt = Convert.ToDateTime(reader["created_at"]);
+                    if ((DateTime.Now - createdAt).TotalSeconds <= 120)
+                    {
+                        reader.Close();
+
+                        string update = "UPDATE customers.tbl_email_otp SET is_verified = 1 WHERE email = @Email AND otp_code = @OTP";
+                        SqlCommand updateCmd = new SqlCommand(update, conn);
+                        updateCmd.Parameters.AddWithValue("@Email", email);
+                        updateCmd.Parameters.AddWithValue("@OTP", otp);
+                        updateCmd.ExecuteNonQuery();
+
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
     }
 }

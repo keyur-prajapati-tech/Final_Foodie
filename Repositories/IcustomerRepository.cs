@@ -153,5 +153,9 @@ namespace Foodie.Repositories
         UserOrder GetOrderTrackingDetails(int orderId, int userId);
         List<OrderStatusHistoryViewModel> GetOrderStatusHistory(int orderId);
         DeliveryPartnerInfo GetDeliveryPartnerInfo(int orderId);
+
+        /*--------------Forgot Password------------------*/
+        void SaveOTP(string email, string otp);
+        bool isValidateOTP(string email, string otp);
     }
 }

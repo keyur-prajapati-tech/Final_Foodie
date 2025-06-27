@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
 
-    <link rel="icon" href="https://cdn.iconscout.com/icon/free/png-256/zomato-1937646-1637644.png" />
+    @* <link rel="icon" href="https://cdn.iconscout.com/icon/free/png-256/zomato-1937646-1637644.png" /> *@
 
     <style>
         * {
@@ -435,7 +435,7 @@
                 </div>
                 <ul>
 
-                    <li><a asp-area="" asp-controller="Login" asp-action="Login">Admin</a></li>
+                    @* <li><a asp-area="" asp-controller="Login" asp-action="Login">Admin</a></li> *@
                     <li><a asp-area="" asp-controller="AddRestaurant" asp-action="home">Add Restaurant</a></li>
                     <li><a asp-area="" asp-controller="DeliverSignup" asp-action="DeliveryRegister">Add Delivery Partner</a></li>
 
@@ -507,12 +507,82 @@
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Login</button>
                     </form>
+
                     <div class="text-center mt-2">
                         <span>Or</span>
                         <button class="btn btn-dark w-100 mt-2 fw-bold" onclick="googleLogin()">Login with Google</button>
                     </div>
+                    <button id="forgot_pass" class="btn btn-link mt-2">Forgot password</button>
+                    <br/>
                     <p class="text-center mt-3">Don't have an account? <a href="#" id="openRegister">Register now</a></p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- OTP Modal -->
+    <div class="modal fade" id="otpModal" tabindex="-1" aria-labelledby="otpModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="otpModalLabel">Email OTP Verification</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="alert-box" style="display: none;">
+                        <div class="alert alert-success" id="success-msg" style="display: none;"></div>
+                        <div class="alert alert-danger" id="error-msg" style="display: none;"></div>
+                    </div>
+                    <div id="email-section">
+                        <form id="send-otp-form">
+                            <div class="mb-3">
+                                <label for="otp-email-input" class="form-label">Email address</label>
+                                <input type="email" name="Email" id="otp-email-input" class="form-control" placeholder="Enter your email" required />
+                            </div>
+                            <button type="submit" class="btn btn-primary">Send OTP</button>
+                        </form>
+                    </div>
+                    <div id="otp-section" style="display: none;">
+                        <form id="verify-otp-form">
+                            <input type="hidden" name="Email" id="otp-email" />
+                            <div class="mb-3">
+                                <label for="otp-input">Enter OTP</label>
+                                <input type="text" name="otp" id="otp-input" class="form-control" placeholder="Enter OTP" required />
+                            </div>
+                            <button type="submit" class="btn btn-success">Verify</button>
+                        </form>
+                        <button id="resend-otp" class="btn btn-link mt-2">Resend OTP</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div class="modal fade" id="resetPasswordModal" tabindex="-1" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="post" action="/Login/ResetPassword" id="reset-password-form">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Update Password</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="email" id="reset-password-email" />
+                        <div class="mb-3">
+                            <label for="newPassword" class="form-label">New Password</label>
+                            <input type="password" name="newPassword" id="newPassword" class="form-control" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="confirmPassword" class="form-label">Confirm Password</label>
+                            <input type="password" id="confirmPassword" class="form-control" required />
+                            <div id="password-error" class="text-danger" style="display:none;">Passwords do not match</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-success">Update Password</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
@@ -826,6 +896,132 @@
                     }
                 });
             });
+        });
+
+        // Handle Forgot Password Logic
+        $(document).ready(function () {
+            // Initialize forgot password click handler
+            $('#forgot_pass').click(function (e) {
+                e.preventDefault();
+                $('#loginModal').modal('hide');
+
+                // Reset and show OTP modal
+                setTimeout(() => {
+                    $('#otpModal').modal('show');
+                    $('#email-section').show();
+                    $('#otp-section').hide();
+                    $('#alert-box').hide();
+                    $('#send-otp-form')[0].reset();
+                }, 300);
+            });
+
+            // Prevent non-numeric input on OTP textbox
+            $('#otp-input').on('keypress', function (e) {
+                var charCode = e.which ? e.which : e.keyCode;
+                if (charCode < 48 || charCode > 57) {
+                    e.preventDefault();
+                }
+            });
+
+            // Prevent pasting non-numeric values into OTP
+            $('#otp-input').on('paste', function (e) {
+                var pastedData = (e.originalEvent || e).clipboardData.getData('text/plain');
+                if (!/^\d+$/.test(pastedData)) {
+                    e.preventDefault();
+                }
+            });
+
+            $('#otp-input').on('input', function () {
+                let val = $(this).val();
+                val = val.replace(/\D/g, '').slice(0, 6);
+                $(this).val(val);
+            });
+
+            // Send OTP Form
+            $('#send-otp-form').submit(function (e) {
+                e.preventDefault();
+                var email = $('#otp-email-input').val();
+                $.post('/Locality/sendemailpage', { Email: email }, function (response) {
+                    if (response.success) {
+                        $('#success-msg').text('OTP sent successfully.').show();
+                        $('#error-msg').hide();
+                        $('#email-section').hide();
+                        $('#otp-section').show();
+                        $('#otp-email').val(email);
+                    } else {
+                        $('#error-msg').text(response.message || 'Failed to send OTP.').show();
+                        $('#success-msg').hide();
+                    }
+                    $('#alert-box').show();
+                }).fail(function () {
+                    $('#error-msg').text('An error occurred while sending OTP.').show();
+                    $('#success-msg').hide();
+                    $('#alert-box').show();
+                });
+            });
+
+            // Verify OTP Form
+            $('#verify-otp-form').submit(function (e) {
+                e.preventDefault();
+                var otp = $('#otp-input').val().trim();
+                var email = $('#otp-email').val();
+                if (!otp) {
+                    showError('Please enter the OTP.');
+                    return;
+                }
+                if (!/^\d+$/.test(otp)) {
+                    showError('OTP must contain only numbers.');
+                    return;
+                }
+                $.post('/Locality/Verify', { Email: email, otp: otp }, function (response) {
+                    if (response.success) {
+                        $('#otpModal').modal('hide');
+                        $('#resetPasswordModal').modal('show');
+                        $('#reset-password-email').val(response.email);
+                    } else {
+                        showError(response.message || 'Invalid OTP.');
+                    }
+                }).fail(function () {
+                    showError('An error occurred while verifying OTP.');
+                });
+            });
+
+            // Resend OTP
+            $('#resend-otp').click(function () {
+                var email = $('#otp-email').val();
+                $.post('/Locality/sendemailpage', { Email: email }, function (response) {
+                    if (response.success) {
+                        $('#success-msg').text('OTP resent successfully.').show();
+                        $('#error-msg').hide();
+                    } else {
+                        $('#error-msg').text(response.message || 'Failed to resend OTP.').show();
+                        $('#success-msg').hide();
+                    }
+                    $('#alert-box').show();
+                }).fail(function () {
+                    $('#error-msg').text('An error occurred while resending OTP.').show();
+                    $('#success-msg').hide();
+                    $('#alert-box').show();
+                });
+            });
+
+            // Password Match Check
+            $('#reset-password-form').submit(function (e) {
+                var newPassword = $('#newPassword').val();
+                var confirmPassword = $('#confirmPassword').val();
+                if (newPassword !== confirmPassword) {
+                    $('#password-error').show();
+                    e.preventDefault();
+                } else {
+                    $('#password-error').hide();
+                }
+            });
+
+            function showError(message) {
+                $('#error-msg').text(message).show();
+                $('#success-msg').hide();
+                $('#alert-box').show();
+            }
         });
 
         //Handle Register alert and data
